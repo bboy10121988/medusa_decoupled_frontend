@@ -60,7 +60,7 @@ export const setAuthToken = async (token: string) => {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // 暫時設為 false 以支援 HTTP 環境
   })
 }
 
@@ -82,7 +82,7 @@ export const setCartId = async (cartId: string) => {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // 暫時設為 false 以支援 HTTP 環境
   })
 }
 

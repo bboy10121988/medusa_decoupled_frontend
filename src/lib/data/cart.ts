@@ -67,6 +67,8 @@ export async function getOrSetCart(countryCode: string) {
     throw new Error(`Region not found for country code: ${countryCode}`)
   }
 
+  console.log("🌍 區域資訊:", { regionId: region.id, countryCode })
+
   let cart = await retrieveCart()
 
   const headers = {
@@ -74,6 +76,7 @@ export async function getOrSetCart(countryCode: string) {
   }
 
   if (!cart) {
+    console.log("🆕 建立新購物車...")
     try {
       const cartResp = await sdk.store.cart.create(
         { region_id: region.id },
@@ -82,21 +85,29 @@ export async function getOrSetCart(countryCode: string) {
       )
       cart = cartResp.cart
 
+      console.log("✅ 購物車建立成功:", { cartId: cart.id })
+
       await setCartId(cart.id)
+      console.log("🍪 Cart ID 已設定到 cookies:", cart.id)
 
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
     } catch (error) {
+      console.error("❌ 建立購物車失敗:", error)
       throw error
     }
+  } else {
+    console.log("♻️ 使用現有購物車:", { cartId: cart.id })
   }
 
   if (cart && cart?.region_id !== region.id) {
+    console.log("🔄 更新購物車區域...")
     try {
       await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers)
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
     } catch (error) {
+      console.error("❌ 更新購物車區域失敗:", error)
       throw error
     }
   }
