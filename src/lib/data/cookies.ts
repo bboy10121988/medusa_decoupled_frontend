@@ -12,6 +12,11 @@ export const getAuthHeaders = async (): Promise<
       return {}
     }
 
+    // 如果是 Google OAuth token，不返回授權標頭
+    if (token.startsWith('google_oauth:') || token.startsWith('medusa_google_')) {
+      return {}
+    }
+
     return { authorization: `Bearer ${token}` }
   } catch {
     return {}

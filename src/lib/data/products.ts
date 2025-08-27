@@ -28,49 +28,34 @@ export const listProducts = async ({
 
   const limit = queryParams?.limit || 12
   const _pageParam = Math.max(pageParam, 1)
-  const offset = (_pageParam === 1) ? 0 : (_pageParam - 1) * limit;
+  const offset = (_pageParam - 1) * limit
 
-  let region: HttpTypes.StoreRegion | undefined | null
-
-  if (countryCode) {
-    region = await getRegion(countryCode)
-  } else {
-    region = await retrieveRegion(regionId!)
-  }
+  const region = regionId
+    ? await retrieveRegion(regionId)
+    : countryCode
+    ? await getRegion(countryCode)
+    : null
 
   if (!region) {
-    return {
-      response: { products: [], count: 0 },
-      nextPage: null,
-    }
-  }
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
-
-  const next = {
-    ...(await getCacheOptions("products")),
+    throw new Error("Could not find region")
   }
 
   return sdk.client
-    .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
-      `/store/products`,
-      {
-        method: "GET",
-        query: {
-          limit,
-          offset,
-          region_id: region?.id,
-          fields:
-            "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
-          ...queryParams,
-        },
-        headers,
-        next,
-        cache: "force-cache",
-      }
-    )
+    .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(`/store/products`, {
+      method: "GET",
+      query: {
+        ...queryParams,
+        limit,
+        offset,
+        region_id: region.id,
+        fields: "*options.values,*variants.options.option,+variants.inventory_quantity,+metadata",
+      },
+      headers: {
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+      },
+      next: { revalidate: 0 },
+      cache: "no-store",
+    })
     .then(({ products, count }) => {
       const nextPage = count > offset + limit ? pageParam + 1 : null
 
@@ -86,8 +71,9 @@ export const listProducts = async ({
 }
 
 /**
- * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
+ * This will fetch 100 products and sort them based on the sortBy parameter.
  * It will then return the paginated products based on the page and limit parameters.
+ * No caching is used to ensure data is always fresh.
  */
 export const listProductsWithSort = async ({
   page = 0,
@@ -133,4 +119,52 @@ export const listProductsWithSort = async ({
     nextPage,
     queryParams,
   }
+}
+
+/**
+ * 獲取單一產品的詳細資訊，並確保包含庫存資訊
+ */
+export const getProduct = async ({
+  handle,
+  countryCode,
+  regionId,
+}: {
+  handle: string
+  countryCode?: string
+  regionId?: string
+}): Promise<HttpTypes.StoreProduct> => {
+  if (!countryCode && !regionId) {
+    throw new Error("Country code or region ID is required")
+  }
+
+  const region = regionId
+    ? await retrieveRegion(regionId)
+    : countryCode
+    ? await getRegion(countryCode)
+    : null
+
+  if (!region) {
+    throw new Error("Could not find region")
+  }
+
+  return sdk.client
+    .fetch<{ products: HttpTypes.StoreProduct[] }>(`/store/products`, {
+      method: "GET",
+      query: {
+        handle,
+        region_id: region.id,
+        fields: "*options.values,*variants.options.option,+variants.inventory_quantity,+metadata",
+      },
+      headers: {
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+      },
+      next: { revalidate: 0 },
+      cache: "no-store",
+    })
+    .then(({ products }) => {
+      if (products.length === 0) {
+        throw new Error(`Product with handle: ${handle} was not found`);
+      }
+      return products[0];
+    })
 }

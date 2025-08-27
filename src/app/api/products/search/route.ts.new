@@ -1,0 +1,86 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { sdk } from "@lib/config"
+
+export const maxDuration = 10 // 設置函數的最大執行時間為10秒
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const query = searchParams.get('q')
+  
+  if (!query || query.length < 2) {
+    return NextResponse.json(
+      { message: '搜尋詞過短', products: [] },
+      { status: 400 }
+    )
+  }
+
+  try {
+    // 獲取預設區域
+    const defaultRegionResponse = await sdk.client.fetch(`/store/regions?limit=1`, {
+      method: "GET",
+      headers: {
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+      }
+    })
+
+    if (!defaultRegionResponse?.regions || defaultRegionResponse.regions.length === 0) {
+      return NextResponse.json(
+        { message: '無法獲取區域資訊', products: [] },
+        { status: 500 }
+      )
+    }
+
+    const defaultRegion = defaultRegionResponse.regions[0]
+
+    // 搜尋產品
+    const productsResponse = await sdk.client.fetch(`/store/products`, {
+      method: "GET",
+      query: {
+        q: query,
+        limit: 10,
+        region_id: defaultRegion.id,
+        fields: "handle,id,title,thumbnail,variants,options,variants.title,variants.prices",
+      },
+      headers: {
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+      }
+    })
+
+    // 格式化產品數據，只保留需要的欄位
+    const formattedProducts = productsResponse.products.map((product: any) => {
+      const variants = product.variants || []
+      const lowestPriceVariant = variants.length > 0 ? 
+        variants.reduce((lowest: any, current: any) => {
+          if (!lowest) return current
+          
+          const lowestPrice = lowest.prices?.[0]?.amount || Number.MAX_SAFE_INTEGER
+          const currentPrice = current.prices?.[0]?.amount || Number.MAX_SAFE_INTEGER
+          
+          return currentPrice < lowestPrice ? current : lowest
+        }, null) : null
+
+      const calculatedPrice = lowestPriceVariant?.prices?.[0]?.amount || 0
+      const originalPrice = lowestPriceVariant?.prices?.[0]?.original_amount || 0
+
+      return {
+        id: product.id,
+        title: product.title,
+        handle: product.handle,
+        thumbnail: product.thumbnail,
+        price: {
+          calculated_price: `NT$${(calculatedPrice / 100).toFixed(0)}`,
+          original_price: originalPrice > 0 && originalPrice !== calculatedPrice ? 
+            `NT$${(originalPrice / 100).toFixed(0)}` : undefined
+        }
+      }
+    })
+
+    return NextResponse.json({ products: formattedProducts })
+  } catch (error) {
+    console.error('搜尋商品時出錯:', error)
+    return NextResponse.json(
+      { message: '搜尋商品時出錯', error: (error as Error).message },
+      { status: 500 }
+    )
+  }
+}

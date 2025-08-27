@@ -15,12 +15,22 @@ export const convertToLocale = ({
   maximumFractionDigits,
   locale = "en-US",
 }: ConvertToLocaleParams) => {
-  return currency_code && !isEmpty(currency_code)
-    ? new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency: currency_code,
-        minimumFractionDigits,
-        maximumFractionDigits,
-      }).format(amount)
-    : amount.toString()
+  if (!currency_code || isEmpty(currency_code)) {
+    return amount.toString()
+  }
+
+  // 對於台幣，使用自定義格式顯示 NT$
+  if (currency_code.toUpperCase() === 'TWD') {
+    return `NT$${amount.toLocaleString('zh-TW', {
+      minimumFractionDigits: minimumFractionDigits ?? 0,
+      maximumFractionDigits: maximumFractionDigits ?? 0,
+    })}`
+  }
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency_code,
+    minimumFractionDigits,
+    maximumFractionDigits,
+  }).format(amount)
 }

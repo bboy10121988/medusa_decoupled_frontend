@@ -49,15 +49,35 @@ export const getRegion = async (countryCode: string) => {
       return null
     }
 
+    // 建立硬編碼的 countryCode -> region 映射
+    const hardcodedMapping: Record<string, string> = {
+      "tw": "Taiwan",  // 更新為正確的地區名稱
+      "us": "United States", 
+      "eu": "Europe"
+    }
+
+    // 先嘗試使用 countries 資料建立映射
     regions.forEach((region) => {
       region.countries?.forEach((c) => {
         regionMap.set(c?.iso_2 ?? "", region)
       })
     })
 
+    // 如果 countries 為空或找不到對應的地區，使用硬編碼映射
+    if (regionMap.size === 0 || !regionMap.has(countryCode)) {
+      regions.forEach((region) => {
+        const regionName = region.name
+        for (const [code, name] of Object.entries(hardcodedMapping)) {
+          if (regionName === name) {
+            regionMap.set(code, region)
+          }
+        }
+      })
+    }
+
     const region = countryCode
-      ? regionMap.get(countryCode)
-      : regionMap.get("us")
+      ? regionMap.get(countryCode) || regionMap.get("tw")  // 預設使用台灣而不是美國
+      : regionMap.get("tw")
 
     return region
   } catch (e: any) {

@@ -46,6 +46,18 @@ module.exports = {
       maxWidth: {
         "8xl": "100rem",
       },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateY(0)' },
+          '25%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-100%)' },
+          '75%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(-200%)' },
+        },
+      },
+      animation: {
+        marquee: 'marquee 9s ease-in-out infinite',
+      },
       screens: {
         "2xsmall": "320px",
         xsmall: "512px",

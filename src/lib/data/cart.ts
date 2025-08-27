@@ -24,6 +24,7 @@ export async function retrieveCart(cartId?: string) {
   const id = cartId || (await getCartId())
 
   if (!id) {
+    // 這是正常情況 - 新用戶還沒有購物車
     return null
   }
 
@@ -40,14 +41,23 @@ export async function retrieveCart(cartId?: string) {
       method: "GET",
       query: {
         fields:
-          "*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name",
+          "*items, *region, *items.product, *items.variant, *items.variant.options, *items.variant.options.option, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name",
       },
       headers,
       next,
-      cache: "force-cache",
+      cache: "no-store", // 不緩存購物車資料，確保每次都是最新的
     })
     .then(({ cart }) => cart)
-    .catch(() => null)
+    .catch((error) => {
+      // 只在真正的錯誤時記錄，而不是沒有購物車時
+      if (error.status !== 404) {
+        // 在開發環境才顯示錯誤
+        if (process.env.NODE_ENV === 'development') {
+          console.error("❌ retrieveCart 失敗:", error)
+        }
+      }
+      return null
+    })
 }
 
 export async function getOrSetCart(countryCode: string) {
@@ -64,23 +74,31 @@ export async function getOrSetCart(countryCode: string) {
   }
 
   if (!cart) {
-    const cartResp = await sdk.store.cart.create(
-      { region_id: region.id },
-      {},
-      headers
-    )
-    cart = cartResp.cart
+    try {
+      const cartResp = await sdk.store.cart.create(
+        { region_id: region.id },
+        {},
+        headers
+      )
+      cart = cartResp.cart
 
-    await setCartId(cart.id)
+      await setCartId(cart.id)
 
-    const cartCacheTag = await getCacheTag("carts")
-    revalidateTag(cartCacheTag)
+      const cartCacheTag = await getCacheTag("carts")
+      revalidateTag(cartCacheTag)
+    } catch (error) {
+      throw error
+    }
   }
 
   if (cart && cart?.region_id !== region.id) {
-    await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers)
-    const cartCacheTag = await getCacheTag("carts")
-    revalidateTag(cartCacheTag)
+    try {
+      await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers)
+      const cartCacheTag = await getCacheTag("carts")
+      revalidateTag(cartCacheTag)
+    } catch (error) {
+      throw error
+    }
   }
 
   return cart
@@ -124,34 +142,40 @@ export async function addToCart({
     throw new Error("Missing variant ID when adding to cart")
   }
 
-  const cart = await getOrSetCart(countryCode)
+  try {
+    const cart = await getOrSetCart(countryCode)
 
-  if (!cart) {
-    throw new Error("Error retrieving or creating cart")
+    if (!cart) {
+      throw new Error("Error retrieving or creating cart")
+    }
+
+    const headers = {
+      ...(await getAuthHeaders()),
+    }
+
+    await sdk.store.cart
+      .createLineItem(
+        cart.id,
+        {
+          variant_id: variantId,
+          quantity,
+        },
+        {},
+        headers
+      )
+      .then(async (response) => {
+        const cartCacheTag = await getCacheTag("carts")
+        revalidateTag(cartCacheTag)
+
+        const fulfillmentCacheTag = await getCacheTag("fulfillment")
+        revalidateTag(fulfillmentCacheTag)
+      })
+      .catch((error) => {
+        throw error
+      })
+  } catch (error) {
+    throw error
   }
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
-
-  await sdk.store.cart
-    .createLineItem(
-      cart.id,
-      {
-        variant_id: variantId,
-        quantity,
-      },
-      {},
-      headers
-    )
-    .then(async () => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
-
-      const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
-    })
-    .catch(medusaError)
 }
 
 export async function updateLineItem({
@@ -256,15 +280,18 @@ export async function applyPromotions(codes: string[]) {
   const cartId = await getCartId()
 
   if (!cartId) {
-    throw new Error("No existing cart found")
+    throw new Error("無法獲取購物車 ID，請先添加商品到購物車")
   }
+
+  // 確保 codes 是有效的字符串數組
+  const validCodes = codes.filter(code => typeof code === 'string' && code.trim() !== '')
 
   const headers = {
     ...(await getAuthHeaders()),
   }
 
   return sdk.store.cart
-    .update(cartId, { promo_codes: codes }, {}, headers)
+    .update(cartId, { promo_codes: validCodes }, {}, headers)
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
@@ -272,7 +299,9 @@ export async function applyPromotions(codes: string[]) {
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
     })
-    .catch(medusaError)
+    .catch((error) => {
+      throw medusaError(error)
+    })
 }
 
 export async function applyGiftCard(code: string) {
@@ -452,6 +481,12 @@ export async function updateRegion(countryCode: string, currentPath: string) {
 
 export async function listCartOptions() {
   const cartId = await getCartId()
+  
+  // 如果沒有購物車 ID，返回空的運送選項
+  if (!cartId) {
+    return { shipping_options: [] }
+  }
+  
   const headers = {
     ...(await getAuthHeaders()),
   }
@@ -466,5 +501,7 @@ export async function listCartOptions() {
     next,
     headers,
     cache: "force-cache",
+  }).catch(() => {
+    return { shipping_options: [] }
   })
 }

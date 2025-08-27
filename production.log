@@ -1,0 +1,13 @@
+   ▲ Next.js 15.3.1
+   - Local:        http://localhost:8000
+   - Network:      http://10.140.0.3:8000
+
+ ✓ Starting...
+ ✓ Ready in 902ms
+Error: Middleware.ts: Error fetching regions. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL.
+    at td (.next/server/src/middleware.js:13:40166)
+    at th (.next/server/src/middleware.js:13:41340)
+    at handler (.next/server/src/middleware.js:13:42250)
+    at <unknown> (.next/server/src/middleware.js:13:37425)
+    at <unknown> (.next/server/src/middleware.js:13:37412)
+    at async ti (.next/server/src/middleware.js:13:33929)

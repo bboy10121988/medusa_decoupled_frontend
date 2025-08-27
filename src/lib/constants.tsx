@@ -30,6 +30,31 @@ export const paymentInfoMap: Record<
     title: "Manual Payment",
     icon: <CreditCard />,
   },
+  // ECPay 付款方式
+  ecpay_credit_card: {
+    title: "線上刷卡",
+    icon: <CreditCard />,
+  },
+  ecpay_atm: {
+    title: "ATM 轉帳",
+    icon: <CreditCard />,
+  },
+  ecpay_barcode: {
+    title: "超商代碼繳費",
+    icon: <CreditCard />,
+  },
+  ecpay_linepay: {
+    title: "LINE Pay",
+    icon: <CreditCard />,
+  },
+  ecpay_jkopay: {
+    title: "街口支付",
+    icon: <CreditCard />,
+  },
+  ecpay_store_payment: {
+    title: "超商付款",
+    icon: <CreditCard />,
+  },
   // Add more payment providers here
 }
 
@@ -42,6 +67,11 @@ export const isPaypal = (providerId?: string) => {
 }
 export const isManual = (providerId?: string) => {
   return providerId?.startsWith("pp_system_default")
+}
+
+// Check if it's ECPay payment
+export const isECPay = (providerId?: string) => {
+  return providerId?.startsWith("ecpay_")
 }
 
 // Add currencies that don't need to be divided by 100
