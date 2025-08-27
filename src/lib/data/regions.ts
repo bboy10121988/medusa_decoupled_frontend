@@ -49,12 +49,8 @@ export const getRegion = async (countryCode: string) => {
       return null
     }
 
-    // 建立硬編碼的 countryCode -> region 映射
-    const hardcodedMapping: Record<string, string> = {
-      "tw": "Taiwan",  // 更新為正確的地區名稱
-      "us": "United States", 
-      "eu": "Europe"
-    }
+    // 從環境變數取得預設地區，如果沒有則使用 tw
+    const defaultRegion = process.env.NEXT_PUBLIC_DEFAULT_REGION || "tw"
 
     // 先嘗試使用 countries 資料建立映射
     regions.forEach((region) => {
@@ -63,24 +59,41 @@ export const getRegion = async (countryCode: string) => {
       })
     })
 
-    // 如果 countries 為空或找不到對應的地區，使用硬編碼映射
-    if (regionMap.size === 0 || !regionMap.has(countryCode)) {
-      regions.forEach((region) => {
-        const regionName = region.name
-        for (const [code, name] of Object.entries(hardcodedMapping)) {
-          if (regionName === name) {
-            regionMap.set(code, region)
-          }
-        }
-      })
+    // 如果找到了基於 ISO 代碼的對應，直接返回
+    if (regionMap.has(countryCode)) {
+      console.log(`✅ 找到地區映射: ${countryCode} -> ${regionMap.get(countryCode)?.name}`)
+      return regionMap.get(countryCode)
     }
 
-    const region = countryCode
-      ? regionMap.get(countryCode) || regionMap.get("tw")  // 預設使用台灣而不是美國
-      : regionMap.get("tw")
+    // 如果沒有找到，嘗試從環境變數獲取特定地區 ID
+    const regionIdKey = `NEXT_PUBLIC_REGION_${countryCode.toUpperCase()}`
+    const regionId = process.env[regionIdKey]
+    
+    if (regionId) {
+      const region = regions.find(r => r.id === regionId)
+      if (region) {
+        regionMap.set(countryCode, region)
+        console.log(`✅ 透過環境變數找到地區: ${countryCode} -> ${region.name} (${regionId})`)
+        return region
+      }
+    }
 
-    return region
+    // 如果沒有找到，嘗試使用預設地區
+    if (regionMap.has(defaultRegion)) {
+      console.log(`⚠️  使用預設地區: ${defaultRegion} -> ${regionMap.get(defaultRegion)?.name}`)
+      return regionMap.get(defaultRegion)
+    }
+
+    // 最後的備用方案：返回第一個可用的地區
+    if (regions.length > 0) {
+      console.log(`⚠️  使用第一個可用地區: ${regions[0].name}`)
+      return regions[0]
+    }
+
+    return null
+
   } catch (e: any) {
+    console.error("獲取地區時發生錯誤:", e)
     return null
   }
 }

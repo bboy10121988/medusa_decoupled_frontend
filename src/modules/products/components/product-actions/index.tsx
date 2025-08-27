@@ -93,6 +93,16 @@ export default function ProductActions({
     return false
   }, [selectedVariant])
 
+  // 檢查選中的變體是否有價格設定
+  const hasPrice = useMemo(() => {
+    if (!selectedVariant) {
+      return false
+    }
+    
+    // 檢查是否有 calculated_price
+    return !!(selectedVariant as any).calculated_price?.calculated_amount
+  }, [selectedVariant])
+
   const actionsRef = useRef<HTMLDivElement>(null)
 
   const inView = useIntersection(actionsRef, "0px")
@@ -186,6 +196,7 @@ export default function ProductActions({
           disabled={
             !inStock ||
             !selectedVariant ||
+            !hasPrice ||
             !!disabled ||
             isAdding ||
             !isValidVariant
@@ -196,17 +207,19 @@ export default function ProductActions({
           data-testid="add-product-button"
         >
           {!selectedVariant && !options
-            ? "Select variant"
+            ? "選擇規格"
+            : !hasPrice
+            ? "此地區暫無價格"
             : !inStock || !isValidVariant
-            ? "Out of stock"
-            : "Add to cart"}
+            ? "缺貨"
+            : "加入購物車"}
         </Button>
         <MobileActions
           product={product}
           variant={selectedVariant}
           options={options}
           updateOptions={setOptionValue}
-          inStock={inStock}
+          inStock={inStock && hasPrice}
           handleAddToCart={handleAddToCart}
           isAdding={isAdding}
           show={!inView}
