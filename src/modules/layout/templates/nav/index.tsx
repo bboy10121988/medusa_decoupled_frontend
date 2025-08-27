@@ -192,20 +192,20 @@ export default async function Nav() {
                       <a
                         key={uniqueKey}
                         href={processedHref}
-                        className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <span className="!text-[13px] !font-medium !leading-none">{name}</span>
+                        <span className="!text-xs !font-medium !leading-none">{name}</span>
                       </a>
                     ) : (
                       <LocalizedClientLink
                         key={uniqueKey}
                         href={processedHref}
-                        className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
                         data-testid={`${name.toLowerCase()}-link`}
                       >
-                        <span className="!text-[13px] !font-medium !leading-none">{name}</span>
+                        <span className="!text-xs !font-medium !leading-none">{name}</span>
                       </LocalizedClientLink>
                     )
                   })}
@@ -258,7 +258,7 @@ export default async function Nav() {
                 <div className="flex lg:hidden items-center gap-x-3">
                   {/* 只有圖標的帳戶按鈕 */}
                   <LocalizedClientLink
-                    className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center"
+                    className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center"
                     href="/account"
                     data-testid="nav-account-link-mobile"
                   >
@@ -272,7 +272,7 @@ export default async function Nav() {
                   <Suspense
                     fallback={
                       <LocalizedClientLink
-                        className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center"
                         href="/cart"
                         data-testid="nav-cart-link-mobile"
                       >
@@ -346,20 +346,20 @@ export default async function Nav() {
                       <a
                         key={uniqueKey}
                         href={processedHref}
-                        className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <span className="!text-[13px] !font-medium !leading-none">{name}</span>
+                        <span className="!text-xs !font-medium !leading-none">{name}</span>
                       </a>
                     ) : (
                       <LocalizedClientLink
                         key={uniqueKey}
                         href={processedHref}
-                        className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
                         data-testid={`${name.toLowerCase()}-link`}
                       >
-                        <span className="!text-[13px] !font-medium !leading-none">{name}</span>
+                        <span className="!text-xs !font-medium !leading-none">{name}</span>
                       </LocalizedClientLink>
                     )
                   })}
@@ -370,7 +370,7 @@ export default async function Nav() {
                   <Suspense
                     fallback={
                       <LocalizedClientLink
-                        className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center gap-2"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center gap-2"
                         href="/cart"
                         data-testid="nav-cart-link"
                       >
@@ -379,7 +379,7 @@ export default async function Nav() {
                           <line x1="3" y1="6" x2="21" y2="6"></line>
                           <path d="M16 10a4 4 0 0 1-8 0"></path>
                         </svg>
-                        <span className="!text-[13px] !font-medium !leading-none">購物車 (0)</span>
+                        <span className="!text-xs !font-medium !leading-none">購物車 (0)</span>
                       </LocalizedClientLink>
                     }
                   >
@@ -393,15 +393,15 @@ export default async function Nav() {
 
         {/* 3. 分類導覽列 - 在漢堡選單模式隱藏 */}
         <div className="hidden lg:block border-b border-ui-border-base bg-white shadow-sm">
-          <div className="px-6 md:px-12 max-w-[1440px] mx-auto flex justify-between items-center py-2 text-sm text-neutral-600">
+          <div className="px-6 md:px-12 max-w-[1440px] mx-auto flex justify-between items-center py-2 text-xs text-neutral-600">
             <div className="flex items-center gap-x-6">
               {categories?.map((category: {id: string; handle: string; name: string}) => (
                 <LocalizedClientLink
                   key={category.id}
                   href={`/categories/${category.handle}`}
-                  className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+                  className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
                 >
-                  <span className="!text-[13px] !font-medium !leading-none">{category.name}</span>
+                  <span className="!text-xs !font-medium !leading-none">{category.name}</span>
                 </LocalizedClientLink>
               ))}
             </div>
@@ -427,7 +427,7 @@ export default async function Nav() {
         >
           <path d="M2 6.25c0-2.208 1.792-4 4-4h8c2.208 0 4 1.792 4 4v5.5c0 2.208-1.792 4-4 4h-2.646L8 18.938V15.75H6c-2.208 0-4-1.792-4-4v-5.5z"/>
         </svg>
-        <span className="text-white text-sm font-medium tracking-wide">幫助</span>
+        <span className="text-white text-xs font-medium tracking-wide">幫助</span>
       </a>
     </>
   )

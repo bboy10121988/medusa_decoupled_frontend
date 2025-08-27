@@ -64,7 +64,7 @@ export default function CartButton() {
       {/* 桌機版 - 按鈕顯示下拉選單 */}
       <button 
         onClick={() => setShowDropdown(!showDropdown)}
-        className="hidden lg:flex items-center gap-2 text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+        className="hidden lg:flex items-center gap-2 text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
         aria-label="購物車"
       >
         <div className="relative">
@@ -80,7 +80,7 @@ export default function CartButton() {
             </span>
           )}
         </div>
-        <span className="!text-[13px] !font-medium !leading-none">
+        <span className="!text-xs !font-medium !leading-none">
           購物車
         </span>
       </button>
@@ -88,7 +88,7 @@ export default function CartButton() {
       {/* 手機版 - 連結直接跳轉到購物車頁面 */}
       <LocalizedClientLink
         href="/cart"
-        className="lg:hidden flex items-center gap-2 text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+        className="lg:hidden flex items-center gap-2 text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
         aria-label="購物車"
       >
         <div className="relative">

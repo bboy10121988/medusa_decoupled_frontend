@@ -25,7 +25,7 @@ export default function AccountButton() {
 
   return (
     <LocalizedClientLink
-      className="text-[13px] tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center gap-2"
+      className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 flex items-center gap-2"
       href="/account"
       data-testid="nav-account-link"
     >
@@ -33,7 +33,7 @@ export default function AccountButton() {
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
-      <span className="!text-[13px] !font-medium !leading-none">帳戶</span>
+      <span className="!text-xs !font-medium !leading-none">帳戶</span>
     </LocalizedClientLink>
   )
 }

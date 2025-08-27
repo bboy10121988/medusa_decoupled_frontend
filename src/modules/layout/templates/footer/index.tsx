@@ -40,13 +40,13 @@ export default async function Footer() {
 
             {/* 商品系列 */}
             <div className="space-y-6">
-              <h3 className="h4">商品系列</h3>
+              <h3 className="text-xs font-semibold">商品系列</h3>
               <ul className="space-y-4">
                 {collections.slice(0, 3).map((collection) => (
                   <li key={collection.id}>
                     <LocalizedClientLink 
                       href={`/collections/${collection.handle}`}
-                      className="text-body-small hover:text-black transition-colors"
+                      className="text-xs hover:text-black transition-colors"
                     >
                       {collection.title}
                     </LocalizedClientLink>
@@ -57,13 +57,13 @@ export default async function Footer() {
 
             {/* 商品分類 */}
             <div className="space-y-6">
-              <h3 className="h4">商品分類</h3>
+              <h3 className="text-xs font-semibold">商品分類</h3>
               <ul className="space-y-4">
                 {productCategories.slice(0, 3).map((category) => (
                   <li key={category.id}>
                     <LocalizedClientLink 
                       href={`/categories/${category.handle}`}
-                      className="text-body-small hover:text-black transition-colors"
+                      className="text-xs hover:text-black transition-colors"
                     >
                       {category.name}
                     </LocalizedClientLink>
@@ -75,14 +75,14 @@ export default async function Footer() {
             {/* 自定義區域 - 從Sanity獲取 */}
             {footer?.sections?.map((section, index) => (
               <div key={index} className="space-y-6">
-                <h3 className="h4">{section.title}</h3>
+                <h3 className="text-xs font-semibold">{section.title}</h3>
                 {section.links && section.links.length > 0 && (
                   <ul className="space-y-4">
                     {section.links.map((link, linkIndex) => (
                       <li key={linkIndex}>
                         <a 
                           href={link.url}
-                          className="text-body-small hover:text-black transition-colors"
+                          className="text-xs hover:text-black transition-colors"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -118,7 +118,7 @@ export default async function Footer() {
                         <a href={footer.socialMedia.line.url} className="text-gray-600 hover:text-black transition-colors" target="_blank" rel="noopener noreferrer">
                           <span className="sr-only">Line</span>
                           <div className="h-6 w-6 flex items-center justify-center">
-                            <span className="font-bold text-sm">LINE</span>
+                            <span className="font-bold text-xs">LINE</span>
                           </div>
                         </a>
                       )}
@@ -145,13 +145,13 @@ export default async function Footer() {
                 {index === 2 && section.customInfo && (
                   <div className="mt-6">
                     {section.customInfo.phone && (
-                      <p className="text-body-small mb-2">電話：<br />{section.customInfo.phone}</p>
+                      <p className="text-xs mb-2">電話：<br />{section.customInfo.phone}</p>
                     )}
                     {section.customInfo.email && (
-                      <p className="text-body-small mb-4">Email：<br />{section.customInfo.email}</p>
+                      <p className="text-xs mb-4">Email：<br />{section.customInfo.email}</p>
                     )}
                     {section.customInfo.text && (
-                      <p className="text-body-small">{section.customInfo.text}</p>
+                      <p className="text-xs">{section.customInfo.text}</p>
                     )}
                   </div>
                 )}
@@ -162,7 +162,7 @@ export default async function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-200 py-8">
-          <div className="text-body-small">
+          <div className="text-xs">
             {copyright}
           </div>
         </div>

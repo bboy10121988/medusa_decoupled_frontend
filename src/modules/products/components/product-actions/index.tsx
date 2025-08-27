@@ -100,43 +100,34 @@ export default function ProductActions({
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
-    if (!selectedVariant?.id) {
-      console.warn('⚠️ 無法加入購物車：沒有選擇變體')
-      return null
-    }
+    if (!selectedVariant?.id) return null
+
+    console.log("🛒 正在加入購物車:", {
+      variantId: selectedVariant.id,
+      quantity: 1,
+      countryCode,
+      selectedVariant
+    })
 
     setIsAdding(true)
 
     try {
-      console.log('🛒 正在加入購物車:', {
-        variantId: selectedVariant.id,
-        variantTitle: selectedVariant.title,
-        quantity: 1,
-        countryCode,
-        productTitle: product.title
-      })
-
       await addToCart({
         variantId: selectedVariant.id,
         quantity: 1,
         countryCode,
       })
-
-      console.log('✅ 成功加入購物車')
+      console.log("✅ 成功加入購物車")
+      console.log("💡 商品已加入購物車！")
       
-      // 可選：添加成功提示
+      // 觸發購物車更新事件
       if (typeof window !== 'undefined') {
-        // 你可以在這裡添加 toast 通知或其他用戶反饋
-        console.log('💡 商品已加入購物車！')
+        window.dispatchEvent(new CustomEvent('cartUpdate'))
+        console.log("🔄 已觸發購物車更新事件")
       }
-      
     } catch (error) {
-      console.error('❌ 加入購物車失敗:', error)
-      
-      // 可選：添加錯誤提示
-      if (typeof window !== 'undefined') {
-        console.error('💥 加入購物車時發生錯誤，請稍後再試')
-      }
+      console.error("❌ 加入購物車失敗:", error)
+      // 可以在這裡添加用戶友好的錯誤提示
     } finally {
       setIsAdding(false)
     }

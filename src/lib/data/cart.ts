@@ -142,12 +142,16 @@ export async function addToCart({
     throw new Error("Missing variant ID when adding to cart")
   }
 
+  console.log("🚀 addToCart 開始:", { variantId, quantity, countryCode })
+
   try {
     const cart = await getOrSetCart(countryCode)
 
     if (!cart) {
       throw new Error("Error retrieving or creating cart")
     }
+
+    console.log("📦 購物車資訊:", { cartId: cart.id, regionId: cart.region_id })
 
     const headers = {
       ...(await getAuthHeaders()),
@@ -164,6 +168,8 @@ export async function addToCart({
         headers
       )
       .then(async (response) => {
+        console.log("✅ 成功創建購物車項目:", response)
+        
         const cartCacheTag = await getCacheTag("carts")
         revalidateTag(cartCacheTag)
 
@@ -171,9 +177,11 @@ export async function addToCart({
         revalidateTag(fulfillmentCacheTag)
       })
       .catch((error) => {
+        console.error("❌ 創建購物車項目失敗:", error)
         throw error
       })
   } catch (error) {
+    console.error("❌ addToCart 失敗:", error)
     throw error
   }
 }
