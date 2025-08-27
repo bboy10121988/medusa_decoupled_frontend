@@ -4,7 +4,7 @@ import type { Footer } from './types/footer'
 import type { BlogPost, FeaturedProduct } from './types/global'
 import type { MainSection } from './types/page-sections'
 import type { PageData } from './types/pages'
-import type { Category } from './types/sanity'
+import type { Category } from '../types/sanity'
 import type { ServiceCards } from './types/service-cards'
 
 const client = createClient({

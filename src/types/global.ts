@@ -1,106 +1,78 @@
-import { StorePrice } from "@medusajs/types"
+// 全域型別定義
+import { HttpTypes } from '@medusajs/types'
 
-export type FeaturedProduct = {
+// Sanity 相關型別
+export interface FeaturedProduct {
   id: string
   title: string
   handle: string
   thumbnail?: string
+  price?: number
+  currency_code?: string
 }
 
-export type VariantPrice = {
-  calculated_price_number: number
-  calculated_price: string
-  original_price_number: number
-  original_price: string
-  currency_code: string
-  price_type: string
-  percentage_diff: string
-}
-
-export type StoreFreeShippingPrice = StorePrice & {
-  target_reached: boolean
-  target_remaining: number
-  remaining_percentage: number
-}
-
-export type SanityHeader = {
-  logo?: {
-    url: string
-    alt: string
+export interface BlogPost {
+  _id: string
+  title: string
+  slug: {
+    current: string
   }
-  storeName?: string
-  logoHeight?: number // 向後兼容的舊欄位
-  logoSize?: {
-    desktop?: number
-    mobile?: number
-  }
-  navigation?: {
-    name: string
-    href: string
-  }[]
-  marquee?: {
-    enabled?: boolean
-    text1?: {
-      enabled?: boolean
-      content?: string
-    }
-    text2?: {
-      enabled?: boolean
-      content?: string
-    }
-    text3?: {
-      enabled?: boolean
-      content?: string
-    }
-    linkUrl?: string
-  pauseOnHover?: boolean
-  }
-}
-
-export type SeoMeta = {
-  seoTitle?: string
-  seoDescription?: string
-  seoKeywords?: string[]
-  canonicalUrl?: string
-  noIndex?: boolean
-  ogTitle?: string
-  ogDescription?: string
-  ogImage?: {
-    asset?: {
+  publishedAt: string
+  _createdAt: string
+  mainImage?: {
+    asset: {
       url: string
     }
-    alt?: string
-    hotspot?: {
-      x: number
-      y: number
-      height: number
-      width: number
-    }
   }
-}
-
-export type BlogPost = {
-  _id: string
-  _type: string
-  title: string
-  slug: string
-  publishedAt: string
-  body: any
-  author: {
-    name: string
-    bio?: string
-    image?: string
-  }
-  mainImage?: string
   categories?: Array<{
     title: string
   }>
+  body?: any[]
+  status?: string
 }
 
-// 添加 Cart 類型以修復 cart-context 錯誤
+// Cart 型別
 export interface Cart {
   id: string
-  items: any[]
+  items: CartItem[]
+  region?: HttpTypes.StoreRegion
   total: number
-  // 根據需要添加更多字段
+  subtotal: number
+  tax_total?: number
+  shipping_total?: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CartItem {
+  id: string
+  title: string
+  description?: string
+  quantity: number
+  unit_price: number
+  total: number
+  variant?: {
+    id: string
+    title: string
+    sku?: string
+  }
+  thumbnail?: string
+}
+
+// 產品型別擴展
+export interface ProductExtended {
+  collection_id?: string
+  tags?: HttpTypes.StoreProductTag[]
+}
+
+// 地區轉換函數
+export interface Region {
+  id: string
+  name: string
+  currency_code: string
+  countries: Array<{
+    id: string
+    iso_2: string
+    display_name: string
+  }>
 }

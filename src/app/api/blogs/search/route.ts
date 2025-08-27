@@ -1,6 +1,6 @@
 // filepath: /Users/raychou/medusa_0525/frontend/src/app/api/blogs/search/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@lib/sanity/utils'
+import { getClient } from '@lib/sanity-utils/utils'
 
 export const maxDuration = 10 // 設置函數的最大執行時間為10秒
 

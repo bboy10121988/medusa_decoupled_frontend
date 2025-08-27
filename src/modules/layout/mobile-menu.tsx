@@ -1,160 +1,220 @@
 "use client"
 
-import { useState } from "react"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useState, useRef, useEffect, useMemo } from "react"
+import { XMarkIcon, Bars3Icon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { StoreRegion } from "@medusajs/types"
-import CountrySelect from "./country-select"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import CountrySelect from "@modules/layout/components/country-select"
+import { SanityHeader } from "../../../types/global"
 
-interface Navigation {
-  name: string
-  href: string
-}
-
-interface Category {
-  id: string
-  handle: string
-  name: string
-}
-
-interface HeaderData {
-  storeName?: string
-  navigation?: Navigation[]
-}
-
-interface MobileMenuProps {
+type MobileMenuProps = {
   regions: StoreRegion[]
-  navigation?: Navigation[]
-  categories?: Category[]
-  headerData?: HeaderData
+  navigation?: Array<{name: string; href: string}>
+  categories?: Array<{id: string; handle: string; name: string}>
+  headerData?: SanityHeader
 }
 
 export default function MobileMenu({ regions, navigation, categories, headerData }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [showSearch, setShowSearch] = useState(false)
+  const [menuTopOffset, setMenuTopOffset] = useState(0)
+  const searchRef = useRef<HTMLInputElement>(null)
 
-  const openMenu = () => setIsOpen(true)
-  const closeMenu = () => setIsOpen(false)
+  // 動態計算選單頂部偏移 - 確保選單緊貼導覽列底部
+  useEffect(() => {
+    const calculateMenuTopOffset = () => {
+      // 直接使用 sticky 導覽列的位置計算
+      const stickyNav = document.querySelector('.sticky.top-0')
+      
+      if (stickyNav) {
+        const stickyNavRect = stickyNav.getBoundingClientRect()
+        // 選單頂部位置 = sticky 導覽列頂部 + sticky 導覽列高度
+        const totalOffset = stickyNavRect.top + stickyNavRect.height
+        
+        setMenuTopOffset(totalOffset)
+        console.log(`📱 選單位置計算: sticky導覽頂部=${stickyNavRect.top}px, 高度=${stickyNavRect.height}px, 選單位置=${totalOffset}px`)
+      }
+    }
+
+    // 初始計算
+    calculateMenuTopOffset()
+
+    // 監聽視窗大小變化
+    window.addEventListener('resize', calculateMenuTopOffset)
+    
+    // 使用 MutationObserver 監聽 DOM 變化
+    const observer = new MutationObserver(() => {
+      // 延遲一點計算，確保 DOM 更新完成
+      setTimeout(calculateMenuTopOffset, 100)
+    })
+    const targetNode = document.body
+    observer.observe(targetNode, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style']
+    })
+
+    return () => {
+      window.removeEventListener('resize', calculateMenuTopOffset)
+      observer.disconnect()
+    }
+  }, [isOpen]) // 當選單開啟時重新計算
+
+  useEffect(() => {
+    if (showSearch && searchRef.current) {
+      searchRef.current.focus()
+    }
+  }, [showSearch])
+
+  useEffect(() => {
+    if (showSearch && searchRef.current) {
+      searchRef.current.focus()
+    }
+  }, [showSearch])
 
   return (
-    <>
-      {/* 漢堡按鈕 */}
+    <div className="block lg:hidden">
       <button
-        type="button"
-        onClick={openMenu}
-        className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
-        aria-label="Open menu"
+        onClick={() => {
+          setIsOpen(true)
+          // 立即重新計算選單位置
+          setTimeout(() => {
+            const stickyNav = document.querySelector('.sticky.top-0')
+            if (stickyNav) {
+              const stickyNavRect = stickyNav.getBoundingClientRect()
+              const totalOffset = stickyNavRect.top + stickyNavRect.height
+              setMenuTopOffset(totalOffset)
+              console.log(`📱 開啟選單時位置: ${totalOffset}px`)
+            }
+          }, 10)
+        }}
+        className="flex items-center justify-center w-8 h-8"
+        aria-label="開啟選單"
       >
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-        </svg>
+        <Bars3Icon className="w-6 h-6" />
       </button>
 
-      {/* 側邊選單背景遮罩 */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-gray-500 bg-opacity-25 z-[110]"
-          onClick={closeMenu}
-        />
-      )}
-
-      {/* 側邊選單 */}
-      <div className={`fixed inset-y-0 left-0 z-[111] w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="flex h-full flex-col overflow-y-scroll py-6">
-          {/* 標題和關閉按鈕 */}
-          <div className="flex items-center justify-between px-4 sm:px-6">
-            <h2 className="text-lg font-semibold text-gray-900">選單</h2>
+          className="fixed inset-x-0 bottom-0 z-[110] bg-white shadow-lg border-t border-gray-200"
+          style={{
+            top: `${menuTopOffset}px`,
+            maxHeight: `calc(100vh - ${menuTopOffset}px)`,
+            overflowY: 'auto'
+          }}
+        >
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex-1"></div>
             <button
-              type="button"
-              className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
-              onClick={closeMenu}
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-center w-8 h-8"
             >
-              <span className="sr-only">關閉選單</span>
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
-
-          {/* 選單內容 */}
-          <div className="mt-6 flex-1 px-4 sm:px-6">
-            <div className="flex flex-col space-y-6">
-              {/* 導航連結 */}
-              {navigation?.map((item) => (
-                <div key={`mobile-nav-${item.name}`}>
-                  <LocalizedClientLink
-                    href={item.href}
-                    className="flex items-center justify-between py-3 text-base font-medium text-gray-900 hover:text-gray-700 border-b border-gray-100"
-                    onClick={closeMenu}
-                  >
-                    <span>{item.name}</span>
-                    <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                    </svg>
-                  </LocalizedClientLink>
+          
+          <div className="p-4 space-y-4">
+            {/* Search */}
+            <div className="flex items-center">
+              {showSearch ? (
+                <div className="relative w-full">
+                  <input
+                    ref={searchRef}
+                    type="text"
+                    placeholder="搜尋商品..."
+                    className="w-full p-2 border rounded-lg"
+                    onBlur={() => setShowSearch(false)}
+                  />
                 </div>
-              ))}
-
-              {/* 商品分類 */}
-              {categories && categories.length > 0 && (
-                <div className="pt-4">
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">商品分類</h3>
-                  <div className="space-y-2">
-                    {categories.map((category) => (
-                      <LocalizedClientLink
-                        key={`mobile-category-${category.id}`}
-                        href={`/categories/${category.handle}`}
-                        className="flex items-center justify-between py-2 text-sm text-gray-900 hover:text-gray-700"
-                        onClick={closeMenu}
-                      >
-                        <span>{category.name}</span>
-                        <svg className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                        </svg>
-                      </LocalizedClientLink>
-                    ))}
-                  </div>
-                </div>
+              ) : (
+                <button 
+                  onClick={() => setShowSearch(true)}
+                  className="p-2"
+                >
+                  <MagnifyingGlassIcon className="w-5 h-5" />
+                </button>
               )}
+            </div>
 
-              {/* 帳戶與購物車 */}
-              <div className="pt-4 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">帳戶</h3>
-                <div className="space-y-2">
-                  <LocalizedClientLink
-                    href="/account"
-                    className="flex items-center justify-between py-2 text-sm text-gray-900 hover:text-gray-700"
-                    onClick={closeMenu}
-                  >
-                    <span>我的帳戶</span>
-                    <svg className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                    </svg>
-                  </LocalizedClientLink>
-                  <LocalizedClientLink
-                    href="/cart"
-                    className="flex items-center justify-between py-2 text-sm text-gray-900 hover:text-gray-700"
-                    onClick={closeMenu}
-                  >
-                    <span>購物車</span>
-                    <svg className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                    </svg>
-                  </LocalizedClientLink>
+            {/* Navigation */}
+            {navigation && navigation.map(({ name, href }, index) => {
+              // 判斷是否為外部連結
+              const isExternal = /^(http|https|www)/.test(href)
+              // 判斷是否為首頁連結 (支援 / 和 /home)
+              const isHome = href === '/' || href === '/home'
+              // 處理連結
+              const processedHref = isExternal 
+                ? href 
+                : isHome 
+                  ? '/'
+                  : href.startsWith('/') 
+                    ? href 
+                    : `/${href}`
+
+              const uniqueKey = `mobile-nav-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}-${href.replace(/[^a-zA-Z0-9]/g, '')}`
+
+              return isExternal ? (
+                <a
+                  key={uniqueKey}
+                  href={href}
+                  className="block py-2 text-lg"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {name}
+                </a>
+              ) : (
+                <LocalizedClientLink
+                  key={uniqueKey}
+                  href={processedHref}
+                  className="block py-2 text-lg"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {name}
+                </LocalizedClientLink>
+              )
+            })}
+
+            {regions && (
+              <div className="pt-4 border-t">
+                <CountrySelect regions={regions} />
+              </div>
+            )}
+
+            {/* Categories */}
+            {categories && categories.length > 0 && (
+              <div className="pt-2 border-t">
+                <h3 className="py-2 font-medium">商品分類</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.map((category) => (
+                    <LocalizedClientLink
+                      key={category.id}
+                      href={`/categories/${category.handle}`}
+                      className="block py-1 text-sm"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {category.name}
+                    </LocalizedClientLink>
+                  ))}
                 </div>
               </div>
+            )}
 
-              {/* 國家/地區選擇 */}
-              {regions && (
-                <div className="pt-4 border-t border-gray-200">
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">國家/地區</h3>
-                  <CountrySelect regions={regions} />
-                </div>
-              )}
+            {/* Account only */}
+            <div className="pt-2 border-t">
+              <LocalizedClientLink
+                href="/account"
+                className="block py-2 text-lg"
+                onClick={() => setIsOpen(false)}
+              >
+                Account
+              </LocalizedClientLink>
             </div>
           </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   )
 }
