@@ -1,8 +1,12 @@
+"use client"
+
 import { listProductsWithSort } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import ProductPreview from "@modules/products/components/product-preview"
-import { Pagination } from "@modules/store/components/pagination"
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import ProductPreview from "../../products/components/product-preview"
+import { Pagination } from "../components/pagination"
+import { SortOptions } from "../components/refinement-list/sort-products/index"
+import RefinementList from "../components/refinement-list"
+import { useEffect, useState } from "react"
 
 const PRODUCT_LIMIT = 12
 
@@ -14,13 +18,14 @@ type PaginatedProductsParams = {
   order?: string
 }
 
-export default async function PaginatedProducts({
+export default function PaginatedProducts({
   sortBy,
   page,
   collectionId,
   categoryId,
   productsIds,
   countryCode,
+  hideRefinementList = false,
 }: {
   sortBy?: SortOptions
   page: number
@@ -28,65 +33,94 @@ export default async function PaginatedProducts({
   categoryId?: string
   productsIds?: string[]
   countryCode: string
+  hideRefinementList?: boolean
 }) {
-  const queryParams: PaginatedProductsParams = {
-    limit: 12,
-  }
+  const [products, setProducts] = useState<any[]>([])
+  const [totalPages, setTotalPages] = useState(0)
 
-  if (collectionId) {
-    queryParams["collection_id"] = [collectionId]
-  }
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const queryParams: PaginatedProductsParams = {
+        limit: 12,
+      }
 
-  if (categoryId) {
-    queryParams["category_id"] = [categoryId]
-  }
+      if (collectionId) {
+        queryParams["collection_id"] = [collectionId]
+      }
 
-  if (productsIds) {
-    queryParams["id"] = productsIds
-  }
+      if (categoryId) {
+        queryParams["category_id"] = [categoryId]
+      }
 
-  if (sortBy === "created_at") {
-    queryParams["order"] = "created_at"
-  }
+      if (productsIds) {
+        queryParams["id"] = productsIds
+      }
 
-  const region = await getRegion(countryCode)
+      if (sortBy === "created_at") {
+        queryParams["order"] = "created_at"
+      }
 
-  if (!region) {
-    return null
-  }
+      const region = await getRegion(countryCode)
 
-  let {
-    response: { products, count },
-  } = await listProductsWithSort({
-    page,
-    queryParams,
-    sortBy,
-    countryCode,
-  })
+      if (!region) {
+        return
+      }
 
-  const totalPages = Math.ceil(count / PRODUCT_LIMIT)
+      const {
+        response: { products: fetchedProducts, count },
+      } = await listProductsWithSort({
+        page,
+        queryParams,
+        sortBy,
+        countryCode,
+      })
+
+      setProducts(fetchedProducts)
+      setTotalPages(Math.ceil(count / PRODUCT_LIMIT))
+    }
+
+    fetchProducts()
+  }, [collectionId, categoryId, productsIds, sortBy, page, countryCode])
 
   return (
-    <>
-      <ul
-        className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
-        data-testid="products-list"
-      >
-        {products.map((p) => {
-          return (
-            <li key={p.id}>
-              <ProductPreview product={p} region={region} />
-            </li>
-          )
-        })}
-      </ul>
-      {totalPages > 1 && (
-        <Pagination
-          data-testid="product-pagination"
-          page={page}
-          totalPages={totalPages}
-        />
+    <div className="flex flex-col">
+      {!hideRefinementList && (
+        <div className="mb-8 px-4 md:px-8 lg:px-12 flex justify-center">
+          <RefinementList sortBy={sortBy || "created_at"} />
+        </div>
       )}
-    </>
+      <div>
+        <ul
+          className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-0 bg-white"
+          data-testid="products-list"
+        >
+          {products.map((p) => {
+            return (
+              <li key={p.id} className="bg-white">
+                <ProductPreview product={p} countryCode="tw" />
+              </li>
+            )
+          })}
+        </ul>
+        {totalPages > 1 && !hideRefinementList && (
+          <div className="mt-8 px-4 md:px-8 lg:px-12 flex justify-center">
+            <Pagination
+              data-testid="product-pagination"
+              page={page}
+              totalPages={totalPages}
+            />
+          </div>
+        )}
+        {totalPages > 1 && hideRefinementList && (
+          <div className="mt-8 flex justify-center">
+            <Pagination
+              data-testid="product-pagination"
+              page={page}
+              totalPages={totalPages}
+            />
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

@@ -5,7 +5,7 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "../../../common/components/localized-client-link/index"
 import { useEffect, useMemo, useState } from "react"
 import Thumbnail from "../thumbnail/index"
-import PreviewPrice from "./price"
+import ClientPreviewPrice from "./client-price"
 
 type ProductOption = {
   title: string
@@ -483,7 +483,7 @@ export default function ProductPreview({
             {cheapestPrice && (
               <div className="flex items-center justify-between mt-0.5">
                 <div className="flex-grow">
-                  <PreviewPrice price={cheapestPrice} />
+                  <ClientPreviewPrice price={cheapestPrice} />
                 </div>
                 {/* 手機版 - 價格右側的加入購物車按鈕 */}
                 {!isProductSoldOut && (
