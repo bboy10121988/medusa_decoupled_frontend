@@ -1,6 +1,5 @@
 "use client"
 
-import { addToCart } from "@lib/data/cart"
 import { useIntersection } from "@lib/hooks/use-in-view"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
@@ -112,12 +111,34 @@ export default function ProductActions({
     setIsAdding(true)
 
     try {
-      await addToCart({
-        variantId: selectedVariant.id,
-        quantity: 1,
-        countryCode,
+      // 使用新的 API route
+      const response = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          variantId: selectedVariant.id,
+          quantity: 1,
+          countryCode,
+        }),
       })
-      console.log("✅ 成功加入購物車")
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '加入購物車失敗')
+      }
+
+      console.log("✅ 成功加入購物車:", result)
+      
+      // 如果 API 回傳 cartId，也在前端設定
+      if (result.cartId && typeof window !== 'undefined') {
+        localStorage.setItem('_medusa_cart_id', result.cartId)
+        document.cookie = `_medusa_cart_id=${result.cartId}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
+        console.log("📱 前端儲存 Cart ID:", result.cartId)
+      }
+      
       console.log("💡 商品已加入購物車！")
       
       // 觸發購物車更新事件

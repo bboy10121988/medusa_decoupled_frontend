@@ -73,17 +73,20 @@ export const removeAuthToken = async () => {
 
 export const getCartId = async () => {
   const cookies = await nextCookies()
-  return cookies.get("_medusa_cart_id")?.value
+  const cartId = cookies.get("_medusa_cart_id")?.value
+  console.log("🛒 Get Cart ID:", cartId || "❌ No cart ID found in cookies")
+  return cartId
 }
 
 export const setCartId = async (cartId: string) => {
   const cookies = await nextCookies()
   cookies.set("_medusa_cart_id", cartId, {
     maxAge: 60 * 60 * 24 * 7,
-    httpOnly: true,
-    sameSite: "strict",
-    secure: false, // 暫時設為 false 以支援 HTTP 環境
+    httpOnly: false, // 設為 false 讓前端也可以讀取
+    sameSite: "lax", // 改為 lax 以支援跨請求
+    secure: false, // HTTP 環境設為 false
   })
+  console.log("🍪 設定 Cart ID 到 cookies:", cartId)
 }
 
 export const removeCartId = async () => {
