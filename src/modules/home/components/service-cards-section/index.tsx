@@ -190,12 +190,12 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
       {(() => {
         const cardImage = getCardImage()
         return cardImage.url ? (
-          <div className="aspect-[4/3] relative overflow-hidden">
+          <div className="aspect-[4/3] relative overflow-hidden bg-black">
             <Image
               src={cardImage.url}
               alt={cardImage.alt}
               fill
-              className="object-cover transition-all duration-1000 group-hover:scale-105"
+              className="object-contain transition-all duration-1000 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
             {/* 簡約漸層覆蓋層 */}

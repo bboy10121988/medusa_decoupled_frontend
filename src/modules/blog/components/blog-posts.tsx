@@ -57,13 +57,19 @@ export default async function BlogPosts({
 }) {
   try {
     const posts = await getBlogPosts(category, limit)
+    console.log('BlogPosts - 原始文章數據:', JSON.stringify(posts, null, 2))
 
-    // 檢查並過濾無效的文章 - 移除對主圖片的強制要求
-    const validPosts = posts?.filter(post => (
-      post && 
-      post.title && 
-      post.slug?.current
-    ))
+    // 檢查並過濾無效的文章 - 移除對 slug 的強制要求，因為有些文章可能沒有設置 slug
+    const validPosts = posts?.filter(post => {
+      const isValid = post && post.title
+      console.log(`BlogPosts - 文章 "${post?.title}" 驗證:`, {
+        hasPost: !!post,
+        hasTitle: !!post?.title,
+        hasSlug: !!post?.slug?.current,
+        isValid
+      })
+      return isValid
+    })
 
     // 根據 postsPerRow 設置網格樣式
     const getGridCols = (cols: number) => {
