@@ -269,7 +269,7 @@ export default async function BlogListPage({
 
             {/* 右側主要內容區 */}
             <main className="col-span-12 md:col-span-9">
-              {/* 頁面標題 */}
+              {/* 隱藏頁面標題和副標題
               <header className="bg-white p-8">
                 <h1 className="text-3xl font-bold">
                   {category 
@@ -278,9 +278,10 @@ export default async function BlogListPage({
                 </h1>
                 <p className="text-gray-500 mt-2">探索我們的最新消息與文章</p>
               </header>
+              */}
 
               {/* 文章列表 */}
-              <section className="bg-transparent">
+              <section className="bg-transparent -mt-8">
                 {Array.isArray(posts) && posts.length > 0 ? (
                   <BlogList 
                     initialPosts={posts} 

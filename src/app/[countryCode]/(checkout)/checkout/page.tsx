@@ -1,7 +1,7 @@
 import { retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
 import { HttpTypes } from "@medusajs/types"
-import CheckoutTemplate from "@modules/checkout/templates"
+import CheckoutTemplate from "../../../../modules/checkout/templates/checkout-form"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 

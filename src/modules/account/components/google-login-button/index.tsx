@@ -40,7 +40,16 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
           errorData = await result.text()
           console.error('後端驗證失敗 (TEXT):', errorData)
         }
-        throw new Error(errorData?.error || errorData || `HTTP ${result.status}: Google 登入失敗`)
+        
+        // 提供更具體的錯誤訊息
+        let errorMessage = errorData?.error || errorData || `HTTP ${result.status}: Google 登入失敗`
+        if (result.status === 400) {
+          errorMessage = 'Google 登入配置錯誤，請檢查網域設定或聯繫管理員'
+        } else if (result.status === 401) {
+          errorMessage = 'Google 登入驗證失敗，請重試'
+        }
+        
+        throw new Error(errorMessage)
       }
 
       const data = await result.json()
@@ -88,6 +97,8 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
           callback: handleCredentialResponse,
           auto_select: false,
           cancel_on_tap_outside: false,
+          // 添加更多錯誤處理選項
+          use_fedcm_for_prompt: false,
         })
 
         window.google.accounts.id.renderButton(buttonRef.current, {

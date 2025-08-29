@@ -37,9 +37,9 @@ export default function CategoryTemplate({
 
   return (
     <div className="pt-0 pb-8" data-testid="category-container">
-      {/* 標題區域 */}
-      <div className="px-4 md:px-8 lg:px-12 py-6 border-b border-gray-100">
-        <div className="flex flex-row mb-4 text-2xl-semi gap-4">
+      {/* 標題區域 - 置中對齊 */}
+      <div className="px-4 md:px-8 lg:px-12 py-6 border-b border-gray-100 text-center">
+        <div className="flex flex-row mb-4 text-2xl-semi gap-4 justify-center">
           {parents &&
             parents.map((parent) => (
               <span key={parent.id} className="text-ui-fg-subtle">
@@ -58,7 +58,7 @@ export default function CategoryTemplate({
           </h1>
         </div>
         {category.description && (
-          <div className="mb-4 text-base text-gray-600">
+          <div className="mb-4 text-base text-gray-600 text-center">
             <p>{category.description}</p>
           </div>
         )}

@@ -1,21 +1,28 @@
-import { defineField, defineType } from 'sanity'
+import { ALL_FIELDS_GROUP, defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'header',
-  title: 'Header',
+  title: '網站頁首',
   type: 'document',
+  groups: [
+    { name: 'basic', title: '基本設定', default: true },
+    { name: 'navigation', title: '選單' },
+    { name: 'marquee', title: '跑馬燈' },
+    { ...ALL_FIELDS_GROUP, hidden: true }
+  ],
   fields: [
     defineField({
       name: 'logo',
-      title: 'Logo',
+      title: '網站頁首',
       type: 'image',
+      group: 'basic',
       options: {
         hotspot: true,
       },
       fields: [
-        defineField({
-          name: 'alt',
-          title: 'Alt Text',
+    defineField({
+      name: 'alt',
+          title: '標誌',
           type: 'string',
           validation: Rule => Rule.required()
         })
@@ -23,29 +30,31 @@ export default defineType({
     }),
     defineField({
       name: 'storeName',
-      title: 'Store Name',
+  title: '替代文字',
       type: 'string',
+      group: 'basic',
       validation: Rule => Rule.required()
     }),
     defineField({
       name: 'logoSize',
-      title: 'Logo Size Settings',
-      type: 'object',
-      description: 'Set different logo heights for desktop and mobile devices',
+  title: '商店名稱',
+    type: 'object',
+    group: 'basic',
+    description: '為桌面與行動裝置設定不同的標誌高度',
       fields: [
         defineField({
           name: 'desktop',
-          title: 'Desktop Logo Height (px)',
-          type: 'number',
-          description: 'Logo height for desktop screens (24-64px recommended)',
+            title: '標誌大小設定',
+      type: 'number',
+      description: '桌面螢幕標誌高度（建議 24-64px）',
           validation: Rule => Rule.min(24).max(64),
           initialValue: 36,
         }),
         defineField({
           name: 'mobile',
-          title: 'Mobile Logo Height (px)',
-          type: 'number',
-          description: 'Logo height for mobile screens (20-48px recommended)',
+            title: '桌面標誌高度（px）',
+      type: 'number',
+      description: '行動裝置標誌高度（建議 20-48px）',
           validation: Rule => Rule.min(20).max(48),
           initialValue: 28,
         })
@@ -56,30 +65,32 @@ export default defineType({
     }),
     defineField({
       name: 'logoHeight',
-      title: 'Logo Height (px) - Legacy',
-      type: 'number',
-      description: 'Legacy field - use Logo Size Settings above for responsive control',
+  title: '行動裝置標誌高度（px）',
+    type: 'number',
+    group: 'basic',
+    description: '舊欄位 — 請改用上方「標誌大小設定」進行響應式控制',
       validation: Rule => Rule.min(24).max(64),
       initialValue: 36,
       hidden: ({ document }: any) => !!(document?.logoSize?.desktop || document?.logoSize?.mobile)
     }),
     defineField({
       name: 'navigation',
-      title: 'Navigation',
+    title: '選單',
       type: 'array',
+      group: 'navigation',
       of: [
         {
           type: 'object',
           fields: [
             defineField({
               name: 'name',
-              title: 'Name',
+        title: '導覽選單',
               type: 'string',
               validation: Rule => Rule.required()
             }),
             defineField({
               name: 'href',
-              title: 'Link',
+        title: '名稱',
               type: 'string',
               validation: Rule => Rule.required()
             })
@@ -89,29 +100,30 @@ export default defineType({
     }),
     defineField({
       name: 'marquee',
-      title: 'Marquee',
+    title: '連結',
       type: 'object',
+      group: 'marquee',
       fields: [
         defineField({
           name: 'enabled',
-          title: 'Enabled',
+      title: '跑馬燈',
           type: 'boolean',
           initialValue: false
         }),
         defineField({
           name: 'text1',
-          title: 'Text 1',
+      title: '啟用',
           type: 'object',
           fields: [
             defineField({
               name: 'enabled',
-              title: 'Enabled',
+        title: '文字 1',
               type: 'boolean',
               initialValue: true
             }),
             defineField({
               name: 'content',
-              title: 'Content',
+        title: '啟用',
               type: 'string',
               validation: Rule => Rule.max(50)
             })
@@ -119,18 +131,18 @@ export default defineType({
         }),
         defineField({
           name: 'text2',
-          title: 'Text 2',
+      title: '內容',
           type: 'object',
           fields: [
             defineField({
               name: 'enabled',
-              title: 'Enabled',
+        title: '文字 2',
               type: 'boolean',
               initialValue: false
             }),
             defineField({
               name: 'content',
-              title: 'Content',
+        title: '啟用',
               type: 'string',
               validation: Rule => Rule.max(50)
             })
@@ -138,18 +150,18 @@ export default defineType({
         }),
         defineField({
           name: 'text3',
-          title: 'Text 3',
+      title: '內容',
           type: 'object',
           fields: [
             defineField({
               name: 'enabled',
-              title: 'Enabled',
+        title: '文字 3',
               type: 'boolean',
               initialValue: false
             }),
             defineField({
               name: 'content',
-              title: 'Content',
+        title: '啟用',
               type: 'string',
               validation: Rule => Rule.max(50)
             })
@@ -157,12 +169,12 @@ export default defineType({
         }),
         defineField({
           name: 'linkUrl',
-          title: 'Link URL',
+      title: '連結網址',
           type: 'string'
         }),
         defineField({
           name: 'pauseOnHover',
-          title: 'Pause on Hover',
+      title: '滑鼠停留時暫停',
           type: 'boolean',
           initialValue: true
         })

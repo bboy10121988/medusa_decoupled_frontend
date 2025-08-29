@@ -359,3 +359,103 @@ button[class*="shadow-buttons"] {
   color: transparent !important;
   pointer-events: none !important;
 }
+
+/* ===== 跑馬燈動畫效果 ===== */
+/* 跑馬燈容器基本設置 */
+.marquee-container {
+  height: auto;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+/* 原有的固定跑馬燈動畫（保持向後兼容） */
+@keyframes marquee {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-25%);
+  }
+  45% {
+    transform: translateY(-25%);
+  }
+  50% {
+    transform: translateY(-50%);
+  }
+  70% {
+    transform: translateY(-50%);
+  }
+  75% {
+    transform: translateY(-75%);
+  }
+  95% {
+    transform: translateY(-75%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 動態跑馬燈動畫 - 1個項目 (靜止不動) */
+@keyframes marquee-1 {
+  0%, 100% {
+    transform: translateY(0);
+  }
+}
+
+/* 動態跑馬燈動畫 - 2個項目 */
+@keyframes marquee-2 {
+  0%, 40% {
+    transform: translateY(0); /* 顯示第1行 */
+  }
+  50%, 90% {
+    transform: translateY(-50%); /* 顯示第2行 */
+  }
+  100% {
+    transform: translateY(0); /* 回到第1行，實現無縫循環 */
+  }
+}
+
+/* 動態跑馬燈動畫 - 3個項目 */
+@keyframes marquee-3 {
+  0%, 28% {
+    transform: translateY(0); /* 顯示第1行 */
+  }
+  33%, 61% {
+    transform: translateY(-33.333%); /* 顯示第2行 */
+  }
+  66%, 94% {
+    transform: translateY(-66.666%); /* 顯示第3行 */
+  }
+  100% {
+    transform: translateY(0); /* 回到第1行，實現無縫循環 */
+  }
+}
+
+/* 跑馬燈動畫類別 - 基於3秒文字停留時間 */
+.animate-marquee {
+  animation: marquee 9s ease-in-out infinite;
+}
+
+.animate-marquee-1 {
+  animation: marquee-1 var(--marquee-duration, 6s) linear infinite;
+}
+
+.animate-marquee-2 {
+  animation: marquee-2 var(--marquee-duration, 6s) ease-in-out infinite;
+}
+
+.animate-marquee-3 {
+  animation: marquee-3 var(--marquee-duration, 9s) ease-in-out infinite;
+}
+
+/* 跑馬燈暫停功能 */
+.hover\:animation-paused:hover {
+  animation-play-state: paused !important;
+}
+
+/* 支持自定義動畫播放狀態 */
+.animation-paused {
+  animation-play-state: paused !important;
+}

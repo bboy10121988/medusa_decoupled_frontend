@@ -2,7 +2,7 @@ import React from "react"
 
 import UnderlineLink from "@modules/common/components/interactive-link"
 
-import AccountNav from "../components/account-nav"
+import AccountNav from "../components/account-nav/index"
 import { HttpTypes } from "@medusajs/types"
 
 interface AccountLayoutProps {

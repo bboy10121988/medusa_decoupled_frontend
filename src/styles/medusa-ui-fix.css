@@ -1,0 +1,201 @@
+/* Medusa UI Button 樣式修復 */
+
+/* Primary Button 樣式 */
+.shadow-buttons-inverted {
+  background-color: #1f2937 !important;
+  color: white !important;
+  border: 1px solid #1f2937 !important;
+}
+
+.shadow-buttons-inverted:hover {
+  background-color: #374151 !important;
+}
+
+.shadow-buttons-inverted:active {
+  background-color: #111827 !important;
+}
+
+/* Secondary Button 樣式 */
+.shadow-buttons-neutral {
+  background-color: transparent !important;
+  color: #1f2937 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.shadow-buttons-neutral:hover {
+  background-color: #f9fafb !important;
+}
+
+/* Button Variants */
+.bg-ui-button-inverted {
+  background-color: #1f2937 !important;
+}
+
+.bg-ui-button-inverted-hover {
+  background-color: #374151 !important;
+}
+
+.bg-ui-button-inverted-pressed {
+  background-color: #111827 !important;
+}
+
+.text-ui-contrast-fg-primary {
+  color: white !important;
+}
+
+.bg-ui-bg-disabled {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+}
+
+/* 漸變效果 */
+.after\:button-inverted-gradient::after {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%) !important;
+}
+
+.after\:button-inverted-hover-gradient:hover::after {
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%) !important;
+}
+
+.after\:button-inverted-pressed-gradient:active::after {
+  background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%) !important;
+}
+
+/* Focus 狀態 */
+.shadow-buttons-inverted-focus:focus-visible {
+  box-shadow: 0 0 0 2px #3b82f6 !important;
+}
+
+/* 確保按鈕有正確的最小寬度和高度 */
+.txt-compact-medium-plus {
+  min-height: 40px !important;
+  min-width: 120px !important;
+}
+
+/* Danger Button 樣式 */
+.bg-ui-button-danger {
+  background-color: #dc2626 !important;
+  color: white !important;
+}
+
+.bg-ui-button-danger:hover {
+  background-color: #b91c1c !important;
+}
+
+/* Ghost Button 樣式 */
+.bg-ui-button-transparent {
+  background-color: transparent !important;
+  color: #1f2937 !important;
+}
+
+.bg-ui-button-transparent:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* 確保所有按鈕都有適當的過渡效果 */
+button[class*="shadow-buttons"] {
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* 購物車和結帐按鈕特殊樣式 */
+.checkout-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+  border: 1px solid #374151 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.checkout-button:hover {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+.checkout-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 修復 @medusajs/ui Button 組件樣式 */
+[data-ui="button"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  font-weight: 500 !important;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-duration: 150ms !important;
+  border-radius: 0.375rem !important;
+}
+
+/* 確保 Button 的大小變體正確應用 */
+[data-ui="button"][data-size="small"] {
+  height: 2rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+[data-ui="button"][data-size="base"] {
+  height: 2.5rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+[data-ui="button"][data-size="large"] {
+  height: 3rem !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+  font-size: 1rem !important;
+  line-height: 1.5rem !important;
+}
+
+/* 主要按鈕變體 */
+[data-ui="button"][data-variant="primary"] {
+  background-color: #1f2937 !important;
+  color: white !important;
+  border: 1px solid transparent !important;
+}
+
+[data-ui="button"][data-variant="primary"]:hover:not(:disabled) {
+  background-color: #374151 !important;
+}
+
+[data-ui="button"][data-variant="primary"]:active:not(:disabled) {
+  background-color: #111827 !important;
+}
+
+/* 次要按鈕變體 */
+[data-ui="button"][data-variant="secondary"] {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+[data-ui="button"][data-variant="secondary"]:hover:not(:disabled) {
+  background-color: #f9fafb !important;
+  border-color: #9ca3af !important;
+}
+
+/* 禁用狀態 */
+[data-ui="button"]:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* 載入狀態 */
+[data-ui="button"][data-loading="true"] {
+  color: transparent !important;
+  pointer-events: none !important;
+}
