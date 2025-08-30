@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('購物車轉移錯誤:', error)
+    if (process.env.NODE_ENV === 'development') console.error('購物車轉移錯誤:', error)
     return NextResponse.json({ error: 'Failed to transfer cart' }, { status: 500 })
   }
 }

@@ -23,7 +23,7 @@ export async function GET(
     // 檢查響應狀態並提供更詳細的錯誤信息
     if (!response.ok) {
       const errorText = await response.text()
-      console.error(`Medusa API GET error (${response.status}):`, errorText)
+      if (process.env.NODE_ENV === 'development') console.error(`Medusa API GET error (${response.status}):`, errorText)
       return NextResponse.json(
         { error: `Medusa API error: ${response.status}`, details: errorText },
         { status: response.status }
@@ -41,7 +41,7 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Medusa API GET proxy error:', error)
+    if (process.env.NODE_ENV === 'development') console.error('Medusa API GET proxy error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch from Medusa API' },
       { status: 500 }
@@ -72,7 +72,7 @@ export async function POST(
     // 檢查響應狀態並提供更詳細的錯誤信息
     if (!response.ok) {
       const errorText = await response.text()
-      console.error(`Medusa API error (${response.status}):`, errorText)
+      if (process.env.NODE_ENV === 'development') console.error(`Medusa API error (${response.status}):`, errorText)
       return NextResponse.json(
         { error: `Medusa API error: ${response.status}`, details: errorText },
         { status: response.status }
@@ -90,7 +90,7 @@ export async function POST(
       }
     })
   } catch (error) {
-    console.error('Medusa API proxy error:', error)
+    if (process.env.NODE_ENV === 'development') console.error('Medusa API proxy error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch from Medusa API' },
       { status: 500 }
@@ -133,7 +133,7 @@ export async function DELETE(
       }
     })
   } catch (error) {
-    console.error('Medusa API proxy error:', error)
+    if (process.env.NODE_ENV === 'development') console.error('Medusa API proxy error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch from Medusa API' },
       { status: 500 }

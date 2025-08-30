@@ -17,6 +17,8 @@ const getBackendUrl = () => {
 }
 
 // 創建優化的 fetch 函數
+import safeFetchGlobal from './safe-fetch'
+
 export const medusaFetch = async (endpoint: string, options: RequestInit = {}) => {
   const baseUrl = getBackendUrl()
   const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
@@ -41,26 +43,35 @@ export const medusaFetch = async (endpoint: string, options: RequestInit = {}) =
   }
   
   try {
-    const response = await fetch(url, fetchOptions)
-    
-    // 檢查 CORS 錯誤
-    if (!response.ok) {
-      if (response.status === 0) {
+    // Use safeFetchGlobal which will return null on AbortError
+    const maybeJson = await safeFetchGlobal(url, fetchOptions, null)
+
+    if (maybeJson === null) {
+      // treated as abort or safe-fallback
+      return new Response(null, { status: 0, statusText: 'Aborted or no response' })
+    }
+
+    // If the safeFetch returned parsed JSON, wrap into a Response-like object where possible
+    // Keep existing behavior by creating a Response when we have JSON.
+    const fakeResponse = new Response(JSON.stringify(maybeJson), { status: 200 })
+
+    if (!fakeResponse.ok) {
+      if (fakeResponse.status === 0) {
         throw new Error('CORS error: Unable to connect to backend')
       }
-      
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+
+      throw new Error(`HTTP ${fakeResponse.status}: ${fakeResponse.statusText}`)
     }
-    
-    return response
+
+    return fakeResponse
   } catch (error) {
-    console.error('Medusa API 請求失敗:', error)
-    
+    if (process.env.NODE_ENV === 'development') console.error('Medusa API 請求失敗:', error)
+
     // 提供有用的錯誤信息
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
       throw new Error('網路連接失敗，請檢查 CORS 設置和後端連接')
     }
-    
+
     throw error
   }
 }
@@ -95,10 +106,10 @@ export const checkCORS = async () => {
       mode: 'cors',
     })
     
-    console.log('✅ CORS 設置正確，API 連接正常')
+    if (process.env.NODE_ENV === 'development') console.log('✅ CORS 設置正確，API 連接正常')
     return true
   } catch (error) {
-    console.error('❌ CORS 設置有問題:', error)
+    if (process.env.NODE_ENV === 'development') console.error('❌ CORS 設置有問題:', error)
     return false
   }
 }

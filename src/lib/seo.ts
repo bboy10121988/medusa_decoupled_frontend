@@ -80,14 +80,14 @@ export function generateStructuredData(
         JSON.parse(seoMeta.customJsonLd) // 驗證 JSON 格式
         return seoMeta.customJsonLd
       } catch {
-        console.error('無效的自訂 JSON-LD 格式')
+        if (process.env.NODE_ENV === 'development') console.error('無效的自訂 JSON-LD 格式')
         return null
       }
     }
     return null
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tims-hair-salon.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:8000'
   const siteName = process.env.NEXT_PUBLIC_STORE_NAME || '我的商店'
 
   let structuredData: any = {
@@ -218,7 +218,7 @@ export const getDefaultSEOSettings = async (): Promise<Metadata> => {
       metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tims-hair-salon.com'),
     }
   } catch (error) {
-    console.error('獲取 SEO 設定時發生錯誤:', error)
+    if (process.env.NODE_ENV === 'development') console.error('獲取 SEO 設定時發生錯誤:', error)
     return {
       title: '我的商店',
       description: undefined,
@@ -330,7 +330,7 @@ export const mergeSEOMetadata = (
     title,
     description,
     keywords: keywords.length > 0 ? keywords : undefined,
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tims-hair-salon.com'),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:8000'),
     alternates: {
       ...defaultMetadata?.alternates,
       ...metadata.alternates,
@@ -392,7 +392,7 @@ export function generateRobotsTxt(options?: {
   disallowPaths?: string[]
   allowPaths?: string[]
 }) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tims-hair-salon.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:8000'
   const disallow = options?.disallowPaths || ['/api/*', '/admin/*', '/_next/*', '/checkout/']
   const allow = options?.allowPaths || ['/']
   const sitemap = options?.sitemap || `${baseUrl}/sitemap.xml`

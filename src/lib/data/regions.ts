@@ -61,7 +61,7 @@ export const getRegion = async (countryCode: string) => {
 
     // 如果找到了基於 ISO 代碼的對應，直接返回
     if (regionMap.has(countryCode)) {
-      console.log(`✅ 找到地區映射: ${countryCode} -> ${regionMap.get(countryCode)?.name}`)
+      if (process.env.NODE_ENV === 'development') console.log(`✅ 找到地區映射: ${countryCode} -> ${regionMap.get(countryCode)?.name}`)
       return regionMap.get(countryCode)
     }
 
@@ -73,27 +73,27 @@ export const getRegion = async (countryCode: string) => {
       const region = regions.find(r => r.id === regionId)
       if (region) {
         regionMap.set(countryCode, region)
-        console.log(`✅ 透過環境變數找到地區: ${countryCode} -> ${region.name} (${regionId})`)
+        if (process.env.NODE_ENV === 'development') console.log(`✅ 透過環境變數找到地區: ${countryCode} -> ${region.name} (${regionId})`)
         return region
       }
     }
 
     // 如果沒有找到，嘗試使用預設地區
     if (regionMap.has(defaultRegion)) {
-      console.log(`⚠️  使用預設地區: ${defaultRegion} -> ${regionMap.get(defaultRegion)?.name}`)
+      if (process.env.NODE_ENV === 'development') console.log(`⚠️  使用預設地區: ${defaultRegion} -> ${regionMap.get(defaultRegion)?.name}`)
       return regionMap.get(defaultRegion)
     }
 
     // 最後的備用方案：返回第一個可用的地區
     if (regions.length > 0) {
-      console.log(`⚠️  使用第一個可用地區: ${regions[0].name}`)
+      if (process.env.NODE_ENV === 'development') console.log(`⚠️  使用第一個可用地區: ${regions[0].name}`)
       return regions[0]
     }
 
     return null
 
   } catch (e: any) {
-    console.error("獲取地區時發生錯誤:", e)
+    if (process.env.NODE_ENV === 'development') console.error("獲取地區時發生錯誤:", e)
     return null
   }
 }

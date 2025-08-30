@@ -152,8 +152,8 @@ export async function getActivePromotionLabels(
     const discountTotal = cart.discount_total || 0
     const promotions = cart.promotions || []
 
-    console.log(`💰 [${product.title}] 原價: NT$${originalPrice}, 實際: NT$${finalPrice}, 折扣: NT$${discountTotal}`)
-    console.log(`🎯 [${product.title}] 促銷活動數量: ${promotions.length}`)
+    if (process.env.NODE_ENV === 'development') console.log(`💰 [${product.title}] 原價: NT$${originalPrice}, 實際: NT$${finalPrice}, 折扣: NT$${discountTotal}`)
+    if (process.env.NODE_ENV === 'development') console.log(`🎯 [${product.title}] 促銷活動數量: ${promotions.length}`)
 
     // 4. 生成促銷標籤 - 避免重複標籤
     const addedLabels = new Set<string>() // 用於追蹤已添加的標籤文字
@@ -200,7 +200,7 @@ export async function getActivePromotionLabels(
               })
               addedLabels.add(discountText)
               
-              console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}百分比折扣標籤: ${discountText} (code: ${code})`)
+              if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}百分比折扣標籤: ${discountText} (code: ${code})`)
             }
           } else if (method.type === 'fixed') {
             const discountAmount = method.value
@@ -221,7 +221,7 @@ export async function getActivePromotionLabels(
               })
               addedLabels.add(discountText)
               
-              console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}固定折扣標籤: ${discountText} (code: ${code})`)
+              if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}固定折扣標籤: ${discountText} (code: ${code})`)
             }
           }
         }
@@ -244,7 +244,7 @@ export async function getActivePromotionLabels(
         })
         addedLabels.add(discountText)
         
-        console.log(`✅ [${product.title}] 添加通用折扣標籤: ${discountText}`)
+        if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加通用折扣標籤: ${discountText}`)
       }
     }
 
@@ -270,11 +270,11 @@ export async function getActivePromotionLabels(
                 isDiscount: false
               })
               addedLabels.add(labelText)
-              console.log(`✅ [${product.title}] 添加買X送Y標籤: ${labelText}`)
+              if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加買X送Y標籤: ${labelText}`)
             }
           }
         } catch (error) {
-          console.warn(`⚠️ [${product.title}] buyXGetY metadata 解析失敗:`, error)
+          if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] buyXGetY metadata 解析失敗:`, error)
         }
       }
 
@@ -302,7 +302,7 @@ export async function getActivePromotionLabels(
               isDiscount: false
             })
             addedLabels.add(labelText)
-            console.log(`✅ [${product.title}] 添加 metadata 標籤 (${type}): ${labelText}`)
+            if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加 metadata 標籤 (${type}): ${labelText}`)
           }
         }
       }
@@ -334,7 +334,7 @@ export async function getActivePromotionLabels(
             isDiscount: false
           })
           addedLabels.add(matchedLabel.text)
-          console.log(`✅ [${product.title}] 添加 tag 標籤 (${matchedLabel.type}): ${matchedLabel.text}`)
+          if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加 tag 標籤 (${matchedLabel.type}): ${matchedLabel.text}`)
         }
       }
     }
@@ -363,10 +363,12 @@ export async function getActivePromotionLabels(
       }
     }
 
-    console.log(`📋 [${product.title}] 最終標籤數量: ${labels.length}`)
-    labels.forEach((label, index) => {
-      console.log(`   ${index + 1}. ${label.text} (${label.type})`)
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`📋 [${product.title}] 最終標籤數量: ${labels.length}`)
+      labels.forEach((label, index) => {
+        console.log(`   ${index + 1}. ${label.text} (${label.type})`)
+      })
+    }
 
     return labels.sort((a, b) => a.priority - b.priority)
 

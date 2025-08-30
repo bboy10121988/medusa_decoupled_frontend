@@ -44,7 +44,7 @@ export default async function Home({
   const region = await getRegion(countryCode)
 
   // 添加調試資訊
-  console.log('🔍 Data fetch results:', {
+  if (process.env.NODE_ENV === 'development') console.log('🔍 Data fetch results:', {
     countryCode,
     collectionsCount: collectionsData?.collections?.length || 0,
     regionId: region?.id,
@@ -54,7 +54,7 @@ export default async function Home({
   // 獲取首頁內容，並添加錯誤處理
   let homepageData
   try {
-    console.log('🔍 Fetching homepage data from Sanity...')
+    if (process.env.NODE_ENV === 'development') console.log('🔍 Fetching homepage data from Sanity...')
     homepageData = await getHomepage()
     console.log('✅ Homepage data fetched:', { 
       title: homepageData?.title, 

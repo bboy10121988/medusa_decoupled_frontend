@@ -17,6 +17,7 @@ const getBackendUrl = () => {
 }
 
 // 創建優化的 fetch 函數
+const __isDev = process.env.NODE_ENV === 'development'
 export const medusaFetch = async (endpoint: string, options: RequestInit = {}) => {
   const baseUrl = getBackendUrl()
   const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
@@ -54,7 +55,7 @@ export const medusaFetch = async (endpoint: string, options: RequestInit = {}) =
     
     return response
   } catch (error) {
-    console.error('Medusa API 請求失敗:', error)
+    if (__isDev) console.error('Medusa API 請求失敗:', error)
     
     // 提供有用的錯誤信息
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -95,10 +96,10 @@ export const checkCORS = async () => {
       mode: 'cors',
     })
     
-    console.log('✅ CORS 設置正確，API 連接正常')
+    if (__isDev) console.log('✅ CORS 設置正確，API 連接正常')
     return true
   } catch (error) {
-    console.error('❌ CORS 設置有問題:', error)
+    if (__isDev) console.error('❌ CORS 設置有問題:', error)
     return false
   }
 }

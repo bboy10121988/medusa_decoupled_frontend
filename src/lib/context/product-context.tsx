@@ -24,7 +24,7 @@ export function ProductActionProvider({ children }: { children: React.ReactNode 
   const addToCart = useCallback(async (input: { variantId: string; quantity: number; countryCode: string }) => {
     setIsAdding(true)
     try {
-      console.log("🛒 ProductActionContext 開始加入購物車:", input)
+      if (process.env.NODE_ENV === 'development') console.log("🛒 ProductActionContext 開始加入購物車:", input)
       
       const response = await fetch('/api/cart', {
         method: 'POST',
@@ -39,12 +39,12 @@ export function ProductActionProvider({ children }: { children: React.ReactNode 
       }
 
       const result = await response.json()
-      console.log("✅ ProductActionContext 加入購物車成功:", result)
+      if (process.env.NODE_ENV === 'development') console.log("✅ ProductActionContext 加入購物車成功:", result)
       
       // 觸發全局購物車更新事件
       window.dispatchEvent(new Event('cartUpdate'))
     } catch (error) {
-      console.error("❌ ProductActionContext 加入購物車失敗:", error)
+      if (process.env.NODE_ENV === 'development') console.error("❌ ProductActionContext 加入購物車失敗:", error)
       throw error
     } finally {
       setIsAdding(false)

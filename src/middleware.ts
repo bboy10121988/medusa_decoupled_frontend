@@ -103,9 +103,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  let redirectUrl = request.nextUrl.href
-
-  let response = NextResponse.redirect(redirectUrl, 307)
+  // 預設不重導，必要時才建立 redirect 回應
+  let response = NextResponse.next()
 
   let cacheIdCookie = request.cookies.get("_medusa_cache_id")
 
@@ -123,13 +122,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // if one of the country codes is in the url and the cache id is not set, set the cache id and redirect
+  // if one of the country codes is in the url and the cache id is not set, set the cache id and continue
   if (urlHasCountryCode && !cacheIdCookie) {
-    response.cookies.set("_medusa_cache_id", cacheId, {
-      maxAge: 60 * 60 * 24,
-    })
-
-    return response
+    const res = NextResponse.next()
+    res.cookies.set("_medusa_cache_id", cacheId, { maxAge: 60 * 60 * 24 })
+    return res
   }
 
   // check if the url is a static asset
@@ -137,18 +134,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const redirectPath =
-    request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname
-
+  const redirectPath = request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname
   const queryString = request.nextUrl.search ? request.nextUrl.search : ""
 
   // If no country code is set, we redirect to the relevant region.
   if (!urlHasCountryCode && countryCode) {
-    redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
-    response = NextResponse.redirect(`${redirectUrl}`, 307)
+    const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+    return NextResponse.redirect(redirectUrl, 307)
   }
 
-  return response
+  return NextResponse.next()
 }
 
 export const config = {

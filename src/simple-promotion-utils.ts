@@ -66,20 +66,20 @@ export async function getActivePromotionLabels(
 
   try {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`🧪 [${product.title}] 開始測試 Medusa API 促銷標籤`)
+      if (process.env.NODE_ENV === 'development') console.log(`🧪 [${product.title}] 開始測試 Medusa API 促銷標籤`)
     }
     
     // 檢查商品變體
     const firstVariant = product.variants?.[0]
     if (!firstVariant) {
       if (process.env.NODE_ENV === 'development') {
-        console.log(`⚠️ [${product.title}] 商品沒有變體，跳過促銷測試`)
+        if (process.env.NODE_ENV === 'development') console.log(`⚠️ [${product.title}] 商品沒有變體，跳過促銷測試`)
       }
       return labels
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log(`📦 [${product.title}] 使用變體: ${firstVariant.title || firstVariant.id}`)
+      if (process.env.NODE_ENV === 'development') console.log(`📦 [${product.title}] 使用變體: ${firstVariant.title || firstVariant.id}`)
     }
 
     // 1. 創建測試購物車
@@ -97,14 +97,14 @@ export async function getActivePromotionLabels(
       })
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn(`⚠️ [${product.title}] 創建購物車網路錯誤:`, error)
+        if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] 創建購物車網路錯誤:`, error)
       }
       return []
     }
 
     if (!cartResponse.ok) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn(`⚠️ [${product.title}] 創建購物車失敗:`, cartResponse.status)
+        if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] 創建購物車失敗:`, cartResponse.status)
       }
       return labels
     }
@@ -112,7 +112,7 @@ export async function getActivePromotionLabels(
     const cartData = await cartResponse.json()
     const cartId = cartData.cart.id
     if (process.env.NODE_ENV === 'development') {
-      console.log(`🛒 [${product.title}] 購物車 ID: ${cartId}`)
+      if (process.env.NODE_ENV === 'development') console.log(`🛒 [${product.title}] 購物車 ID: ${cartId}`)
     }
 
     // 2. 添加商品到購物車
@@ -131,14 +131,14 @@ export async function getActivePromotionLabels(
       })
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn(`⚠️ [${product.title}] 添加商品網路錯誤:`, error)
+        if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] 添加商品網路錯誤:`, error)
       }
       return []
     }
 
     if (!addItemResponse.ok) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn(`⚠️ [${product.title}] 添加商品失敗:`, addItemResponse.status)
+        if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] 添加商品失敗:`, addItemResponse.status)
       }
       return labels
     }
@@ -152,8 +152,8 @@ export async function getActivePromotionLabels(
     const discountTotal = cart.discount_total || 0
     const promotions = cart.promotions || []
 
-    console.log(`💰 [${product.title}] 原價: NT$${originalPrice}, 實際: NT$${finalPrice}, 折扣: NT$${discountTotal}`)
-    console.log(`🎯 [${product.title}] 促銷活動數量: ${promotions.length}`)
+    if (process.env.NODE_ENV === 'development') console.log(`💰 [${product.title}] 原價: NT$${originalPrice}, 實際: NT$${finalPrice}, 折扣: NT$${discountTotal}`)
+    if (process.env.NODE_ENV === 'development') console.log(`🎯 [${product.title}] 促銷活動數量: ${promotions.length}`)
 
     // 4. 生成促銷標籤 - 避免重複標籤
     const addedLabels = new Set<string>() // 用於追蹤已添加的標籤文字
@@ -200,7 +200,7 @@ export async function getActivePromotionLabels(
               })
               addedLabels.add(discountText)
               
-              console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}百分比折扣標籤: ${discountText} (code: ${code})`)
+              if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}百分比折扣標籤: ${discountText} (code: ${code})`)
             }
           } else if (method.type === 'fixed') {
             const discountAmount = method.value
@@ -221,7 +221,7 @@ export async function getActivePromotionLabels(
               })
               addedLabels.add(discountText)
               
-              console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}固定折扣標籤: ${discountText} (code: ${code})`)
+              if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加${isOrderLevel ? '滿額' : '商品'}固定折扣標籤: ${discountText} (code: ${code})`)
             }
           }
         }
@@ -244,7 +244,7 @@ export async function getActivePromotionLabels(
         })
         addedLabels.add(discountText)
         
-        console.log(`✅ [${product.title}] 添加通用折扣標籤: ${discountText}`)
+        if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加通用折扣標籤: ${discountText}`)
       }
     }
 
@@ -270,11 +270,11 @@ export async function getActivePromotionLabels(
                 isDiscount: false
               })
               addedLabels.add(labelText)
-              console.log(`✅ [${product.title}] 添加買X送Y標籤: ${labelText}`)
+              if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加買X送Y標籤: ${labelText}`)
             }
           }
         } catch (error) {
-          console.warn(`⚠️ [${product.title}] buyXGetY metadata 解析失敗:`, error)
+          if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] buyXGetY metadata 解析失敗:`, error)
         }
       }
 
@@ -302,7 +302,7 @@ export async function getActivePromotionLabels(
               isDiscount: false
             })
             addedLabels.add(labelText)
-            console.log(`✅ [${product.title}] 添加 metadata 標籤 (${type}): ${labelText}`)
+            if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加 metadata 標籤 (${type}): ${labelText}`)
           }
         }
       }
@@ -334,7 +334,7 @@ export async function getActivePromotionLabels(
             isDiscount: false
           })
           addedLabels.add(matchedLabel.text)
-          console.log(`✅ [${product.title}] 添加 tag 標籤 (${matchedLabel.type}): ${matchedLabel.text}`)
+          if (process.env.NODE_ENV === 'development') console.log(`✅ [${product.title}] 添加 tag 標籤 (${matchedLabel.type}): ${matchedLabel.text}`)
         }
       }
     }
@@ -350,29 +350,31 @@ export async function getActivePromotionLabels(
       
       if (deleteResponse.ok) {
         if (process.env.NODE_ENV === 'development') {
-          console.log(`🗑️ [${product.title}] 清理購物車完成`)
+          if (process.env.NODE_ENV === 'development') console.log(`🗑️ [${product.title}] 清理購物車完成`)
         }
       } else {
         if (process.env.NODE_ENV === 'development') {
-          console.warn(`⚠️ [${product.title}] 清理購物車失敗 (status: ${deleteResponse.status})`)
+          if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] 清理購物車失敗 (status: ${deleteResponse.status})`)
         }
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn(`⚠️ [${product.title}] 清理購物車失敗:`, error)
+        if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] 清理購物車失敗:`, error)
       }
     }
 
-    console.log(`📋 [${product.title}] 最終標籤數量: ${labels.length}`)
-    labels.forEach((label, index) => {
-      console.log(`   ${index + 1}. ${label.text} (${label.type})`)
-    })
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') console.log(`📋 [${product.title}] 最終標籤數量: ${labels.length}`)
+      labels.forEach((label, index) => {
+        if (process.env.NODE_ENV === 'development') console.log(`   ${index + 1}. ${label.text} (${label.type})`)
+      })
+    }
 
     return labels.sort((a, b) => a.priority - b.priority)
 
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn(`⚠️ [${product.title}] Medusa API 調用失敗:`, error)
+      if (process.env.NODE_ENV === 'development') console.warn(`⚠️ [${product.title}] Medusa API 調用失敗:`, error)
     }
     return labels
   }

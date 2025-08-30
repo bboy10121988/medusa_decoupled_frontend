@@ -12,7 +12,7 @@ export async function getHeaderData() {
     const headerData = await getHeader()
     return headerData
   } catch (error) {
-    console.error("獲取 header 數據時出錯:", error)
+    if (process.env.NODE_ENV === 'development') console.error("獲取 header 數據時出錯:", error)
     return null
   }
 }
@@ -26,7 +26,7 @@ export async function getStoreName(): Promise<string> {
     const headerData = await getHeader()
     return headerData?.storeName || DEFAULT_STORE_NAME
   } catch (error) {
-    console.error("獲取商店名稱時出錯:", error)
+    if (process.env.NODE_ENV === 'development') console.error("獲取商店名稱時出錯:", error)
     return DEFAULT_STORE_NAME
   }
 }
@@ -39,7 +39,7 @@ export async function getLogoWidth(): Promise<number> {
     const headerData = await getHeader()
     return headerData?.logoWidth || DEFAULT_LOGO_WIDTH
   } catch (error) {
-    console.error("獲取 Logo 寬度時出錯:", error)
+    if (process.env.NODE_ENV === 'development') console.error("獲取 Logo 寬度時出錯:", error)
     return DEFAULT_LOGO_WIDTH
   }
 }

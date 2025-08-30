@@ -21,7 +21,7 @@ export default defineType({
     {
       name: 'structured',
       title: '結構化資料'
-    }
+    },
   ],
   fields: [
     defineField({

@@ -1,6 +1,8 @@
 // API utility functions for affiliate system
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+const isDev = process.env.NODE_ENV === 'development'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:8000'
 
 export interface AffiliatePartner {
   id: string
@@ -59,7 +61,7 @@ class AffiliateAPI {
       ...(PUBLISHABLE_KEY && { 'x-publishable-api-key': PUBLISHABLE_KEY })
     }
 
-    console.log('發送 API 請求:', url, {
+    if (isDev) console.log('發送 API 請求:', url, {
       method: options.method || 'GET',
       headers: { ...defaultHeaders, ...options.headers },
       body: options.body
@@ -74,11 +76,11 @@ class AffiliateAPI {
         }
       })
 
-      console.log('API 回應狀態:', response.status, response.statusText)
+      if (isDev) console.log('API 回應狀態:', response.status, response.statusText)
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.log('API 錯誤回應:', errorText)
+        if (isDev) console.log('API 錯誤回應:', errorText)
         
         // 嘗試解析 JSON 錯誤訊息
         try {
@@ -102,10 +104,10 @@ class AffiliateAPI {
       }
 
       const result = await response.json()
-      console.log('API 成功回應:', result)
+      if (isDev) console.log('API 成功回應:', result)
       return result
     } catch (error) {
-      console.error('API 請求失敗:', error)
+      if (isDev) console.error('API 請求失敗:', error)
       throw error
     }
   }
@@ -141,7 +143,7 @@ class AffiliateAPI {
           phone: response.partner.phone,
           website: response.partner.website,
           referralCode: response.partner.uniqueCode || response.partner.referralCode,
-          referral_link: `http://localhost:8000/tw?ref=${response.partner.uniqueCode || response.partner.referralCode}`,
+          referral_link: `${SITE_URL.replace(/\/$/, '')}/tw?ref=${response.partner.uniqueCode || response.partner.referralCode}`,
           status: response.partner.status === 'approved' ? 'active' : response.partner.status,
           commission_rate: response.partner.commissionRate || response.partner.commission_rate || 0.05,
           createdAt: response.partner.createdAt,
@@ -161,7 +163,7 @@ class AffiliateAPI {
         }
       }
     } catch (error) {
-      console.error('Login error:', error)
+      if (isDev) console.error('Login error:', error)
       return {
         success: false,
         message: "Login failed"
@@ -246,7 +248,7 @@ class AffiliateAPI {
       }
       
     } catch (error) {
-      console.error('Failed to fetch partner stats:', error)
+      if (isDev) console.error('Failed to fetch partner stats:', error)
       throw error
     }
   }
@@ -294,12 +296,12 @@ class AffiliateAPI {
             return updatedPartner
           }
         } catch (apiError) {
-          console.warn('無法從 API 獲取最新資料，使用暫存資料:', apiError)
+          if (isDev) console.warn('無法從 API 獲取最新資料，使用暫存資料:', apiError)
         }
         
         return partner
       } catch (error) {
-        console.error('解析 partner 資料失敗:', error)
+        if (isDev) console.error('解析 partner 資料失敗:', error)
       }
     }
     
@@ -321,7 +323,7 @@ class AffiliateAPI {
       accountNumber: partnerData.accountNumber,
       taxId: partnerData.taxId,
       referralCode: partnerData.uniqueCode || partnerData.referralCode,
-      referral_link: partnerData.referral_link || `http://localhost:8000/tw?ref=${partnerData.uniqueCode || partnerData.referralCode}`,
+      referral_link: partnerData.referral_link || `${SITE_URL.replace(/\/$/, '')}/tw?ref=${partnerData.uniqueCode || partnerData.referralCode}`,
       status: partnerData.status === 'approved' ? 'active' : partnerData.status,
       commission_rate: partnerData.commissionRate || partnerData.commission_rate || 0.05,
       createdAt: partnerData.createdAt,
@@ -353,7 +355,7 @@ class AffiliateAPI {
         }
       }
     } catch (error: any) {
-      console.error('Login error:', error)
+      if (isDev) console.error('Login error:', error)
       return { 
         success: false, 
         message: error.message || '登入過程中發生錯誤' 
@@ -396,7 +398,7 @@ class AffiliateAPI {
         }
       }
     } catch (error: any) {
-      console.error('Registration error:', error)
+      if (isDev) console.error('Registration error:', error)
       return { 
         success: false, 
         message: error.message || '註冊過程中發生錯誤' 
@@ -433,7 +435,7 @@ class AffiliateAPI {
         throw new Error(response.message || '更新個人資料失敗')
       }
     } catch (error: any) {
-      console.error('更新個人資料錯誤:', error)
+      if (isDev) console.error('更新個人資料錯誤:', error)
       throw new Error(error.message || '更新個人資料失敗')
     }
   }
@@ -463,7 +465,7 @@ class AffiliateAPI {
         }
       }
     } catch (error: any) {
-      console.error('更新密碼錯誤:', error)
+      if (isDev) console.error('更新密碼錯誤:', error)
       return { 
         success: false, 
         message: error.message || '更新密碼失敗' 
@@ -504,7 +506,7 @@ class AffiliateAPI {
         throw new Error(response.message || '更新付款資訊失敗')
       }
     } catch (error: any) {
-      console.error('更新付款資訊錯誤:', error)
+      if (isDev) console.error('更新付款資訊錯誤:', error)
       throw new Error(error.message || '更新付款資訊失敗')
     }
   }
@@ -557,7 +559,7 @@ class AffiliateAPI {
       }
 
     } catch (error) {
-      console.error('獲取收益歷史失敗:', error)
+      if (isDev) console.error('獲取收益歷史失敗:', error)
       throw error // 直接拋出錯誤，不再使用備用數據
     }
   }

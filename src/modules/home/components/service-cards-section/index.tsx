@@ -56,7 +56,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
       }
       return "價格請洽詢"
     } catch (error) {
-      console.error('Error calculating card price:', error)
+      if (process.env.NODE_ENV === 'development') console.error('Error calculating card price:', error)
       return "價格請洽詢"
     }
   }
@@ -74,7 +74,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
       const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
       return stylist?.levelName ?? null
     } catch (error) {
-      console.error('Error getting stylist level:', error)
+      if (process.env.NODE_ENV === 'development') console.error('Error getting stylist level:', error)
       return null
     }
   }
@@ -139,7 +139,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
         alt: card.title
       }
     } catch (error) {
-      console.error('Error getting card image:', error)
+      if (process.env.NODE_ENV === 'development') console.error('Error getting card image:', error)
       const defaultImageUrl = getDefaultServiceImage(card.title)
       return {
         url: defaultImageUrl,
@@ -179,7 +179,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
       const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
       return stylist?.stylistName ?? null
     } catch (error) {
-      console.error('Error getting stylist name:', error)
+      if (process.env.NODE_ENV === 'development') console.error('Error getting stylist name:', error)
       return null
     }
   }

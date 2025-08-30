@@ -13,9 +13,11 @@ const nextConfig = {
     },
   },
   eslint: {
+    // 暫時在建置時忽略 ESLint 錯誤，待專案穩定後再收斂
     ignoreDuringBuilds: true,
   },
   typescript: {
+    // 暫時在建置時忽略 TypeScript 錯誤，待專案穩定後再收斂
     ignoreBuildErrors: true,
   },
   images: {

@@ -3,18 +3,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import LocalizedClientLink from '@modules/common/components/localized-client-link'
 
-// 搜尋結果類型定義
 type ProductResult = {
   id: string
   title: string
   handle: string
   thumbnail?: string
-  price?: {
-    calculated_price: string
-    original_price?: string
-  }
+  price?: { calculated_price?: string }
 }
 
 type BlogResult = {
@@ -31,180 +26,109 @@ type SearchResults = {
   isLoading: boolean
 }
 
-type SearchModalProps = {
+type Props = {
   isOpen: boolean
   onClose: () => void
   searchQuery: string
-  onSearchSubmit: (query: string) => void
+  onSearchSubmit?: (query: string) => void
 }
 
-const SearchModal = ({ 
-  isOpen, 
-  onClose,
-  searchQuery,
-  onSearchSubmit
-}: SearchModalProps) => {
+function SearchModal({ isOpen, onClose, searchQuery, onSearchSubmit }: Props) {
+  const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [localQuery, setLocalQuery] = useState<string>(searchQuery)
+  const [showDropdown, setShowDropdown] = useState<boolean>(false)
   const [results, setResults] = useState<SearchResults>({
     products: [],
     blogs: [],
-    isLoading: false
+    isLoading: false,
   })
-  const inputRef = useRef<HTMLInputElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const router = useRouter()
-  const [localQuery, setLocalQuery] = useState(searchQuery)
-  const [showDropdown, setShowDropdown] = useState(false)
 
-  // 當搜尋查詢變更時自動進行搜尋
   useEffect(() => {
     setLocalQuery(searchQuery)
-    
     if (searchQuery.trim().length >= 1) {
-      performSearch(searchQuery)
+      void performSearch(searchQuery)
       setShowDropdown(true)
     } else {
-      setResults({
-        products: [],
-        blogs: [],
-        isLoading: false
-      })
+      setResults({ products: [], blogs: [], isLoading: false })
       setShowDropdown(false)
     }
   }, [searchQuery])
 
-  // 當使用者輸入變化時立即執行搜尋
   useEffect(() => {
-    // 如果輸入長度小於1，不執行搜尋
     if (localQuery.trim().length < 1) {
-      setResults({
-        products: [],
-        blogs: [],
-        isLoading: false
-      })
+      setResults({ products: [], blogs: [], isLoading: false })
       setShowDropdown(false)
       return
     }
-    
-    // 使用延遲執行搜尋，避免每次按鍵都觸發API請求
     const timer = setTimeout(() => {
-      performSearch(localQuery)
+      void performSearch(localQuery)
       setShowDropdown(true)
-    }, 300)  // 300毫秒延遲
-    
+    }, 300)
     return () => clearTimeout(timer)
   }, [localQuery])
 
-  // 當模態框打開時，聚焦搜尋框
   useEffect(() => {
-    if (inputRef.current) {
+    if (isOpen && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [])
+  }, [isOpen])
 
-  // 點擊外部處理 - 對於彈出層不需要，但我們仍然使用這個來處理搜尋下拉菜單外的點擊
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // 檢查是否在瀏覽器環境中
-      if (typeof document === 'undefined') return
-      
-      // 處理點擊搜尋框外的事件，關閉下拉菜單
       if (
-        inputRef.current && 
-        !inputRef.current.contains(event.target as Node) && 
-        dropdownRef.current && 
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node) &&
+        dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setShowDropdown(false)
       }
     }
-
-    // 確保在瀏覽器環境中才添加事件監聽器
-    if (typeof document !== 'undefined') {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    
-    return () => {
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('mousedown', handleClickOutside)
-      }
-    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // 按ESC關閉下拉菜單
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (showDropdown) {
-          setShowDropdown(false)
-        } else {
-          onClose()
-        }
+        if (showDropdown) setShowDropdown(false)
+        else onClose()
       }
     }
-
-    // 確保在瀏覽器環境中才添加事件監聽器
-    if (typeof document !== 'undefined') {
-      document.addEventListener('keydown', handleEsc)
-    }
-    
-    return () => {
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('keydown', handleEsc)
-      }
-    }
+    document.addEventListener('keydown', handleEsc)
+    return () => document.removeEventListener('keydown', handleEsc)
   }, [onClose, showDropdown])
 
-  // 執行搜尋
   const performSearch = async (query: string) => {
     if (!query || query.trim().length < 1) return
-
-    setResults(prev => ({ ...prev, isLoading: true }))
-
+    setResults((prev) => ({ ...prev, isLoading: true }))
     try {
-      // 搜尋商品（使用簡化格式）
       const productsRes = await fetch(`/api/products/search?q=${encodeURIComponent(query)}&format=simple`)
       let products: ProductResult[] = []
-      
       if (productsRes.ok) {
-        const productData = await productsRes.json()
-        products = productData.products || []
-      } else {
-        console.error('商品搜尋失敗:', await productsRes.text())
+        const data = await productsRes.json()
+        products = data.products || []
       }
 
-      // 搜尋部落格文章
       const blogsRes = await fetch(`/api/blogs/search?q=${encodeURIComponent(query)}`)
       let blogs: BlogResult[] = []
-      
       if (blogsRes.ok) {
-        const blogData = await blogsRes.json()
-        blogs = blogData.posts || []
-      } else {
-        console.error('部落格文章搜尋失敗:', await blogsRes.text())
+        const data = await blogsRes.json()
+        blogs = data.posts || []
       }
 
-      setResults({
-        products,
-        blogs,
-        isLoading: false
-      })
-    } catch (error) {
-      console.error('搜尋錯誤:', error)
-      setResults({
-        products: [],
-        blogs: [],
-        isLoading: false
-      })
+      setResults({ products, blogs, isLoading: false })
+    } catch (e) {
+      console.error('搜尋錯誤:', e)
+      setResults({ products: [], blogs: [], isLoading: false })
     }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalQuery(e.target.value)
-    if (e.target.value.trim().length >= 2) {
-      setShowDropdown(true)
-    } else {
-      setShowDropdown(false)
-    }
+    setShowDropdown(e.target.value.trim().length >= 2)
   }
 
   const handleInputFocus = () => {
@@ -216,8 +140,8 @@ const SearchModal = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setShowDropdown(false)
-    // 使用正確的本地化路由
-    router.push(`/tw/search?q=${encodeURIComponent(localQuery)}`)
+    if (onSearchSubmit) onSearchSubmit(localQuery)
+    else router.push(`/tw/search?q=${encodeURIComponent(localQuery)}`)
     onClose()
   }
 
@@ -251,13 +175,13 @@ const SearchModal = ({
             className="w-full px-4 py-2 text-lg border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
             autoFocus
           />
-          <button 
+          <button
             type="submit"
             className="absolute right-12 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
           >
             搜尋
           </button>
-          <button 
+          <button
             type="button"
             onClick={onClose}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700"
@@ -268,16 +192,12 @@ const SearchModal = ({
           </button>
         </form>
 
-        {/* 搜尋提示 */}
         {localQuery.trim().length >= 1 && localQuery.trim().length < 2 && (
-          <div className="text-xs text-gray-500 mt-1 px-4">
-            請至少輸入2個字元開始搜尋
-          </div>
+          <div className="text-xs text-gray-500 mt-1 px-4">請至少輸入2個字元開始搜尋</div>
         )}
 
-        {/* 搜尋下拉菜單 */}
         {showDropdown && localQuery.trim().length >= 2 && (
-          <div 
+          <div
             ref={dropdownRef}
             className="absolute left-0 right-0 top-full bg-white border shadow-lg rounded-b-lg max-h-[70vh] overflow-y-auto z-[100] mt-1"
           >
@@ -287,30 +207,20 @@ const SearchModal = ({
               </div>
             )}
 
-            {noResults && (
-              <div className="text-center py-4 text-gray-500">
-                找不到符合「{localQuery}」的結果
-              </div>
-            )}
+            {noResults && <div className="text-center py-4 text-gray-500">找不到符合「{localQuery}」的結果</div>}
 
-            {/* 搜尋下拉菜單商品結果 */}
             {products.length > 0 && (
               <div className="p-3">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">商品</h3>
-                {products.map(product => (
-                  <div 
-                    key={product.id} 
+                {products.map((product) => (
+                  <div
+                    key={product.id}
                     className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"
                     onClick={() => handleProductClick(product.handle)}
                   >
                     {product.thumbnail ? (
                       <div className="w-10 h-10 relative mr-3 flex-shrink-0">
-                        <Image 
-                          src={product.thumbnail} 
-                          alt={product.title}
-                          fill
-                          className="object-cover rounded"
-                        />
+                        <Image src={product.thumbnail} alt={product.title} fill className="object-cover rounded" />
                       </div>
                     ) : (
                       <div className="w-10 h-10 bg-gray-100 mr-3 rounded flex-shrink-0 flex items-center justify-center">
@@ -321,17 +231,18 @@ const SearchModal = ({
                     )}
                     <div>
                       <p className="text-sm font-medium text-gray-900">{product.title}</p>
-                      {product.price && (
+                      {product.price?.calculated_price && (
                         <p className="text-xs text-gray-700">{product.price.calculated_price}</p>
                       )}
                     </div>
                   </div>
                 ))}
                 {products.length > 10 && (
-                  <div 
+                  <div
                     className="text-center mt-2 text-sm text-gray-700 hover:text-gray-900 cursor-pointer"
                     onClick={() => {
-                      onSearchSubmit(localQuery)
+                      if (onSearchSubmit) onSearchSubmit(localQuery)
+                      else router.push(`/tw/search?q=${encodeURIComponent(localQuery)}`)
                       setShowDropdown(false)
                     }}
                   >
@@ -341,24 +252,18 @@ const SearchModal = ({
               </div>
             )}
 
-            {/* 搜尋下拉菜單部落格結果 */}
             {blogs.length > 0 && (
               <div className="p-3 border-t">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">部落格文章</h3>
-                {blogs.map(blog => (
-                  <div 
-                    key={blog.id} 
+                {blogs.map((blog) => (
+                  <div
+                    key={blog.id}
                     className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"
                     onClick={() => handleBlogClick(blog.slug)}
                   >
                     {blog.image ? (
                       <div className="w-10 h-10 relative mr-3 flex-shrink-0">
-                        <Image 
-                          src={blog.image} 
-                          alt={blog.title}
-                          fill
-                          className="object-cover rounded"
-                        />
+                        <Image src={blog.image} alt={blog.title} fill className="object-cover rounded" />
                       </div>
                     ) : (
                       <div className="w-10 h-10 bg-gray-100 mr-3 rounded flex-shrink-0 flex items-center justify-center">
@@ -370,18 +275,17 @@ const SearchModal = ({
                     <div>
                       <p className="text-sm font-medium text-gray-900">{blog.title}</p>
                       {blog.publishedAt && (
-                        <p className="text-xs text-gray-500">
-                          {new Date(blog.publishedAt).toLocaleDateString('zh-TW')}
-                        </p>
+                        <p className="text-xs text-gray-500">{new Date(blog.publishedAt).toLocaleDateString('zh-TW')}</p>
                       )}
                     </div>
                   </div>
                 ))}
                 {blogs.length > 10 && (
-                  <div 
+                  <div
                     className="text-center mt-2 text-sm text-gray-700 hover:text-gray-900 cursor-pointer"
                     onClick={() => {
-                      onSearchSubmit(localQuery)
+                      if (onSearchSubmit) onSearchSubmit(localQuery)
+                      else router.push(`/tw/search?q=${encodeURIComponent(localQuery)}`)
                       setShowDropdown(false)
                     }}
                   >

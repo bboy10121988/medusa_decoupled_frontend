@@ -215,7 +215,7 @@ const SearchBarClient = () => {
         const productData = await productsRes.json()
         products = productData.products || []
       } else {
-        console.error('商品搜尋失敗:', await productsRes.text())
+        if (process.env.NODE_ENV === 'development') console.error('商品搜尋失敗:', await productsRes.text())
       }
 
       // 搜尋部落格文章
@@ -226,7 +226,7 @@ const SearchBarClient = () => {
         const blogData = await blogsRes.json()
         blogs = blogData.posts || []
       } else {
-        console.error('部落格文章搜尋失敗:', await blogsRes.text())
+        if (process.env.NODE_ENV === 'development') console.error('部落格文章搜尋失敗:', await blogsRes.text())
       }
 
       setResults({
@@ -235,7 +235,7 @@ const SearchBarClient = () => {
         isLoading: false
       })
     } catch (error) {
-      console.error('搜尋錯誤:', error)
+      if (process.env.NODE_ENV === 'development') console.error('搜尋錯誤:', error)
       setResults({
         products: [],
         blogs: [],

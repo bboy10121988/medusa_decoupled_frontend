@@ -36,7 +36,7 @@ export async function GET() {
       medusaUrl: baseUrl
     })
   } catch (error) {
-    console.error("Error checking Medusa backend:", error)
+    if (process.env.NODE_ENV === 'development') console.error("Error checking Medusa backend:", error)
     
     return NextResponse.json({
       status: "error",

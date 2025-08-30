@@ -10,7 +10,7 @@ export async function GET() {
       logoWidth: headerData?.logoWidth || 150,
     })
   } catch (error) {
-    console.error('API 路由中獲取 header 數據時出錯:', error)
+    if (process.env.NODE_ENV === 'development') console.error('API 路由中獲取 header 數據時出錯:', error)
     return NextResponse.json(
       { error: 'Failed to fetch header data' },
       { status: 500 }

@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
         success: true,
         message: "登入成功" 
       })
-    } catch (authError: any) {
-      console.error("Authentication error:", authError)
+  } catch (authError: any) {
+    if (process.env.NODE_ENV === 'development') console.error("Authentication error:", authError)
       
       // 處理常見的認證錯誤
       if (authError.message?.includes("Invalid email or password") || 

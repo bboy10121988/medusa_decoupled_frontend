@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       stocked_quantity: 0
     })
   } catch (error) {
-    console.error('Error fetching inventory:', error)
+    if (process.env.NODE_ENV === 'development') console.error('Error fetching inventory:', error)
     return NextResponse.json({ error: 'Failed to fetch inventory' }, { status: 500 })
   }
 }

@@ -13,7 +13,7 @@ export default async function InfiniteScrollProducts({
   sortBy: SortOptions
   countryCode: string
 }) {
-  console.log("🏪 InfiniteScrollProducts called with:", {
+  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts called with:", {
     sortBy,
     countryCode
   })
@@ -21,11 +21,11 @@ export default async function InfiniteScrollProducts({
   const region = await getRegion(countryCode)
 
   if (!region) {
-    console.log("🏪 InfiniteScrollProducts - No region found for:", countryCode)
+    if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - No region found for:", countryCode)
     return null
   }
 
-  console.log("🏪 InfiniteScrollProducts - Region found:", {
+  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Region found:", {
     id: region.id,
     name: region.name
   })
@@ -40,7 +40,7 @@ export default async function InfiniteScrollProducts({
     countryCode,
   })
 
-  console.log("🏪 InfiniteScrollProducts - Products loaded:", {
+  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Products loaded:", {
     count: products?.length,
     totalCount: count,
     productIds: products?.map(p => p.id)
@@ -48,7 +48,7 @@ export default async function InfiniteScrollProducts({
 
   const sortedProducts = sortProducts(products, sortBy)
 
-  console.log("🏪 InfiniteScrollProducts - Products sorted:", {
+  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Products sorted:", {
     sortBy,
     sortedCount: sortedProducts?.length
   })

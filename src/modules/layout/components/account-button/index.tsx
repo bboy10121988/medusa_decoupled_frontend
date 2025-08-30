@@ -3,6 +3,7 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { StoreCustomer } from "@medusajs/types"
 import { useEffect, useState } from "react"
+import safeFetchGlobal from '../../../../lib/safe-fetch'
 
 export default function AccountButton() {
   const [customer, setCustomer] = useState<StoreCustomer | null>(null)
@@ -10,13 +11,12 @@ export default function AccountButton() {
   useEffect(() => {
     const fetchCustomer = async () => {
       try {
-        const response = await fetch("/api/customer")
-        if (response.ok) {
-          const data = await response.json()
-          setCustomer(data.customer)
+        const data = await safeFetchGlobal('/api/customer', undefined, null)
+        if (data && typeof data === 'object') {
+          setCustomer((data as any).customer || null)
         }
       } catch (error) {
-        console.log("Customer not logged in")
+        console.log('Customer not logged in')
         setCustomer(null)
       }
     }

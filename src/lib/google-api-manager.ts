@@ -7,6 +7,7 @@ class GoogleApiManager {
   private isLoading = false
   private callbacks: Array<(response: any) => void> = []
   private errorCallbacks: Array<(error: string) => void> = []
+  private scriptId = 'google-gsi-client'
 
   static getInstance(): GoogleApiManager {
     if (!GoogleApiManager.instance) {
@@ -37,14 +38,18 @@ class GoogleApiManager {
     this.isLoading = true
 
     try {
-      // 等待 Google Script 載入
+      // 確保只注入一次腳本並等待可用
+      await this.ensureScriptInjected()
       await this.waitForGoogleScript()
       
       if (!window.google?.accounts?.id) {
         throw new Error('Google API 載入失敗')
       }
 
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '21147467753-jfjp5g559a1s61s416bu4ko41mq6no5g.apps.googleusercontent.com'
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+      if (!clientId) {
+        throw new Error('NEXT_PUBLIC_GOOGLE_CLIENT_ID 未設定')
+      }
       
       console.log('初始化 Google API...')
       window.google.accounts.id.initialize({
@@ -63,6 +68,43 @@ class GoogleApiManager {
       console.error('Google API 初始化失敗:', error)
       throw error
     }
+  }
+
+  private async ensureScriptInjected(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (typeof window === 'undefined' || typeof document === 'undefined') {
+        return reject(new Error('只能在瀏覽器環境初始化 Google API'))
+      }
+
+      // 已經可用
+      if (window.google?.accounts?.id) {
+        return resolve()
+      }
+
+      // 檢查是否已有腳本節點
+      const existing = document.getElementById(this.scriptId) as HTMLScriptElement | null
+      if (existing) {
+        // 若已載入完成則直接 resolve，否則掛載事件等待
+        if ((existing as any)._loaded) {
+          return resolve()
+        }
+        existing.addEventListener('load', () => resolve())
+        existing.addEventListener('error', () => reject(new Error('Google Script 載入失敗')))
+        return
+      }
+
+      const script = document.createElement('script')
+      script.id = this.scriptId
+      script.src = 'https://accounts.google.com/gsi/client'
+      script.async = true
+      script.defer = true
+      script.onload = () => {
+        ;(script as any)._loaded = true
+        resolve()
+      }
+      script.onerror = () => reject(new Error('Google Script 載入失敗'))
+      document.head.appendChild(script)
+    })
   }
 
   private async waitForGoogleScript(): Promise<void> {

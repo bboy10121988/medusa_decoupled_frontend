@@ -2,21 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('📞 前端物流選擇回調 API 被調用')
+    if (process.env.NODE_ENV === 'development') console.log('📞 前端物流選擇回調 API 被調用')
     
     const body = await request.json()
-    console.log('📝 回調參數:', body)
+    if (process.env.NODE_ENV === 'development') console.log('📝 回調參數:', body)
 
     // 轉發回調請求到後端
     const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
     const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
     const apiEndpoint = `${backendUrl}/store/ecpay/logistics-callback`
 
-    console.log('🔄 轉發回調到:', apiEndpoint)
-    console.log('🔑 使用 Publishable Key:', publishableKey ? '已設定' : '未設定')
+    if (process.env.NODE_ENV === 'development') console.log('🔄 轉發回調到:', apiEndpoint)
+    if (process.env.NODE_ENV === 'development') console.log('🔑 使用 Publishable Key:', publishableKey ? '已設定' : '未設定')
 
     if (!publishableKey) {
-      console.error('❌ 缺少 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY')
+      if (process.env.NODE_ENV === 'development') console.error('❌ 缺少 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY')
       return NextResponse.json(
         { 
           success: false, 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('❌ 後端回調 API 錯誤:', response.status, errorData)
+      if (process.env.NODE_ENV === 'development') console.error('❌ 後端回調 API 錯誤:', response.status, errorData)
       return NextResponse.json({
         success: false,
         message: `後端回調 API 錯誤: ${response.status}`,
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('❌ 前端物流選擇回調 API 錯誤:', error)
+    if (process.env.NODE_ENV === 'development') console.error('❌ 前端物流選擇回調 API 錯誤:', error)
     return NextResponse.json({
       success: false,
       message: '物流選擇回調 API 錯誤',

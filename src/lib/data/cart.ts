@@ -21,6 +21,7 @@ import { getRegion } from "./regions"
  * @returns The cart object if found, or null if not found.
  */
 export async function retrieveCart(cartId?: string) {
+  const isDev = process.env.NODE_ENV === 'development'
   const id = cartId || (await getCartId())
 
   if (!id) {
@@ -51,8 +52,7 @@ export async function retrieveCart(cartId?: string) {
     .catch((error) => {
       // 只在真正的錯誤時記錄，而不是沒有購物車時
       if (error.status !== 404) {
-        // 在開發環境才顯示錯誤
-        if (process.env.NODE_ENV === 'development') {
+        if (isDev) {
           console.error("❌ retrieveCart 失敗:", error)
         }
       }
@@ -67,7 +67,7 @@ export async function getOrSetCart(countryCode: string) {
     throw new Error(`Region not found for country code: ${countryCode}`)
   }
 
-  console.log("🌍 區域資訊:", { regionId: region.id, countryCode })
+  if (isDev) console.log("🌍 區域資訊:", { regionId: region.id, countryCode })
 
   let cart = await retrieveCart()
 
@@ -76,7 +76,7 @@ export async function getOrSetCart(countryCode: string) {
   }
 
   if (!cart) {
-    console.log("🆕 建立新購物車...")
+    if (isDev) console.log("🆕 建立新購物車...")
     try {
       const cartResp = await sdk.store.cart.create(
         { region_id: region.id },
@@ -85,29 +85,29 @@ export async function getOrSetCart(countryCode: string) {
       )
       cart = cartResp.cart
 
-      console.log("✅ 購物車建立成功:", { cartId: cart.id })
+      if (isDev) console.log("✅ 購物車建立成功:", { cartId: cart.id })
 
       await setCartId(cart.id)
-      console.log("🍪 Cart ID 已設定到 cookies:", cart.id)
+      if (isDev) console.log("🍪 Cart ID 已設定到 cookies:", cart.id)
 
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
     } catch (error) {
-      console.error("❌ 建立購物車失敗:", error)
+      if (isDev) console.error("❌ 建立購物車失敗:", error)
       throw error
     }
   } else {
-    console.log("♻️ 使用現有購物車:", { cartId: cart.id })
+    if (isDev) console.log("♻️ 使用現有購物車:", { cartId: cart.id })
   }
 
   if (cart && cart?.region_id !== region.id) {
-    console.log("🔄 更新購物車區域...")
+    if (isDev) console.log("🔄 更新購物車區域...")
     try {
       await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers)
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
     } catch (error) {
-      console.error("❌ 更新購物車區域失敗:", error)
+      if (isDev) console.error("❌ 更新購物車區域失敗:", error)
       throw error
     }
   }
@@ -153,7 +153,7 @@ export async function addToCart({
     throw new Error("Missing variant ID when adding to cart")
   }
 
-  console.log("🚀 addToCart 開始:", { variantId, quantity, countryCode })
+  if (isDev) console.log("🚀 addToCart 開始:", { variantId, quantity, countryCode })
 
   try {
     const cart = await getOrSetCart(countryCode)
@@ -162,7 +162,7 @@ export async function addToCart({
       throw new Error("Error retrieving or creating cart")
     }
 
-    console.log("📦 購物車資訊:", { cartId: cart.id, regionId: cart.region_id })
+    if (isDev) console.log("📦 購物車資訊:", { cartId: cart.id, regionId: cart.region_id })
 
     const headers = {
       ...(await getAuthHeaders()),
@@ -179,7 +179,7 @@ export async function addToCart({
         headers
       )
       .then(async (response) => {
-        console.log("✅ 成功創建購物車項目:", response)
+        if (isDev) console.log("✅ 成功創建購物車項目:", response)
         
         const cartCacheTag = await getCacheTag("carts")
         revalidateTag(cartCacheTag)
@@ -188,11 +188,11 @@ export async function addToCart({
         revalidateTag(fulfillmentCacheTag)
       })
       .catch((error) => {
-        console.error("❌ 創建購物車項目失敗:", error)
+        if (isDev) console.error("❌ 創建購物車項目失敗:", error)
         throw error
       })
   } catch (error) {
-    console.error("❌ addToCart 失敗:", error)
+    if (isDev) console.error("❌ addToCart 失敗:", error)
     throw error
   }
 }

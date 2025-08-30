@@ -34,6 +34,40 @@ function checkEnvVariables() {
 
     process.exit(1)
   }
+
+  // 非阻斷：提示 Stripe 公開金鑰（若你啟用 Stripe 支付）
+  if (!process.env.NEXT_PUBLIC_STRIPE_KEY) {
+    console.warn(
+      c.yellow(
+        "\n⚠️  Warning: NEXT_PUBLIC_STRIPE_KEY is not set. If Stripe payments are enabled, set it in your .env."
+      )
+    )
+  }
+
+  // 非阻斷：提示後端 URL（middleware 需要 MEDUSA_BACKEND_URL）
+  if (!process.env.MEDUSA_BACKEND_URL) {
+    console.warn(
+      c.yellow(
+        "\n⚠️  Warning: MEDUSA_BACKEND_URL is not set. Middleware relies on it to resolve regions."
+      )
+    )
+  }
+
+  // 非阻斷：提示 Sanity 與站台 URL
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !process.env.NEXT_PUBLIC_SANITY_DATASET) {
+    console.warn(
+      c.yellow(
+        "\n⚠️  Warning: Sanity envs missing (NEXT_PUBLIC_SANITY_PROJECT_ID / NEXT_PUBLIC_SANITY_DATASET). Studio/content fetching may misbehave."
+      )
+    )
+  }
+  if (!process.env.NEXT_PUBLIC_SITE_URL) {
+    console.warn(
+      c.yellow(
+        "\n⚠️  Warning: NEXT_PUBLIC_SITE_URL is not set. SEO canonical/metadataBase will fallback to http://localhost:8000."
+      )
+    )
+  }
 }
 
 module.exports = checkEnvVariables

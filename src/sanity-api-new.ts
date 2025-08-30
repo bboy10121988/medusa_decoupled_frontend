@@ -4,12 +4,28 @@ import type { MainSection } from './types/page-sections'
 import type { PageData } from './types/pages'
 
 const client = createClient({
-  projectId: "m7o2mv1n",
-  dataset: "production",
-  apiVersion: "2024-01-01",
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-01-01",
   useCdn: true,
-  token: "skxPHbtETeuof6qw2oYMoST8kD2UCmM1UTWEjAqw03YETyws2ZhLtUlUGoPieCQQ9Y4SkaoLWXHZ8mOs34ZUmqFMPnr7tnoqY1HuLVnMTwZ0SVhDV2mOuk336ICH1h7JuzUnEyyYOiJljwvERUlw7GEelitairKw8gRMHs8HABPpZZT1TWzZ"
+  // Never hardcode tokens in source; if needed for server-side, read from env
+  token: process.env.SANITY_READ_TOKEN,
 })
+
+// Helper to handle AbortError / user-abort gracefully for sanity fetches
+const isDev = process.env.NODE_ENV === 'development'
+async function safeFetch<T = any>(query: string, params: any = {}, options: any = {}, fallback: T | null = null): Promise<any> {
+  try {
+    return await client.fetch(query, params, options)
+  } catch (error: any) {
+    const msg = String(error?.message || error)
+    if (error?.name === 'AbortError' || msg.includes('The user aborted a request') || msg.includes('signal is aborted')) {
+      if (isDev) console.warn('Sanity fetch aborted (handled):', msg)
+      return fallback
+    }
+    throw error
+  }
+}
 
 // Base query fragments
 const mainBannerFragment = `
@@ -143,7 +159,7 @@ export async function getHomeBanners() {
     }
   }`
 
-  const result = await client.fetch(query)
+  const result: any = await safeFetch(query, {}, {}, null)
   return result as { mainSections: MainSection[] }
 }
 
@@ -155,7 +171,7 @@ export async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
     description,
     isActive
   }`
-  return client.fetch(query)
+  return (await safeFetch(query, {}, {}, [])) as FeaturedProduct[]
 }
 
 export async function getHeader() {
@@ -170,7 +186,7 @@ export async function getHeader() {
       href
     }
   }`
-  return client.fetch(query)
+  return await safeFetch(query, {}, {}, null)
 }
 
 export async function getPageBySlug(slug: string): Promise<PageData | null> {
@@ -198,10 +214,10 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
       }
     }`
 
-    const page = await client.fetch(query, { slug })
+  const page = await safeFetch(query, { slug }, {}, null)
     return page
   } catch (error) {
-    console.error('獲取頁面資料失敗:', error)
+    if (isDev) console.error('獲取頁面資料失敗:', error)
     return null
   }
 }
@@ -234,10 +250,10 @@ export async function getAllPosts(category?: string, limit: number = 50): Promis
       body
     }`
 
-    const posts = await client.fetch<BlogPost[]>(query)
-    return posts || []
+  const posts = await safeFetch(query, {}, {}, [])
+  return posts || []
   } catch (error) {
-    console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
+    if (isDev) console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
     return []
   }
 }
@@ -250,10 +266,10 @@ export async function getCategories(): Promise<Category[]> {
       title
     }`
     
-    const categories = await client.fetch<Category[]>(query)
-    return categories || []
+  const categories = await safeFetch(query, {}, {}, [])
+  return categories || []
   } catch (error) {
-    console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
+    if (isDev) console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
     return []
   }
 }
@@ -270,7 +286,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     "categories": categories[]->{title}
   }`
   
-  return client.fetch(query, { slug })
+  return await safeFetch(query, { slug }, {}, null)
 }
 
 export async function getAllPages(): Promise<PageData[]> {
@@ -298,10 +314,10 @@ export async function getAllPages(): Promise<PageData[]> {
       }
     }`
 
-    const pages = await client.fetch<PageData[]>(query)
-    return pages || []
+  const pages = await safeFetch<PageData[]>(query, {}, {}, [])
+  return pages || []
   } catch (error) {
-    console.error('[getAllPages] 從 Sanity 獲取頁面時發生錯誤:', error)
+    if (isDev) console.error('[getAllPages] 從 Sanity 獲取頁面時發生錯誤:', error)
     return []
   }
 }

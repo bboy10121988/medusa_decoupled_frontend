@@ -26,12 +26,12 @@ function CartMismatchBanner(props: {
     // 自動嘗試修復購物車關聯
     const autoFix = async () => {
       if (autoRetryCount < 2) {
-        console.log(`自動修復購物車關聯 (嘗試 ${autoRetryCount + 1})`)
+        if (process.env.NODE_ENV === 'development') console.log(`自動修復購物車關聯 (嘗試 ${autoRetryCount + 1})`)
         try {
           await transferCart()
           // 如果成功，組件會重新渲染且不會顯示
         } catch (error) {
-          console.error("自動修復失敗:", error)
+          if (process.env.NODE_ENV === 'development') console.error("自動修復失敗:", error)
           setAutoRetryCount(prev => prev + 1)
           
           // 第二次失敗後才顯示手動修復選項

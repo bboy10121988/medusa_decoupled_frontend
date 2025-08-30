@@ -45,8 +45,8 @@ export default defineConfig({
   name: 'default', 
   title: 'tims_web',
 
-  projectId: 'm7o2mv1n',
-  dataset: 'production',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'm7o2mv1n',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   basePath: '/cms',
 
   plugins: [
@@ -55,10 +55,14 @@ export default defineConfig({
   ],
 
   document: {
-    actions: (prev, context) => 
-      context.schemaType === 'pages' 
-        ? [...prev, GeneratePageAction]
-        : prev
+    actions: (prev, context) => {
+      // 僅當 webhook 設定齊全時才顯示「生成頁面」
+      const canGenerate = Boolean(WEBHOOK_URL && WEBHOOK_SECRET)
+      if (context.schemaType === 'pages' && canGenerate) {
+        return [...prev, GeneratePageAction]
+      }
+      return prev
+    }
   },
 
   schema: {

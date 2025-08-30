@@ -1,5 +1,5 @@
 // 全域錯誤處理，特別針對 Sanity 的 AbortError
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   // 保存原始的 console.error 方法
   const originalConsoleError = console.error
 

@@ -61,7 +61,7 @@ export default function InfiniteProducts({
       setPageParam((prev) => prev + 1)
       setHasMore(products.length + response.products.length < totalCount)
     } catch (error) {
-      console.error("載入更多商品時出錯:", error)
+      if (process.env.NODE_ENV === 'development') console.error("載入更多商品時出錯:", error)
     } finally {
       setIsLoading(false)
     }

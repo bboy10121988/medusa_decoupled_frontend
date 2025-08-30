@@ -34,10 +34,10 @@ async function getBlogPosts(category?: string, limit: number = 6) {
 
     // 5. 執行查詢並傳入參數
     const posts = await client.fetch<BlogPost[]>(query, params)
-    console.log('BlogPosts - 查詢到的文章數量:', posts?.length)
+    if (process.env.NODE_ENV === 'development') console.log('BlogPosts - 查詢到的文章數量:', posts?.length)
     return posts
   } catch (error) {
-    console.error('取得部落格文章時發生錯誤:', error)
+    if (process.env.NODE_ENV === 'development') console.error('取得部落格文章時發生錯誤:', error)
     return []
   }
 }
@@ -57,12 +57,12 @@ export default async function BlogPosts({
 }) {
   try {
     const posts = await getBlogPosts(category, limit)
-    console.log('BlogPosts - 原始文章數據:', JSON.stringify(posts, null, 2))
+    if (process.env.NODE_ENV === 'development') console.log('BlogPosts - 原始文章數據:', JSON.stringify(posts, null, 2))
 
     // 檢查並過濾無效的文章 - 移除對 slug 的強制要求，因為有些文章可能沒有設置 slug
     const validPosts = posts?.filter(post => {
       const isValid = post && post.title
-      console.log(`BlogPosts - 文章 "${post?.title}" 驗證:`, {
+      if (process.env.NODE_ENV === 'development') console.log(`BlogPosts - 文章 "${post?.title}" 驗證:`, {
         hasPost: !!post,
         hasTitle: !!post?.title,
         hasSlug: !!post?.slug?.current,
@@ -140,7 +140,7 @@ export default async function BlogPosts({
       </div>
     )
   } catch (error) {
-    console.error('顯示部落格文章時發生錯誤:', error)
+    if (process.env.NODE_ENV === 'development') console.error('顯示部落格文章時發生錯誤:', error)
     return (
       <div className={(showTitle && title) ? "py-8 md:py-12 bg-gray-50" : "py-0 bg-gray-50"}>
         <div className="container mx-auto px-4">

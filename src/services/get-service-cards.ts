@@ -49,7 +49,18 @@ export async function getServiceCards(): Promise<ServiceCardsType | null> {
     }
   }`
 
-  const result = await client.fetch(query)
+  let result: any = null
+  try {
+    result = await client.fetch(query)
+  } catch (error: any) {
+    const msg = String(error?.message || error)
+    if (error?.name === 'AbortError' || msg.includes('The user aborted a request') || msg.includes('signal is aborted')) {
+      if (process.env.NODE_ENV === 'development') console.warn('Sanity fetch aborted (handled) in getServiceCards:', msg)
+      result = null
+    } else {
+      throw error
+    }
+  }
   
   if (!result?.mainSections) return null
 

@@ -22,7 +22,7 @@ export const getFeaturedProducts = async (
 
     return response.products || []
   } catch (error) {
-    console.error("Error fetching featured products:", error)
+    if (process.env.NODE_ENV === 'development') console.error("Error fetching featured products:", error)
     return []
   }
 }
@@ -53,7 +53,7 @@ export const getRelatedProducts = async (
 
     return filteredProducts
   } catch (error) {
-    console.error("Error fetching related products:", error)
+    if (process.env.NODE_ENV === 'development') console.error("Error fetching related products:", error)
     return []
   }
 }

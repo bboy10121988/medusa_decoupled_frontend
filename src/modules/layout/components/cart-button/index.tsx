@@ -4,6 +4,7 @@ import CartDropdown from "../cart-dropdown"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { HttpTypes } from "@medusajs/types"
+import safeFetchGlobal from '../../../../lib/safe-fetch'
 
 export default function CartButton() {
   const [cart, setCart] = useState<HttpTypes.StoreCart | null>(null)
@@ -13,9 +14,10 @@ export default function CartButton() {
   // 獨立的獲取購物車函數 - 使用 API 路由而非 Server Action
   const fetchCart = useCallback(async () => {
     try {
-      const response = await fetch('/api/cart/get')
-      const data = await response.json()
-      setCart(data.cart)
+      const data = await safeFetchGlobal('/api/cart/get', undefined, null)
+      if (data && typeof data === 'object') {
+        setCart((data as any).cart || null)
+      }
     } catch (error) {
       console.error('Failed to fetch cart:', error)
       setCart(null)
