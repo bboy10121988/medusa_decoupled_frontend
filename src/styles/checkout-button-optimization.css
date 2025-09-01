@@ -1,0 +1,284 @@
+/* 結帳按鈕優化 CSS */
+
+/* 主結帳按鈕動畫 */
+.checkout-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.checkout-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.checkout-button:hover::before {
+  left: 100%;
+}
+
+/* 載入動畫 */
+.loading-spinner {
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 按鈕 hover 效果 */
+.quick-action-button {
+  position: relative;
+  transform: translateY(0);
+  transition: all 0.2s ease;
+}
+
+.quick-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.quick-action-button:active {
+  transform: translateY(0);
+}
+
+/* 成功動畫 */
+.success-animation {
+  animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 錯誤動畫 */
+.error-animation {
+  animation: errorShake 0.6s ease-out;
+}
+
+@keyframes errorShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* 購物車圖示動畫 */
+.cart-icon {
+  transition: transform 0.2s ease;
+}
+
+.cart-icon:hover {
+  transform: scale(1.1);
+}
+
+/* 漸變按鈕效果 */
+.gradient-button {
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 脈衝效果 */
+.pulse-effect {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+  .checkout-button {
+    height: 48px;
+    font-size: 14px;
+  }
+  
+  .quick-action-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-button {
+    height: 44px;
+    font-size: 13px;
+  }
+}
+
+/* Dark mode 支援 */
+@media (prefers-color-scheme: dark) {
+  .checkout-button {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border: 1px solid #374151;
+  }
+  
+  .checkout-button:hover {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  }
+}
+
+/* 高對比度支援 */
+@media (prefers-contrast: high) {
+  .checkout-button {
+    border: 2px solid currentColor;
+    background: transparent;
+  }
+  
+  .checkout-button:hover {
+    background: currentColor;
+    color: white;
+  }
+}
+
+/* 減少動畫偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .checkout-button,
+  .quick-action-button,
+  .loading-spinner,
+  .gradient-button {
+    animation: none;
+    transition: none;
+  }
+  
+  .checkout-button::before {
+    display: none;
+  }
+}
+
+/* Toast 通知樣式優化 */
+.toast-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+}
+
+.toast-loading {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+}
+
+/* 安全圖示動畫 */
+.security-icon {
+  animation: securityPulse 2s ease-in-out infinite;
+}
+
+@keyframes securityPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 速度圖示動畫 */
+.speed-icon {
+  animation: speedBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes speedBlink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.5;
+  }
+}
+
+/* 按鈕群組間距 */
+.button-group {
+  gap: 8px;
+}
+
+.button-group button:first-child {
+  margin-left: 0;
+}
+
+.button-group button:last-child {
+  margin-right: 0;
+}
+
+/* 工具提示樣式 */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}

@@ -30,18 +30,15 @@ const Review = ({ cart }: { cart: any }) => {
             }
           )}
         >
-          Review
+          檢視訂單
         </Heading>
       </div>
       {isOpen && previousStepsCompleted && (
         <>
           <div className="flex items-start gap-x-1 w-full mb-6">
             <div className="w-full">
-              <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                By clicking the Place Order button, you confirm that you have
-                read, understand and accept our Terms of Use, Terms of Sale and
-                Returns Policy and acknowledge that you have read Medusa
-                Store&apos;s Privacy Policy.
+              <Text className="txt-medium-plus text-gray-900 mb-1">
+                點擊「送出訂單」按鈕，即表示您已閱讀、了解並接受我們的使用條款、銷售條款及退貨政策，並確認您已閱讀 Medusa Store 的隱私政策。
               </Text>
             </div>
           </div>

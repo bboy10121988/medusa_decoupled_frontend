@@ -10,7 +10,7 @@ const CountrySelect = forwardRef<
   NativeSelectProps & {
     region?: HttpTypes.StoreRegion
   }
->(({ placeholder = "Country", region, defaultValue, ...props }, ref) => {
+>(({ placeholder = "國家", region, defaultValue, ...props }, ref) => {
   const innerRef = useRef<HTMLSelectElement>(null)
 
   useImperativeHandle<HTMLSelectElement | null, HTMLSelectElement | null>(
@@ -23,10 +23,19 @@ const CountrySelect = forwardRef<
       return []
     }
 
-    return region.countries?.map((country) => ({
-      value: country.iso_2,
-      label: country.display_name,
-    }))
+    return region.countries?.map((country) => {
+      // 特殊處理台灣的顯示名稱
+      let displayName = country.display_name
+      if (country.iso_2?.toLowerCase() === 'tw' || 
+          country.display_name?.toLowerCase().includes('taiwan')) {
+        displayName = '台灣'
+      }
+      
+      return {
+        value: country.iso_2,
+        label: displayName,
+      }
+    })
   }, [region])
 
   return (

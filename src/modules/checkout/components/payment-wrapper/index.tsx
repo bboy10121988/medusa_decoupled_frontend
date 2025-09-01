@@ -5,6 +5,7 @@ import React from "react"
 import StripeWrapper from "./stripe-wrapper"
 import { HttpTypes } from "@medusajs/types"
 import { isStripe } from "@lib/constants"
+import EcpayCheckout from "@/components/checkout/ecpay-checkout"
 
 type PaymentWrapperProps = {
   cart: HttpTypes.StoreCart
@@ -19,11 +20,22 @@ const PaymentWrapper: React.FC<PaymentWrapperProps> = ({ cart, children }) => {
     (s) => s.status === "pending"
   )
 
-  if (
-    isStripe(paymentSession?.provider_id) &&
-    paymentSession &&
-    stripePromise
-  ) {
+  if (!paymentSession) {
+    return <div>{children}</div>
+  }
+
+  // 如果是綠界支付
+  if (paymentSession.provider_id === 'ecpay') {
+    return (
+      <div>
+        {children}
+        {cart.id && <EcpayCheckout orderId={cart.id} />}
+      </div>
+    )
+  }
+
+  // 如果是 Stripe 支付
+  if (isStripe(paymentSession.provider_id) && stripePromise) {
     return (
       <StripeWrapper
         paymentSession={paymentSession}

@@ -1,8 +1,8 @@
 "use client"
 
-import { Stripe, StripeElementsOptions } from "@stripe/stripe-js"
-import { Elements } from "@stripe/react-stripe-js"
 import { HttpTypes } from "@medusajs/types"
+import { Elements } from "@stripe/react-stripe-js"
+import { Stripe, StripeElementsOptions } from "@stripe/stripe-js"
 import { createContext } from "react"
 
 type StripeWrapperProps = {
@@ -25,21 +25,18 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
   }
 
   if (!stripeKey) {
-    throw new Error(
-      "Stripe key is missing. Set NEXT_PUBLIC_STRIPE_KEY environment variable."
-    )
+    console.warn("Stripe 已停用：未設定 NEXT_PUBLIC_STRIPE_KEY 環境變數")
+    return <div>{children}</div>
   }
 
   if (!stripePromise) {
-    throw new Error(
-      "Stripe promise is missing. Make sure you have provided a valid Stripe key."
-    )
+    console.warn("Stripe 已停用：無法載入 Stripe")
+    return <div>{children}</div>
   }
 
   if (!paymentSession?.data?.client_secret) {
-    throw new Error(
-      "Stripe client secret is missing. Cannot initialize Stripe."
-    )
+    console.warn("Stripe 客戶端密鑰遺失，無法初始化 Stripe")
+    return <div>{children}</div>
   }
 
   return (
