@@ -1,0 +1,26 @@
+/* 文字大小工具類 */
+@layer utilities {
+  .text-xsmall-regular {
+    font-size: 0.75rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5;
+  }
+
+  .text-small-regular {
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5;
+  }
+
+  .text-base-regular {
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5;
+  }
+
+  .text-large-regular {
+    font-size: 1.125rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5;
+  }
+}

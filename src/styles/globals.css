@@ -1,363 +1,583 @@
+/* Tailwind 基礎樣式 */
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@layer utilities {
-  /* Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+/* 
+ * 字體系統 (Typography System) - 2025 國際最佳實踐
+ * 結構基於 Material Design, Apple Human Interface Guidelines 和 IBM Carbon Design
+ * 採用系統優先、響應式優先、可訪問性優先的設計理念
+ */
 
-  .no-scrollbar::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
+/* ========== 1. 核心字體變數 ========== */
+:root {
+  /* ===== 顏色系統 ===== */
+  /* 主要顏色 */
+  --color-primary: var(--theme-color, #3b82f6);
+  --color-primary-light: #60a5fa;
+  --color-primary-dark: #2563eb;
+  
+  /* 中性色階 */
+  --color-white: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-black: #000000;
+  
+  /* 文字顏色 */
+  --text-primary: var(--color-gray-900);
+  --text-secondary: var(--color-gray-700);
+  --text-tertiary: var(--color-gray-500);
+  --text-disabled: var(--color-gray-400);
+  
+  /* 背景顏色 */
+  --bg-primary: var(--color-white);
+  --bg-secondary: var(--color-gray-50);
+  --bg-tertiary: var(--color-gray-100);
+  --bg-disabled: var(--color-gray-200);
+  
+  /* 邊框顏色 */
+  --border-primary: var(--color-gray-200);
+  --border-secondary: var(--color-gray-300);
+  
+  /* 狀態顏色 */
+  --state-success: #10b981;
+  --state-warning: #f59e0b;
+  --state-error: #ef4444;
+  --state-info: #3b82f6;
 
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
+  /* 主要字體堆疊 - 系統優先 */
+  --font-base: 
+    /* 現代系統字體 */
+    -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI',
+    /* 多語言支援 - 中文優先 */
+    'Noto Sans TC', 'Noto Sans SC', 'Microsoft JhengHei UI', 'Microsoft JhengHei', 
+    'PingFang TC', 'PingFang SC', 'Source Han Sans TC', 'Source Han Sans SC',
+    /* 西文備用字體 */
+    'Inter Variable', 'Inter', 'Roboto', 'Helvetica Neue', Helvetica, Arial,
+    /* 系統通用字體 */
+    system-ui, ui-sans-serif, sans-serif,
+    /* 表情符號支援 */
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    
+  /* 標題字體堆疊 */
+  --font-heading: 
+    /* macOS 系統字體 */
+    'SF Pro Display', 'PingFang TC', -apple-system,
+    /* Windows 系統字體 */
+    'Microsoft JhengHei UI', 'Microsoft JhengHei',
+    /* 備用網頁字體 */
+    'Noto Sans TC', 'Noto Sans SC', 'Source Han Sans TC', 'Source Han Sans SC',
+    /* 其他系統字體 */
+    'Segoe UI Variable', 'Segoe UI', 'Google Sans', BlinkMacSystemFont,
+    /* 西文備用字體 */
+    'Inter Variable', 'Inter', 'Avenir Next', Avenir, 'Helvetica Neue', Helvetica,
+    /* 系統通用字體 */
+    system-ui, ui-sans-serif, sans-serif;
+    
+  /* 等寬字體堆疊 */
+  --font-mono:
+    'SF Mono', 'Monaco', 'Menlo', 'Consolas',
+    'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Roboto Mono',
+    'Ubuntu Mono', 'Liberation Mono', 'Courier New', 
+    ui-monospace, monospace;
+    
+  /* 字體渲染設定 */
+  --font-display: swap;
+  
+  /* 字體大小比例 - 採用 8pt 比例系統 */
+  --font-scale-ratio: 1.25;  /* Major Third比例 */
+  
+  /* 基礎字體大小 - 16px 為基準 */
+  --font-size-base: 1rem;  /* 16px */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+  --font-size-5xl: 3rem; /* 48px */
+  
+  /* 字重變數 */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* 行高變數 */
+  --line-height-tight: 1.2;  /* 標題 */
+  --line-height-snug: 1.3;   /* 副標題 */
+  --line-height-normal: 1.5; /* 內文 */
+  --line-height-relaxed: 1.7; /* 長篇內文 */
+  
+  /* 字間距變數 */
+  --letter-spacing-tight: -0.02em; /* 標題 */
+  --letter-spacing-normal: 0;      /* 一般 */
+  --letter-spacing-wide: 0.025em;  /* 內文 */
+  --letter-spacing-wider: 0.1em;   /* 強調 */
+  --letter-spacing-widest: 0.2em;  /* 特殊標題 */
+  
+  /* ===== 間距系統 ===== */
+  /* 基於 8pt 網格系統 */
+  --spacing-0: 0px;
+  --spacing-1: 0.25rem;  /* 4px */
+  --spacing-2: 0.5rem;   /* 8px */
+  --spacing-3: 0.75rem;  /* 12px */
+  --spacing-4: 1rem;     /* 16px */
+  --spacing-5: 1.25rem;  /* 20px */
+  --spacing-6: 1.5rem;   /* 24px */
+  --spacing-8: 2rem;     /* 32px */
+  --spacing-10: 2.5rem;  /* 40px */
+  --spacing-12: 3rem;    /* 48px */
+  --spacing-16: 4rem;    /* 64px */
+  --spacing-20: 5rem;    /* 80px */
+  
+  /* 元件間距 */
+  --component-padding: var(--spacing-4);
+  --section-padding: var(--spacing-16);
+  --container-padding: var(--spacing-4);
+  
+  /* 容器最大寬度 */
+  --container-max-width: 1280px;
+  
+  /* ===== 陰影系統 ===== */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* ===== 動畫系統 ===== */
+  --transition-all: all 0.3s ease;
+  --transition-colors: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  --transition-transform: transform 0.3s ease;
+  --transition-shadow: box-shadow 0.3s ease;
+}
 
-  input:focus ~ label,
-  input:not(:placeholder-shown) ~ label {
-    @apply -translate-y-2 text-xsmall-regular;
-  }
+/* ========== 2. 基礎文字渲染優化 ========== */
+html {
+  font-family: var(--font-base);
+  font-size: 16px;  /* 確保基礎字體大小為16px */
+  line-height: var(--line-height-normal);
+  
+  /* 字體渲染優化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  
+  /* 顏色設定 */
+  color: #111827;  /* 近黑色，利於閱讀 */
+  
+  /* 字體顯示優化 */
+  font-display: var(--font-display);
+}
 
-  input:focus ~ label {
-    @apply left-0;
-  }
+/* ========== 3. 主要元素設定 ========== */
+/* 標題元素 (h1-h6) 基本設定 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-tight);
+  margin: 0;
+  color: inherit;
+}
 
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  textarea:-webkit-autofill,
-  textarea:-webkit-autofill:hover,
-  textarea:-webkit-autofill:focus,
-  select:-webkit-autofill,
-  select:-webkit-autofill:hover,
-  select:-webkit-autofill:focus {
-    border: 1px solid #212121;
-    -webkit-text-fill-color: #212121;
-    -webkit-box-shadow: 0 0 0px 1000px #fff inset;
-    transition: background-color 5000s ease-in-out 0s;
-  }
+h1 {
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-tight);
+  margin-bottom: 1.5rem;
+}
 
-  input[type="search"]::-webkit-search-decoration,
-  input[type="search"]::-webkit-search-cancel-button,
-  input[type="search"]::-webkit-search-results-button,
-  input[type="search"]::-webkit-search-results-decoration {
-    -webkit-appearance: none;
+h2 {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-snug);
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-snug);
+  margin-bottom: 0.75rem;
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-snug);
+  margin-bottom: 0.5rem;
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+  margin-bottom: 0.5rem;
+}
+
+h6 {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 0.5rem;
+}
+
+/* 內文元素設定 - 採用部落格卡片的文字樣式 */
+p, span, div {
+  font-family: var(--font-base);
+  font-weight: var(--font-weight-light);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--fg-subtle, #525252);
+}
+
+/* 響應式內文調整 */
+@media (min-width: 768px) {
+  p, span, div {
+    font-size: var(--font-size-lg);
   }
 }
 
-@layer components {
-  .content-container {
-    @apply max-w-[1440px] w-full mx-auto px-6;
-  }
+/* ========== 4. 工具類 (Utilities) ========== */
+/* 字體家族工具類 */
+.font-base {
+  font-family: var(--font-base);
+}
 
-  .contrast-btn {
-    @apply px-4 py-2 border border-black rounded-full hover:bg-black hover:text-white transition-colors duration-200 ease-in;
-  }
+.font-heading {
+  font-family: var(--font-heading);
+}
 
-  .text-xsmall-regular {
-    @apply text-[10px] leading-4 font-normal;
-  }
+.font-mono {
+  font-family: var(--font-mono);
+}
 
-  .text-small-regular {
-    @apply text-xs leading-5 font-normal;
-  }
+/* 字重工具類 */
+.font-light {
+  font-weight: var(--font-weight-light);
+}
 
-  .text-small-semi {
-    @apply text-xs leading-5 font-semibold;
-  }
+.font-normal {
+  font-weight: var(--font-weight-regular);
+}
 
-  .text-base-regular {
-    @apply text-sm leading-6 font-normal;
-  }
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
 
-  .text-base-semi {
-    @apply text-sm leading-6 font-semibold;
-  }
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
 
-  .text-large-regular {
-    @apply text-base leading-6 font-normal;
-  }
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
 
-  .text-large-semi {
-    @apply text-base leading-6 font-semibold;
-  }
+/* 字體大小工具類 */
+.text-xs {
+  font-size: var(--font-size-xs);
+  line-height: 1rem;
+}
 
-  .text-xl-regular {
-    @apply text-2xl leading-[36px] font-normal;
-  }
+.text-sm {
+  font-size: var(--font-size-sm);
+  line-height: 1.25rem;
+}
 
-  .text-xl-semi {
-    @apply text-2xl leading-[36px] font-semibold;
-  }
+.text-base {
+  font-size: var(--font-size-base);
+  line-height: 1.5rem;
+}
 
-  .text-2xl-regular {
-    @apply text-[30px] leading-[48px] font-normal;
-  }
+.text-lg {
+  font-size: var(--font-size-lg);
+  line-height: 1.75rem;
+}
 
-  .text-2xl-semi {
-    @apply text-[30px] leading-[48px] font-semibold;
-  }
+.text-xl {
+  font-size: var(--font-size-xl);
+  line-height: 1.75rem;
+}
 
-  .text-3xl-regular {
-    @apply text-[32px] leading-[44px] font-normal;
-  }
+.text-2xl {
+  font-size: var(--font-size-2xl);
+  line-height: 2rem;
+}
 
-  .text-3xl-semi {
-    @apply text-[32px] leading-[44px] font-semibold;
+.text-3xl {
+  font-size: var(--font-size-3xl);
+  line-height: 2.25rem;
+}
+
+.text-4xl {
+  font-size: var(--font-size-4xl);
+  line-height: 2.5rem;
+}
+
+/* ========== 5. 標題工具類 ========== */
+/* 標準化標題工具類 - 不影響HTML語義 */
+.h1 {
+  font-family: var(--font-heading);
+  font-size: 2rem; /* 調整為更大的字體 */
+  font-weight: var(--font-weight-medium); /* 增加字重 */
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-widest);
+  margin: 1.5rem 0 2rem 0; /* 增加上下間距 */
+}
+
+.h2 {
+  font-family: var(--font-base);
+  font-size: 1.75rem; /* 調整字體大小 */
+  font-weight: var(--font-weight-medium); /* 增加字重 */
+  line-height: var(--line-height-snug);
+  color: var(--fg-subtle, #6b7280);
+  margin: 2rem 0 1.5rem 0; /* 增加上下間距 */
+}
+
+.h3 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem; /* 調整字體大小 */
+  font-weight: var(--font-weight-medium); /* 增加字重 */
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--letter-spacing-wider);
+  margin: 1.5rem 0 1rem 0; /* 增加上下間距 */
+}
+
+.h4 {
+  font-family: var(--font-base);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+  margin: 0.75rem 0;
+}
+
+.h5 {
+  font-family: var(--font-base);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  margin: 0.5rem 0;
+}
+
+.h6 {
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+  margin: 0.5rem 0;
+}
+
+/* 標題組合樣式 - 改善視覺層次 */
+.h1 + .h2, .h2 + .h3, .h3 + .h4, .h4 + .h5, .h5 + .h6 {
+  margin-top: 0.25rem;
+}
+
+/* 響應式標題調整 */
+@media (min-width: 768px) {
+  .h1 {
+    font-size: 3rem; /* 桌面版更大字體 */
+    margin: 2rem 0 2.5rem 0; /* 桌面版更大間距 */
+  }
+  
+  .h2 {
+    font-size: 2.25rem; /* 桌面版更大字體 */
+    margin: 2.5rem 0 2rem 0; /* 桌面版更大間距 */
+  }
+  
+  .h3 {
+    font-size: 1.875rem; /* 桌面版更大字體 */
+    margin: 2rem 0 1.5rem 0; /* 桌面版更大間距 */
   }
 }
 
-/* Custom Keyframe Animations */
-@keyframes fadeIn {
+/* ========== 6. 內文樣式系統 ========== */
+/* 標準化內文樣式 - 採用與部落格卡片相同的設定 */
+.text-content,
+.text-content-responsive {
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--fg-subtle, #525252);
+}
+
+@media (min-width: 768px) {
+  .text-content,
+  .text-content-responsive {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* 大型內文樣式 */
+.text-content-large {
+  font-family: var(--font-base);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--fg-subtle, #525252);
+  font-size: var(--font-size-lg);
+}
+
+@media (min-width: 768px) {
+  .text-content-large {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* 小型內文樣式 - 用於選單、小工具等 */
+.text-content-small {
+  font-family: var(--font-base);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--fg-subtle, #525252);
+  font-size: var(--font-size-sm);
+}
+
+@media (min-width: 768px) {
+  .text-content-small {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* 文字響應式別名 - 可以使用 text-content 替代 */
+.text-content-responsive {
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--fg-subtle, #525252);
+}
+
+@media (min-width: 768px) {
+  .text-content-responsive {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* 輔助文字樣式 */
+.text-caption {
+  font-family: var(--font-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.4;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--fg-muted, #71717a);
+}
+
+.text-label {
+  font-family: var(--font-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+/* ========== 7. 特殊用途樣式 ========== */
+/* 向後相容的樣式 */
+.section-heading {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--letter-spacing-widest);
+  margin-bottom: 1rem;
+}
+
+.section-subheading {
+  font-family: var(--font-base);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--fg-subtle, #6b7280);
+  margin-bottom: 1.5rem;
+}
+
+.blog-heading {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-widest);
+  margin-bottom: 1.5rem;
+}
+
+/* ========== 8. 輔助和優化樣式 ========== */
+/* 無滾動條樣式 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 表單樣式優化 */
+input:focus ~ label,
+input:not(:placeholder-shown) ~ label {
+  transform: translateY(-0.5rem);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+input:focus ~ label {
+  left: 0;
+}
+
+/* 自動填充樣式優化 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: 1px solid #212121;
+  -webkit-text-fill-color: #212121;
+  -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 搜索輸入優化 */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+/* 動畫效果 */
+@keyframes fadeInDown {
   from {
     opacity: 0;
+    transform: translate(-50%, -20px);
   }
   to {
     opacity: 1;
+    transform: translate(-50%, 0);
   }
 }
 
-@keyframes fadeInContent {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Animation Classes */
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-in-out;
-}
-
-.animate-fade-in-content {
-  animation: fadeInContent 0.8s ease-in-out;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.8s ease-in-out;
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.8s ease-in-out;
-}
-
-.animate-slide-in-up {
-  animation: slideInUp 0.8s ease-in-out;
-}
-
-.animate-slide-in-down {
-  animation: slideInDown 0.8s ease-in-out;
-}
-
-/* ========== Medusa UI Button 樣式修復 ========== */
-
-/* Primary Button 樣式 */
-.shadow-buttons-inverted {
-  background-color: #1f2937 !important;
-  color: white !important;
-  border: 1px solid #1f2937 !important;
-}
-
-.shadow-buttons-inverted:hover {
-  background-color: #374151 !important;
-}
-
-.shadow-buttons-inverted:active {
-  background-color: #111827 !important;
-}
-
-/* Secondary Button 樣式 */
-.shadow-buttons-neutral {
-  background-color: transparent !important;
-  color: #1f2937 !important;
-  border: 1px solid #d1d5db !important;
-}
-
-.shadow-buttons-neutral:hover {
-  background-color: #f9fafb !important;
-}
-
-/* Button Variants */
-.bg-ui-button-inverted {
-  background-color: #1f2937 !important;
-}
-
-.bg-ui-button-inverted-hover {
-  background-color: #374151 !important;
-}
-
-.bg-ui-button-inverted-pressed {
-  background-color: #111827 !important;
-}
-
-.text-ui-contrast-fg-primary {
-  color: white !important;
-}
-
-.bg-ui-bg-disabled {
-  background-color: #f3f4f6 !important;
-  color: #9ca3af !important;
-}
-
-/* 確保按鈕有正確的最小寬度和高度 */
-.txt-compact-medium-plus {
-  min-height: 40px !important;
-  min-width: 120px !important;
-}
-
-/* Danger Button 樣式 */
-.bg-ui-button-danger {
-  background-color: #dc2626 !important;
-  color: white !important;
-}
-
-.bg-ui-button-danger:hover {
-  background-color: #b91c1c !important;
-}
-
-/* Ghost Button 樣式 */
-.bg-ui-button-transparent {
-  background-color: transparent !important;
-  color: #1f2937 !important;
-}
-
-.bg-ui-button-transparent:hover {
-  background-color: #f3f4f6 !important;
-}
-
-/* 確保所有按鈕都有適當的過渡效果 */
-button[class*="shadow-buttons"] {
-  transition: all 0.2s ease-in-out !important;
-}
-
-/* 修復 @medusajs/ui Button 組件樣式 */
-[data-ui="button"] {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
-  font-weight: 500 !important;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-  transition-duration: 150ms !important;
-  border-radius: 0.375rem !important;
-}
-
-/* 確保 Button 的大小變體正確應用 */
-[data-ui="button"][data-size="small"] {
-  height: 2rem !important;
-  padding-left: 0.75rem !important;
-  padding-right: 0.75rem !important;
-  font-size: 0.875rem !important;
-  line-height: 1.25rem !important;
-}
-
-[data-ui="button"][data-size="base"] {
-  height: 2.5rem !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  font-size: 0.875rem !important;
-  line-height: 1.25rem !important;
-}
-
-[data-ui="button"][data-size="large"] {
-  height: 3rem !important;
-  padding-left: 1.5rem !important;
-  padding-right: 1.5rem !important;
-  font-size: 1rem !important;
-  line-height: 1.5rem !important;
-}
-
-/* 主要按鈕變體 */
-[data-ui="button"][data-variant="primary"] {
-  background-color: #1f2937 !important;
-  color: white !important;
-  border: 1px solid transparent !important;
-}
-
-[data-ui="button"][data-variant="primary"]:hover:not(:disabled) {
-  background-color: #374151 !important;
-}
-
-[data-ui="button"][data-variant="primary"]:active:not(:disabled) {
-  background-color: #111827 !important;
-}
-
-/* 次要按鈕變體 */
-[data-ui="button"][data-variant="secondary"] {
-  background-color: white !important;
-  color: #1f2937 !important;
-  border: 1px solid #d1d5db !important;
-}
-
-[data-ui="button"][data-variant="secondary"]:hover:not(:disabled) {
-  background-color: #f9fafb !important;
-  border-color: #9ca3af !important;
-}
-
-/* 禁用狀態 */
-[data-ui="button"]:disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-}
-
-/* 載入狀態 */
-[data-ui="button"][data-loading="true"] {
-  color: transparent !important;
-  pointer-events: none !important;
+.animate-fade-in-down {
+  animation: fadeInDown 0.3s ease-out;
 }
 
 /* ===== 跑馬燈動畫效果 ===== */
@@ -458,4 +678,1983 @@ button[class*="shadow-buttons"] {
 /* 支持自定義動畫播放狀態 */
 .animation-paused {
   animation-play-state: paused !important;
+}
+
+.animation-running {
+  animation-play-state: running !important;
+}
+
+/* ===== 高級動畫效果 ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.6s ease forwards;
+}
+
+.animate-fade-in-content {
+  animation: fadeInContent 0.8s ease forwards;
+}
+
+/* 導航欄滾動效果 */
+.nav-scroll {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.nav-scroll.visible {
+  transform: translateY(0);
+}
+
+/* 優雅的hover效果 */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 文字漸變效果 */
+.text-gradient {
+  background: linear-gradient(45deg, var(--color-primary), var(--color-primary-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 背景模糊效果 */
+.backdrop-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ===== 共用元件樣式 ===== */
+@layer components {
+  /* 容器 */
+  .container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+  }
+
+  /* 卡片 */
+  .card {
+    background: var(--bg-primary);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-primary);
+    padding: var(--component-padding);
+    transition: var(--transition-all);
+  }
+  
+  .card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  /* 商品卡片 */
+  .product-preview {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0;
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
+
+  .product-preview:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  /* 商品圖片容器 - 移除所有邊距 */
+  .product-preview .thumbnail {
+    position: relative;
+    width: 100%;
+    padding-bottom: 133.33%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* 商品圖片 - 確保完全填充容器且無邊距 */
+  .product-preview .thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-preview:hover .thumbnail img {
+    transform: scale(1.05);
+  }
+
+  /* 商品資訊區塊 */
+  .product-preview .info {
+    padding: 0.75rem;
+    background: var(--bg-primary);
+  }
+
+  /* 商品標題 */
+  .product-preview .info h3 {
+    font-family: var(--font-base);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+  }
+
+  /* 商品價格 */
+  .product-preview .info .price {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-regular);
+    color: var(--text-secondary);
+  }
+
+  /* 選項和購物車區塊 */
+  .product-preview .options-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .product-preview:hover .options-container {
+    transform: translateY(0);
+  }
+
+  /* 服務卡片 */
+  .service-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* 服務卡片圖片容器 */
+  .service-card .image-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 75%;
+    overflow: hidden;
+  }
+
+  /* 服務卡片圖片 */
+  .service-card .service-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .service-card:hover .service-image {
+    transform: scale(1.08);
+  }
+
+  /* 服務卡片內容區 */
+  .service-card .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    background: var(--bg-primary);
+  }
+
+  /* 服務卡片標題 */
+  .service-card .content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  /* 服務卡片描述 */
+  .service-card .content p {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    color: var(--text-secondary);
+    margin: 0;
+    flex: 1;
+  }
+
+  /* 服務卡片連結 */
+  .service-card .content .link {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-primary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+    transition: color 0.3s ease;
+  }
+
+  .service-card .content .link:hover {
+    color: var(--color-primary-dark);
+  }
+
+  /* 服務卡片標籤 */
+  .service-card .tag {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 2rem;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    backdrop-filter: blur(4px);
+  }
+
+  /* ===== Kitsuné 風格的服務卡片樣式 ===== */
+  
+  .service-card-kitsune {
+    background: #ffffff;
+    border: 1px solid rgba(120, 113, 108, 0.15);
+    border-radius: 1.5rem;
+    transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    overflow: hidden;
+  }
+
+  .service-card-kitsune:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(120, 113, 108, 0.1);
+    border-color: rgba(120, 113, 108, 0.25);
+  }
+
+  .service-card-kitsune .image-container {
+    position: relative;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+  }
+
+  .service-card-kitsune .service-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .service-card-kitsune:hover .service-image {
+    transform: scale(1.05);
+  }
+
+  .service-card-kitsune .content {
+    padding: 2rem;
+    color: #44403c;
+  }
+
+  .service-card-kitsune .title {
+    font-size: 1.25rem;
+    font-weight: 300;
+    color: #1c1917;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.025em;
+    line-height: 1.3;
+  }
+
+  .service-card-kitsune .subtitle {
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: #78716c;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+  }
+
+  .service-card-kitsune .price-tag {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(120, 113, 108, 0.1);
+    border-radius: 2rem;
+    padding: 0.625rem 1.25rem;
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1c1917;
+    letter-spacing: 0.025em;
+  }
+
+  .service-card-kitsune .level-tag {
+    background: rgba(28, 25, 23, 0.9);
+    color: white;
+    border-radius: 2rem;
+    padding: 0.5rem 1rem;
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .service-card-kitsune .book-button {
+    background: #1c1917;
+    color: white;
+    border: none;
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    width: 100%;
+    font-size: 0.875rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-card-kitsune .book-button:hover {
+    background: #292524;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(28, 25, 23, 0.3);
+  }
+
+  .service-card-kitsune .book-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Kitsuné 風格的區塊標題 */
+  .kitsune-section-title {
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    font-weight: 300;
+    color: #1c1917;
+    letter-spacing: 0.025em;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .kitsune-section-subtitle {
+    font-size: 1.125rem;
+    font-weight: 300;
+    color: #78716c;
+    line-height: 1.6;
+    letter-spacing: 0.025em;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  /* Kitsuné 風格的選擇器 */
+  .kitsune-select {
+    background: white;
+    border: 1px solid rgba(120, 113, 108, 0.2);
+    border-radius: 1rem;
+    padding: 0.75rem 1.5rem;
+    color: #44403c;
+    font-weight: 300;
+    letter-spacing: 0.025em;
+    transition: all 0.3s ease;
+  }
+
+  .kitsune-select:hover {
+    border-color: rgba(120, 113, 108, 0.3);
+  }
+
+  .kitsune-select:focus {
+    border-color: #1c1917;
+    box-shadow: 0 0 0 3px rgba(28, 25, 23, 0.1);
+  }
+
+  /* 服務卡片區塊 */
+}
+
+/* ========== 商品詳細頁面樣式 (Modern Product Page) ========== */
+
+/* 商品選項按鈕 */
+.product-option-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  text-align: center;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.product-option-button:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.product-option-button:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #000000, 0 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-option-button.selected {
+  border-color: #000000;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.product-option-button:disabled {
+  border-color: #e5e7eb;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* 圖片畫廊 */
+.product-gallery {
+  --gallery-gap: 1rem;
+}
+
+.product-gallery .main-image {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f9fafb;
+  border-radius: 0;
+}
+
+.product-gallery .thumbnail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.product-gallery .thumbnail {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.product-gallery .thumbnail:hover {
+  border-color: #d1d5db;
+}
+
+.product-gallery .thumbnail.active {
+  border-color: #000000;
+}
+
+/* 價格顯示 */
+.product-price {
+  font-weight: 300;
+  letter-spacing: -0.025em;
+}
+
+.product-price .current-price {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  color: #000000;
+}
+
+.product-price .original-price {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #6b7280;
+  text-decoration: line-through;
+}
+
+.product-price .discount-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-radius: 0.25rem;
+}
+
+/* 庫存狀態 */
+.stock-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.stock-indicator .dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.stock-indicator.in-stock .dot {
+  background-color: #10b981;
+}
+
+.stock-indicator.out-of-stock .dot {
+  background-color: #ef4444;
+}
+
+.stock-indicator.in-stock .text {
+  color: #065f46;
+}
+
+.stock-indicator.out-of-stock .text {
+  color: #dc2626;
+}
+
+/* 按鈕樣式 */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #1f2937;
+  border-color: #1f2937;
+}
+
+.btn-primary:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.btn-secondary:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .product-price .current-price {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .btn-primary {
+    height: 3rem;
+    font-size: 0.875rem;
+  }
+  
+  .product-gallery .thumbnail-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.25rem;
+  }
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+  .product-option-button {
+    background-color: #1f2937;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  
+  .product-option-button:hover {
+    border-color: #6b7280;
+    background-color: #374151;
+  }
+  
+  .product-option-button.selected {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+  }
+}
+
+/* ========== 商品標籤樣式 ========== */
+  /* 標籤容器樣式 - 向下排列，不限制寬度 */
+  .product-labels-container {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 30;
+    /* 不設定任何寬度相關的屬性，讓內容自然排列 */
+  }
+
+  /* 標籤之間的間距 - 外框到外框的距離 */
+  .product-labels-container > * {
+    margin-bottom: 4px; /* 增加標籤外框之間的距離 */
+  }
+
+  .product-labels-container > *:last-child {
+    margin-bottom: 0;
+  }
+
+  .product-label {
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 600; /* font-semibold */
+    text-transform: uppercase;
+    letter-spacing: 0.05em; /* tracking-wide */
+    padding: 0.25rem 0.5rem; /* px-2 py-1 */
+    border-radius: 0.25rem; /* rounded */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+    backdrop-filter: blur(4px);
+    z-index: 20;
+    border-width: 1px;
+    display: inline-block; /* 讓標籤寬度跟隨文字內容 */
+    width: auto; /* 自動寬度 */
+    white-space: nowrap; /* 防止文字換行 */
+    /* 移除 max-width 限制，讓標籤完全根據文字內容縮放 */
+  }
+
+  /* 折扣標籤樣式 */
+  .product-label.discount {
+    background: linear-gradient(135deg, #ef4444, #dc2626); /* gradient red */
+    color: white;
+    font-weight: 700; /* font-bold */
+    border-color: #f87171; /* border-red-400 */
+    animation: pulse-glow 2s infinite;
+  }
+
+  /* 一般促銷標籤樣式 */
+  .product-label.promotion {
+    background-color: #ef4444; /* bg-red-500 */
+    color: white;
+    border-color: #f87171; /* border-red-400 */
+  }
+
+  /* 新品標籤 */
+  .product-label.new {
+    background-color: #10b981; /* bg-green-500 */
+    color: white;
+    border-color: #34d399; /* border-green-400 */
+  }
+
+  /* 熱銷標籤 */
+  .product-label.hot {
+    background-color: #f97316; /* bg-orange-500 */
+    color: white;
+    border-color: #fb923c; /* border-orange-400 */
+  }
+
+  /* 人氣標籤 */
+  .product-label.popular {
+    background-color: #f97316; /* bg-orange-500 */
+    color: white;
+    border-color: #fb923c; /* border-orange-400 */
+  }
+
+  /* 限量標籤 */
+  .product-label.limited {
+    background-color: #8b5cf6; /* bg-purple-500 */
+    color: white;
+    border-color: #a78bfa; /* border-purple-400 */
+  }
+
+  /* 暢銷標籤 */
+  .product-label.bestseller {
+    background-color: #eab308; /* bg-yellow-500 */
+    color: white;
+    border-color: #facc15; /* border-yellow-400 */
+  }
+
+  /* 精選標籤 */
+  .product-label.featured {
+    background-color: #06b6d4; /* bg-cyan-500 */
+    color: white;
+    border-color: #22d3ee; /* border-cyan-400 */
+  }
+
+  /* 特殊活動標籤 */
+  .product-label.special-event {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1); /* gradient purple to indigo */
+    color: white;
+    border-color: #a78bfa; /* border-purple-400 */
+    animation: pulse-glow 2s infinite;
+  }
+
+  .product-label.preorder {
+    background-color: #f97316; /* bg-orange-500 */
+    color: white;
+    border-color: #fb923c; /* border-orange-400 */
+  }
+
+  .product-label.sold-out {
+    background-color: #dc2626; /* bg-red-600 */
+    color: white;
+    font-size: 0.75rem; /* text-xs - 與預訂標籤相同 */
+    padding: 0.25rem 0.5rem; /* px-2 py-1 - 與預訂標籤相同 */
+    border-color: #ef4444; /* border-red-500 */
+  }
+
+  /* 促銷活動標籤 */
+  .product-label.campaign {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* gradient blue */
+    color: white;
+    border-color: #60a5fa; /* border-blue-400 */
+    animation: pulse-glow 2s infinite;
+  }
+
+  /* 組合優惠標籤 */
+  .product-label.bundle {
+    background-color: #059669; /* bg-green-600 */
+    color: white;
+    border-color: #10b981; /* border-green-500 */
+  }
+
+  /* 限時搶購標籤 */
+  .product-label.flash-sale {
+    background: linear-gradient(135deg, #dc2626, #b91c1c); /* gradient red */
+    color: white;
+    border-color: #ef4444; /* border-red-500 */
+    animation: flash-pulse 1s infinite;
+  }
+
+  /* 清倉特價標籤 */
+  .product-label.clearance {
+    background-color: #dc2626; /* bg-red-600 */
+    color: white;
+    border-color: #ef4444; /* border-red-500 */
+    font-weight: 700; /* font-bold */
+  }
+
+  /* 獨家標籤 */
+  .product-label.exclusive {
+    background: linear-gradient(135deg, #374151, #1f2937); /* gradient gray */
+    color: white;
+    border-color: #4b5563; /* border-gray-600 */
+  }
+
+  /* 特價標籤 */
+  .product-label.sale {
+    background-color: #dc2626; /* bg-red-600 */
+    color: white;
+    border-color: #ef4444; /* border-red-500 */
+  }
+
+  /* 折扣碼提示標籤 */
+  .product-label.discount-code {
+    background-color: #6366f1; /* bg-indigo-500 */
+    color: white;
+    border-color: #818cf8; /* border-indigo-400 */
+    font-size: 0.625rem; /* text-xs */
+  }
+
+  /* 買X送Y標籤 */
+  .product-label.buy-x-get-y {
+    background: linear-gradient(135deg, #10b981, #059669); /* emerald gradient */
+    color: white;
+    border-color: #34d399; /* border-emerald-400 */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-label.buy-x-get-y::before {
+    content: '🎁';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: gift-slide 2s ease-in-out infinite;
+  }
+
+  @keyframes gift-slide {
+    0%, 100% {
+      left: -20px;
+      opacity: 0;
+    }
+    50% {
+      left: calc(100% + 5px);
+      opacity: 1;
+    }
+  }
+
+  /* 折扣標籤特殊動畫 */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  /* 限時搶購動畫 */
+  @keyframes flash-pulse {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(220, 38, 38, 0.5);
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+      transform: scale(1.02);
+    }
+  }
+
+  /* 簡化標籤樣式 - 強制垂直排列，不等寬 */
+  .product-labels-container .product-label.gold-gradient-base,
+  .product-labels-container .product-label.gold-gradient-shine,
+  .product-labels-container .product-label.gold-gradient-pulse,
+  .product-labels-container .product-label.gold-coin-effect {
+    /* 完全重置所有可能影響寬度的屬性 */
+    all: unset !important;
+    
+    /* 重新設定基本樣式 */
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    
+    /* 紅金配色 - 純紅色背景漸層 */
+    background: linear-gradient(135deg, 
+      #8B0000 0%,     /* 深紅色 */
+      #B22222 25%,    /* 中深紅 */
+      #DC143C 50%,    /* 深紅 */
+      #CD5C5C 75%,    /* 淺紅色 */
+      #8B0000 100%    /* 回到深紅色 */
+    ) !important;
+    color: #FFD700 !important; /* 金色文字 */
+    border: 2px solid #FFD700 !important; /* 金色外框 */
+    
+    /* 強制垂直排列且自適應寬度 */
+    display: block !important;
+    width: fit-content !important;
+    white-space: nowrap !important;
+    padding: 2px 0.75rem 2px 1rem !important; /* 增加左邊距為小點留空間 */
+    
+    /* 明確設定標籤間距 */
+    margin-bottom: 4px !important;
+    
+    /* 確保在容器中正確顯示 */
+    position: relative !important;
+    z-index: 20 !important;
+  }
+
+  /* 最後一個標籤不需要下邊距 */
+  .product-labels-container .product-label.gold-gradient-base:last-child,
+  .product-labels-container .product-label.gold-gradient-shine:last-child,
+  .product-labels-container .product-label.gold-gradient-pulse:last-child,
+  .product-labels-container .product-label.gold-coin-effect:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  /* 內線框 - 金色內框 */
+  .product-labels-container .product-label.gold-gradient-base::before,
+  .product-labels-container .product-label.gold-gradient-shine::before,
+  .product-labels-container .product-label.gold-gradient-pulse::before,
+  .product-labels-container .product-label.gold-coin-effect::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 3px !important;
+    left: 3px !important;
+    right: 3px !important;
+    bottom: 3px !important;
+    border: 1px solid #FFD700 !important; /* 金色內框 */
+    border-radius: 2px !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+  }
+
+  /* 左側小點裝飾 - 金色 */
+  .product-labels-container .product-label.gold-gradient-base::after,
+  .product-labels-container .product-label.gold-gradient-shine::after,
+  .product-labels-container .product-label.gold-gradient-pulse::after,
+  .product-labels-container .product-label.gold-coin-effect::after {
+    content: '•' !important;
+    position: absolute !important;
+    left: 6px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #FFD700 !important; /* 金色小點 */
+    font-size: 8px !important;
+    font-weight: bold !important;
+    pointer-events: none !important;
+    z-index: 3 !important; /* 確保在內線框之上 */
+  }
+
+/* ===== 促銷標籤樣式 ===== */
+
+/* 金幣樣式的促銷標籤 */
+.gold-coin-label {
+  background: linear-gradient(135deg, 
+    #ffd700 0%,     /* 金色 */
+    #ffed4a 25%,    /* 亮金色 */
+    #f59e0b 50%,    /* 琥珀色 */
+    #d97706 75%,    /* 深琥珀色 */
+    #b45309 100%    /* 深金色 */
+  );
+  
+  /* 金屬質感陰影 */
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  
+  /* 文字陰影讓文字更立體 */
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 5px rgba(255, 215, 0, 0.5);
+  
+  /* 邊框漸層 */
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #ffd700, #b45309) 1;
+  
+  /* 動畫效果 */
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.gold-coin-label:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* 備用的純 CSS 金幣樣式 */
+.tailwind-gold-coin {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 2px solid #fcd34d;
+  background: linear-gradient(to bottom right, #fbbf24, #f59e0b, #d97706);
+  color: #78350f;
+  backdrop-filter: blur(4px);
+  
+  /* 額外的金屬質感 */
+  background-image: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+    linear-gradient(45deg, transparent 50%, rgba(0, 0, 0, 0.1) 100%);
+  
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* 閃亮效果 */
+.gold-shimmer {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gold-shimmer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  transform: rotate(45deg);
+  animation: shimmer 3s infinite;
+}
+
+/* 卯丁造型標籤 */
+.gold-rivet-label {
+  position: relative;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+}
+
+.gold-rivet-label::before,
+.gold-rivet-label::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #fbbf24 0%, #d97706 50%, #92400e 100%);
+  border-radius: 50%;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.gold-rivet-label::before {
+  left: 4px;
+}
+
+.gold-rivet-label::after {
+  right: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* ===== 促銷標籤樣式結束 ===== */
+
+/* 統一金幣標籤樣式 - 包含卯丁造型 */
+.unified-gold-coin {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 9999px;
+  
+  /* 高質感金幣漸層 */
+  background: linear-gradient(135deg, 
+    #fef3c7 0%, 
+    #fde68a 15%, 
+    #fcd34d 30%, 
+    #f59e0b 60%, 
+    #d97706 85%, 
+    #92400e 100%
+  );
+  color: #451a03;
+  
+  /* 立體金屬質感 */
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.25),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1),
+    inset 2px 0 4px rgba(255, 215, 0, 0.3),
+    inset -2px 0 4px rgba(255, 215, 0, 0.3);
+  
+  border: 2px solid #fcd34d;
+  
+  /* 金屬文字效果 */
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 4px rgba(255, 215, 0, 0.4);
+  
+  /* 平滑動畫 */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+/* 左右卯丁裝飾 */
+.unified-gold-coin::before,
+.unified-gold-coin::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, 
+    #fbbf24 0%, 
+    #f59e0b 30%, 
+    #d97706 60%, 
+    #92400e 100%
+  );
+  border-radius: 50%;
+  box-shadow: 
+    inset 0 2px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid #d97706;
+}
+
+.unified-gold-coin::before {
+  left: 6px;
+}
+
+.unified-gold-coin::after {
+  right: 6px;
+}
+
+/* 閃光效果 */
+.unified-gold-coin .shimmer-overlay {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 70%
+  );
+  transform: rotate(45deg);
+  animation: goldShimmer 4s infinite;
+  pointer-events: none;
+}
+
+/* hover 效果 */
+.unified-gold-coin:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 
+    0 15px 35px -5px rgba(0, 0, 0, 0.35),
+    0 8px 12px -2px rgba(0, 0, 0, 0.1),
+    inset 0 3px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.15),
+    inset 3px 0 6px rgba(255, 215, 0, 0.4),
+    inset -3px 0 6px rgba(255, 215, 0, 0.4);
+}
+
+.unified-gold-coin:hover::before,
+.unified-gold-coin:hover::after {
+  box-shadow: 
+    inset 0 3px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes goldShimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* 促銷標籤 - 金色圓形徽章樣式（簡潔同心圓設計） */
+.gold-badge-circle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #ffd700, #ffb347);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #8b4513;
+  text-align: center;
+  line-height: 1.1;
+  z-index: 20;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 2px solid #b8860b;
+}
+
+/* 外層同心圓 */
+.gold-badge-circle::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border: 1px solid rgba(184, 134, 11, 0.5);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* 內層同心圓 */
+.gold-badge-circle::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* ========== 模塊間距工具類 ========== */
+/* 標準模塊間距 */
+.module-spacing {
+  padding: 3rem 0; /* 48px 上下間距 */
+}
+
+.module-spacing-large {
+  padding: 5rem 0; /* 80px 上下間距 */
+}
+
+.module-spacing-small {
+  padding: 2rem 0; /* 32px 上下間距 */
+}
+
+/* 響應式模塊間距 */
+@media (min-width: 768px) {
+  .module-spacing {
+    padding: 5rem 0; /* 桌面版更大間距 */
+  }
+  
+  .module-spacing-large {
+    padding: 8rem 0; /* 桌面版更大間距 */
+  }
+  
+  .module-spacing-small {
+    padding: 3rem 0; /* 桌面版調整 */
+  }
+}
+
+/* 內容區塊間距 */
+.content-spacing {
+  margin-bottom: 3rem;
+}
+
+.content-spacing-large {
+  margin-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .content-spacing {
+    margin-bottom: 5rem;
+  }
+  
+  .content-spacing-large {
+    margin-bottom: 8rem;
+  }
+}
+
+/* ========== 頁面與導航列對齊 ========== */
+/* 確保頁面內容與sticky導航列完美貼齊 */
+.page-content-start {
+  padding-top: 0 !important;
+}
+
+.page-header-spacing {
+  padding-top: 2rem; /* 32px 首個內容區塊間距 */
+}
+
+/* 響應式調整 */
+@media (min-width: 768px) {
+  .page-header-spacing {
+    padding-top: 3rem; /* 桌面版增加到 48px */
+  }
+}
+
+/* 特殊情況：當需要更大間距時 */
+.page-header-spacing-large {
+  padding-top: 3rem; /* 48px */
+}
+
+@media (min-width: 768px) {
+  .page-header-spacing-large {
+    padding-top: 5rem; /* 桌面版 80px */
+  }
+}
+
+/* ========== 購物車表格優化樣式 ========== */
+/* 購物車容器優化 */
+.cart-table-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
+  transition: all 0.3s ease;
+}
+
+.cart-table-container:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0.05);
+}
+
+/* 購物車表格優化 */
+.cart-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+/* 表格標題行優化 */
+.cart-table thead tr {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.cart-table thead th {
+  padding: 20px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-right: 1px solid #e2e8f0;
+  position: relative;
+}
+
+.cart-table thead th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cart-table thead th:hover::after {
+  opacity: 1;
+}
+
+.cart-table thead th:last-child {
+  border-right: none;
+}
+
+/* 表格行優化 */
+.cart-table tbody tr,
+.cart-table-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.cart-table tbody tr:hover,
+.cart-table-row:hover {
+  background: linear-gradient(135deg, #fefefe 0%, #f8fafc 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cart-table tbody tr:last-child,
+.cart-table-row:last-child {
+  border-bottom: none;
+}
+
+/* 表格單元格優化 */
+.cart-table tbody td {
+  padding: 24px 16px;
+  vertical-align: middle;
+  border-right: 1px solid #f1f5f9;
+}
+
+.cart-table tbody td:last-child {
+  border-right: none;
+}
+
+/* 商品圖片優化 */
+.cart-product-image {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.cart-product-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(29, 78, 216, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.cart-product-image:hover {
+  transform: scale(1.05) rotate(1deg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.cart-product-image:hover::before {
+  opacity: 1;
+}
+
+/* 商品資訊優化 */
+.cart-product-info {
+  transition: all 0.2s ease;
+}
+
+.cart-product-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  transition: color 0.2s ease;
+}
+
+.cart-product-title:hover {
+  color: #3b82f6;
+}
+
+.cart-product-variant {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+/* 數量控制優化 */
+.cart-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cart-quantity-select {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.3s ease;
+  min-width: 70px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.cart-quantity-select:hover {
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
+}
+
+.cart-quantity-select:focus {
+  outline: none;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 價格顯示優化 */
+.cart-price-original {
+  font-size: 14px;
+  color: #94a3b8;
+  text-decoration: line-through;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.cart-price-current {
+  font-size: 16px;
+  font-weight: 700;
+  color: #059669;
+  text-shadow: 0 1px 2px rgba(5, 150, 105, 0.1);
+}
+
+.cart-price-total {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  text-shadow: 0 1px 2px rgba(30, 41, 59, 0.1);
+}
+
+.cart-price-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* 刪除按鈕優化 */
+.cart-delete-button {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid rgba(239, 68, 68, 0.2);
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-delete-button:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #dc2626;
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.cart-delete-button:active {
+  transform: scale(0.95) rotate(-5deg);
+}
+
+/* 工具提示樣式 */
+.cart-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.cart-tooltip::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.cart-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1f2937;
+  margin-bottom: -5px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.cart-tooltip:hover::before,
+.cart-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-5px);
+}
+
+/* 表格表頭排序指示器 */
+.cart-table-sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.cart-table-sortable::after {
+  content: '↕';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.5;
+  font-size: 12px;
+}
+
+.cart-table-sortable:hover::after {
+  opacity: 1;
+}
+
+.cart-table-sortable.sorted-asc::after {
+  content: '↑';
+  opacity: 1;
+  color: #3b82f6;
+}
+
+.cart-table-sortable.sorted-desc::after {
+  content: '↓';
+  opacity: 1;
+  color: #3b82f6;
+}
+
+/* 表格行選擇樣式 */
+.cart-table tbody tr.selected {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+/* 批量操作工具欄 */
+.cart-bulk-actions {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform: translateY(-10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.cart-bulk-actions.active {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.cart-bulk-actions-text {
+  color: #1e40af;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.cart-bulk-actions-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.cart-bulk-action-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cart-bulk-action-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+}
+
+.cart-bulk-action-btn.danger {
+  background: #ef4444;
+}
+
+.cart-bulk-action-btn.danger:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+}
+
+/* 錯誤訊息優化 */
+.cart-error-message {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 成功訊息 */
+.cart-success-message {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  color: #059669;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideInDown 0.3s ease-out;
+}
+
+/* 表格置頂固定表頭 */
+.cart-table-sticky-header {
+  position: sticky;
+  top: 80px;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 手機版表格優化 */
+@media (max-width: 768px) {
+  .cart-table-mobile {
+    display: block;
+  }
+  
+  .cart-table-mobile thead {
+    display: none;
+  }
+  
+  .cart-table-mobile tbody,
+  .cart-table-mobile tr,
+  .cart-table-mobile td {
+    display: block;
+    width: 100%;
+  }
+  
+  .cart-table-mobile tr {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .cart-table-mobile td {
+    border: none;
+    padding: 8px 0;
+    position: relative;
+  }
+  
+  .cart-table-mobile td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* 購物車統計資訊 */
+.cart-stats {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.cart-stat-item {
+  text-align: center;
+}
+
+.cart-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  display: block;
+}
+
+.cart-stat-label {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* 無障礙優化 */
+@media (prefers-reduced-motion: reduce) {
+  .cart-tooltip::before,
+  .cart-tooltip::after,
+  .cart-bulk-actions,
+  .cart-error-message,
+  .cart-success-message {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ========== Medusa UI Button 樣式修復 ========== */
+
+/* Primary Button 樣式 */
+.shadow-buttons-inverted {
+  background-color: #1f2937 !important;
+  color: white !important;
+  border: 1px solid #1f2937 !important;
+}
+
+.shadow-buttons-inverted:hover {
+  background-color: #374151 !important;
+}
+
+.shadow-buttons-inverted:active {
+  background-color: #111827 !important;
+}
+
+/* Secondary Button 樣式 */
+.shadow-buttons-neutral {
+  background-color: transparent !important;
+  color: #1f2937 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.shadow-buttons-neutral:hover {
+  background-color: #f9fafb !important;
+}
+
+/* Button Variants */
+.bg-ui-button-inverted {
+  background-color: #1f2937 !important;
+}
+
+.bg-ui-button-inverted-hover {
+  background-color: #374151 !important;
+}
+
+.bg-ui-button-inverted-pressed {
+  background-color: #111827 !important;
+}
+
+.text-ui-contrast-fg-primary {
+  color: white !important;
+}
+
+.bg-ui-bg-disabled {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+}
+
+/* 漸變效果 */
+.after\:button-inverted-gradient::after {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%) !important;
+}
+
+.after\:button-inverted-hover-gradient:hover::after {
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%) !important;
+}
+
+.after\:button-inverted-pressed-gradient:active::after {
+  background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%) !important;
+}
+
+/* Focus 狀態 */
+.shadow-buttons-inverted-focus:focus-visible {
+  box-shadow: 0 0 0 2px #3b82f6 !important;
+}
+
+/* 確保按鈕有正確的最小寬度和高度 */
+.txt-compact-medium-plus {
+  min-height: 40px !important;
+  min-width: 120px !important;
+}
+
+/* Danger Button 樣式 */
+.bg-ui-button-danger {
+  background-color: #dc2626 !important;
+  color: white !important;
+}
+
+.bg-ui-button-danger:hover {
+  background-color: #b91c1c !important;
+}
+
+/* Ghost Button 樣式 */
+.bg-ui-button-transparent {
+  background-color: transparent !important;
+  color: #1f2937 !important;
+}
+
+.bg-ui-button-transparent:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* 確保所有按鈕都有適當的過渡效果 */
+button[class*="shadow-buttons"] {
+  transition: all 0.2s ease-in-out !important;
 }
