@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
                        process.env.MEDUSA_BACKEND_URL || 
                        'http://localhost:9000'
     
-    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    const { getPublishableKeyForBackend } = await import('@lib/medusa-publishable-key')
+    const publishableKey = getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)
     
     if (!publishableKey) {
       console.error('❌ 缺少 Medusa Publishable API Key')

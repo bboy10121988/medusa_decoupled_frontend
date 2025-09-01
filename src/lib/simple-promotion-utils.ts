@@ -62,7 +62,9 @@ export async function getActivePromotionLabels(
 ): Promise<PromotionLabel[]> {
   const labels: PromotionLabel[] = []
   const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
-  const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ''
+  const { MEDUSA_BACKEND_URL } = await import('../config')
+  const { getPublishableKeyForBackend } = await import('../lib/medusa-publishable-key')
+  const publishableKey = getPublishableKeyForBackend(MEDUSA_BACKEND_URL)
 
   try {
     if (process.env.NODE_ENV === 'development') {

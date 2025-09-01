@@ -1,6 +1,7 @@
 "use server"
 
-import { sdk } from "@lib/config"
+import { sdk, MEDUSA_BACKEND_URL } from "@lib/config"
+import { getPublishableKeyForBackend } from "@lib/medusa-publishable-key"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { getCacheOptions } from "./cookies"
@@ -15,6 +16,9 @@ export const listRegions = async () => {
       method: "GET",
       next,
       cache: "force-cache",
+      headers: {
+        "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
+      },
     })
     .then(({ regions }) => regions)
     .catch(medusaError)
@@ -30,6 +34,9 @@ export const retrieveRegion = async (id: string) => {
       method: "GET",
       next,
       cache: "force-cache",
+      headers: {
+        "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
+      },
     })
     .then(({ region }) => region)
     .catch(medusaError)

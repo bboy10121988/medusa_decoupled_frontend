@@ -2,7 +2,22 @@ import { HttpTypes } from "@medusajs/types"
 import { NextRequest, NextResponse } from "next/server"
 
 const BACKEND_URL = process.env.MEDUSA_BACKEND_URL
-const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+const KEY_DEFAULT = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+const KEY_LOCAL = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_LOCAL
+const KEY_REMOTE = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_REMOTE
+const KEY_RAILWAY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_RAILWAY
+function chooseKey(url?: string) {
+  if (!url) return KEY_DEFAULT
+  try {
+    const { hostname } = new URL(url)
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return KEY_LOCAL || KEY_DEFAULT
+    if (hostname.endsWith('.railway.app')) return KEY_RAILWAY || KEY_REMOTE || KEY_DEFAULT
+    return KEY_REMOTE || KEY_DEFAULT
+  } catch {
+    return KEY_DEFAULT
+  }
+}
+const PUBLISHABLE_API_KEY = chooseKey(BACKEND_URL)
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || "tw"
 
 const regionMapCache = {
@@ -23,33 +38,48 @@ async function getRegionMap(cacheId: string) {
     !regionMap.keys().next().value ||
     regionMapUpdated < Date.now() - 3600 * 1000
   ) {
-    // Fetch regions from Medusa. We cant use the JS client here because middleware is running on Edge and the client needs a Node environment.
-    const response = await fetch(`${BACKEND_URL}/store/regions`, {
-      headers: {
-        "x-publishable-api-key": PUBLISHABLE_API_KEY!,
-      },
-    })
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch regions: ${response.status}`)
-    }
-    
-    const { regions } = await response.json()
-
-    if (!regions?.length) {
-      throw new Error(
-        "No regions found. Please set up regions in your Medusa Admin."
-      )
-    }
-
-    // Create a map of country codes to regions.
-    regions.forEach((region: HttpTypes.StoreRegion) => {
-      region.countries?.forEach((c) => {
-        regionMapCache.regionMap.set(c.iso_2 ?? "", region)
+    try {
+      // Fetch regions from Medusa. Middleware runs on Edge; we can't use JS SDK.
+      const response = await fetch(`${BACKEND_URL}/store/regions`, {
+        headers: {
+          "x-publishable-api-key": PUBLISHABLE_API_KEY!,
+        },
       })
-    })
 
-    regionMapCache.regionMapUpdated = Date.now()
+      if (!response.ok) {
+        throw new Error(`Failed to fetch regions: ${response.status}`)
+      }
+
+      const { regions } = await response.json()
+
+      if (!regions?.length) {
+        throw new Error(
+          "No regions found. Please set up regions in your Medusa Admin."
+        )
+      }
+
+      // Create a map of country codes to regions.
+      regions.forEach((region: HttpTypes.StoreRegion) => {
+        region.countries?.forEach((c) => {
+          regionMapCache.regionMap.set(c.iso_2 ?? "", region)
+        })
+      })
+
+      regionMapCache.regionMapUpdated = Date.now()
+    } catch (err) {
+      // Fallback for local dev: seed default region into map to avoid hard crash
+      if (!regionMapCache.regionMap.size) {
+        regionMapCache.regionMap.set(DEFAULT_REGION, {
+          id: "local",
+          name: DEFAULT_REGION.toUpperCase(),
+          countries: [{ iso_2: DEFAULT_REGION }],
+        } as unknown as HttpTypes.StoreRegion)
+        regionMapCache.regionMapUpdated = Date.now()
+      }
+      if (process.env.NODE_ENV === "development") {
+        console.warn("Middleware.ts: Failed to fetch regions, using fallback:", (err as Error)?.message)
+      }
+    }
   }
 
   return regionMapCache.regionMap
@@ -100,6 +130,11 @@ export async function middleware(request: NextRequest) {
   // Skip middleware for studio and cms routes
   if (request.nextUrl.pathname.startsWith("/studio") || 
       request.nextUrl.pathname.startsWith("/cms")) {
+    return NextResponse.next()
+  }
+
+  // Skip middleware for affiliate-admin routes (they handle their own region routing)
+  if (request.nextUrl.pathname.includes("/affiliate-admin")) {
     return NextResponse.next()
   }
 

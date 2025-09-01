@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Select } from '@medusajs/ui'
 import Image from 'next/image'
 import clsx from 'clsx'
@@ -279,6 +279,11 @@ export default function ServiceCardsSection({
   cards = [],
 }: ServiceCardsSectionProps) {
   const [selectedDesigner, setSelectedDesigner] = useState<string>("all")
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // 資料驗證
   const validCards = cards?.filter(card => 
@@ -321,7 +326,7 @@ export default function ServiceCardsSection({
           </div>
         )}
         
-        {allStylists.length > 0 && (
+        {allStylists.length > 0 && isMounted && (
           <div className="mb-16">
             <div className="w-full max-w-[280px] mx-auto">
               <Select 

@@ -21,6 +21,11 @@ const __isDev = process.env.NODE_ENV === 'development'
 export const medusaFetch = async (endpoint: string, options: RequestInit = {}) => {
   const baseUrl = getBackendUrl()
   const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
+  const isProxy = baseUrl.startsWith('/api/medusa')
+  const backendUrl = typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000') : ''
+  const publishableKey = !isProxy
+    ? (await import('./lib/medusa-publishable-key')).getPublishableKeyForBackend(backendUrl)
+    : undefined
   
   // 預設 headers
   const defaultHeaders: HeadersInit = {
@@ -38,6 +43,7 @@ export const medusaFetch = async (endpoint: string, options: RequestInit = {}) =
     headers: {
       ...defaultHeaders,
       ...options.headers,
+      ...(publishableKey ? { 'x-publishable-api-key': publishableKey } : {}),
     },
   }
   

@@ -7,7 +7,7 @@ import homePage from './homePage'
 import pages from './pages'
 import footer from './footer'
 import returnPolicy from './returnPolicy'
-import seoMeta from './seoMeta'
+// import seoMeta from './seoMeta' // No longer needed - SEO fields are now flattened
 
 // Block schemas
 import mainBanner from './blocks/mainBanner'
@@ -31,7 +31,7 @@ export const schemaTypes = [
   returnPolicy,
 
   // Objects
-  seoMeta,
+  // seoMeta, // No longer needed - SEO fields are now flattened
 
   // Blocks
   mainBanner,

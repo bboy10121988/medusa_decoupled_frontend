@@ -12,7 +12,10 @@
     "build": "next build",
     "start": "next start -p 8000",
     "lint": "next lint",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "switch:local": "./switch-env.sh local",
+    "switch:vm": "./switch-env.sh vm",
+    "env:status": "echo '當前環境:' && grep 'NEXT_PUBLIC_MEDUSA_BACKEND_URL=' .env.local"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

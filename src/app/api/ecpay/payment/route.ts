@@ -38,7 +38,8 @@ export async function POST(req: Request) {
 
     console.log('🔄 準備調用後端 API...')
     console.log('後端 URL:', `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/ecpay/create-payment`)
-    console.log('API Key:', process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ? 'SET' : 'NOT_SET')
+    const { getPublishableKeyForBackend } = await import('@lib/medusa-publishable-key')
+    console.log('API Key:', getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) ? 'SET' : 'NOT_SET')
     
     const backendUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/ecpay/create-payment`
     const requestBody = { 
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+        "x-publishable-api-key": getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) || "",
       },
       body: JSON.stringify(requestBody),
     })

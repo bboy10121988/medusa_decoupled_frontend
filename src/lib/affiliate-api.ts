@@ -1,6 +1,7 @@
 // API utility functions for affiliate system
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
-const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+import { getPublishableKeyForBackend } from './medusa-publishable-key'
+const PUBLISHABLE_KEY = getPublishableKeyForBackend(BACKEND_URL)
 const isDev = process.env.NODE_ENV === 'development'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:8000'
 

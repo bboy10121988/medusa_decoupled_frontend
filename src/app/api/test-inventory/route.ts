@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const response = await sdk.client.fetch(`/store/products/${productId}`, {
       method: "GET",
       headers: {
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+        "x-publishable-api-key": (await import('@lib/medusa-publishable-key')).getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)!,
       },
       query: {
         fields: "id,title,subtitle,description,thumbnail,variants,variants.id,variants.title,+variants.inventory_quantity,variants.manage_inventory,variants.allow_backorder",

@@ -5,7 +5,8 @@ export async function GET(request: NextRequest) {
   
   try {
     const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
-    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    const { getPublishableKeyForBackend } = await import('@lib/medusa-publishable-key')
+    const publishableKey = getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)
 
     // 從 cookie 獲取購物車 ID
     const cartId = request.cookies.get('_medusa_cart_id')?.value

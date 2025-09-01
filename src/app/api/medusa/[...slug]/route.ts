@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getPublishableKeyForBackend } from '@lib/medusa-publishable-key'
 
 // 代理所有 Medusa API 請求
 export async function GET(
@@ -9,14 +10,15 @@ export async function GET(
   const path = slug.slug.join('/')
   const searchParams = request.nextUrl.searchParams
   
-  const medusaUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/${path}?${searchParams.toString()}`
+  const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+  const medusaUrl = `${backend}/${path}?${searchParams.toString()}`
   
   try {
     const response = await fetch(medusaUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '',
+        'x-publishable-api-key': getPublishableKeyForBackend(backend),
       },
     })
 
@@ -57,14 +59,15 @@ export async function POST(
   const path = slug.slug.join('/')
   const body = await request.text()
   
-  const medusaUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/${path}`
+  const backend2 = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+  const medusaUrl = `${backend2}/${path}`
   
   try {
     const response = await fetch(medusaUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '',
+        'x-publishable-api-key': getPublishableKeyForBackend(backend2),
       },
       body,
     })
@@ -105,14 +108,15 @@ export async function DELETE(
   const slug = await params
   const path = slug.slug.join('/')
   
-  const medusaUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/${path}`
+  const backend3 = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+  const medusaUrl = `${backend3}/${path}`
   
   try {
     const response = await fetch(medusaUrl, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '',
+        'x-publishable-api-key': getPublishableKeyForBackend(backend3),
       },
     })
 

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const regionResponse = await sdk.client.fetch(`/store/regions?limit=1`, {
       method: "GET",
       headers: {
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+        "x-publishable-api-key": (await import('@lib/medusa-publishable-key')).getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL),
       }
     })
 

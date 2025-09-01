@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+          "x-publishable-api-key": (await import('@lib/medusa-publishable-key')).getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) || "",
         },
         body: JSON.stringify({ 
           cart,

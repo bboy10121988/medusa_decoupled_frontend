@@ -5,7 +5,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     // 從 Medusa 後端 store API 獲取政策（無需認證）
     const backendUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
-    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    const { getPublishableKeyForBackend } = await import('@lib/medusa-publishable-key')
+    const publishableKey = getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',

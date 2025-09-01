@@ -30,6 +30,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
     | { country: string | undefined; region: string; label: string | undefined }
     | undefined
   >(undefined)
+  const [isMounted, setIsMounted] = useState(false)
 
   const { countryCode } = useParams()
   const currentPath = usePathname().split(`/${countryCode}`)[1]
@@ -48,6 +49,10 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
   }, [regions])
 
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
     if (countryCode) {
       const option = options?.find((o) => o?.country === countryCode)
       setCurrent(option)
@@ -56,6 +61,30 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
 
   const handleChange = (option: CountryOption) => {
     updateRegion(option.country, currentPath)
+  }
+
+  // 防止 hydration 不匹配，只在客戶端渲染
+  if (!isMounted) {
+    return (
+      <div className="w-[60px]">
+        <div className="py-1 w-full">
+          <div className="txt-compact-small flex justify-center items-center">
+            {current && (
+              <span className="flex items-center justify-center">
+                <ReactCountryFlag
+                  svg
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                  }}
+                  countryCode={current.country ?? ""}
+                />
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

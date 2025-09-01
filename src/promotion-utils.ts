@@ -706,7 +706,7 @@ export async function getActivePromotionLabels(
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '',
+          'x-publishable-api-key': (await import('./lib/medusa-publishable-key')).getPublishableKeyForBackend((await import('./config')).MEDUSA_BACKEND_URL),
         },
       })
       

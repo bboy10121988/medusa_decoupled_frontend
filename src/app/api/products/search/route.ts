@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     const defaultRegionResponse = await sdk.client.fetch<RegionResponse>(`/store/regions?limit=1`, {
       method: "GET",
       headers: {
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+        "x-publishable-api-key": (await import('@lib/medusa-publishable-key')).getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)!,
       }
     })
 
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
         fields: "handle,id,title,thumbnail,variants,options,metadata,variants.title,variants.prices.amount,variants.prices.original_amount,variants.manage_inventory,variants.allow_backorder,variants.inventory_quantity,description,images,collection_id,created_at,updated_at,type_id,status,weight,length,height,width,material,hs_code,origin_country,mid_code",
       },
       headers: {
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+        "x-publishable-api-key": (await import('@lib/medusa-publishable-key')).getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)!,
       }
     })
 

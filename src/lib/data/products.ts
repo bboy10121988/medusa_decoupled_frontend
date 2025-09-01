@@ -1,6 +1,7 @@
 "use server"
 
-import { sdk } from "@lib/config"
+import { sdk, MEDUSA_BACKEND_URL } from "@lib/config"
+import { getPublishableKeyForBackend } from "@lib/medusa-publishable-key"
 import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
@@ -51,7 +52,7 @@ export const listProducts = async ({
         fields: "*options.values,*variants.options.option,+variants.inventory_quantity,+metadata",
       },
       headers: {
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+        "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
       },
       next: { revalidate: 0 },
       cache: "no-store",
@@ -156,7 +157,7 @@ export const getProduct = async ({
         fields: "*options.values,*variants.options.option,+variants.inventory_quantity,+metadata",
       },
       headers: {
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+        "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
       },
       next: { revalidate: 0 },
       cache: "no-store",

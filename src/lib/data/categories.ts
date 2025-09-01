@@ -1,4 +1,5 @@
-import { sdk } from "@lib/config"
+import { sdk, MEDUSA_BACKEND_URL } from "@lib/config"
+import { getPublishableKeyForBackend } from "@lib/medusa-publishable-key"
 import { HttpTypes } from "@medusajs/types"
 
 type CacheOptions = {
@@ -20,7 +21,7 @@ export const listCategories = async (query?: Record<string, any>) => {
           ...query,
         },
         headers: {
-          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+          "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
         },
         next: { revalidate: 300 }
       }
@@ -41,7 +42,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
             handle,
           },
           headers: {
-            "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+            "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
           },
           next: { revalidate: 300 }
         }

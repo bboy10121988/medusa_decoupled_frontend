@@ -1,4 +1,5 @@
 import Medusa from "@medusajs/js-sdk"
+import { getPublishableKeyForBackend } from "@lib/medusa-publishable-key"
 
 // 網站基本配置
 export const SITE_NAME = "Your Site Name"
@@ -18,14 +19,14 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:30
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
-  publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+  publishableKey: getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
 })
 
 // 確保在用於 API 路由和伺服器組件時可以直接使用
 export const getApiConfig = () => {
   return {
     baseUrl: MEDUSA_BACKEND_URL,
-    publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+    publishableKey: getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
   }
 }
 

@@ -12,7 +12,7 @@ export async function GET(
       `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/orders/by-merchant-trade-no/${merchantTradeNo}`,
       {
         headers: {
-          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+          "x-publishable-api-key": (await import('@lib/medusa-publishable-key')).getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL),
         },
       }
     )

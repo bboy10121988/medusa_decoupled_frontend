@@ -9,14 +9,15 @@ export async function POST(request: NextRequest) {
 
     // 轉發回調請求到後端
     const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
-    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    const { getPublishableKeyForBackend } = await import('@lib/medusa-publishable-key')
+    const publishableKey = getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)
     const apiEndpoint = `${backendUrl}/store/ecpay/logistics-callback`
 
     if (process.env.NODE_ENV === 'development') console.log('🔄 轉發回調到:', apiEndpoint)
     if (process.env.NODE_ENV === 'development') console.log('🔑 使用 Publishable Key:', publishableKey ? '已設定' : '未設定')
 
     if (!publishableKey) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ 缺少 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY')
+      if (process.env.NODE_ENV === 'development') console.error('❌ 缺少 Publishable Key')
       return NextResponse.json(
         { 
           success: false, 
