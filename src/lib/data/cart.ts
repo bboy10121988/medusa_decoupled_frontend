@@ -61,6 +61,7 @@ export async function retrieveCart(cartId?: string) {
 }
 
 export async function getOrSetCart(countryCode: string) {
+  const isDev = process.env.NODE_ENV === 'development'
   const region = await getRegion(countryCode)
 
   if (!region) {
@@ -149,6 +150,8 @@ export async function addToCart({
   quantity: number
   countryCode: string
 }) {
+  const isDev = process.env.NODE_ENV === 'development'
+  
   if (!variantId) {
     throw new Error("Missing variant ID when adding to cart")
   }
