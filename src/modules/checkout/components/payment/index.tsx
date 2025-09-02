@@ -17,6 +17,7 @@ const isEcpay = (providerId: string | undefined) => {
   return providerId === "ecpay_credit_card";
 }
 
+
 const Payment = ({
   cart,
   availablePaymentMethods,
@@ -24,6 +25,10 @@ const Payment = ({
   cart: any
   availablePaymentMethods: any[]
 }) => {
+
+  const payment_method_default = process.env.NEXT_PUBLIC_PAYMENT_METHOD_DEFAULT
+  const payment_method_ecpay_credit = process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT
+
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: any) => paymentSession.status === "pending"
   )
@@ -46,17 +51,13 @@ const Payment = ({
   const isEcpayMethod = isEcpay(selectedPaymentMethod)
 
   const setPaymentMethod = async (method: string) => {
-    setError(null)
+
+    const action: string = "setPaymentMethod"
+    
+    console.log(action,"選擇支付方式：",method)
+
     setSelectedPaymentMethod(method)
-    if (isStripeFunc(method)) {
-      await initiatePaymentSession(cart, {
-        provider_id: method,
-      })
-    } else if (isEcpay(method)) {
-      await initiatePaymentSession(cart, {
-        provider_id: method,
-      })
-    }
+    
   }
 
   const paidByGiftcard =
@@ -82,108 +83,32 @@ const Payment = ({
   }
 
   const handleSubmit = async () => {
-    //my-medusa-store
+    
+    const action: string = "handleSubmit"
   
     setIsLoading(true)
 
+    console.log(action,"支付方式(providerID):",selectedPaymentMethod)
 
     try {
 
-      console.log("provider id ",selectedPaymentMethod)
+        console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
-      const shouldInputCard =isStripeFunc(selectedPaymentMethod) && !activeSession
-
-      const checkActiveSession =
-        activeSession?.provider_id === selectedPaymentMethod
-
-      if (!checkActiveSession) {
-        
-        // 取得實際的支付方式
-        const currentPayment = selectedPaymentMethod
-        console.log("當前選擇的支付方式:", currentPayment)
-        
-        // 如果是綠界支付，使用選擇的支付方式；否則使用系統預設
-        const providerToUse = isEcpayMethod ? currentPayment : "pp_system_default"
-        console.log("使用的支付方式:", providerToUse)
-        
-        await initiatePaymentSession(cart, {
-          provider_id: providerToUse,
+        const initResp = initiatePaymentSession(cart,{
+          provider_id: selectedPaymentMethod
         })
-      }
 
-      // 處理綠界支付方式
-      if (isEcpayMethod) {
-        console.log("綠界支付方式被選中", selectedPaymentMethod)
-        
-        try {
-          // 先確保後端有正確設定付款方式
-          await initiatePaymentSession(cart, {
-            provider_id: selectedPaymentMethod,
-          })
-          
-          // 建立訂單並取得導向綠界付款頁面的連結
-          const response = await fetch(`/api/ecpay/checkout`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              cartId: cart.id,
-              paymentMethod: selectedPaymentMethod,
-            }),
-          })
-          
-          const data = await response.json()
-          
-          if (data.redirectUrl) {
-            // 如果有重定向 URL，直接跳轉到綠界付款頁面
-            window.location.href = data.redirectUrl
-            return
-          } else if (data.htmlForm) {
-            // 如果返回 HTML 表單，在頁面上創建一個表單並自動提交
-            // 創建一個臨時 div 來放置 HTML 表單
-            const tempDiv = document.createElement('div')
-            tempDiv.innerHTML = data.htmlForm
-            document.body.appendChild(tempDiv)
-            
-            // 找到表單並提交
-            const form = tempDiv.querySelector('form')
-            if (form) {
-              form.submit()
-            } else {
-              // 如果找不到表單，則跳轉到確認頁面
-              console.error('找不到綠界支付表單元素')
-              return router.push(
-                pathname + "?" + createQueryString("step", "review"),
-                { scroll: false }
-              )
-            }
-          } else {
-            // 如果沒有重定向 URL，繼續到訂單確認頁
-            return router.push(
-              pathname + "?" + createQueryString("step", "review"),
-              { scroll: false }
-            )
-          }
-        } catch (error) {
-          console.error("綠界支付初始化錯誤:", error)
-          setError("綠界支付初始化失敗，請稍後再試")
-        }
-      }
-
-      // 處理 Stripe 等其他支付方式
-      if (!shouldInputCard) {
-        console.log("非 Stripe 支付方式，跳轉到檢視訂單")
+        console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp)
 
         return router.push(
-          pathname + "?" + createQueryString("step", "step4"),
+          pathname + "?" + createQueryString("step", "review"),
           {
             scroll: false,
           }
         )
-      }
+      
     } catch (err: any) {
-      console.log("has error:",err)
+      console.log(action,"has error:",err)
       setError(err.message)
     } finally {
       setIsLoading(false)
@@ -228,7 +153,7 @@ const Payment = ({
             <>
               {/* 只顯示兩個硬編碼選項：綠界支付（含刷卡）與銀行轉帳 */}
               <RadioGroup value={selectedPaymentMethod} onChange={setPaymentMethod}>
-                <RadioGroup.Option value="ecpay_credit_card">
+                <RadioGroup.Option value={payment_method_ecpay_credit}>
                   {({ checked }) => (
                     <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>
                       <Heading level="h3" className="text-base font-medium mb-1">綠界支付（含刷卡）</Heading>
@@ -236,7 +161,7 @@ const Payment = ({
                     </div>
                   )}
                 </RadioGroup.Option>
-                <RadioGroup.Option value="ecpay_bank_transfer">
+                <RadioGroup.Option value={payment_method_default}>
                   {({ checked }) => (
                     <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>
                       <Heading level="h3" className="text-base font-medium mb-1">銀行轉帳</Heading>
@@ -278,13 +203,7 @@ const Payment = ({
             }
             data-testid="submit-payment-button"
           >
-            {!activeSession && isStripeFunc(selectedPaymentMethod)
-              ? "輸入信用卡資料"
-              : selectedPaymentMethod === "ecpay_credit_card"
-                ? "繼續到綠界付款"
-                : selectedPaymentMethod === "ecpay_store_payment"
-                  ? "確認超商取貨付款"
-                  : "繼續檢視訂單"}
+            繼續檢視訂單
           </Button>
         </div>
 

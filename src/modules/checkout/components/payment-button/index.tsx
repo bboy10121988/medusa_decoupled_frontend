@@ -21,6 +21,9 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
   "data-testid": dataTestId,
 }) => {
+
+  const action:string = "PaymentButton"
+
   const notReady =
     !cart ||
     !cart.shipping_address ||
@@ -30,35 +33,19 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 
   const paymentSession = cart.payment_collection?.payment_sessions?.[0]
 
-  // 銀行轉帳（ecpay_bank_transfer）直接建立訂單並跳轉 review
-  if (paymentSession?.provider_id === "ecpay_bank_transfer") {
-    return <BankTransferPaymentButton notReady={notReady} cart={cart} data-testid={dataTestId} />
+  console.log(action,"paymentSession:",paymentSession)
+
+
+  switch (paymentSession?.provider_id){
+    case process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT:
+      console.log(action,"選擇支付方式：",paymentSession?.provider_id);
+      break;
+    default:
+
+      console.log(action,"選擇支付方式：",paymentSession?.provider_id);
+      return <BankTransferPaymentButton notReady={notReady} cart={cart} data-testid={dataTestId} />
   }
 
-  switch (true) {
-    case isStripe(paymentSession?.provider_id):
-      return (
-        <StripePaymentButton
-          notReady={notReady}
-          cart={cart}
-          data-testid={dataTestId}
-        />
-      )
-    case isEcpay(paymentSession?.provider_id):
-      return (
-        <ECPayPaymentButton
-          notReady={notReady}
-          cart={cart}
-          data-testid={dataTestId}
-        />
-      )
-    case isManual(paymentSession?.provider_id):
-      return (
-        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
-      )
-    default:
-      return <Button disabled>請選擇付款方式</Button>
-  }
 }
 
 // 銀行轉帳付款按鈕元件
