@@ -5,39 +5,49 @@ import { HttpTypes } from "@medusajs/types"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 
 export const listCartShippingMethods = async (cartId: string) => {
-  if (process.env.NODE_ENV === 'development') console.log("📞 listCartShippingMethods 被呼叫，cartId:", cartId)
+  console.log("📞📞📞 listCartShippingMethods 被呼叫，cartId:", cartId)
   
   try {
     const headers = {
       ...(await getAuthHeaders()),
+      'Content-Type': 'application/json',
     }
 
-    const next = {
-      ...(await getCacheOptions("fulfillment")),
+    // 使用標準 fetch 替代 SDK
+    const url = new URL(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://35.236.182.29:9000'}/store/shipping-options`)
+    url.searchParams.set('cart_id', cartId)
+    
+    console.log("🔗🔗🔗 請求URL:", url.toString())
+    console.log("🔑🔑🔑 請求Headers:", headers)
+    
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers,
+      cache: 'no-store', // 確保不使用緩存
+    })
+    
+    console.log("📡📡📡 回應狀態:", response.status, response.statusText)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("❌❌❌ HTTP錯誤回應:", errorText)
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
-
-    // 直接使用原生 Medusa API
-    const response = await sdk.client.fetch<{ shipping_options: HttpTypes.StoreCartShippingOption[] }>(
-      `/store/shipping-options`,
-      {
-        method: "GET",
-        headers,
-        next,
-        query: { cart_id: cartId }
-      }
-    )
     
-    if (process.env.NODE_ENV === 'development') console.log("✅ 原生 API 回應:", response)
+    const data = await response.json()
     
-    if (response && response.shipping_options) {
-      if (process.env.NODE_ENV === 'development') console.log("✅ listCartShippingMethods 成功，收到 shipping_options:", response.shipping_options.length, "個選項")
-      return response.shipping_options
+    console.log("✅✅✅ 原生 API 回應:", data)
+    
+    if (data && data.shipping_options) {
+      console.log("🚚🚚🚚 listCartShippingMethods 成功，收到 shipping_options:", data.shipping_options.length, "個選項")
+      return data.shipping_options
     } else {
-      if (process.env.NODE_ENV === 'development') console.log("⚠️ 沒有 shipping_options 在回應中")
+      console.log("⚠️⚠️⚠️ 沒有 shipping_options 在回應中")
       return []
     }
-  } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error("❌ listCartShippingMethods 失敗:", error)
+  } catch (error: any) {
+    console.error("❌❌❌ listCartShippingMethods 失敗:", error)
+    // 不要拋出錯誤，而是返回空陣列
     return []
   }
 }

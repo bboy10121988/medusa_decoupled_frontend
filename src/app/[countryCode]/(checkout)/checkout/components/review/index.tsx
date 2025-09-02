@@ -13,10 +13,16 @@ const Review = ({ cart }: { cart: any }) => {
   const paidByGiftcard =
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
+  // 檢查是否為銀行轉帳
+  const isBankTransfer = searchParams.get("payment") === "bank_transfer" || 
+    cart?.payment_collection?.payment_sessions?.some((session: any) => 
+      session.provider_id === 'pp_bank_transfer'
+    )
+
   const previousStepsCompleted =
     cart.shipping_address &&
     cart.shipping_methods.length > 0 &&
-    (cart.payment_collection || paidByGiftcard)
+    (cart.payment_collection || paidByGiftcard || isBankTransfer)
 
   return (
     <div className="bg-white">

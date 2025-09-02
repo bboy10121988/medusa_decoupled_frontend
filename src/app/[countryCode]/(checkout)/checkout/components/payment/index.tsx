@@ -43,6 +43,20 @@ const Payment = ({
   const setPaymentMethod = async (method: string) => {
     setError(null)
     setSelectedPaymentMethod(method)
+    
+    // 銀行轉帳不需要初始化payment session，只設置選擇狀態
+    if (method === 'pp_bank_transfer') {
+      // 只設置選擇狀態，不跳轉
+      return
+    }
+    
+    // 綠界付款方式不需要初始化 payment session
+    if (method.startsWith('ecpay_')) {
+      // 綠界付款只需要設定選中的方法，不需要額外處理
+      return
+    }
+    
+    // 只有Stripe需要初始化 payment session
     if (isStripeFunc(method)) {
       await initiatePaymentSession(cart, {
         provider_id: method,
@@ -54,7 +68,9 @@ const Payment = ({
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
   const paymentReady =
-    (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard
+    (activeSession && cart?.shipping_methods.length !== 0) || 
+    paidByGiftcard ||
+    (selectedPaymentMethod === 'pp_bank_transfer' && cart?.shipping_methods.length !== 0) // 銀行轉帳不需要payment session
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -75,6 +91,29 @@ const Payment = ({
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
+      // 銀行轉帳路線 - 獨立處理
+      if (selectedPaymentMethod === 'pp_bank_transfer') {
+        // 銀行轉帳直接跳到 review 步驟
+        return router.push(
+          pathname + "?" + createQueryString("step", "review"),
+          {
+            scroll: false,
+          }
+        )
+      }
+      
+      // 綠界付款路線 - 獨立處理
+      if (selectedPaymentMethod.startsWith('ecpay_')) {
+        // 綠界付款直接跳到 review 步驟
+        return router.push(
+          pathname + "?" + createQueryString("step", "review"),
+          {
+            scroll: false,
+          }
+        )
+      }
+      
+      // Stripe付款路線 - 原有邏輯
       const shouldInputCard =
         isStripeFunc(selectedPaymentMethod) && !activeSession
 
@@ -129,7 +168,7 @@ const Payment = ({
               className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
               data-testid="edit-payment-button"
             >
-              Edit
+              編輯
             </button>
           </Text>
         )}

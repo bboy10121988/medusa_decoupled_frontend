@@ -172,13 +172,113 @@ export async function middleware(request: NextRequest) {
   const redirectPath = request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname
   const queryString = request.nextUrl.search ? request.nextUrl.search : ""
 
+  // Affiliate tracking middleware
+  const affiliateResponse = NextResponse.next()
+  const url = request.nextUrl.clone()
+  
+  // Check for affiliate parameters
+  const affiliateRef = url.searchParams.get('ref')
+  const affiliateId = url.searchParams.get('affiliate_id')
+  const utmSource = url.searchParams.get('utm_source')
+  const utmMedium = url.searchParams.get('utm_medium')
+  const utmCampaign = url.searchParams.get('utm_campaign')
+  
+  // Set affiliate tracking cookies if parameters are present
+  if (affiliateRef || affiliateId) {
+    if (affiliateRef) {
+      affiliateResponse.cookies.set('affiliate_ref', affiliateRef, {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      })
+    }
+    
+    if (affiliateId && affiliateId !== affiliateRef) {
+      affiliateResponse.cookies.set('affiliate_id', affiliateId, {
+        maxAge: 30 * 24 * 60 * 60,
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      })
+    }
+    
+    // Set UTM parameter cookies
+    if (utmSource) {
+      affiliateResponse.cookies.set('utm_source', utmSource, {
+        maxAge: 30 * 24 * 60 * 60,
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      })
+    }
+    
+    if (utmMedium) {
+      affiliateResponse.cookies.set('utm_medium', utmMedium, {
+        maxAge: 30 * 24 * 60 * 60,
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      })
+    }
+    
+    if (utmCampaign) {
+      affiliateResponse.cookies.set('utm_campaign', utmCampaign, {
+        maxAge: 30 * 24 * 60 * 60,
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      })
+    }
+    
+    // Log affiliate click tracking (in production, save to database)
+    console.log('Affiliate click tracked:', {
+      affiliateId: affiliateRef || affiliateId,
+      timestamp: Date.now(),
+      referrer: request.headers.get('referer'),
+      userAgent: request.headers.get('user-agent'),
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      path: url.pathname
+    })
+    
+    // Remove affiliate parameters from URL to keep it clean
+    url.searchParams.delete('ref')
+    url.searchParams.delete('affiliate_id')
+    url.searchParams.delete('utm_source')
+    url.searchParams.delete('utm_medium')
+    url.searchParams.delete('utm_campaign')
+    url.searchParams.delete('utm_content')
+    url.searchParams.delete('utm_term')
+    url.searchParams.delete('t') // timestamp
+    
+    // If URL has changed, redirect to clean URL
+    if (url.href !== request.url) {
+      // But first handle country code redirect if needed
+      if (!urlHasCountryCode && countryCode) {
+        const cleanPath = url.pathname === "/" ? "" : url.pathname
+        const cleanQuery = url.search ? url.search : ""
+        url.pathname = `/${countryCode}${cleanPath}`
+        url.search = cleanQuery
+      }
+      return NextResponse.redirect(url.href)
+    }
+  }
+
   // If no country code is set, we redirect to the relevant region.
   if (!urlHasCountryCode && countryCode) {
     const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
     return NextResponse.redirect(redirectUrl, 307)
   }
 
-  return NextResponse.next()
+  return affiliateResponse
 }
 
 export const config = {

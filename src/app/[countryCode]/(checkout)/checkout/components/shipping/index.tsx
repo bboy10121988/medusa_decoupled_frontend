@@ -111,13 +111,39 @@ const Shipping: React.FC<ShippingProps> = ({
   }
 
   const handleSubmit = () => {
+    // 檢查是否有可用的配送方式
+    if (!_shippingMethods || _shippingMethods.length === 0) {
+      setError('目前沒有可用的配送方式，請聯繫客服或稍後再試')
+      return
+    }
+
+    // 檢查是否已選擇配送方式
+    if (!cart.shipping_methods?.[0] && !shippingMethodId) {
+      setError('請先選擇配送方式')
+      return
+    }
+    
+    // 清除錯誤並跳轉到付款頁面
+    setError(null)
+    console.log('✅ 跳轉到付款頁面，選中的配送方式:', shippingMethodId)
     router.push(pathname + "?step=payment", { scroll: false })
   }
 
   const handleSetShippingMethod = async (
-    id: string,
+    id: string | null,
     variant: "shipping" | "pickup"
   ) => {
+    if (!id) {
+      setError('請選擇配送方式')
+      return
+    }
+
+    if (!cart?.id) {
+      setError('購物車資訊不完整，請重新整理頁面')
+      return
+    }
+    
+    console.log('🚚 設置配送方式:', { cartId: cart.id, shippingMethodId: id, variant })
     setError(null)
 
     if (variant === "pickup") {
@@ -133,15 +159,26 @@ const Shipping: React.FC<ShippingProps> = ({
       return id
     })
 
-    await setShippingMethod({ cartId: cart.id, shippingMethodId: id })
-      .catch((err) => {
-        setShippingMethodId(currentId)
-
-        setError(err.message)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    try {
+      await setShippingMethod({ cartId: cart.id, shippingMethodId: id })
+      console.log('✅ 配送方式設置成功')
+    } catch (err: any) {
+      console.error('❌ 配送方式設置錯誤:', err)
+      setShippingMethodId(currentId)
+      
+      // 提供更友好的錯誤訊息
+      if (err.message.includes('Error setting up the request')) {
+        setError('配送方式設定失敗，請檢查網路連線。如果問題持續存在，請聯繫客服。')
+      } else if (err.message.includes('shipping')) {
+        setError('配送選項設定錯誤，請重新選擇配送方式')
+      } else if (err.message.includes('cart')) {
+        setError('購物車狀態錯誤，請重新整理頁面後重試')
+      } else {
+        setError(err.message || '設定配送方式時發生未知錯誤，請重試')
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -161,7 +198,7 @@ const Shipping: React.FC<ShippingProps> = ({
             }
           )}
         >
-          Delivery
+          配送方式
           {!isOpen && (cart.shipping_methods?.length ?? 0) > 0 && (
             <CheckCircleSolid />
           )}
@@ -176,7 +213,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
                 data-testid="edit-delivery-button"
               >
-                Edit
+                編輯
               </button>
             </Text>
           )}
@@ -186,10 +223,10 @@ const Shipping: React.FC<ShippingProps> = ({
           <div className="grid">
             <div className="flex flex-col">
               <span className="font-medium txt-medium text-ui-fg-base">
-                Shipping method
+                運送方式
               </span>
               <span className="mb-4 text-ui-fg-muted txt-medium">
-                How would you like you order delivered
+                請選擇您希望的運送方式
               </span>
             </div>
             <div data-testid="delivery-options-container">
@@ -211,10 +248,12 @@ const Shipping: React.FC<ShippingProps> = ({
                       value={PICKUP_OPTION_ON}
                       data-testid="delivery-option-radio"
                       className={clx(
-                        "flex items-center justify-between text-small-regular cursor-pointer py-4 border rounded-rounded px-8 mb-2 hover:shadow-borders-interactive-with-active",
+                        "flex items-center justify-between text-small-regular cursor-pointer py-4 border rounded-lg px-8 mb-2 transition-all duration-200",
                         {
-                          "border-ui-border-interactive":
+                          "border-blue-500 bg-blue-50 ring-2 ring-blue-200":
                             showPickupOptions === PICKUP_OPTION_ON,
+                          "border-gray-300 hover:border-gray-400 bg-white":
+                            showPickupOptions !== PICKUP_OPTION_ON,
                         }
                       )}
                     >
@@ -249,11 +288,13 @@ const Shipping: React.FC<ShippingProps> = ({
                         data-testid="delivery-option-radio"
                         disabled={isDisabled}
                         className={clx(
-                          "flex items-center justify-between text-small-regular cursor-pointer py-4 border rounded-rounded px-8 mb-2 hover:shadow-borders-interactive-with-active",
+                          "flex items-center justify-between text-small-regular cursor-pointer py-4 border rounded-lg px-8 mb-2 transition-all duration-200",
                           {
-                            "border-ui-border-interactive":
+                            "border-blue-500 bg-blue-50 ring-2 ring-blue-200":
                               option.id === shippingMethodId,
-                            "hover:shadow-brders-none cursor-not-allowed":
+                            "border-gray-300 hover:border-gray-400 bg-white":
+                              option.id !== shippingMethodId && !isDisabled,
+                            "border-gray-200 bg-gray-50 cursor-not-allowed opacity-50":
                               isDisabled,
                           }
                         )}
@@ -295,10 +336,10 @@ const Shipping: React.FC<ShippingProps> = ({
             <div className="grid">
               <div className="flex flex-col">
                 <span className="font-medium txt-medium text-ui-fg-base">
-                  Store
+                  門市取貨
                 </span>
                 <span className="mb-4 text-ui-fg-muted txt-medium">
-                  Choose a store near you
+                  選擇距離您最近的門市
                 </span>
               </div>
               <div data-testid="delivery-options-container">
@@ -365,10 +406,14 @@ const Shipping: React.FC<ShippingProps> = ({
               className="mt"
               onClick={handleSubmit}
               isLoading={isLoading}
-              disabled={!cart.shipping_methods?.[0]}
+              disabled={
+                !cart.shipping_methods?.[0] || 
+                !_shippingMethods || 
+                _shippingMethods.length === 0
+              }
               data-testid="submit-delivery-option-button"
             >
-              Continue to payment
+              繼續付款
             </Button>
           </div>
         </>
@@ -378,7 +423,7 @@ const Shipping: React.FC<ShippingProps> = ({
             {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
               <div className="flex flex-col w-1/3">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Method
+                  配送方式
                 </Text>
                 <Text className="txt-medium text-ui-fg-subtle">
                   {cart.shipping_methods?.at(-1)?.name}{" "}

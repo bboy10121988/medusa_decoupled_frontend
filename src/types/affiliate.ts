@@ -36,13 +36,25 @@ export type AffiliatePayout = {
 export type AffiliateSettings = {
   displayName: string
   website?: string
-  payoutMethod: 'bank' | 'paypal'
+  payoutMethod: 'bank_transfer' | 'paypal' | 'stripe'
   paypalEmail?: string
   bankAccount?: {
     bankName: string
     accountName: string
     accountNumber: string
     branch?: string
+  }
+  stripeAccountId?: string
+  notifications: {
+    emailOnNewOrder: boolean
+    emailOnPayment: boolean
+    emailOnCommissionUpdate: boolean
+  }
+  profile: {
+    company?: string
+    phone?: string
+    address?: string
+    taxId?: string
   }
 }
 

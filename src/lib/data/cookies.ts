@@ -2,23 +2,36 @@ import "server-only"
 import { cookies as nextCookies } from "next/headers"
 
 export const getAuthHeaders = async (): Promise<
-  { authorization: string } | {}
+  { authorization: string; 'x-publishable-api-key'?: string } | { 'x-publishable-api-key'?: string }
 > => {
   try {
     const cookies = await nextCookies()
     const token = cookies.get("_medusa_jwt")?.value
+    
+    // 總是包含 publishable key
+    const headers: { authorization?: string; 'x-publishable-api-key'?: string } = {}
+    
+    // 添加 publishable key (如果有)
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
 
     if (!token) {
-      return {}
+      return headers
     }
 
     // 如果是 Google OAuth token，不返回授權標頭
     if (token.startsWith('google_oauth:') || token.startsWith('medusa_google_')) {
-      return {}
+      return headers
     }
 
-    return { authorization: `Bearer ${token}` }
+    headers.authorization = `Bearer ${token}`
+    return headers
   } catch {
+    // 即使出錯也返回 publishable key
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      return { 'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }
+    }
     return {}
   }
 }

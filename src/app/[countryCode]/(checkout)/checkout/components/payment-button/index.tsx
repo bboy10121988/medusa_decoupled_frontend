@@ -1,12 +1,12 @@
 "use client"
 
-import { isManual, isStripe } from "@lib/constants"
+import { isManual, isStripe, isBankTransfer, isECPay } from "../../../../../../constants"
 import { placeOrder } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
-import ErrorMessage from "../error-message"
+import ErrorMessage from "../error-message/index"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -26,6 +26,9 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 
   const paymentSession = cart.payment_collection?.payment_sessions?.[0]
 
+  // 如果沒有payment session但在review步驟，很可能是銀行轉帳
+  const possibleBankTransfer = !paymentSession
+
   switch (true) {
     case isStripe(paymentSession?.provider_id):
       return (
@@ -38,6 +41,14 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     case isManual(paymentSession?.provider_id):
       return (
         <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+      )
+    case isBankTransfer(paymentSession?.provider_id) || possibleBankTransfer:
+      return (
+        <BankTransferButton notReady={notReady} data-testid={dataTestId} />
+      )
+    case isECPay(paymentSession?.provider_id):
+      return (
+        <ECPayButton notReady={notReady} cart={cart} data-testid={dataTestId} />
       )
     default:
       return <Button disabled>Select a payment method</Button>
@@ -185,6 +196,105 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
       <ErrorMessage
         error={errorMessage}
         data-testid="manual-payment-error-message"
+      />
+    </>
+  )
+}
+
+// 銀行轉帳按鈕組件
+const BankTransferButton = ({
+  notReady,
+  "data-testid": dataTestId,
+}: {
+  notReady: boolean
+  "data-testid"?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const handlePayment = async () => {
+    setSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      // 銀行轉帳直接創建訂單
+      await placeOrder()
+      // 訂單創建成功後，用戶會看到訂單確認頁面和轉帳資訊
+    } catch (err: any) {
+      setErrorMessage(err.message || '訂單創建失敗，請重試')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+        <h3 className="text-blue-800 font-medium mb-2">銀行轉帳付款</h3>
+        <p className="text-blue-700 text-sm">
+          點擊下方按鈕將立即成立訂單，並顯示銀行轉帳資訊。
+          請在3天內完成轉帳，逾期訂單將被取消。
+        </p>
+      </div>
+      <Button
+        disabled={notReady}
+        isLoading={submitting}
+        onClick={handlePayment}
+        size="large"
+        data-testid={dataTestId}
+      >
+        確認訂單並取得轉帳資訊
+      </Button>
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="bank-transfer-error-message"
+      />
+    </>
+  )
+}
+
+// 綠界付款按鈕組件
+const ECPayButton = ({
+  notReady,
+  cart,
+  "data-testid": dataTestId,
+}: {
+  notReady: boolean
+  cart: HttpTypes.StoreCart
+  "data-testid"?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const handlePayment = async () => {
+    setSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      // 綠界付款邏輯 - 創建訂單並跳轉到綠界
+      await placeOrder()
+      // 在實際應用中，這裡會跳轉到綠界付款頁面
+    } catch (err: any) {
+      setErrorMessage(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <>
+      <Button
+        disabled={notReady}
+        isLoading={submitting}
+        onClick={handlePayment}
+        size="large"
+        data-testid={dataTestId}
+      >
+        前往綠界付款
+      </Button>
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="ecpay-error-message"
       />
     </>
   )

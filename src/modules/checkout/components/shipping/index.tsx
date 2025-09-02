@@ -41,8 +41,9 @@ const Shipping: React.FC<ShippingProps> = ({
   const [isLoadingPrices, setIsLoadingPrices] = useState(true)
 
   // Debug logs
-  console.log("🚚 Shipping component - availableShippingMethods:", availableShippingMethods)
-  console.log("🛒 Shipping component - cart.id:", cart?.id)
+  console.log("🚚🚚🚚 Shipping component - availableShippingMethods:", availableShippingMethods)
+  console.log("🛒🛒🛒 Shipping component - cart.id:", cart?.id)
+  console.log("🔢🔢🔢 Available shipping methods count:", availableShippingMethods?.length || 0)
 
   const [showPickupOptions, setShowPickupOptions] =
     useState<string>(PICKUP_OPTION_OFF)

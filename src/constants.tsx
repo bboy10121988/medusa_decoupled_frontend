@@ -4,6 +4,7 @@ import { CreditCard } from "@medusajs/icons"
 import Ideal from "@modules/common/icons/ideal"
 import Bancontact from "@modules/common/icons/bancontact"
 import PayPal from "@modules/common/icons/paypal"
+import Bank from "@modules/common/icons/bank"
 
 /* Map of payment provider_id to their title and icon. Add in any payment providers you want to use. */
 export const paymentInfoMap: Record<
@@ -29,6 +30,11 @@ export const paymentInfoMap: Record<
   pp_system_default: {
     title: "Manual Payment",
     icon: <CreditCard />,
+  },
+  // 獨立銀行轉帳 - 不透過第三方支付
+  pp_bank_transfer: {
+    title: "銀行轉帳",
+    icon: <Bank />,
   },
   // ECPay 付款方式
   ecpay_credit_card: {
@@ -67,6 +73,11 @@ export const isPaypal = (providerId?: string) => {
 }
 export const isManual = (providerId?: string) => {
   return providerId?.startsWith("pp_system_default")
+}
+
+// Check if it's independent bank transfer
+export const isBankTransfer = (providerId?: string) => {
+  return providerId?.startsWith("pp_bank_transfer")
 }
 
 // Check if it's ECPay payment

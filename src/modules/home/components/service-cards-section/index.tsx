@@ -23,6 +23,77 @@ interface Card {
   stylists?: Stylist[]
 }
 
+// 設計師選擇卡片元件
+interface DesignerSelectorCardProps {
+  allStylists: string[]
+  selectedDesigner: string
+  onDesignerChange: (value: string) => void
+  isMounted: boolean
+}
+
+function DesignerSelectorCard({ 
+  allStylists, 
+  selectedDesigner, 
+  onDesignerChange, 
+  isMounted 
+}: DesignerSelectorCardProps) {
+  if (!isMounted || allStylists.length === 0) return null
+
+  return (
+    <div className="group relative bg-white overflow-hidden transition-all duration-700 border border-stone-200/60 hover:border-stone-300/80 hover:-translate-y-2 hover:shadow-xl h-full">
+      {/* 內容區域 - 填滿整張卡片高度並置中 */}
+      <div className="h-full flex flex-col items-center justify-center p-4 md:p-8 space-y-4 md:space-y-6">
+        {/* 標題 - 繼承區塊標題屬性 */}
+        <div className="text-center space-y-2 md:space-y-4">
+          <h1 className="text-3xl md:text-4xl font-light text-stone-900 group-hover:text-stone-700 transition-colors duration-300 tracking-wide">
+            選擇設計師
+          </h1>
+          <p className="text-[10px] md:text-xs text-stone-500 font-light tracking-[0.2em] uppercase">
+            CHOOSE DESIGNER
+          </p>
+        </div>
+
+        {/* 下拉選單區域 */}
+        <div className="w-full space-y-3">
+          <Select 
+            value={selectedDesigner}
+            onValueChange={onDesignerChange}
+          >
+            <Select.Trigger className="w-full bg-white border-stone-200 hover:border-stone-300 py-3 px-4 text-stone-700 font-light tracking-wide">
+              <Select.Value placeholder="所有設計師" />
+            </Select.Trigger>
+            <Select.Content className="bg-white border-stone-200 shadow-lg max-h-60 overflow-y-auto z-50">
+              <Select.Item value="all" className="font-light tracking-wide text-stone-700 hover:bg-stone-50">
+                所有設計師
+              </Select.Item>
+              {allStylists.map((designer) => (
+                <Select.Item 
+                  key={designer} 
+                  value={designer}
+                  className="font-light tracking-wide text-stone-700 hover:bg-stone-50"
+                >
+                  {designer}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+          
+          {/* 當前選擇顯示 - 與設計師資訊區域保持一致 */}
+          <div className="text-center">
+            <span className="text-xs md:text-sm text-stone-600 font-light tracking-wide">
+              {selectedDesigner === "all" ? "所有設計師" : selectedDesigner}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 底部微光效果 */}
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-stone-200/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+    </div>
+  )
+}
+
+// 服務卡片元件
 interface ServiceCardProps {
   card: Card
   selectedDesigner: string
@@ -185,7 +256,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
   }
 
   return (
-    <div className="group relative bg-white overflow-hidden transition-all duration-700 border border-stone-200/60 hover:border-stone-300/80 hover:-translate-y-2 hover:shadow-xl">
+    <div className="group relative bg-white overflow-hidden transition-all duration-700 border border-stone-200/60 hover:border-stone-300/80 hover:-translate-y-2 hover:shadow-xl h-full">
       {/* 服務圖片區域 */}
       {(() => {
         const cardImage = getCardImage()
@@ -228,24 +299,30 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
 
       {/* 卡片內容區域 - Kitsuné 風格 */}
       <div className="p-4 md:p-8 space-y-4 md:space-y-6">
-        {/* 服務標題區域 - 添加價格到右側 */}
-        <div className="flex justify-between items-start">
-          <div className="space-y-1 md:space-y-2 flex-1">
-            <h3 className="text-lg md:text-xl font-light text-stone-900 group-hover:text-stone-700 transition-colors duration-300 leading-tight tracking-wide">
-              {card.title}
-            </h3>
-            {card.englishTitle && (
+        {/* 服務標題區域 - 固定高度確保對齊 */}
+        <div className="space-y-2 md:space-y-3 min-h-[5.5rem] md:min-h-[6.5rem]">
+          {/* 主標題和價格 - 兩欄布局 */}
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-light text-stone-900 group-hover:text-stone-700 transition-colors duration-300 tracking-wide leading-tight">
+                {card.title}
+              </h1>
+            </div>
+            {/* 價格區域 - 右側對齊 */}
+            <div className="ml-2 md:ml-4 text-right">
+              <span className="text-lg md:text-xl font-light text-stone-600 tracking-wide">
+                {getCardPrice(card)}
+              </span>
+            </div>
+          </div>
+          {/* 英文副標題 - 全寬一欄布局 */}
+          {card.englishTitle && (
+            <div className="w-full">
               <p className="text-[10px] md:text-xs text-stone-500 font-light tracking-[0.2em] uppercase">
                 {card.englishTitle}
               </p>
-            )}
-          </div>
-          {/* 價格區域 - 右側對齊 */}
-          <div className="ml-2 md:ml-4 text-right">
-            <span className="text-sm md:text-lg font-medium text-stone-800 tracking-wide">
-              {getCardPrice(card)}
-            </span>
-          </div>
+            </div>
+          )}
         </div>
 
         {/* 設計師資訊 - 簡約設計，始終顯示 */}
@@ -254,7 +331,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
             <svg className="w-3 h-3 md:w-4 md:h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span className="text-xs md:text-sm font-medium text-stone-700 tracking-wide">
+            <span className="text-xs md:text-sm font-light text-stone-600 tracking-wide">
               {getSelectedStylistName() || "所有設計師"}
             </span>
           </div>
@@ -318,46 +395,26 @@ export default function ServiceCardsSection({
   }
 
   return (
-    <section className={heading ? "py-8 md:py-12 bg-stone-50/30" : "py-0 bg-stone-50/30"}>
+    <section className="py-0 bg-stone-50/30">
       <div className="max-w-[1440px] mx-auto w-full">
-        {heading && (
-          <div className="mb-12 text-center">
-            <h1 className="text-3xl md:text-4xl font-light text-stone-900 mb-4 tracking-wide">{heading}</h1>
-          </div>
-        )}
-        
-        {allStylists.length > 0 && isMounted && (
-          <div className="mb-16">
-            <div className="w-full max-w-[280px] mx-auto">
-              <Select 
-                value={selectedDesigner}
-                onValueChange={setSelectedDesigner}
-              >
-                <Select.Trigger className="bg-white border-stone-200 hover:border-stone-300 py-3 px-6 text-stone-700 font-light tracking-wide">
-                  <Select.Value placeholder="所有設計師" />
-                </Select.Trigger>
-                <Select.Content className="bg-white border-stone-200 shadow-lg">
-                  <Select.Item value="all" className="font-light tracking-wide text-stone-700 hover:bg-stone-50">所有設計師</Select.Item>
-                  {allStylists.map((designer) => (
-                    <Select.Item 
-                      key={designer} 
-                      value={designer}
-                      className="font-light tracking-wide text-stone-700 hover:bg-stone-50"
-                    >
-                      {designer}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            </div>
-          </div>
-        )}
-
         <div className={clsx(
           "grid grid-cols-2 gap-0 w-full",
           cardsPerRow === 3 && "lg:grid-cols-3",
           cardsPerRow === 4 && "lg:grid-cols-4"
         )}>
+          {/* 設計師選擇卡片 - 作為第一張卡片 */}
+          {allStylists.length > 0 && (
+            <div className="w-full">
+              <DesignerSelectorCard 
+                allStylists={allStylists}
+                selectedDesigner={selectedDesigner}
+                onDesignerChange={setSelectedDesigner}
+                isMounted={isMounted}
+              />
+            </div>
+          )}
+          
+          {/* 服務卡片 */}
           {validCards.map((card, idx) => (
             <div key={`${selectedDesigner}-${idx}`} className="w-full">
               <ServiceCard 

@@ -1,0 +1,55 @@
+{
+  "settings": {
+    "test@example.com": {
+      "displayName": "測試聯盟會員",
+      "website": "https://test-affiliate.example.com",
+      "payoutMethod": "bank_transfer",
+      "bankAccount": {
+        "bankName": "台灣銀行",
+        "accountName": "測試帳戶",
+        "accountNumber": "12345678901",
+        "branch": "台北分行"
+      },
+      "notifications": {
+        "emailOnNewOrder": true,
+        "emailOnPayment": true,
+        "emailOnCommissionUpdate": false
+      },
+      "profile": {
+        "company": "測試公司",
+        "phone": "0912-345-678",
+        "address": "台北市信義區信義路五段7號",
+        "taxId": "12345678"
+      }
+    },
+    "test2@example.com": {
+      "displayName": "PayPal 測試會員",
+      "website": "https://paypal-test.example.com",
+      "payoutMethod": "paypal",
+      "paypalEmail": "paypal-test@example.com",
+      "notifications": {
+        "emailOnNewOrder": true,
+        "emailOnPayment": true,
+        "emailOnCommissionUpdate": true
+      },
+      "profile": {
+        "company": "PayPal 測試公司",
+        "phone": "0987-654-321"
+      }
+    },
+    "test3@example.com": {
+      "displayName": "Stripe 測試會員",
+      "payoutMethod": "stripe",
+      "stripeAccountId": "acct_1234567890abcdef",
+      "notifications": {
+        "emailOnNewOrder": false,
+        "emailOnPayment": true,
+        "emailOnCommissionUpdate": false
+      },
+      "profile": {
+        "company": "Stripe 測試公司"
+      }
+    }
+  },
+  "lastUpdated": "2025-09-02T15:27:34.136Z"
+}

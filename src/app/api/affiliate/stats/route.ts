@@ -1,24 +1,49 @@
 import { NextResponse } from 'next/server'
-import type { AffiliateStatPoint, AffiliateStatsSummary } from 'types/affiliate'
+import { cookies } from 'next/headers'
+import { getAffiliateStats } from '../../../../lib/data/affiliate-stats'
+import { retrieveAffiliate } from '../../../../lib/data/affiliate-auth'
 
-export async function GET() {
-  // Mock data for initial UI integration
-  const trend: AffiliateStatPoint[] = Array.from({ length: 7 }).map((_, i) => ({
-    date: new Date(Date.now() - (6 - i) * 86400000).toISOString().slice(0, 10),
-    clicks: Math.floor(50 + Math.random() * 50),
-    conversions: Math.floor(5 + Math.random() * 10),
-    revenue: Number((100 + Math.random() * 300).toFixed(2)),
-    commission: Number((10 + Math.random() * 50).toFixed(2)),
-  }))
+export async function GET(request: Request) {
+  try {
+    // 獲取聯盟會員會話
+    const session = await retrieveAffiliate()
+    if (!session) {
+      return NextResponse.json({ error: '未授權' }, { status: 401 })
+    }
 
-  const res: AffiliateStatsSummary = {
-    period: '最近 7 天',
-    totalClicks: trend.reduce((s, p) => s + p.clicks, 0),
-    totalConversions: trend.reduce((s, p) => s + p.conversions, 0),
-    totalRevenue: Number(trend.reduce((s, p) => s + p.revenue, 0).toFixed(2)),
-    totalCommission: Number(trend.reduce((s, p) => s + p.commission, 0).toFixed(2)),
-    trend,
+    // 從 URL 參數獲取天數
+    const { searchParams } = new URL(request.url)
+    const days = parseInt(searchParams.get('days') || '7', 10)
+
+    // 獲取真實統計資料
+    const stats = await getAffiliateStats(session.id, days)
+    
+    // 確保資料結構完整
+    const safeStats = {
+      period: stats.period || `最近 ${days} 天`,
+      totalClicks: stats.totalClicks || 0,
+      totalConversions: stats.totalConversions || 0,
+      totalRevenue: stats.totalRevenue || 0,
+      totalCommission: stats.totalCommission || 0,
+      trend: stats.trend || [],
+      linkStats: stats.linkStats || {},
+    }
+    
+    return NextResponse.json(safeStats)
+  } catch (error) {
+    console.error('獲取統計資料失敗:', error)
+    
+    // 返回空資料結構而不是錯誤
+    const fallbackStats = {
+      period: '最近 7 天',
+      totalClicks: 0,
+      totalConversions: 0,
+      totalRevenue: 0,
+      totalCommission: 0,
+      trend: [],
+      linkStats: {},
+    }
+    
+    return NextResponse.json(fallbackStats)
   }
-
-  return NextResponse.json(res)
 }

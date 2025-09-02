@@ -1,129 +1,256 @@
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { retrieveAffiliateAdmin } from '@lib/data/affiliate-admin-auth'
-import { getRequestOrigin } from '@lib/util/absolute-url'
+'use client'
 
-export default async function AffiliateAdminHome({ params }: { params: Promise<{ countryCode: string }> }) {
-  const { countryCode } = await params
-  const admin = await retrieveAffiliateAdmin()
-  if (!admin) redirect(`/${countryCode}/affiliate-admin/login`)
+import { useState, useEffect } from 'react'
 
-  // fetch pending count from local API (mock)
-  let count = 0
-  try {
-    const origin = await getRequestOrigin()
-    const res = await fetch(`${origin}/api/affiliate-admin/applications`, { cache: 'no-store' })
-    if (res.ok) {
-      const json = await res.json()
-      count = (json?.applications || []).length as number
+type AdminOverviewData = {
+  summary: {
+    totalAffiliates: number
+    activeAffiliates: number
+    pendingAffiliates: number
+    totalCommission: number
+    totalSettled: number
+    pendingSettlement: number
+    thisMonthOrders: number
+    thisMonthRevenue: number
+  }
+  recentActivities: {
+    id: string
+    type: 'registration' | 'order' | 'settlement' | 'commission'
+    description: string
+    amount?: number
+    timestamp: string
+    affiliateId: string
+  }[]
+  topAffiliates: {
+    id: string
+    name: string
+    orders: number
+    revenue: number
+    commission: number
+  }[]
+}
+
+export default function AffiliateAdminDashboard() {
+  const [data, setData] = useState<AdminOverviewData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchOverviewData()
+  }, [])
+
+  const fetchOverviewData = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/affiliate-admin/overview')
+      
+      if (!response.ok) {
+        throw new Error('獲取總覽數據失敗')
+      }
+      
+      const adminData = await response.json()
+      setData(adminData)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '發生未知錯誤')
+    } finally {
+      setLoading(false)
     }
-  } catch {}
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-gray-500">載入中...</div>
+      </div>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+        <div className="text-red-800">{error || '無法載入數據'}</div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
-      {/* 歡迎區域 */}
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-bold text-gray-900">總覽</h2>
-        <p className="mt-2 text-gray-600">歡迎回來，{admin.email}</p>
-      </div>
+      <h2 className="text-xl font-medium text-gray-900">管理總覽</h2>
 
       {/* 統計卡片 */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
-                <svg className="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="聯盟會員總數"
+          value={data.summary.totalAffiliates.toString()}
+          subtitle={`活躍: ${data.summary.activeAffiliates} | 待審: ${data.summary.pendingAffiliates}`}
+          icon="👥"
+          color="blue"
+        />
+        <StatCard
+          title="本月訂單"
+          value={data.summary.thisMonthOrders.toString()}
+          subtitle={`營收: $${data.summary.thisMonthRevenue.toFixed(2)}`}
+          icon="📦"
+          color="green"
+        />
+        <StatCard
+          title="總佣金"
+          value={`$${data.summary.totalCommission.toFixed(2)}`}
+          subtitle={`已結算: $${data.summary.totalSettled.toFixed(2)}`}
+          icon="💰"
+          color="yellow"
+        />
+        <StatCard
+          title="待結算"
+          value={`$${data.summary.pendingSettlement.toFixed(2)}`}
+          subtitle="等待下次結算"
+          icon="⏳"
+          color="purple"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* 最近活動 */}
+        <div className="bg-white rounded-lg border p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">最近活動</h3>
+          <div className="space-y-4">
+            {data.recentActivities.slice(0, 5).map((activity) => (
+              <div key={activity.id} className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <span className="text-lg">
+                    {activity.type === 'registration' ? '👤' : 
+                     activity.type === 'order' ? '📦' :
+                     activity.type === 'settlement' ? '💰' : '💳'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900">{activity.description}</p>
+                  <p className="text-xs text-gray-500">
+                    {activity.affiliateId} • {new Date(activity.timestamp).toLocaleString('zh-TW')}
+                  </p>
+                </div>
+                {activity.amount && (
+                  <div className="text-sm font-medium text-green-600">
+                    +${activity.amount.toFixed(2)}
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-500">待審核申請</div>
-              <div className="text-2xl font-bold text-gray-900">{count}</div>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Link 
-              href={`/${countryCode}/affiliate-admin/applications`} 
-              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              前往審核
-              <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+            ))}
           </div>
         </div>
 
-        {/* 可以添加更多統計卡片 */}
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        {/* 頂級聯盟商 */}
+        <div className="bg-white rounded-lg border p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">頂級聯盟商</h3>
+          <div className="space-y-4">
+            {data.topAffiliates.slice(0, 5).map((affiliate, index) => (
+              <div key={affiliate.id} className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-gray-600">#{index + 1}</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{affiliate.name}</p>
+                    <p className="text-xs text-gray-500">{affiliate.id}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">${affiliate.commission.toFixed(2)}</p>
+                  <p className="text-xs text-gray-500">{affiliate.orders} 筆訂單</p>
+                </div>
               </div>
-            </div>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-500">活躍夥伴</div>
-              <div className="text-2xl font-bold text-gray-900">-</div>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-sm text-gray-500">即將推出</span>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-500">本月佣金</div>
-              <div className="text-2xl font-bold text-gray-900">-</div>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-sm text-gray-500">即將推出</span>
+            ))}
           </div>
         </div>
       </div>
 
       {/* 快速操作 */}
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <div className="bg-white rounded-lg border p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">快速操作</h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link
-            href={`/${countryCode}/affiliate-admin/applications`}
-            className="flex items-center rounded-lg border border-gray-200 p-4 hover:border-gray-300 hover:shadow-sm transition-all"
-          >
-            <svg className="h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-900">審核申請</div>
-              <div className="text-sm text-gray-500">管理聯盟夥伴申請</div>
-            </div>
-          </Link>
-          
-          <div className="flex items-center rounded-lg border border-gray-200 p-4 opacity-50">
-            <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-500">夥伴管理</div>
-              <div className="text-sm text-gray-400">即將推出</div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <QuickActionButton
+            href="/tw/affiliate-admin/settlements"
+            icon="💰"
+            title="執行結算"
+            description="處理月度結算"
+          />
+          <QuickActionButton
+            href="/tw/affiliate-admin/members"
+            icon="👥"
+            title="審核會員"
+            description="審核待審會員"
+          />
+          <QuickActionButton
+            href="/tw/affiliate-admin/commissions"
+            icon="💳"
+            title="調整佣金"
+            description="管理佣金設定"
+          />
+          <QuickActionButton
+            href="/tw/affiliate-admin/analytics"
+            icon="📈"
+            title="查看報表"
+            description="詳細數據分析"
+          />
         </div>
       </div>
     </div>
+  )
+}
+
+function StatCard({ 
+  title, 
+  value, 
+  subtitle, 
+  icon, 
+  color = 'blue' 
+}: { 
+  title: string
+  value: string
+  subtitle: string
+  icon: string
+  color?: 'blue' | 'green' | 'yellow' | 'purple'
+}) {
+  const colorClasses = {
+    blue: 'from-blue-50 to-blue-100 border-blue-200',
+    green: 'from-green-50 to-green-100 border-green-200',
+    yellow: 'from-yellow-50 to-yellow-100 border-yellow-200',
+    purple: 'from-purple-50 to-purple-100 border-purple-200',
+  }
+
+  return (
+    <div className={`rounded-lg border bg-gradient-to-br ${colorClasses[color]} p-6`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-xs text-gray-500">{subtitle}</p>
+        </div>
+        <div className="text-2xl">{icon}</div>
+      </div>
+    </div>
+  )
+}
+
+function QuickActionButton({ 
+  href, 
+  icon, 
+  title, 
+  description 
+}: { 
+  href: string
+  icon: string
+  title: string
+  description: string
+}) {
+  return (
+    <a
+      href={href}
+      className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+    >
+      <div className="text-2xl mb-2">{icon}</div>
+      <h4 className="text-sm font-medium text-gray-900">{title}</h4>
+      <p className="text-xs text-gray-500">{description}</p>
+    </a>
   )
 }

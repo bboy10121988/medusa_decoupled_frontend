@@ -1,0 +1,38 @@
+{
+  "settlements": [
+    {
+      "id": "settlement_test_001",
+      "affiliateId": "test@example.com",
+      "amount": 125.5,
+      "currency": "USD",
+      "status": "settled",
+      "settlementDate": "2024-12-24T16:00:00.000Z",
+      "period": "2024-11",
+      "method": "bank_transfer",
+      "note": "2024-11 自動結算"
+    },
+    {
+      "id": "settlement_test_002",
+      "affiliateId": "test@example.com",
+      "amount": 89.25,
+      "currency": "USD",
+      "status": "settled",
+      "settlementDate": "2025-01-24T16:00:00.000Z",
+      "period": "2024-12",
+      "method": "paypal",
+      "note": "2024-12 自動結算"
+    },
+    {
+      "id": "settlement_test_003",
+      "affiliateId": "test2@example.com",
+      "amount": 67.8,
+      "currency": "USD",
+      "status": "pending",
+      "settlementDate": "2025-09-02T15:19:15.456Z",
+      "period": "2025-01",
+      "method": "bank_transfer",
+      "note": "2025-01 待結算"
+    }
+  ],
+  "lastUpdated": "2025-09-02T15:19:15.458Z"
+}

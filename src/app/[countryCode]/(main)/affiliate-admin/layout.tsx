@@ -14,15 +14,33 @@ export default function AffiliateAdminLayout({ children }: { children: ReactNode
             <nav className="flex items-center space-x-4">
               <Link 
                 className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" 
-                href="./"
+                href="/tw/affiliate-admin"
               >
-                總覽
+                📊 總覽
               </Link>
               <Link 
                 className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" 
-                href="./applications"
+                href="/tw/affiliate-admin/members"
               >
-                申請審核
+                👥 會員管理
+              </Link>
+              <Link 
+                className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" 
+                href="/tw/affiliate-admin/settlements"
+              >
+                💰 結算管理
+              </Link>
+              <Link 
+                className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" 
+                href="/tw/affiliate-admin/commissions"
+              >
+                💳 佣金管理
+              </Link>
+              <Link 
+                className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" 
+                href="/tw/affiliate-admin/analytics"
+              >
+                📈 數據分析
               </Link>
             </nav>
           </div>

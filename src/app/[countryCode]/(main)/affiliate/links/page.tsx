@@ -1,7 +1,17 @@
-import type { AffiliateLink } from 'types/affiliate'
 import { retrieveAffiliate } from '@lib/data/affiliate-auth'
 import { redirect } from 'next/navigation'
 import { getRequestOrigin } from '@lib/util/absolute-url'
+import { LinkGeneratorForm, LinkList } from './components'
+
+// 暫時內嵌類型定義
+type AffiliateLink = {
+  id: string
+  name: string
+  url: string
+  createdAt: string
+  clicks: number
+  conversions: number
+}
 
 export default async function AffiliateLinksPage({ params }: { params: Promise<{ countryCode: string }> }) {
   const { countryCode } = await params
@@ -9,25 +19,39 @@ export default async function AffiliateLinksPage({ params }: { params: Promise<{
   if (!session) redirect(`/${countryCode}/login-affiliate`)
   if (session.status !== 'approved') redirect(`/${countryCode}/affiliate/pending`)
 
-  const origin = getRequestOrigin()
-  const res = await fetch(`${origin}/api/affiliate/links`, { cache: 'no-store' })
-  const json = await res.json()
-  const links: AffiliateLink[] = json?.links || []
+  // 直接使用會員 session 中的 ID 獲取連結，而不是透過 API
+  const origin = await getRequestOrigin()
+  let links: AffiliateLink[] = []
+  
+  try {
+    const res = await fetch(`${origin}/api/affiliate/links`, { 
+      cache: 'no-store',
+      headers: {
+        'Cookie': `_affiliate_jwt=${Buffer.from(JSON.stringify(session)).toString('base64')}`
+      }
+    })
+    
+    if (res.ok) {
+      const json = await res.json()
+      links = json?.links || []
+    } else {
+      console.error('無法取得連結列表:', res.status, res.statusText)
+    }
+  } catch (error) {
+    console.error('取得連結列表時發生錯誤:', error)
+  }
 
   return (
-    <div>
-      <h2 className="mb-4 text-xl font-medium">推廣連結</h2>
-      <ul className="space-y-3">
-        {links.map((l) => (
-          <li key={l.id} className="flex items-center justify-between rounded border p-3">
-            <div>
-              <div className="font-medium">{l.name}</div>
-              <div className="text-xs text-gray-600">{l.url}</div>
-            </div>
-            <div className="text-sm text-gray-700">{l.clicks} 次點擊 / {l.conversions} 次轉換</div>
-          </li>
-        ))}
-      </ul>
+    <div className="space-y-8">
+      <div>
+        <h2 className="mb-4 text-xl font-medium">創建推廣連結</h2>
+        <LinkGeneratorForm />
+      </div>
+      
+      <div>
+        <h2 className="mb-4 text-xl font-medium">我的推廣連結</h2>
+        <LinkList links={links} />
+      </div>
     </div>
   )
 }

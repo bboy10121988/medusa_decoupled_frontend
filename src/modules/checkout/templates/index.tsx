@@ -1,15 +1,17 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types"
 import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { listCartShippingMethods } from "@lib/data/fulfillment"
+import { listCartPaymentMethods } from "@lib/data/payment"
 import Addresses from "@modules/checkout/components/addresses"
 import Shipping from "@modules/checkout/components/shipping"
 import Payment from "@modules/checkout/components/payment"
+import OrderConfirmed from "../components/order-confirmed"
 import Review from "@modules/checkout/components/review"
-import OrderSummary from "@modules/checkout/templates/order-summary"
+import OrderSummary from "./order-summary"
 
 type CheckoutTemplateProps = {
   cart: HttpTypes.StoreCart | null
@@ -22,6 +24,7 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
   const pathname = usePathname()
   const step = searchParams?.get("step") || "address"
   const [availableShippingMethods, setAvailableShippingMethods] = useState<HttpTypes.StoreCartShippingOption[]>([])
+  const [availablePaymentMethods, setAvailablePaymentMethods] = useState<any[]>([])
 
   useEffect(() => {
     console.log("🛒 CheckoutTemplate - cart.id:", cart?.id)
@@ -29,14 +32,54 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
       console.log("📞 呼叫 listCartShippingMethods...")
       listCartShippingMethods(cart.id).then((methods) => {
         console.log("📦 收到 shipping methods:", methods)
-        if (methods) {
+        if (methods && Array.isArray(methods)) {
           setAvailableShippingMethods(methods)
+        } else {
+          console.log("⚠️ 配送方式為空或無效，設置為空陣列")
+          setAvailableShippingMethods([])
         }
       }).catch((error) => {
         console.error("❌ listCartShippingMethods 錯誤:", error)
+        // 即使出錯也設置為空陣列，不阻止用戶操作
+        setAvailableShippingMethods([])
       })
+
+      // 加載付款方式
+      if (cart.region?.id) {
+        console.log("💳 呼叫 listCartPaymentMethods...")
+        listCartPaymentMethods(cart.region.id).then((methods) => {
+          console.log("💳 收到 payment methods:", methods)
+          if (methods && Array.isArray(methods)) {
+            setAvailablePaymentMethods(methods)
+          } else {
+            // 如果沒有後端付款方式，添加我們的獨立銀行轉帳
+            console.log("💳 設置獨立銀行轉帳選項")
+            setAvailablePaymentMethods([
+              {
+                id: 'pp_bank_transfer',
+                provider_id: 'pp_bank_transfer',
+                is_enabled: true
+              }
+            ])
+          }
+        }).catch((error) => {
+          console.error("❌ listCartPaymentMethods 錯誤:", error)
+          // 出錯時也提供獨立銀行轉帳
+          setAvailablePaymentMethods([
+            {
+              id: 'pp_bank_transfer', 
+              provider_id: 'pp_bank_transfer',
+              is_enabled: true
+            }
+          ])
+        })
+      }
+    } else {
+      console.log("⚠️ 沒有 cart.id，無法獲取配送方式")
+      setAvailableShippingMethods([])
+      setAvailablePaymentMethods([])
     }
-  }, [cart?.id])
+  }, [cart?.id, cart?.region?.id])
 
   if (!cart) {
     return null
@@ -65,7 +108,10 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
                 <Shipping cart={cart} availableShippingMethods={availableShippingMethods} />
               )}
               {step === "payment" && (
-                <Payment cart={cart} availablePaymentMethods={[]} />
+                <Payment cart={cart} availablePaymentMethods={availablePaymentMethods} />
+              )}
+              {step === "order-confirmed" && (
+                <OrderConfirmed />
               )}
               {step === "review" && (
                 <Review cart={cart} />
@@ -97,7 +143,7 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
     { id: "address", name: "配送地址", completed: false },
     { id: "delivery", name: "配送方式", completed: false },
     { id: "payment", name: "付款方式", completed: false },
-    { id: "review", name: "確認訂單", completed: false },
+    { id: "order-confirmed", name: "訂單確認", completed: false },
   ]
 
   // Determine completion status based on cart state
@@ -108,6 +154,7 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
   steps[0].completed = !!hasAddress
   steps[1].completed = !!(hasAddress && hasShipping)
   steps[2].completed = !!(hasAddress && hasShipping && hasPayment)
+  steps[3].completed = currentStep === "order-confirmed" // 訂單確認步驟在進入時就算完成
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep)
 
@@ -127,10 +174,10 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
                     flex items-center justify-center w-8 h-8 rounded-full border-2 text-sm font-medium
                     ${
                       isCurrent
-                        ? "bg-ui-bg-interactive border-ui-border-interactive text-white"
+                        ? "bg-gray-900 border-gray-900 text-white"
                         : isCompleted
-                        ? "bg-ui-bg-interactive border-ui-border-interactive text-white"
-                        : "bg-ui-bg-subtle border-ui-border-base text-ui-fg-muted"
+                        ? "bg-gray-900 border-gray-900 text-white"
+                        : "bg-gray-200 border-gray-300 text-gray-700"
                     }
                   `}
                 >

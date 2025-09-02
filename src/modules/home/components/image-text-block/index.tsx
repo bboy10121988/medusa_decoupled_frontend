@@ -59,12 +59,13 @@ const ImageTextBlock = ({
             hasTitle ? "space-y-8" : "space-y-4"
           )}>
             {hasTitle && (
-              <h2 className="h1 mb-6">
+              <h2 className="h1 mb-6 text-center">
                 {heading}
               </h2>
             )}
             <div 
               className="text-content"
+              style={{ lineHeight: '2' }}
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </div>
@@ -79,12 +80,13 @@ const ImageTextBlock = ({
             hasTitle ? "space-y-8" : "space-y-4"
           )}>
             {hasTitle && (
-              <h2 className="h1 mb-6">
+              <h2 className="h1 mb-6 text-center">
                 {heading}
               </h2>
             )}
             <div 
               className="text-content"
+              style={{ lineHeight: '2' }}
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </div>
