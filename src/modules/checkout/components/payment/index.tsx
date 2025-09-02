@@ -176,14 +176,14 @@ const Payment = ({
         console.log("非 Stripe 支付方式，跳轉到檢視訂單")
 
         return router.push(
-          pathname + "?" + createQueryString("step", "review"),
+          pathname + "?" + createQueryString("step", "step4"),
           {
             scroll: false,
           }
         )
       }
     } catch (err: any) {
-
+      console.log("has error:",err)
       setError(err.message)
     } finally {
       setIsLoading(false)
