@@ -6,6 +6,11 @@ import PaymentButton from "../payment-button"
 import { useSearchParams } from "next/navigation"
 
 const Review = ({ cart }: { cart: any }) => {
+
+  const action:string = "Review"
+
+  console.log(action,"購物車資料：",cart);
+
   const searchParams = useSearchParams()
 
   const isOpen = searchParams.get("step") === "review"

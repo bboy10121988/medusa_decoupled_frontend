@@ -116,6 +116,10 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
               {step === "review" && (
                 <Review cart={cart} />
               )}
+              {step === "step4" && (
+                /* 這裡可以放步驟4的內容 */
+                <div>hahah</div>
+              )}
             </div>
           </div>
 

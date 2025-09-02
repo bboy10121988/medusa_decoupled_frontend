@@ -2,7 +2,7 @@
 
 import { RadioGroup } from "@headlessui/react"
 import { isStripe as isStripeFunc, paymentInfoMap } from "@lib/constants"
-import { initiatePaymentSession, placeOrder } from "@lib/data/cart"
+import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
 
@@ -14,13 +14,9 @@ import { useCallback, useEffect, useState } from "react"
 
 // 檢查是否為綠界支付方式
 const isEcpay = (providerId: string | undefined) => {
-  return providerId?.includes("ecpay_")
+  return providerId === "ecpay_credit_card";
 }
 
-// 檢查是否為獨立銀行轉帳
-const isBankTransfer = (providerId: string | undefined) => {
-  return providerId === "pp_bank_transfer"  // 前端使用這個識別符
-}
 
 const Payment = ({
   cart,
@@ -29,6 +25,10 @@ const Payment = ({
   cart: any
   availablePaymentMethods: any[]
 }) => {
+
+  const payment_method_default = process.env.NEXT_PUBLIC_PAYMENT_METHOD_DEFAULT
+  const payment_method_ecpay_credit = process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT
+
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: any) => paymentSession.status === "pending"
   )
@@ -49,36 +49,22 @@ const Payment = ({
 
   const isStripe = isStripeFunc(selectedPaymentMethod)
   const isEcpayMethod = isEcpay(selectedPaymentMethod)
-  const isBankTransferMethod = isBankTransfer(selectedPaymentMethod)
 
   const setPaymentMethod = async (method: string) => {
-    setError(null)
+
+    const action: string = "setPaymentMethod"
+    
+    console.log(action,"選擇支付方式：",method)
+
     setSelectedPaymentMethod(method)
     
-    // 銀行轉帳不需要初始化payment session，只設置選擇狀態
-    if (method === 'pp_bank_transfer') {
-      // 只設置選擇狀態，不跳轉
-      return
-    }
-    
-    if (isStripeFunc(method)) {
-      await initiatePaymentSession(cart, {
-        provider_id: method,
-      })
-    } else if (isEcpay(method)) {
-      await initiatePaymentSession(cart, {
-        provider_id: method,
-      })
-    }
   }
 
   const paidByGiftcard =
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
   const paymentReady =
-    (activeSession && cart?.shipping_methods.length !== 0) || 
-    paidByGiftcard ||
-    (selectedPaymentMethod === 'pp_bank_transfer' && cart?.shipping_methods.length !== 0) // 銀行轉帳不需要payment session
+    (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -97,79 +83,32 @@ const Payment = ({
   }
 
   const handleSubmit = async () => {
+    
+    const action: string = "handleSubmit"
+  
     setIsLoading(true)
+
+    console.log(action,"支付方式(providerID):",selectedPaymentMethod)
+
     try {
-      // 銀行轉帳路線 - 直接創建訂單並跳轉到第四步驟
-      if (selectedPaymentMethod === 'pp_bank_transfer') {
-        console.log("Bank transfer selected, creating order directly, cart:", cart.id)
-        
-        try {
-          // 銀行轉帳使用系統默認的 payment session
-          await initiatePaymentSession(cart, {
-            provider_id: 'pp_system_default', // 實際使用系統默認provider
-          })
-          
-          // 直接創建訂單
-          console.log("Creating order for bank transfer...")
-          const order = await placeOrder(cart.id)
-          
-          if (order) {
-            console.log("Order created successfully:", order)
-            
-            // 直接跳轉到第四步驟（訂單確認）
-            const params = new URLSearchParams(searchParams)
-            params.set('step', 'order-confirmed')
-            params.set('order_id', order.id)
-            
-            const newUrl = `${pathname}?${params.toString()}`
-            console.log("🚀 跳轉到訂單確認步驟:", newUrl)
-            
-            return router.push(newUrl, { scroll: false })
-          } else {
-            throw new Error("訂單建立失敗")
-          }
-        } catch (bankTransferError: any) {
-          console.error("Bank transfer order creation failed:", bankTransferError)
-          setError("銀行轉帳訂單建立失敗：" + bankTransferError.message)
-        } finally {
-          setIsLoading(false)
-        }
-        return
-      }
-      
-      // 綠界付款路線 - 獨立處理
-      if (selectedPaymentMethod.startsWith('ecpay_')) {
-        // 綠界付款直接跳到 review 步驟
-        return router.push(
-          pathname + "?" + createQueryString("step", "review"),
-          {
-            scroll: false,
-          }
-        )
-      }
-      
-      // Stripe付款路線 - 原有邏輯
-      const shouldInputCard =
-        isStripeFunc(selectedPaymentMethod) && !activeSession
 
-      const checkActiveSession =
-        activeSession?.provider_id === selectedPaymentMethod
+        console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
-      if (!checkActiveSession) {
-        await initiatePaymentSession(cart, {
-          provider_id: selectedPaymentMethod,
+        const initResp = initiatePaymentSession(cart,{
+          provider_id: selectedPaymentMethod
         })
-      }
 
-      if (!shouldInputCard) {
+        console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp)
+
         return router.push(
           pathname + "?" + createQueryString("step", "review"),
           {
             scroll: false,
           }
         )
-      }
+      
     } catch (err: any) {
+      console.log(action,"has error:",err)
       setError(err.message)
     } finally {
       setIsLoading(false)
@@ -214,7 +153,7 @@ const Payment = ({
             <>
               {/* 只顯示兩個硬編碼選項：綠界支付（含刷卡）與銀行轉帳 */}
               <RadioGroup value={selectedPaymentMethod} onChange={setPaymentMethod}>
-                <RadioGroup.Option value="ecpay_credit_card">
+                <RadioGroup.Option value={payment_method_ecpay_credit}>
                   {({ checked }) => (
                     <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>
                       <Heading level="h3" className="text-base font-medium mb-1">綠界支付（含刷卡）</Heading>
@@ -222,7 +161,7 @@ const Payment = ({
                     </div>
                   )}
                 </RadioGroup.Option>
-                <RadioGroup.Option value="pp_bank_transfer">
+                <RadioGroup.Option value={payment_method_default}>
                   {({ checked }) => (
                     <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>
                       <Heading level="h3" className="text-base font-medium mb-1">銀行轉帳</Heading>
@@ -260,20 +199,11 @@ const Payment = ({
             isLoading={isLoading}
             disabled={
               (isStripe && !cardComplete) ||
-              (!selectedPaymentMethod && !paidByGiftcard) ||
-              !paymentReady
+              (!selectedPaymentMethod && !paidByGiftcard)
             }
             data-testid="submit-payment-button"
           >
-            {!activeSession && isStripeFunc(selectedPaymentMethod)
-              ? "輸入信用卡資料"
-              : selectedPaymentMethod === "pp_bank_transfer"
-                ? "前往銀行轉帳"
-                : selectedPaymentMethod === "ecpay_credit_card"
-                  ? "繼續到綠界付款"
-                  : selectedPaymentMethod === "ecpay_store_payment"
-                    ? "確認超商取貨付款"
-                    : "繼續檢視訂單"}
+            繼續檢視訂單
           </Button>
         </div>
 
