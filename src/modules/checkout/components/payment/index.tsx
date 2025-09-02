@@ -14,7 +14,7 @@ import { useCallback, useEffect, useState } from "react"
 
 // 檢查是否為綠界支付方式
 const isEcpay = (providerId: string | undefined) => {
-  return providerId?.includes("ecpay_")
+  return providerId === "ecpay_credit_card";
 }
 
 const Payment = ({
