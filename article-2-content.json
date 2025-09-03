@@ -1,0 +1,146 @@
+{
+  "_id": "2baf7d00-bc76-43f5-8d14-bbfc1fff3064",
+  "_type": "post",
+  "title": "頭皮護理",
+  "slug": {
+    "current": "scalp-care",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:46:28Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "頭皮護理",
+    "asset": {
+      "_ref": "image-a05b163a42901a937fa33066a4f9a36a18188608-3573x5359-webp",
+      "_type": "reference"
+    }
+  },
+  "seoTitle": "專業頭皮護理服務 | 頭皮健康管理",
+  "seoDescription": "提供專業頭皮護理服務，深層清潔、滋養頭皮，改善頭皮問題。專業頭皮檢測，制定個人化護理方案。",
+  "focusKeyword": "頭皮護理",
+  "seoKeywords": ["頭皮健康", "頭皮清潔", "頭皮按摩", "頭皮保養", "頭皮問題"],
+  "body": [
+    {
+      "_type": "block",
+      "_key": "block1",
+      "style": "h2",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span1",
+          "text": "專業頭皮護理服務"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block2",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span2",
+          "text": "健康的頭髮源於健康的頭皮。我們提供專業的頭皮護理服務，透過深層清潔、滋養和按摩，幫助您維持頭皮健康，促進頭髮生長，解決各種頭皮問題。"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block3",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span3",
+          "text": "頭皮護理的重要性"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block4",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span4",
+          "text": "頭皮是頭髮生長的基礎，如同土壤之於植物。定期的頭皮護理可以：\n• 清除毛囊堵塞物，改善頭皮環境\n• 促進血液循環，刺激頭髮生長\n• 平衡頭皮油脂分泌\n• 緩解頭皮敏感和搔癢問題\n• 延緩頭髮老化和掉髮"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block5",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span5",
+          "text": "專業護理流程"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block6",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span6",
+          "text": "1. 頭皮檢測：使用專業儀器分析頭皮狀況\n2. 深層清潔：溫和去除老廢角質和污垢\n3. 專業按摩：促進血液循環，放鬆頭皮肌肉\n4. 營養滋養：補充頭皮所需的維生素和礦物質\n5. 護理建議：提供日常頭皮保養指導"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block7",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span7",
+          "text": "適合族群"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block8",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span8",
+          "text": "• 頭皮油膩或乾燥問題者\n• 有頭皮屑困擾的人\n• 掉髮或頭髮稀疏者\n• 頭皮敏感易搔癢者\n• 長期使用造型品的人\n• 希望預防頭皮老化者"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block9",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span9",
+          "text": "護理建議"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block10",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span10",
+          "text": "建議每月進行1-2次專業頭皮護理，搭配日常的正確洗護習慣，可以有效維持頭皮健康。我們的專業團隊會根據您的頭皮狀況，制定最適合的護理計畫。"
+        }
+      ]
+    }
+  ]
+}

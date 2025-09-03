@@ -1,0 +1,20 @@
+{
+  "_id": "072ed642-56dc-4ba5-96e9-3c89b226eac6",
+  "_type": "post",
+  "title": "男士剪髮",
+  "slug": {
+    "current": "mens-haircut",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:44:36Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "男士剪髮",
+    "asset": {
+      "_ref": "image-981bd905a8c7d8c2988632029e04a572c02f636c-4160x6240-webp",
+      "_type": "reference"
+    }
+  }
+}

@@ -350,18 +350,52 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {    const query = `*[_type == "post" && slug.current == $slug][0]{
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {    
+  // 先嘗試用slug.current查詢
+  let query = `*[_type == "post" && slug.current == $slug][0]{
     _id,
     title,
-    slug,
+    slug {
+      current
+    },
     publishedAt,
     body,
     "author": author->{name, bio, "image": image.asset->url},
-    "mainImage": mainImage.asset->url,
+    mainImage {
+      asset-> {
+        url
+      }
+    },
     "categories": categories[]->{title}
   }`
   
-  return await safeFetch(query, { slug }, {}, null)
+  let result = await safeFetch(query, { slug }, {}, null)
+  
+  // 如果用slug沒找到，嘗試根據標題匹配
+  if (!result) {
+    query = `*[_type == "post" && title match "*" + $title + "*" || _id match $slug + "*"][0]{
+      _id,
+      title,
+      slug {
+        current
+      },
+      publishedAt,
+      body,
+      "author": author->{name, bio, "image": image.asset->url},
+      mainImage {
+        asset-> {
+          url
+        }
+      },
+      "categories": categories[]->{title}
+    }`
+    
+    // 嘗試從slug反推標題或使用ID
+    const searchTerm = slug.includes('post-') ? slug.split('post-')[1] : slug.replace(/-/g, ' ')
+    result = await safeFetch(query, { slug, title: searchTerm }, {}, null)
+  }
+  
+  return result
 }
 export async function getAllPages(): Promise<PageData[]> {
   try {

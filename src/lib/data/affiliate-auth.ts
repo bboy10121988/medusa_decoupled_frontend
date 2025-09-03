@@ -125,12 +125,12 @@ export async function affiliateSignup(
 
   try {
     // 使用不需要 publishable key 的專用端點
-    // 在 Server Actions 中，環境變數可能不可用，使用硬編碼 localhost
-    const backendUrl = 'http://localhost:9000'
+    // 在 Server Actions 中，環境變數可能不可用，使用VM地址
+    const backendUrl = 'http://35.236.182.29:9000'
     const requestUrl = `${backendUrl}/affiliate-apply`
     console.log('Submitting affiliate application to:', requestUrl)
     console.log('Environment MEDUSA_BACKEND_URL:', process.env.MEDUSA_BACKEND_URL)
-    console.log('Request payload:', { email, displayName, website: website || undefined })
+    console.log('Request payload:', { name: displayName, email, password, website: website || undefined })
     
     // 先測試後端連接
     let res: Response
@@ -141,7 +141,12 @@ export async function affiliateSignup(
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ email, password, displayName, website: website || undefined }),
+        body: JSON.stringify({ 
+          name: displayName,  // 後端期望的是 name 字段
+          email, 
+          password, 
+          website: website || undefined 
+        }),
         cache: 'no-store',
       })
       console.log('Fetch completed, status:', res.status)

@@ -91,12 +91,12 @@ export default function PaginatedProducts({
       )}
       <div>
         <ul
-          className="grid grid-cols-4 w-full gap-x-2 gap-y-4 bg-white"
+          className="grid grid-cols-2 small:grid-cols-4 gap-0 w-full bg-white"
           data-testid="products-list"
         >
           {products.map((p) => {
             return (
-              <li key={p.id} className="bg-white">
+              <li key={p.id} className="w-full">
                 <ProductPreview product={p} countryCode="tw" />
               </li>
             )

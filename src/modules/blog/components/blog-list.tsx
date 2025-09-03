@@ -39,7 +39,7 @@ export default function BlogList({ initialPosts, categories, countryCode = "tw" 
   }
 
   return (
-    <div>
+    <div className="bg-white">
       {/* 文章列表 */}
       <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
         {currentPosts.map((post) => (

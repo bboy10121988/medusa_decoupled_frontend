@@ -1,0 +1,170 @@
+{
+  "_id": "a366eec6-41a8-42ce-9c44-b7ff64d555f3",
+  "_type": "post",
+  "title": "男士洗剪髮含頭皮噴霧",
+  "slug": {
+    "current": "mens-wash-cut-scalp-spray",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:48:00Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "男士洗剪髮含頭皮噴霧",
+    "asset": {
+      "_ref": "image-d86a3006b3e8f0297257ac46dc9b271a41ef1c1c-1280x1026-webp",
+      "_type": "reference"
+    }
+  },
+  "seoTitle": "男士洗剪髮含頭皮噴霧服務 | 深層護理套餐",
+  "seoDescription": "提供男士洗剪髮含頭皮噴霧專業服務，深層清潔頭皮，滋養髮根，搭配精緻剪髮造型。讓頭皮更健康，髮型更持久。",
+  "focusKeyword": "洗剪髮頭皮噴霧",
+  "seoKeywords": ["頭皮噴霧", "男士洗剪", "頭皮護理", "深層清潔", "髮根滋養"],
+  "body": [
+    {
+      "_type": "block",
+      "_key": "block1",
+      "style": "h2",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span1",
+          "text": "男士洗剪髮含頭皮噴霧專業服務"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block2",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span2",
+          "text": "我們特別為注重頭皮健康的男士推出洗剪髮含頭皮噴霧的深層護理套餐。結合專業洗護、精緻剪髮造型，以及獨特的頭皮噴霧護理，為您的頭皮和頭髮提供全方位的呵護，讓您擁有健康的頭皮環境和完美的髮型。"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block3",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span3",
+          "text": "頭皮噴霧的功效"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block4",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span4",
+          "text": "我們使用的專業頭皮噴霧含有多種活性成分：\n• 深層清潔：有效清除頭皮深層污垢和老廢角質\n• 控油平衡：調節頭皮油脂分泌，維持健康狀態\n• 消炎舒緩：緩解頭皮發炎和敏感症狀\n• 滋養修護：補充頭皮所需營養，強化髮根\n• 清新舒爽：長效保持頭皮清爽感受"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block5",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span5",
+          "text": "完整服務流程"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block6",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span6",
+          "text": "1. 頭皮狀況檢測：專業分析頭皮類型和問題\n2. 預洗處理：溫和清潔，準備頭皮環境\n3. 頭皮噴霧護理：均勻噴灑，深層滲透\n4. 舒緩按摩：促進血液循環，增強吸收\n5. 專業洗髮：使用適合的洗護產品\n6. 精緻剪髮：打造個性化髮型\n7. 造型完成：整體檢查和細節調整"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block7",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span7",
+          "text": "適合的頭皮問題"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block8",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span8",
+          "text": "這項服務特別適合以下頭皮問題：\n• 頭皮油脂分泌過盛\n• 頭皮屑問題困擾\n• 頭皮搔癢和敏感\n• 毛囊堵塞和發炎\n• 頭皮異味問題\n• 髮根扁塌無力\n• 經常使用造型品者"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block9",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span9",
+          "text": "服務特色"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block10",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span10",
+          "text": "• 專業配方：使用經過測試的專業頭皮噴霧產品\n• 個人化調配：根據頭皮狀況選擇最適合的配方\n• 深層護理：不只表面清潔，更深入毛囊根部\n• 即時效果：服務後立即感受頭皮清爽舒適\n• 持久保護：建立頭皮保護屏障，延長清潔效果"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block11",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span11",
+          "text": "建議頻率"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block12",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span12",
+          "text": "為了維持最佳的頭皮健康狀態，我們建議：\n• 油性頭皮：每2-3週一次\n• 乾性頭皮：每3-4週一次\n• 混合性頭皮：每2-4週一次\n• 問題頭皮：初期可每週一次，改善後調整頻率\n\n定期的專業護理搭配日常正確的洗護習慣，能讓您的頭皮保持最佳狀態。"
+        }
+      ]
+    }
+  ]
+}

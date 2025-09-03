@@ -1,0 +1,170 @@
+{
+  "_id": "60b87513-c21c-43ad-87fd-3dbb64c217c0",
+  "_type": "post",
+  "title": "洗剪修眉",
+  "slug": {
+    "current": "wash-cut-eyebrow",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:47:30Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "洗剪修眉",
+    "asset": {
+      "_ref": "image-ef89ce92942cf0b51914a3abe0a6f7d69fd04458-1280x853-webp",
+      "_type": "reference"
+    }
+  },
+  "seoTitle": "洗剪修眉套餐服務 | 男士全方位造型護理",
+  "seoDescription": "提供洗剪修眉一站式服務，包含專業洗髮、剪髮造型和眉型修整。讓您在一次服務中完成全方位的儀容整理。",
+  "focusKeyword": "洗剪修眉",
+  "seoKeywords": ["男士造型", "眉型修整", "洗剪服務", "儀容整理", "一站式服務"],
+  "body": [
+    {
+      "_type": "block",
+      "_key": "block1",
+      "style": "h2",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span1",
+          "text": "洗剪修眉全方位服務"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block2",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span2",
+          "text": "我們的洗剪修眉套餐服務為現代男士提供一站式的造型解決方案。從專業洗髮護理到精緻剪髮造型，再到細膩的眉型修整，讓您在一次服務中完成全方位的儀容整理，展現最佳的個人形象。"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block3",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span3",
+          "text": "服務內容詳解"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block4",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span4",
+          "text": "洗髮護理：\n• 使用專業洗髮產品深層清潔\n• 舒緩頭皮按摩，促進血液循環\n• 根據髮質選用適合的護髮產品\n\n剪髮造型：\n• 專業髮型諮詢和設計\n• 精準剪裁技術\n• 造型產品應用和教學\n\n眉型修整：\n• 根據臉型設計適合的眉型\n• 專業修眉工具精細處理\n• 自然塑形，提升五官立體感"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block5",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span5",
+          "text": "眉型設計重要性"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block6",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span6",
+          "text": "眉毛是五官的重要組成部分，適合的眉型能夠：\n• 修飾臉型，突出優點\n• 提升整體精神面貌\n• 展現個人風格和氣質\n• 讓眼部輪廓更加深邃\n• 增加面部的協調感"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block7",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span7",
+          "text": "服務流程"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block8",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span8",
+          "text": "1. 接待諮詢：了解客人需求和偏好\n2. 洗髮護理：專業洗髮和頭皮按摩\n3. 髮型設計：討論並確定剪髮方案\n4. 精準剪髮：運用專業技術進行剪髮\n5. 眉型設計：分析臉型，設計適合眉型\n6. 精細修眉：使用專業工具修整眉毛\n7. 造型完成：整體造型檢查和微調"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block9",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span9",
+          "text": "適合族群"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block10",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span10",
+          "text": "• 重視個人形象的商務人士\n• 希望一次完成多項服務的忙碌男士\n• 初次嘗試修眉的客人\n• 追求完美造型的時尚男士\n• 有特殊場合需求者"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block11",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span11",
+          "text": "服務優勢"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block12",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span12",
+          "text": "• 節省時間：一次服務完成多項需求\n• 專業品質：每個環節都由專業人員負責\n• 個人化服務：根據個人特色量身定制\n• 舒適體驗：在輕鬆環境中享受專業服務\n• 性價比高：套餐價格更加優惠"
+        }
+      ]
+    }
+  ]
+}

@@ -37,7 +37,9 @@ async function getAllPosts(category?: string) {
       ? `*[_type == "post" && "${category}" in categories[]->title] | order(publishedAt desc) {
           _id,
           title,
-          slug,
+          slug {
+            current
+          },
           publishedAt,
           mainImage {
             asset->{
@@ -52,7 +54,9 @@ async function getAllPosts(category?: string) {
       : `*[_type == "post"] | order(publishedAt desc) {
           _id,
           title,
-          slug,
+          slug {
+            current
+          },
           publishedAt,
           mainImage {
             asset->{
@@ -67,6 +71,7 @@ async function getAllPosts(category?: string) {
     
     const posts = await client.fetch<Post[]>(query)
     console.log('Fetched posts:', posts?.length)
+    console.log('First post data:', JSON.stringify(posts?.[0], null, 2))
     
     if (!posts) {
       console.warn("No posts found")
@@ -114,7 +119,9 @@ async function getLatestPosts() {
     const query = `*[_type == "post"] | order(publishedAt desc)[0...4] {
       _id,
       title,
-      slug,
+      slug {
+        current
+      },
       publishedAt,
       mainImage {
         asset->{
@@ -281,7 +288,7 @@ export default async function BlogListPage({
               */}
 
               {/* 文章列表 */}
-              <section className="bg-transparent -mt-8">
+              <section className="bg-white -mt-8">
                 {Array.isArray(posts) && posts.length > 0 ? (
                   <BlogList 
                     initialPosts={posts} 

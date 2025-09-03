@@ -1,0 +1,20 @@
+{
+  "_id": "a366eec6-41a8-42ce-9c44-b7ff64d555f3",
+  "_type": "post",
+  "title": "男士洗剪髮含頭皮噴霧",
+  "slug": {
+    "current": "mens-wash-cut-scalp-spray",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:48:00Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "男士洗剪髮含頭皮噴霧",
+    "asset": {
+      "_ref": "image-d86a3006b3e8f0297257ac46dc9b271a41ef1c1c-1280x1026-webp",
+      "_type": "reference"
+    }
+  }
+}

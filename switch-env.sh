@@ -30,8 +30,8 @@ if [ "$1" = "local" ]; then
 elif [ "$1" = "vm" ]; then
     echo "🔄 切換到 VM 環境..."
     
-    # 檢查是否已設定 VM URLs
-    if ! grep -q "your-vm-ip" "$ENV_FILE"; then
+    # 檢查是否已設定 VM URLs（如果還有佔位符就退出）
+    if grep -q "your-vm-ip" "$ENV_FILE"; then
         echo "⚠️  請先在 .env.local 中設定你的 VM IP 地址"
         exit 1
     fi

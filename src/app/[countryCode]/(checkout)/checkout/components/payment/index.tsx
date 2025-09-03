@@ -28,8 +28,8 @@ const Payment = ({
   const [error, setError] = useState<string | null>(null)
   const [cardBrand, setCardBrand] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id ?? ""
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(
+    activeSession?.provider_id || ""
   )
 
   const searchParams = useSearchParams()
@@ -145,6 +145,16 @@ const Payment = ({
     setError(null)
   }, [isOpen])
 
+  // 確保selectedPaymentMethod始終有一個有效的值
+  useEffect(() => {
+    if (activeSession?.provider_id && !selectedPaymentMethod) {
+      setSelectedPaymentMethod(activeSession.provider_id)
+    } else if (!activeSession?.provider_id && !selectedPaymentMethod && availablePaymentMethods.length > 0) {
+      // 如果沒有activeSession但有可用的支付方法，選擇第一個
+      setSelectedPaymentMethod(availablePaymentMethods[0].provider_id || availablePaymentMethods[0].id)
+    }
+  }, [activeSession, availablePaymentMethods, selectedPaymentMethod])
+
   return (
     <div className="bg-white">
       <div className="flex flex-row items-center justify-between mb-6">
@@ -178,7 +188,7 @@ const Payment = ({
           {!paidByGiftcard && availablePaymentMethods?.length && (
             <>
               <RadioGroup
-                value={selectedPaymentMethod}
+                value={selectedPaymentMethod || ""}
                 onChange={(value: string) => setPaymentMethod(value)}
               >
                 {availablePaymentMethods.map((paymentMethod) => (

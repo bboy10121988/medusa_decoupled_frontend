@@ -149,6 +149,11 @@
   /* 容器最大寬度 */
   --container-max-width: 1280px;
   
+  /* 響應式容器設定 */
+  --container-full-width: max-w-none;
+  --container-responsive-padding: px-6 md:px-12 xl:px-16 2xl:px-20;
+  --container-content-padding: px-6 md:px-12 xl:px-16 2xl:px-24;
+  
   /* ===== 陰影系統 ===== */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -774,6 +779,71 @@ input[type="search"]::-webkit-search-results-decoration {
     margin-right: auto;
     padding-left: var(--container-padding);
     padding-right: var(--container-padding);
+  }
+
+  /* 響應式全寬容器 - 用於導航、Hero區域等 */
+  .container-full {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+  
+  /* 響應式導航容器 */
+  .container-nav {
+    width: 100%;
+    max-width: none;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .container-nav {
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .container-nav {
+      padding-left: 4rem;
+      padding-right: 4rem;
+    }
+  }
+  
+  @media (min-width: 1536px) {
+    .container-nav {
+      padding-left: 5rem;
+      padding-right: 5rem;
+    }
+  }
+
+  /* 響應式內容容器 - 用於主要內容區域 */
+  .container-content {
+    width: 100%;
+    max-width: none;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .container-content {
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .container-content {
+      padding-left: 4rem;
+      padding-right: 4rem;
+    }
+  }
+  
+  @media (min-width: 1536px) {
+    .container-content {
+      padding-left: 6rem;
+      padding-right: 6rem;
+    }
   }
 
   /* 卡片 */

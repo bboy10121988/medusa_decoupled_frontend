@@ -164,7 +164,7 @@ export default async function Nav() {
 
         {/* 2. 主導覽列 */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-[1440px] mx-auto px-5 md:px-10">
+          <div className="w-full px-5 md:px-10">
             {/* 第二行 - 主導航 */}
             <div 
               className="grid grid-cols-3 items-center py-3"
@@ -331,7 +331,7 @@ export default async function Nav() {
 
         {/* 3. 分類導覽列 */}
         <div className="bg-gray-50 border-b border-gray-200">
-          <div className="max-w-[1440px] mx-auto px-5 md:px-10">
+          <div className="w-full px-5 md:px-10">
             <div className="flex items-center justify-center py-2">
               <div className="flex items-center space-x-8 overflow-x-auto scrollbar-hide">
                 {/* Collections */}

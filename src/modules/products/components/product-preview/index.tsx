@@ -319,7 +319,7 @@ export default function ProductPreview({
       
       <div className="relative">
         <div 
-          className="relative w-full pb-[133.33%] overflow-hidden bg-gray-50"
+          className="relative w-full pb-[133.33%] overflow-hidden bg-white"
           onMouseEnter={() => {
             setIsHovered(true)
             // 如果有多張圖片，hover時使用淡出淡入切換到第二張圖片

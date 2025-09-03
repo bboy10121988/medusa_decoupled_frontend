@@ -1,0 +1,20 @@
+{
+  "_id": "2baf7d00-bc76-43f5-8d14-bbfc1fff3064",
+  "_type": "post",
+  "title": "頭皮護理",
+  "slug": {
+    "current": "scalp-care",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:46:28Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "頭皮護理",
+    "asset": {
+      "_ref": "image-a05b163a42901a937fa33066a4f9a36a18188608-3573x5359-webp",
+      "_type": "reference"
+    }
+  }
+}

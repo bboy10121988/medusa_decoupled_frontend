@@ -396,7 +396,7 @@ export default function ServiceCardsSection({
 
   return (
     <section className="py-0 bg-stone-50/30">
-      <div className="max-w-[1440px] mx-auto w-full">
+      <div className="max-w-none w-full">
         <div className={clsx(
           "grid grid-cols-2 gap-0 w-full",
           cardsPerRow === 3 && "lg:grid-cols-3",

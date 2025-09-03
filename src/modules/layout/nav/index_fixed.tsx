@@ -96,8 +96,8 @@ export default async function Nav() {
         )}
 
         {/* 2. 主選單導覽列 */}
-        <header className="relative mx-auto border-b bg-white border-ui-border-base shadow-sm h-16">
-          <nav className="px-6 md:px-12 max-w-[1440px] mx-auto h-full flex items-center">
+        <header className="relative w-full border-b bg-white border-ui-border-base shadow-sm h-16">
+          <nav className="px-6 md:px-12 w-full h-full flex items-center">
             {/* 三等份布局容器 */}
             <div className="w-full grid grid-cols-3 items-center">
               {/* 左側區塊 - 1/3 */}
@@ -177,7 +177,7 @@ export default async function Nav() {
 
         {/* 3. 分類導覽列 - 簡化版 */}
         <div className="hidden lg:block border-b border-ui-border-base bg-white shadow-sm">
-          <div className="px-6 md:px-12 max-w-[1440px] mx-auto flex justify-between items-center py-2 text-sm text-neutral-600">
+          <div className="px-6 md:px-12 w-full flex justify-between items-center py-2 text-sm text-neutral-600">
             <div className="flex items-center gap-x-6">
               {/* 商品分類 */}
               {(categories || []).slice(0, 4).map((category: any) => (

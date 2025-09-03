@@ -38,7 +38,9 @@ async function getLatestPosts(excludeSlug?: string) {
     const query = `*[_type == "post" ${excludeSlug ? `&& slug.current != "${excludeSlug}"` : ''}] | order(publishedAt desc)[0...4] {
       _id,
       title,
-      slug,
+      slug {
+        current
+      },
       publishedAt,
       mainImage {
         asset->{
@@ -77,7 +79,7 @@ export default async function BlogPost({
         <div className="grid grid-cols-12 gap-0">
           {/* 左側分類側邊欄 */}
           <aside className="col-span-12 md:col-span-3">
-            <nav className="bg-white p-6 sticky top-[96px] shadow-sm border-r border-gray-200">
+            <nav className="bg-white px-6 md:px-12 xl:px-16 2xl:px-20 py-6 sticky top-[96px] shadow-sm border-r border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-4">
                 文章分類
               </h2>
@@ -177,11 +179,11 @@ export default async function BlogPost({
           {/* 右側主要內容區 */}
           <main className="col-span-12 md:col-span-9">
             <article className="bg-white">
-              <div className="max-w-4xl mx-auto p-8 md:p-12">
-                {post.mainImage && (
+              <div className="max-w-4xl mx-auto px-4 md:px-8 xl:px-12 2xl:px-16 py-8 md:py-12">
+                {post.mainImage?.asset?.url && (
                   <div className="aspect-[4/3] relative mb-10 rounded-xl overflow-hidden shadow-lg">
                     <Image 
-                      src={post.mainImage.asset?.url || ''} 
+                      src={post.mainImage.asset.url} 
                       alt={post.title || "文章封面圖片"}
                       fill
                       priority

@@ -44,35 +44,52 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
         setAvailableShippingMethods([])
       })
 
-      // 加載付款方式
+      // 加載付款方式 - 目前主要提供銀行轉帳
       if (cart.region?.id) {
         console.log("💳 呼叫 listCartPaymentMethods...")
         listCartPaymentMethods(cart.region.id).then((methods) => {
           console.log("💳 收到 payment methods:", methods)
-          if (methods && Array.isArray(methods)) {
-            setAvailablePaymentMethods(methods)
+          
+          // 總是提供銀行轉帳選項，無論後端返回什麼
+          const bankTransferMethod = {
+            id: 'pp_bank_transfer',
+            provider_id: 'pp_bank_transfer',
+            is_enabled: true
+          }
+          
+          if (methods && Array.isArray(methods) && methods.length > 0) {
+            // 合併後端方法和銀行轉帳
+            const combinedMethods = [bankTransferMethod, ...methods]
+            setAvailablePaymentMethods(combinedMethods)
+            console.log("💳 設置組合付款方式:", combinedMethods)
           } else {
-            // 如果沒有後端付款方式，添加我們的獨立銀行轉帳
-            console.log("💳 設置獨立銀行轉帳選項")
-            setAvailablePaymentMethods([
-              {
-                id: 'pp_bank_transfer',
-                provider_id: 'pp_bank_transfer',
-                is_enabled: true
-              }
-            ])
+            // 只提供銀行轉帳
+            setAvailablePaymentMethods([bankTransferMethod])
+            console.log("💳 只設置銀行轉帳選項")
           }
         }).catch((error) => {
           console.error("❌ listCartPaymentMethods 錯誤:", error)
-          // 出錯時也提供獨立銀行轉帳
-          setAvailablePaymentMethods([
+          // 出錯時提供銀行轉帳
+          const fallbackMethods = [
             {
               id: 'pp_bank_transfer', 
               provider_id: 'pp_bank_transfer',
               is_enabled: true
             }
-          ])
+          ]
+          setAvailablePaymentMethods(fallbackMethods)
+          console.log("💳 錯誤回退，設置銀行轉帳")
         })
+      } else {
+        // 沒有region時也提供銀行轉帳
+        setAvailablePaymentMethods([
+          {
+            id: 'pp_bank_transfer',
+            provider_id: 'pp_bank_transfer', 
+            is_enabled: true
+          }
+        ])
+        console.log("💳 無region，預設銀行轉帳")
       }
     } else {
       console.log("⚠️ 沒有 cart.id，無法獲取配送方式")

@@ -38,8 +38,43 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // 如果沒有 body 或解析失敗，使用空字串
     }
     
-    // 直接操作 JSON 檔案
-    const dataPath = path.join(process.cwd(), '..', 'backend', 'data', 'affiliate.json')
+    // 首先嘗試使用VM後端 API  
+    const backendUrl = 'http://35.236.182.29:9000'
+    
+    try {
+      const rejectResponse = await fetch(`${backendUrl}/admin/affiliate-applications/${id}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          reason: rejectionReason,
+          reviewedBy: admin.email,
+          reviewedAt: new Date().toISOString()
+        }),
+        cache: 'no-store',
+      })
+      
+      if (rejectResponse.ok) {
+        const result = await rejectResponse.json()
+        console.log('Application rejected via backend API:', result)
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Application rejected successfully',
+          source: 'backend-api'
+        })
+      } else {
+        console.warn('Backend API not available, falling back to file system')
+        // 回退到檔案系統操作
+      }
+    } catch (fetchError) {
+      console.warn('Failed to reject via backend API, falling back to file system:', fetchError)
+      // 回退到檔案系統操作
+    }
+    
+    // 直接操作 JSON 檔案（回退方案）
+    const dataPath = '/Users/raychou/tim-web/medusa_decoupled/backend_vm/medusa-backend/src/data/affiliate.json'
     console.log('Rejecting application directly in JSON:', dataPath, 'ID:', id)
     
     // 讀取當前資料

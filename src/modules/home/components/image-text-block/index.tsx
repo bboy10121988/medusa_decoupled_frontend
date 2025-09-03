@@ -36,18 +36,18 @@ const ImageTextBlock = ({
   
   return (
     <div className={cn(
-      "w-full max-w-[1440px] mx-auto",
+      "w-full max-w-none",
       // 左圖右文和右圖左文模組例外，皆為0間距
       (layout === 'imageLeft' || layout === 'imageRight') ? "" : 
       // 其他布局：有標題則顯示間距，無標題則為0
       hasTitle ? "py-12 md:py-20" : ""
     )}>
       {/* 左圖右文布局 */}
-      {layout === 'imageLeft' && image && (
+      {layout === 'imageLeft' && image?.url && (
         <div className="grid md:grid-cols-2 items-center">
           <div className="relative aspect-[4/3] w-full overflow-hidden border border-white">
             <Image
-              src={image.url || ''}
+              src={image.url}
               alt={image.alt || '區塊圖片'}
               fill
               className="object-cover"
@@ -55,7 +55,7 @@ const ImageTextBlock = ({
             />
           </div>
           <div className={cn(
-            "flex flex-col justify-center px-4 md:px-8",
+            "flex flex-col justify-center px-6 md:px-12 xl:px-16 2xl:px-24",
             hasTitle ? "space-y-8" : "space-y-4"
           )}>
             {hasTitle && (
@@ -73,15 +73,15 @@ const ImageTextBlock = ({
       )}
 
       {/* 右圖左文布局 */}
-      {layout === 'imageRight' && image && (
+      {layout === 'imageRight' && image?.url && (
         <div className="grid md:grid-cols-2 items-center">
           <div className={cn(
-            "flex flex-col justify-center px-4 md:px-8 order-2 md:order-1",
+            "flex flex-col justify-center px-6 md:px-12 xl:px-16 2xl:px-24 order-2 md:order-1",
             hasTitle ? "space-y-8" : "space-y-4"
           )}>
             {hasTitle && (
-              <h2 className="h1 mb-6 text-center">
-                {heading}
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-primary">
+                {title}
               </h2>
             )}
             <div 
@@ -92,7 +92,7 @@ const ImageTextBlock = ({
           </div>
           <div className="relative aspect-[4/3] w-full overflow-hidden order-1 md:order-2 border border-white">
             <Image
-              src={image.url || ''}
+              src={image.url}
               alt={image.alt || '區塊圖片'}
               fill
               className="object-cover"
@@ -104,7 +104,7 @@ const ImageTextBlock = ({
 
       {/* 中間文字布局 */}
       {layout === 'centerText' && (
-        <div className="max-w-4xl mx-auto px-4 md:px-8">
+        <div className="max-w-4xl mx-auto px-6 md:px-12 xl:px-16 2xl:px-24">
           <div className={cn(
             "text-center",
             hasTitle ? "space-y-8" : "space-y-4"
@@ -125,7 +125,7 @@ const ImageTextBlock = ({
       {/* 雙圖布局 */}
       {layout === 'imageLeftImageRight' && (
         <div className={cn(
-          "px-4 md:px-8",
+          "px-6 md:px-12 xl:px-16 2xl:px-24",
           hasTitle ? "space-y-10" : "space-y-6"
         )}>
           <div className="text-center max-w-4xl mx-auto">
@@ -142,10 +142,10 @@ const ImageTextBlock = ({
             )}
           </div>
           <div className="grid md:grid-cols-2 gap-8">
-            {leftImage && (
+            {leftImage?.url && (
               <div className="relative aspect-[4/3] w-full overflow-hidden">
                 <Image
-                  src={leftImage.url || ''}
+                  src={leftImage.url}
                   alt={leftImage.alt || '左側圖片'}
                   fill
                   className="object-cover"
@@ -153,10 +153,10 @@ const ImageTextBlock = ({
                 />
               </div>
             )}
-            {rightImage && (
+            {rightImage?.url && (
               <div className="relative aspect-[4/3] w-full overflow-hidden">
                 <Image
-                  src={rightImage.url || ''}
+                  src={rightImage.url}
                   alt={rightImage.alt || '右側圖片'}
                   fill
                   className="object-cover"
@@ -171,7 +171,7 @@ const ImageTextBlock = ({
       {/* 雙文布局 */}
       {layout === 'textLeftTextRight' && (
         <div className={cn(
-          "px-4 md:px-8",
+          "px-6 md:px-12 xl:px-16 2xl:px-24",
           hasTitle ? "space-y-8" : "space-y-4"
         )}>
           <div className="text-center max-w-4xl mx-auto">

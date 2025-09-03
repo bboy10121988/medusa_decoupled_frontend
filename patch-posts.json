@@ -1,0 +1,52 @@
+[
+  {
+    "query": "*[_type == 'post' && _id == '072ed642-56dc-4ba5-96e9-3c89b226eac6'][0]",
+    "patch": {
+      "set": {
+        "title": "男士剪髮",
+        "publishedAt": "2025-08-28T00:44:36Z",
+        "status": "published"
+      }
+    }
+  },
+  {
+    "query": "*[_type == 'post' && _id == '2baf7d00-bc76-43f5-8d14-bbfc1fff3064'][0]",
+    "patch": {
+      "set": {
+        "title": "頭皮護理",
+        "publishedAt": "2025-08-28T00:46:28Z",
+        "status": "published"
+      }
+    }
+  },
+  {
+    "query": "*[_type == 'post' && _id == '2f582d09-96e3-43da-9b3e-1dffca7a05b9'][0]",
+    "patch": {
+      "set": {
+        "title": "男士燙髮",
+        "publishedAt": "2025-08-28T00:47:00Z",
+        "status": "published"
+      }
+    }
+  },
+  {
+    "query": "*[_type == 'post' && _id == '60b87513-c21c-43ad-87fd-3dbb64c217c0'][0]",
+    "patch": {
+      "set": {
+        "title": "洗剪修眉",
+        "publishedAt": "2025-08-28T00:47:30Z",
+        "status": "published"
+      }
+    }
+  },
+  {
+    "query": "*[_type == 'post' && _id == 'a366eec6-41a8-42ce-9c44-b7ff64d555f3'][0]",
+    "patch": {
+      "set": {
+        "title": "男士洗剪髮含頭皮噴霧",
+        "publishedAt": "2025-08-28T00:48:00Z",
+        "status": "published"
+      }
+    }
+  }
+]

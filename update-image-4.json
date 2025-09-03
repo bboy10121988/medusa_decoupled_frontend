@@ -1,0 +1,20 @@
+{
+  "_id": "60b87513-c21c-43ad-87fd-3dbb64c217c0",
+  "_type": "post",
+  "title": "洗剪修眉",
+  "slug": {
+    "current": "wash-cut-eyebrow",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:47:30Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "洗剪修眉",
+    "asset": {
+      "_ref": "image-ef89ce92942cf0b51914a3abe0a6f7d69fd04458-1280x853-webp",
+      "_type": "reference"
+    }
+  }
+}

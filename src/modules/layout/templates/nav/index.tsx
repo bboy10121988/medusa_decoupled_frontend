@@ -131,13 +131,13 @@ export default async function Nav() {
 
         {/* 2. 主選單導覽列 */}
         <header 
-          className="relative mx-auto border-b bg-white border-ui-border-base shadow-sm"
+          className="relative w-full border-b bg-white border-ui-border-base shadow-sm"
           style={{
             height: `${mainNavHeight}px`
           }}
         >
           <nav 
-            className="px-6 md:px-12 max-w-[1440px] mx-auto h-full flex items-center"
+            className="px-6 md:px-12 xl:px-16 2xl:px-20 w-full h-full flex items-center"
           >
             {/* 三等份布局容器 */}
             <div className="w-full grid grid-cols-3 items-center">
@@ -393,7 +393,7 @@ export default async function Nav() {
 
         {/* 3. 分類導覽列 - 在漢堡選單模式隱藏 */}
         <div className="hidden lg:block border-b border-ui-border-base bg-white shadow-sm">
-          <div className="px-6 md:px-12 max-w-[1440px] mx-auto flex justify-between items-center py-2 text-xs text-neutral-600">
+          <div className="px-6 md:px-12 xl:px-16 2xl:px-20 max-w-none flex justify-between items-center py-2 text-xs text-neutral-600">
             <div className="flex items-center gap-x-6">
               {categories?.map((category: {id: string; handle: string; name: string}) => (
                 <LocalizedClientLink

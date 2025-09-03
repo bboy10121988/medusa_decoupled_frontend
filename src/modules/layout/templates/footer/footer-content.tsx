@@ -4,7 +4,7 @@ import Link from "next/link"
 const FooterContent = () => {
   return (
     <footer className="border-t border-gray-200">
-      <div className="max-w-[1440px] mx-auto px-5 md:px-10">
+      <div className="w-full px-5 md:px-10">
         <div className="py-12 md:py-20">
           <div className="grid grid-cols-2 md:grid-cols-6 gap-y-10 md:gap-x-4">
             {/* 品牌區塊 */}

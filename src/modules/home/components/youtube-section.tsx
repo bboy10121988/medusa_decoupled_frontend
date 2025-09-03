@@ -80,7 +80,7 @@ const YouTubeSection = memo(({ heading, description, videoUrl, fullWidth = true 
 
   return (
     <section className={`w-full ${fullWidth ? "" : "container mx-auto px-4"}`}>
-      <div className="max-w-screen-2xl mx-auto">
+      <div className="max-w-none w-full">
         {heading && (
           <h2 className="h1 text-center mb-6">{heading}</h2>
         )}

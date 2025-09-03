@@ -1,0 +1,194 @@
+{
+  "_id": "d0062e9e-2c1c-4afe-b933-a801087f7142",
+  "_type": "post",
+  "title": "男士染髮",
+  "slug": {
+    "current": "mens-hair-dye",
+    "_type": "slug"
+  },
+  "publishedAt": "2025-08-28T00:42:58Z",
+  "status": "published",
+  "categories": [],
+  "mainImage": {
+    "_type": "image",
+    "alt": "男士染髮",
+    "asset": {
+      "_ref": "image-f201c7e845213190859e947df584f1d810baeb81-1280x720-webp",
+      "_type": "reference"
+    }
+  },
+  "seoTitle": "專業男士染髮服務 | 時尚髮色設計",
+  "seoDescription": "提供專業男士染髮服務，從自然遮白到時尚髮色設計。使用頂級染髮產品，專業調色技術，打造完美髮色效果。",
+  "focusKeyword": "男士染髮",
+  "seoKeywords": ["男士髮色", "染髮服務", "髮色設計", "遮白染髮", "時尚染髮"],
+  "body": [
+    {
+      "_type": "block",
+      "_key": "block1",
+      "style": "h2",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span1",
+          "text": "專業男士染髮服務"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block2",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span2",
+          "text": "想要改變髮色、遮蓋白髮或展現個人風格嗎？我們的專業男士染髮服務為您提供從自然遮白到時尚髮色設計的全方位解決方案。使用頂級染髮產品和專業調色技術，確保染髮效果自然持久，同時呵護您的髮質健康。"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block3",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span3",
+          "text": "染髮服務類型"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block4",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span4",
+          "text": "白髮遮蓋：\n• 自然黑色系：完美融合原髮色\n• 深棕色系：溫和自然的選擇\n• 漸變染色：打造自然層次感\n\n時尚髮色：\n• 經典棕色系：展現成熟魅力\n• 冷調灰色系：現代時尚風格\n• 個性色彩：展現獨特品味\n\n局部染色：\n• 挑染設計：增加造型層次\n• 漸變效果：創造視覺焦點"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block5",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span5",
+          "text": "專業染髮流程"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block6",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span6",
+          "text": "1. 髮質檢測：評估髮質狀況和染髮適合性\n2. 色彩諮詢：根據膚色和喜好推薦適合髮色\n3. 皮膚測試：確保染髮產品安全性\n4. 前置護理：保護頭皮和髮絲\n5. 專業調色：精準調配染髮配方\n6. 均勻上色：運用專業技術確保色澤均勻\n7. 後續護理：鎖色護髮，延長染髮效果\n8. 造型完成：整體造型設計和保養指導"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block7",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span7",
+          "text": "髮色選擇建議"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block8",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span8",
+          "text": "選擇適合的髮色需要考慮多個因素：\n• 膚色配對：冷暖色調的搭配原則\n• 職業需求：商務場合的適當髮色\n• 個人風格：展現獨特個性的色彩選擇\n• 維護便利：考慮日常保養的方便性\n• 季節趨勢：跟上時尚潮流的髮色選擇"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block9",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span9",
+          "text": "染髮後護理"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block10",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span10",
+          "text": "為了維持染髮效果和髮質健康：\n• 使用專用的染後洗護產品\n• 避免過熱水溫洗頭\n• 定期使用深層護髮產品\n• 避免長時間曝曬\n• 定期回店進行專業護色\n• 根據髮色褪色情況安排補色"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block11",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span11",
+          "text": "服務保證"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block12",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span12",
+          "text": "• 使用國際知名品牌染髮產品\n• 專業髮型師具備豐富染髮經驗\n• 嚴格的安全測試程序\n• 個人化的髮色設計方案\n• 完整的售後保養指導\n• 不滿意可免費調整服務"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block13",
+      "style": "h3",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span13",
+          "text": "注意事項"
+        }
+      ]
+    },
+    {
+      "_type": "block",
+      "_key": "block14",
+      "style": "normal",
+      "children": [
+        {
+          "_type": "span",
+          "_key": "span14",
+          "text": "• 染髮前48小時進行皮膚敏感測試\n• 染髮當日請勿洗髮，保持頭皮天然油脂保護\n• 有頭皮傷口或過敏史請提前告知\n• 染髮後3天內避免洗髮，讓顏色穩定\n• 定期補色可維持最佳髮色效果"
+        }
+      ]
+    }
+  ]
+}

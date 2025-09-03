@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>測試銀行轉帳 - Payment Methods</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .payment-method { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .payment-method:hover { background-color: #f0f0f0; }
+        .payment-method.selected { 
+            border-color: #007bff; 
+            background-color: #e7f3ff; 
+        }
+        .continue-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .continue-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>測試支付方法選擇</h1>
+    <p>測試購物車ID: <strong>cart_01K45W70CTWB3D5BSB6N5T2XAG</strong></p>
+    
+    <h3>可用的支付方法:</h3>
+    
+    <div class="payment-method" onclick="selectPayment('pp_bank_transfer')" id="bank-transfer">
+        <input type="radio" name="payment" value="pp_bank_transfer" id="radio-bank">
+        <label for="radio-bank">
+            <strong>銀行轉帳</strong><br>
+            <small>請於訂單確認後，依照指示轉帳至指定銀行帳戶</small>
+        </label>
+    </div>
+    
+    <div class="payment-method" onclick="selectPayment('pp_system_default')" id="manual-payment">
+        <input type="radio" name="payment" value="pp_system_default" id="radio-manual">
+        <label for="radio-manual">
+            <strong>Manual Payment</strong><br>
+            <small>手動處理付款</small>
+        </label>
+    </div>
+    
+    <button class="continue-btn" onclick="continueToReview()" id="continue-btn" disabled>
+        Continue to Review
+    </button>
+    
+    <div id="status" style="margin-top: 20px; padding: 10px; border-radius: 5px; display: none;"></div>
+
+    <script>
+        let selectedPayment = null;
+        
+        function selectPayment(method) {
+            selectedPayment = method;
+            
+            // Clear previous selections
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Clear radio buttons
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Select current method
+            document.getElementById(method === 'pp_bank_transfer' ? 'bank-transfer' : 'manual-payment').classList.add('selected');
+            document.getElementById(method === 'pp_bank_transfer' ? 'radio-bank' : 'radio-manual').checked = true;
+            
+            // Enable continue button
+            document.getElementById('continue-btn').disabled = false;
+            
+            showStatus('已選擇: ' + (method === 'pp_bank_transfer' ? '銀行轉帳' : 'Manual Payment'), 'success');
+        }
+        
+        function continueToReview() {
+            if (!selectedPayment) {
+                showStatus('請選擇一個支付方法', 'error');
+                return;
+            }
+            
+            showStatus('支付方法選擇成功! 選擇的方法: ' + selectedPayment, 'success');
+            
+            // 模擬跳轉到review步驟
+            setTimeout(() => {
+                const checkoutUrl = `http://localhost:8000/tw/checkout?cart_id=cart_01K45W70CTWB3D5BSB6N5T2XAG&step=payment`;
+                showStatus('即將跳轉到實際結帳頁面...', 'info');
+                setTimeout(() => {
+                    window.location.href = checkoutUrl;
+                }, 1000);
+            }, 1000);
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = message;
+            
+            switch(type) {
+                case 'success':
+                    statusDiv.style.backgroundColor = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.style.borderColor = '#c3e6cb';
+                    break;
+                case 'error':
+                    statusDiv.style.backgroundColor = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.style.borderColor = '#f5c6cb';
+                    break;
+                case 'info':
+                    statusDiv.style.backgroundColor = '#d1ecf1';
+                    statusDiv.style.color = '#0c5460';
+                    statusDiv.style.borderColor = '#bee5eb';
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
