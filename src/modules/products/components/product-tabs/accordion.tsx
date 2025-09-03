@@ -53,21 +53,19 @@ const Item: React.FC<AccordionItemProps> = ({
       )}
     >
       <AccordionPrimitive.Header className="px-1">
-        <div className="flex flex-col">
-          <div className="flex w-full items-center justify-between">
+        <AccordionPrimitive.Trigger className="w-full">
+          <div className="flex w-full items-center justify-between hover:bg-gray-50 transition-colors duration-150 py-2 px-2 rounded-md cursor-pointer">
             <div className="flex items-center gap-4">
-              <Text className="text-ui-fg-subtle text-sm">{title}</Text>
+              <Text className="text-ui-fg-subtle text-sm text-left">{title}</Text>
             </div>
-            <AccordionPrimitive.Trigger>
-              {customTrigger || <MorphingTrigger />}
-            </AccordionPrimitive.Trigger>
+            {customTrigger || <MorphingTrigger />}
           </div>
           {subtitle && (
-            <Text as="span" size="small" className="mt-1">
+            <Text as="span" size="small" className="mt-1 text-left">
               {subtitle}
             </Text>
           )}
-        </div>
+        </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Header>
       <AccordionPrimitive.Content
         forceMount={forceMountContent}
@@ -88,11 +86,15 @@ Accordion.Item = Item
 
 const MorphingTrigger = () => {
   return (
-    <div className="text-grey-90 hover:bg-grey-5 active:bg-grey-5 active:text-violet-60 focus:border-violet-60 disabled:text-grey-30 bg-transparent disabled:bg-transparent rounded-rounded group relative p-[6px]">
-      <div className="h-5 w-5">
-        <span className="bg-grey-50 rounded-circle group-radix-state-open:rotate-90 absolute inset-y-[31.75%] left-[48%] right-1/2 w-[1.5px] duration-300" />
-        <span className="bg-grey-50 rounded-circle group-radix-state-open:rotate-90 group-radix-state-open:left-1/2 group-radix-state-open:right-1/2 absolute inset-x-[31.75%] top-[48%] bottom-1/2 h-[1.5px] duration-300" />
-      </div>
+    <div className="text-gray-500 hover:text-gray-700 transition-colors p-1">
+      <svg 
+        className="w-4 h-4 transform transition-transform duration-200 group-radix-state-open:rotate-180" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
     </div>
   )
 }

@@ -723,6 +723,17 @@ input[type="search"]::-webkit-search-results-decoration {
   }
 }
 
+@keyframes slideUp {
+  from {
+    transform: scale(0.95) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.6s ease forwards;
 }
@@ -733,6 +744,10 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .animate-fade-in-content {
   animation: fadeInContent 0.8s ease forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
 }
 
 /* 導航欄滾動效果 */
@@ -874,6 +889,18 @@ input[type="search"]::-webkit-search-results-decoration {
 
   .product-preview:hover {
     box-shadow: var(--shadow-md);
+  }
+
+  /* 手機版商品卡片優化 */
+  @media (max-width: 768px) {
+    .product-preview {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .product-preview .thumbnail {
+      border-radius: 8px 8px 0 0;
+    }
   }
 
   /* 商品圖片容器 - 移除所有邊距 */

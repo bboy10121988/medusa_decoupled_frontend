@@ -69,7 +69,7 @@ export default function FeaturedProducts({
 
 const SkeletonProductGrid = () => {
   return (
-    <div className="grid grid-cols-2 small:grid-cols-4 gap-0 w-full bg-neutral-200">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full bg-neutral-200">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="w-full bg-white">
           <SkeletonProductPreview />

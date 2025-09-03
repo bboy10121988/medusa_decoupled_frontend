@@ -59,6 +59,7 @@ export default function ProductPreview({
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isImageTransitioning, setIsImageTransitioning] = useState(false)
   const [showVariantSelector, setShowVariantSelector] = useState(false)
+  const [showMobileOptions, setShowMobileOptions] = useState(false)
 
   // 獲取所有可用圖片
   const allImages = useMemo(() => {
@@ -296,8 +297,8 @@ export default function ProductPreview({
     const variantId = findVariantId(selectedOptions)
 
     if (hasMultipleOptions && !variantId) {
-      // 如果有多個選項且沒有選擇，顯示錯誤訊息
-      setError("請選擇所有必要的選項")
+      // 如果有多個選項且沒有選擇，顯示選項彈窗
+      setShowMobileOptions(true)
       return
     }
 
@@ -314,6 +315,97 @@ export default function ProductPreview({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <span className="text-xs">商品已加入購物車</span>
+        </div>
+      )}
+
+      {/* 手機版選項彈窗 */}
+      {showMobileOptions && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center md:hidden p-4">
+          {/* 背景遮罩 */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowMobileOptions(false)}
+          />
+          
+          {/* 彈窗內容 */}
+          <div className="relative w-full max-w-sm bg-white rounded-2xl p-6 space-y-4 animate-slide-up max-h-[70vh] overflow-y-auto shadow-2xl">
+            {/* 標題區域 */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">選擇商品規格</h3>
+              <button
+                onClick={() => setShowMobileOptions(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* 商品資訊 */}
+            <div className="flex space-x-3 pb-4 border-b border-gray-100">
+              <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <Thumbnail 
+                  thumbnail={allImages[0]} 
+                  images={allImages.map(url => ({ url }))}
+                  size="square"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-medium text-gray-900 line-clamp-2">{product.title}</h4>
+                {cheapestPrice && (
+                  <div className="mt-1">
+                    <ClientPreviewPrice price={cheapestPrice} />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 選項選擇 */}
+            <div className="space-y-4">
+              {productOptions.filter(option => option.values.length > 1).map((option) => (
+                <div key={option.title} className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    {option.title}
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {option.values.map((value) => {
+                      const isSelected = selectedOptions[option.title] === value
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => handleOptionSelect(option.title, value)}
+                          className={`px-3 py-2 text-sm border rounded-lg transition-colors ${
+                            isSelected 
+                              ? 'border-black bg-black text-white' 
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {value}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 加入購物車按鈕 */}
+            <button
+              onClick={() => {
+                const variantId = findVariantId(selectedOptions)
+                if (variantId) {
+                  setShowMobileOptions(false)
+                  handleAddToCart()
+                }
+              }}
+              disabled={isAdding || !findVariantId(selectedOptions)}
+              className="w-full px-4 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-500"
+            >
+              {isAdding ? "處理中..." : 
+               productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+            </button>
+          </div>
         </div>
       )}
       
@@ -380,8 +472,10 @@ export default function ProductPreview({
                         e.stopPropagation()
                         setCurrentImageIndex(index)
                       }}
-                      className={`w-2.5 h-2.5 rounded-full transition-all duration-200 shadow-md ${
-                        index === currentImageIndex ? 'bg-white border border-gray-300' : 'bg-white/60 border border-white/20'
+                      className={`w-3 h-3 rounded-full transition-all duration-200 border-2 ${
+                        index === currentImageIndex 
+                          ? 'bg-white border-white shadow-lg scale-110' 
+                          : 'bg-white/50 border-white/70 hover:bg-white/80 hover:border-white shadow-md'
                       }`}
                     />
                   ))}
@@ -476,12 +570,12 @@ export default function ProductPreview({
 
         {/* 商品資訊區塊 */}
         <LocalizedClientLink href={`/products/${product.handle}`}>
-          <div className="px-2 md:px-8 py-3 mt-2">
-            <h3 className="text-xs" data-testid="product-title">
+          <div className="px-3 md:px-8 py-3 mt-2">
+            <h3 className="text-sm md:text-xs leading-tight mb-1" data-testid="product-title">
               {product.title}
             </h3>
             {cheapestPrice && (
-              <div className="flex items-center justify-between mt-0.5">
+              <div className="flex items-center justify-between mt-1">
                 <div className="flex-grow">
                   <ClientPreviewPrice price={cheapestPrice} />
                 </div>
@@ -490,7 +584,7 @@ export default function ProductPreview({
                   <button
                     onClick={(e) => handleMobileButtonClick(e)}
                     disabled={isAdding}
-                    className="md:hidden w-8 h-8 bg-black text-white rounded-sm shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn"
+                    className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn"
                     aria-label={
                       (() => {
                         if (isAdding) return "處理中..."
@@ -502,28 +596,23 @@ export default function ProductPreview({
                     }
                   >
                     {isAdding ? (
-                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      (() => {
-                        const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
-                        const variantId = findVariantId(selectedOptions)
-                        
-                        if (hasMultipleOptions && !variantId) {
-                          // 顯示選項圖標
-                          return (
-                            <svg className="w-4 h-4 group-hover/mbtn:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                            </svg>
-                          )
-                        } else {
-                          // 顯示購物車圖標
-                          return (
-                            <svg className="w-4 h-4 group-hover/mbtn:scale-110 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path fillRule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z" clipRule="evenodd"/>
-                            </svg>
-                          )
-                        }
-                      })()
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="white" 
+                        strokeWidth="1.5"
+                        className="flex-shrink-0"
+                        style={{ display: 'block' }}
+                      >
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                      </svg>
                     )}
                   </button>
                 )}

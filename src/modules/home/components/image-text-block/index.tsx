@@ -81,7 +81,7 @@ const ImageTextBlock = ({
           )}>
             {hasTitle && (
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-primary">
-                {title}
+                {heading}
               </h2>
             )}
             <div 

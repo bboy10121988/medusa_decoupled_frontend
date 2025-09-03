@@ -422,10 +422,12 @@ export default async function Nav() {
       >
         <svg 
           className="w-5 h-5"
-          viewBox="0 0 20 20" 
-          fill="currentColor"
+          viewBox="0 0 24 24" 
+          fill="none"
+          stroke="white"
+          strokeWidth="2"
         >
-          <path d="M2 6.25c0-2.208 1.792-4 4-4h8c2.208 0 4 1.792 4 4v5.5c0 2.208-1.792 4-4 4h-2.646L8 18.938V15.75H6c-2.208 0-4-1.792-4-4v-5.5z"/>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
         <span className="text-white text-xs font-medium tracking-wide">幫助</span>
       </a>
