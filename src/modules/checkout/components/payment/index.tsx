@@ -90,15 +90,21 @@ const Payment = ({
 
     console.log(action,"支付方式(providerID):",selectedPaymentMethod)
 
+
+
     try {
 
         console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
-        const initResp = initiatePaymentSession(cart,{
+        const initResp = await initiatePaymentSession(cart,{
           provider_id: selectedPaymentMethod
         })
 
-        console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp)
+        
+
+        console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
+
+        
 
         return router.push(
           pathname + "?" + createQueryString("step", "review"),
