@@ -10,25 +10,19 @@ interface ImageConfig {
 
 interface ImageTextBlockProps {
   heading: string
-  content: string
   image?: ImageConfig
   layout: 'imageLeft' | 'imageRight' | 'imageLeftImageRight' | 'textLeftTextRight' | 'centerText'
   leftImage?: ImageConfig
   rightImage?: ImageConfig
-  leftContent?: string
-  rightContent?: string
   hideTitle?: boolean
 }
 
 const ImageTextBlock = ({
   heading,
-  content,
   image,
   layout,
   leftImage,
   rightImage,
-  leftContent,
-  rightContent,
   hideTitle = false
 }: ImageTextBlockProps) => {
   // 檢查是否真的有標題內容
@@ -37,10 +31,7 @@ const ImageTextBlock = ({
   return (
     <div className={cn(
       "w-full max-w-none",
-      // 左圖右文和右圖左文模組例外，皆為0間距
-      (layout === 'imageLeft' || layout === 'imageRight') ? "" : 
-      // 其他布局：有標題則顯示間距，無標題則為0
-      hasTitle ? "py-12 md:py-20" : ""
+      (layout === 'imageLeft' || layout === 'imageRight' || layout === 'imageLeftImageRight') ? "" : (hasTitle ? "py-12 md:py-20" : "")
     )}>
       {/* 左圖右文布局 */}
       {layout === 'imageLeft' && image?.url && (
@@ -63,11 +54,6 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
-            <div 
-              className="text-content"
-              style={{ lineHeight: '2' }}
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
           </div>
         </div>
       )}
@@ -84,11 +70,6 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
-            <div 
-              className="text-content"
-              style={{ lineHeight: '2' }}
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
           </div>
           <div className="relative aspect-[4/3] w-full overflow-hidden order-1 md:order-2 border border-white">
             <Image
@@ -114,36 +95,23 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
-            <div 
-              className="text-content"
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
           </div>
         </div>
       )}
 
       {/* 雙圖布局 */}
       {layout === 'imageLeftImageRight' && (
-        <div className={cn(
-          "px-6 md:px-12 xl:px-16 2xl:px-24",
-          hasTitle ? "space-y-10" : "space-y-6"
-        )}>
-          <div className="text-center max-w-4xl mx-auto">
-            {hasTitle && (
+        <div className="w-full max-w-none m-0 p-0">
+          {hasTitle && (
+            <div className="text-center max-w-4xl mx-auto m-0 p-0">
               <h2 className="h1 mb-8">
                 {heading}
               </h2>
-            )}
-            {content && (
-              <div 
-                className="text-content"
-                dangerouslySetInnerHTML={{ __html: content }}
-              />
-            )}
-          </div>
-          <div className="grid md:grid-cols-2 gap-8">
+            </div>
+          )}
+          <div className="grid md:grid-cols-2 w-full m-0 p-0 gap-0">
             {leftImage?.url && (
-              <div className="relative aspect-[4/3] w-full overflow-hidden">
+              <div className="relative aspect-[4/3] w-full overflow-hidden m-0 p-0">
                 <Image
                   src={leftImage.url}
                   alt={leftImage.alt || '左側圖片'}
@@ -154,7 +122,7 @@ const ImageTextBlock = ({
               </div>
             )}
             {rightImage?.url && (
-              <div className="relative aspect-[4/3] w-full overflow-hidden">
+              <div className="relative aspect-[4/3] w-full overflow-hidden m-0 p-0">
                 <Image
                   src={rightImage.url}
                   alt={rightImage.alt || '右側圖片'}
@@ -168,39 +136,7 @@ const ImageTextBlock = ({
         </div>
       )}
 
-      {/* 雙文布局 */}
-      {layout === 'textLeftTextRight' && (
-        <div className={cn(
-          "px-6 md:px-12 xl:px-16 2xl:px-24",
-          hasTitle ? "space-y-8" : "space-y-4"
-        )}>
-          <div className="text-center max-w-4xl mx-auto">
-            {hasTitle && (
-              <h2 className="h1 mb-6">
-                {heading}
-              </h2>
-            )}
-          </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            {leftContent && (
-              <div className="space-y-4">
-                <div 
-                  className="text-content"
-                  dangerouslySetInnerHTML={{ __html: leftContent }}
-                />
-              </div>
-            )}
-            {rightContent && (
-              <div className="space-y-4">
-                <div 
-                  className="text-content"
-                  dangerouslySetInnerHTML={{ __html: rightContent }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+  {/* 雙文布局已移除 */}
     </div>
   )
 }

@@ -10,6 +10,7 @@ interface Stylist {
   price: number
   priceType?: 'up' | 'fixed'
   stylistName?: string
+  stylistInstagramUrl?: string
   isDefault?: boolean
   cardImage?: {
     url: string
@@ -255,6 +256,36 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
     }
   }
 
+  const getSelectedStylistInstagramUrl = (): string | null => {
+    try {
+      if (!Array.isArray(card?.stylists) || !card.stylists.length) return null
+      
+      if (selectedDesigner === "all") {
+        // 當選擇 "all" 時，優先使用標示為預設的設計師 IG URL
+        const defaultStylist = card.stylists.find(s => s.isDefault === true)
+        if (defaultStylist?.stylistInstagramUrl) {
+          return defaultStylist.stylistInstagramUrl
+        }
+        
+        // 如果沒有適合的預設設計師，找第一個有 IG URL 的非通用設計師
+        const specificStylist = card.stylists.find(s => {
+          const name = s?.stylistName
+          return name && 
+                 !name.toLowerCase().includes('all') && 
+                 !name.toLowerCase().includes('指定') &&
+                 s.stylistInstagramUrl
+        })
+        return specificStylist?.stylistInstagramUrl ?? null
+      }
+      
+      const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
+      return stylist?.stylistInstagramUrl ?? null
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') console.error('Error getting stylist Instagram URL:', error)
+      return null
+    }
+  }
+
   return (
     <div className="group relative bg-white overflow-hidden transition-all duration-700 border border-stone-200/60 hover:border-stone-300/80 hover:-translate-y-2 hover:shadow-xl h-full">
       {/* 服務圖片區域 */}
@@ -331,9 +362,29 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
             <svg className="w-3 h-3 md:w-4 md:h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span className="text-xs md:text-sm font-light text-stone-600 tracking-wide">
-              {getSelectedStylistName() || "所有設計師"}
-            </span>
+            {(() => {
+              const stylistName = getSelectedStylistName()
+              const instagramUrl = getSelectedStylistInstagramUrl()
+              
+              if (stylistName && instagramUrl) {
+                return (
+                  <a 
+                    href={instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs md:text-sm font-light text-stone-600 hover:text-stone-800 tracking-wide transition-colors duration-300 underline decoration-stone-300 hover:decoration-stone-500"
+                  >
+                    {stylistName}
+                  </a>
+                )
+              }
+              
+              return (
+                <span className="text-xs md:text-sm font-light text-stone-600 tracking-wide">
+                  {stylistName || "所有設計師"}
+                </span>
+              )
+            })()}
           </div>
         </div>
       </div>

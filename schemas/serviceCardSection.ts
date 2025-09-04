@@ -117,6 +117,15 @@ export default {
                       type: 'string'
                     },
                     {
+                      name: 'stylistInstagramUrl',
+                      title: '設計師 Instagram 連結',
+                      type: 'url',
+                      description: '設計師的 Instagram 個人檔案連結',
+                      validation: (Rule: any) => Rule.uri({
+                        scheme: ['http', 'https']
+                      }).error('請輸入有效的 URL（包含 http:// 或 https://）')
+                    },
+                    {
                       name: 'cardImage',
                       title: '設計師專用圖片',
                       type: 'image',

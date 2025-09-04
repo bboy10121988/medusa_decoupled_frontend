@@ -21,12 +21,7 @@ export default {
       description: '若勾選則隱藏標題，同時調整上下間距',
       initialValue: false
     },
-    {
-      name: 'content',
-      title: '內文',
-      type: 'text',
-      hidden: ({parent}: any) => parent?.layout === 'textLeftTextRight'
-    },
+  // 移除 content 內文欄位
     {
       name: 'layout',
       title: '版面配置',
@@ -92,20 +87,7 @@ export default {
       ],
       hidden: ({parent}: any) => parent?.layout !== 'imageLeftImageRight'
     },
-    {
-      name: 'leftContent',
-      title: '左側內文',
-      type: 'text',
-      rows: 4,
-      hidden: ({parent}: any) => parent?.layout !== 'textLeftTextRight'
-    },
-    {
-      name: 'rightContent',
-      title: '右側內文',
-      type: 'text',
-      rows: 4,
-      hidden: ({parent}: any) => parent?.layout !== 'textLeftTextRight'
-    }
+  // 移除 leftContent、rightContent 內文欄位
   ],
   preview: {
     select: {

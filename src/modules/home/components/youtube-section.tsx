@@ -64,7 +64,7 @@ const YouTubeSection = memo(({ heading, description, videoUrl, fullWidth = true 
   }, [videoUrl, getYouTubeId])
 
   // 防止不必要的重新渲染觸發重新播放
-  const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0&playsinline=1&rel=0&modestbranding=1&start=${timestamp}&enablejsapi=1`
+  const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&playsinline=1&rel=0&modestbranding=1&start=${timestamp}&enablejsapi=1`
 
   if (error) {
     return (

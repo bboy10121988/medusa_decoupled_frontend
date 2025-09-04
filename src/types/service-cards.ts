@@ -3,6 +3,7 @@ export type ServiceStyleLevel = {
   price: number
   priceType?: 'up' | 'fixed'
   stylistName?: string
+  stylistInstagramUrl?: string
   isDefault?: boolean
   cardImage?: {
     url: string

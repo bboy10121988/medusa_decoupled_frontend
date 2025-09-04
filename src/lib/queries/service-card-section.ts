@@ -16,7 +16,17 @@ export const serviceCardSectionFragment = `
         "alt": coalesce(alt, title),
         "caption": caption
       },
-      "stylists": coalesce(stylists, [])
+      "stylists": coalesce(stylists[], {
+        levelName,
+        levelOrder,
+        price,
+        stylistName,
+        stylistInstagramUrl,
+        "cardImage": cardImage {
+          "url": coalesce(asset->url, ""),
+          "alt": coalesce(alt, stylistName, levelName)
+        }
+      })
     }
   }
 `

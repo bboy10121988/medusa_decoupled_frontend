@@ -11,6 +11,7 @@ export const serviceCardSectionFragment = `
         levelName,
         price,
         stylistName,
+        stylistInstagramUrl,
         "cardImage": cardImage {
           "url": asset->url,
           "alt": alt
