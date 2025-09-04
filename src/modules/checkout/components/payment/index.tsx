@@ -100,7 +100,6 @@ const Payment = ({
           provider_id: selectedPaymentMethod
         })
 
-        
 
         console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
 

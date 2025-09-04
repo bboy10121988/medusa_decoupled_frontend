@@ -6,7 +6,7 @@ import ErrorMessage from "../error-message"
 import { HttpTypes } from "@medusajs/types"
 import { placeOrder } from "@lib/data/cart"
 import { PaymentData } from "internal/ecpayments/paymentdata"
-import { id } from "date-fns/locale"
+import { de, id } from "date-fns/locale"
 
 type Props = {
   cart: HttpTypes.StoreCart
@@ -18,12 +18,23 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   const action:string = "ECPayPaymentButton"
 
-  const [submitting, setSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  let defaultError:string | null = null
 
-  const idArr = cart.id.split('_')
-  const cartID = idArr.length > 1 ? idArr[1] : cart.id
-  
+  const paymentSessions = cart.payment_collection?.payment_sessions
+
+  let paymentSessionID = ""
+
+  if (!paymentSessions || paymentSessions.length === 0){
+    defaultError = "尚未建立支付會話"
+  }else{
+    paymentSessionID = paymentSessions[0].id
+  }
+
+  console.log(action,"payment session id",paymentSessionID)
+
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(defaultError)
+
 
   // 計算總金額（轉換為整數，ECPay 不接受小數）
   const totalAmount = Math.round(cart.total || 0)
@@ -74,24 +85,46 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   
   data.setEncryptType("1")
 
+  data.setCustomField3("payment_session_id")
+
+  data.setCustomField4(paymentSessionID)
+
   const params:URLSearchParams = data.getDataParams();
   
   
-  console.log(action,"payment params:",params)
-
-  params.forEach((value, key) => {
-    console.log(key, value)
-  })
 
 
+  const handleSubmit = async(e:React.FormEvent) => {
 
-  return (
+     e.preventDefault() // 阻止預設提交行為
+
+
+    try{
+
+      const data = await placeOrder(cart.id)
+
+      console.log("place order:",data)
+
+      const form = e.target as HTMLFormElement
+
+      // form.submit()
+
+    }catch(err:any){
+      setErrorMessage(err)
+    }
+
+  }
+
+
+
+  return !errorMessage ? (
     <>
       <form 
         method="POST" 
         action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5" 
         target="_blank"
         encType="application/x-www-form-urlencoded"
+        onSubmit={handleSubmit}
       >
         
         {Array.from(params.entries()).map(([key, value]) => (
@@ -109,12 +142,11 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
         </Button>
       </form>
       
-      <ErrorMessage
-        error={errorMessage}
-        data-testid="ecpay-payment-error-message"
-      />
+      
     </>
-  )
+  ):(
+    <ErrorMessage error={errorMessage} data-testid="ecpay-payment-error-message" />
+  );
 }
 
 export default ECPayPaymentButton

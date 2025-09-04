@@ -4,6 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import React from "react"
 import ECPayPaymentButton from "./ecpaypaymentbutton"
 import BankTransferPaymentButton from "./banktransferpaymentbutton"
+import ErrorMessage from "../error-message"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -24,6 +25,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     !cart.email ||
     (cart.shipping_methods?.length ?? 0) < 1
 
+  if (notReady){
+    return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
+  }
+  
   const paymentSession = cart.payment_collection?.payment_sessions?.find(
     (s) => s.status === "pending"
   ) || cart.payment_collection?.payment_sessions?.[0]
