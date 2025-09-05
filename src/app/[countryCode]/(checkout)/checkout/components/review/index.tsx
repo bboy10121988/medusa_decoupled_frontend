@@ -4,6 +4,8 @@ import { Heading, Text, clx } from "@medusajs/ui"
 
 import PaymentButton from "../payment-button"
 import { useSearchParams } from "next/navigation"
+import ErrorMessage from "../error-message"
+import { placeOrder } from "@lib/data/cart"
 
 const Review = ({ cart }: { cart: any }) => {
   const searchParams = useSearchParams()
@@ -23,6 +25,17 @@ const Review = ({ cart }: { cart: any }) => {
     cart.shipping_address &&
     cart.shipping_methods.length > 0 &&
     (cart.payment_collection || paidByGiftcard || isBankTransfer)
+
+  const notReady =
+    !cart ||
+    !cart.shipping_address ||
+    !cart.billing_address ||
+    !cart.email ||
+    (cart.shipping_methods?.length ?? 0) < 1
+
+  if (notReady){
+    return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
+  }
 
   return (
     <div className="bg-white">

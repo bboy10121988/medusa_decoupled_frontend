@@ -284,18 +284,35 @@ export async function initiatePaymentSession(
   cart: HttpTypes.StoreCart,
   data: HttpTypes.StoreInitializePaymentSession
 ) {
+
+
+  const action = "initiatePaymentSession"
+
+  console.log(action,"cart:",cart)
+  
+  console.log(action,"data:",data)
+  
   const headers = {
     ...(await getAuthHeaders()),
   }
 
+  console.log("執行：",action)
+
   return sdk.store.payment
     .initiatePaymentSession(cart, data, {}, headers)
     .then(async (resp) => {
+
+
+
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
       return resp
+    }).catch((e)=>{
+
+      console.log(action,"has error:",e)
+
+      medusaError(e)
     })
-    .catch(medusaError)
 }
 
 export async function applyPromotions(codes: string[]) {
