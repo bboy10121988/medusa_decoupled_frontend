@@ -87,7 +87,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   data.setCustomField3("payment_session_id")
 
-  data.setCustomField4(paymentSessionID)
+  data.setCustomField4(cart.id)
 
   const params:URLSearchParams = data.getDataParams();
   
