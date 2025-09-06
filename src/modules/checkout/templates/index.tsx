@@ -4,13 +4,13 @@ import { useSearchParams } from "next/navigation"
 import type { HttpTypes } from "@medusajs/types"
 import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
-import { listCartShippingMethods } from "@lib/data/fulfillment"
-import { listCartPaymentMethods } from "@lib/data/payment"
-import Addresses from "@modules/checkout/components/addresses"
-import Shipping from "@modules/checkout/components/shipping"
-import Payment from "@modules/checkout/components/payment"
+import { listCartShippingMethods } from "../../../lib/data/fulfillment"
+import { listCartPaymentMethods } from "../../../lib/data/payment"
+import Addresses from "../components/addresses"
+import Shipping from "../components/shipping"
+import Payment from "../components/payment"
 import OrderConfirmed from "../components/order-confirmed"
-import Review from "@modules/checkout/components/review"
+import Review from "../components/review"
 import OrderSummary from "./order-summary"
 
 type CheckoutTemplateProps = {
@@ -164,6 +164,7 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
     { id: "address", name: "配送地址", completed: false },
     { id: "delivery", name: "配送方式", completed: false },
     { id: "payment", name: "付款方式", completed: false },
+    { id: "review", name: "檢視訂單", completed: false },
     { id: "order-confirmed", name: "訂單確認", completed: false },
   ]
 
@@ -175,7 +176,8 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
   steps[0].completed = !!hasAddress
   steps[1].completed = !!(hasAddress && hasShipping)
   steps[2].completed = !!(hasAddress && hasShipping && hasPayment)
-  steps[3].completed = currentStep === "order-confirmed" // 訂單確認步驟在進入時就算完成
+  steps[3].completed = !!(hasAddress && hasShipping && hasPayment && (currentStep === "review" || currentStep === "order-confirmed"))
+  steps[4].completed = currentStep === "order-confirmed" // 訂單確認步驟在進入時就算完成
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep)
 

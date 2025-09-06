@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
+import { SettlementsData, Settlement } from '../../../../types/affiliate'
 
 const dataDir = path.join(process.cwd(), 'data')
 const settlementsPath = path.join(dataDir, 'affiliate-settlements.json')
@@ -9,21 +10,21 @@ const settingsPath = path.join(dataDir, 'affiliate-settings.json')
 export async function GET() {
   try {
     // 讀取結算數據
-    let settlements = { settlements: [] }
+    let settlements: SettlementsData = { settlements: [] }
     if (fs.existsSync(settlementsPath)) {
       const settlementsContent = fs.readFileSync(settlementsPath, 'utf8')
       settlements = JSON.parse(settlementsContent)
     }
 
     // 讀取設置數據來獲取會員名稱
-    let settings = { settings: {} }
+    let settings: { settings: Record<string, any> } = { settings: {} }
     if (fs.existsSync(settingsPath)) {
       const settingsContent = fs.readFileSync(settingsPath, 'utf8')
       settings = JSON.parse(settingsContent)
     }
 
     // 豐富結算數據
-    const enrichedSettlements = settlements.settlements.map((settlement: any) => {
+    const enrichedSettlements = settlements.settlements.map((settlement: Settlement) => {
       const affiliateSettings = settings.settings[settlement.affiliateId] || {}
       
       return {

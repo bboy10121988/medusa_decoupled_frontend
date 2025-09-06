@@ -1,6 +1,5 @@
 import { Metadata } from "next"
-import "styles/globals.css"
-import "../styles/theme-lv.css"
+import "@/styles/globals.css"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),

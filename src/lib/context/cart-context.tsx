@@ -1,7 +1,8 @@
 "use client"
 
-import { Cart } from "@/lib/types/global"
-import { createContext, useContext, useState } from "react"
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { HttpTypes } from '@medusajs/types'
+import { Cart } from "../../types/global"
 
 interface CartItem {
   variantId: string

@@ -58,3 +58,41 @@ export type AffiliateSettings = {
   }
 }
 
+export interface Settlement {
+  id: string
+  affiliateId: string
+  period: string
+  totalCommission: number
+  totalOrders: number
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  createdAt: string
+  updatedAt: string
+  processedAt?: string
+}
+
+export interface SettlementsData {
+  settlements: Settlement[]
+}
+
+export interface ClickRecord {
+  id: string
+  affiliateId: string
+  productId?: string
+  timestamp: string
+  ip?: string
+  userAgent?: string
+  referer?: string
+  customerEmail?: string
+  orderId?: string
+  commission?: number
+}
+
+export interface RecentActivity {
+  id: string
+  type: string
+  affiliateId: string
+  description: string
+  timestamp: string
+  amount?: number
+}
+

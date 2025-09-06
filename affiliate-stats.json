@@ -1,45 +1,4 @@
 {
-  "clicks": [
-    {
-      "id": "clk_1756824625918_test1",
-      "affiliateId": "aff_test",
-      "linkId": "lnk_home",
-      "timestamp": "2025-09-02T14:50:25.918Z",
-      "ip": "127.0.0.1",
-      "userAgent": "Test Browser",
-      "converted": true,
-      "conversionValue": 100,
-      "conversionTimestamp": "2025-09-02T15:20:25.918Z"
-    },
-    {
-      "id": "clk_1756824625918_test2",
-      "affiliateId": "aff_test",
-      "linkId": "lnk_products",
-      "timestamp": "2025-09-02T13:50:25.918Z",
-      "ip": "127.0.0.1",
-      "userAgent": "Test Browser",
-      "converted": false
-    },
-    {
-      "id": "clk_1756825330650_test1",
-      "affiliateId": "aff_test",
-      "linkId": "lnk_home",
-      "timestamp": "2025-09-02T15:02:10.650Z",
-      "ip": "127.0.0.1",
-      "userAgent": "Test Browser",
-      "converted": true,
-      "conversionValue": 100,
-      "conversionTimestamp": "2025-09-02T15:32:10.654Z"
-    },
-    {
-      "id": "clk_1756825330654_test2",
-      "affiliateId": "aff_test",
-      "linkId": "lnk_products",
-      "timestamp": "2025-09-02T14:02:10.654Z",
-      "ip": "127.0.0.1",
-      "userAgent": "Test Browser",
-      "converted": false
-    }
-  ],
-  "lastUpdated": "2025-09-02T15:02:10.654Z"
+  "clicks": [],
+  "lastUpdated": "2025-09-06T16:41:13.993Z"
 }

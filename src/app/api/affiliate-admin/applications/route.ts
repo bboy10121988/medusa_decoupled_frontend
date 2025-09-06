@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import path from 'path'
-import fs from 'fs'
+import * as path from 'path'
+import * as fs from 'fs'
 
 export async function GET() {
   try {

@@ -3,12 +3,12 @@ import { Text, clx } from "@medusajs/ui"
 import React, { useContext, useMemo, type JSX } from "react"
 
 import Radio from "@modules/common/components/radio"
+import PaymentTest from "@/app/(main)/[countryCode]/(checkout)/checkout/components/payment-test"
 
-import { isManual } from "@lib/constants"
+import { isManual } from "../../../../constants"
 import SkeletonCardDetails from "@modules/skeletons/components/skeleton-card-details"
 import { CardElement } from "@stripe/react-stripe-js"
 import { StripeCardElementOptions } from "@stripe/stripe-js"
-import PaymentTest from "../payment-test"
 import { StripeContext } from "../payment-wrapper/stripe-wrapper"
 
 type PaymentContainerProps = {

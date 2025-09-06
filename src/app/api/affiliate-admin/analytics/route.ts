@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
+import { 
+  AffiliateStatsData, 
+  AffiliateSettingsData, 
+  AffiliatePerformance, 
+  ProductPerformance, 
+  AnalyticsResponse 
+} from '../../../../types/affiliate-admin'
 
 const dataDir = path.join(process.cwd(), 'data')
 const statsPath = path.join(dataDir, 'affiliate-stats.json')
@@ -30,14 +37,14 @@ export async function GET(request: Request) {
     }
 
     // 讀取統計數據
-    let stats = { affiliateStats: {} }
+    let stats: AffiliateStatsData = { affiliateStats: {} }
     if (fs.existsSync(statsPath)) {
       const statsContent = fs.readFileSync(statsPath, 'utf8')
       stats = JSON.parse(statsContent)
     }
 
     // 讀取設置數據
-    let settings = { settings: {} }
+    let settings: AffiliateSettingsData = { settings: {} }
     if (fs.existsSync(settingsPath)) {
       const settingsContent = fs.readFileSync(settingsPath, 'utf8')
       settings = JSON.parse(settingsContent)
@@ -45,10 +52,10 @@ export async function GET(request: Request) {
 
     // 收集所有在時間範圍內的訂單
     const allOrders: any[] = []
-    const affiliatePerformance: { [key: string]: any } = {}
-    const productPerformance: { [key: string]: any } = {}
+    const affiliatePerformance: Record<string, AffiliatePerformance> = {}
+    const productPerformance: Record<string, ProductPerformance> = {}
 
-    Object.keys(stats.affiliateStats).forEach(affiliateId => {
+    Object.keys(stats.affiliateStats || {}).forEach(affiliateId => {
       const affiliateStats = stats.affiliateStats[affiliateId]
       const affiliateSettings = settings.settings[affiliateId] || {}
       
@@ -80,14 +87,17 @@ export async function GET(request: Request) {
         const productId = order.productId || 'unknown'
         if (!productPerformance[productId]) {
           productPerformance[productId] = {
-            productId,
-            productName: order.productName || `產品 ${productId}`,
-            orders: 0,
-            revenue: 0
+            id: productId,
+            title: order.productName || `產品 ${productId}`,
+            sales: 0,
+            revenue: 0,
+            affiliateCount: 1,
+            orders: 0
           }
         }
         productPerformance[productId].orders += 1
         productPerformance[productId].revenue += order.orderValue
+        productPerformance[productId].sales += 1
       })
     })
 

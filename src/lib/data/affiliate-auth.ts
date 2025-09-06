@@ -1,9 +1,10 @@
 "use server"
 
+import "server-only"
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getAffiliateStoreApiUrl } from '@lib/affiliate-config'
-import { getPublishableKeyForBackend } from '@lib/medusa-publishable-key'
+import { getAffiliateStoreApiUrl } from '../affiliate-config'
+import { getPublishableKeyForBackend } from '../medusa-publishable-key'
 
 type AffiliateSession = {
   id: string

@@ -174,9 +174,9 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   <div className="bg-white px-6 py-12">
                     {(product.variants?.length ?? 0) > 1 && (
                       <div className="flex flex-col gap-y-6">
-                        {(product.options || []).map((option) => {
+                        {(product.options || []).map((option, index) => {
                           return (
-                            <div key={option.id}>
+                            <div key={option.id ? `${option.id}-${option.title}` : `option-${index}-${option.title}`}>
                               <OptionSelect
                                 option={option}
                                 current={options[option.id]}

@@ -1,4 +1,4 @@
-import client from "@lib/sanity"
+import client from "../sanity"
 
 const returnPolicyQuery = `*[_type == "returnPolicy"][0]{
   title,

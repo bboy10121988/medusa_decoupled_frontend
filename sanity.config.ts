@@ -66,6 +66,9 @@ export default defineConfig({
   },
 
   schema: {
-    types: schemaTypes,
+    types: schemaTypes as any,
   },
+
+  // 暫時禁用媒體插件避免 Mux 播放器問題
+  studioHost: process.env.NODE_ENV === 'production' ? undefined : 'localhost',
 })

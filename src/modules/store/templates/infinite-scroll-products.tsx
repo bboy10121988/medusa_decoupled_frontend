@@ -3,6 +3,7 @@ import { listProducts } from "@lib/data/products"
 import { SortOptions } from "../components/refinement-list/sort-products/index"
 import { sortProducts } from "@lib/util/sort-products"
 import InfiniteProducts from "../components/infinite-products"
+import { convertToStandardProducts } from "../../../lib/util/product-type-converter"
 
 const PRODUCT_LIMIT = 12
 
@@ -46,7 +47,9 @@ export default async function InfiniteScrollProducts({
     productIds: products?.map(p => p.id)
   })
 
-  const sortedProducts = sortProducts(products, sortBy)
+  // 先排序再轉換類型
+  const sortedLocalProducts = sortProducts(products, sortBy)
+  const sortedProducts = convertToStandardProducts(sortedLocalProducts)
 
   if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Products sorted:", {
     sortBy,

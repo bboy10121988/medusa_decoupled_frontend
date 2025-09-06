@@ -1,15 +1,15 @@
 import { Suspense } from "react"
 import Image from "next/image"
 
-import { listRegions } from "@lib/data/regions"
-import { listCollections } from "@lib/data/collections"
-import { listCategories } from "@lib/data/categories"
+import { listRegions } from "../../../../lib/data/regions"
+import { listCollections } from "../../../../lib/data/collections"
+import { listCategories } from "../../../../lib/data/categories"
 import { StoreRegion } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CartButton from "@modules/layout/components/cart-button"
-import AccountButton from "@modules/layout/components/account-button"
-import CountrySelect from "@modules/layout/components/country-select"
-import { getHeader } from "@lib/sanity"
+import LocalizedClientLink from "../../../common/components/localized-client-link"
+import CartButton from "../../components/cart-button"
+import AccountButton from "../../components/account-button"
+import CountrySelect from "../../components/country-select"
+import { getHeader } from "../../../../lib/sanity"
 import { SanityHeader } from "../../../../types/global"
 import MobileMenu from "../../components/mobile-menu"
 import SearchBarClient from "../../components/search-bar-client"
@@ -219,11 +219,11 @@ export default async function Nav() {
                   className="txt-compact-xlarge-plus hover:text-ui-fg-base uppercase xsmall:text-lg"
                   data-testid="nav-store-link"
                 >
-                  {headerData?.logo ? (
+                  {headerData?.logo?.url ? (
                     <>
                       {/* Desktop Logo */}
                       <Image
-                        src={headerData.logo.url}
+                        src={headerData.logo.url!}
                         alt={headerData.logo.alt || "Store logo"}
                         width={200}
                         height={logoHeight}
@@ -235,7 +235,7 @@ export default async function Nav() {
                       />
                       {/* Mobile Logo */}
                       <Image
-                        src={headerData.logo.url}
+                        src={headerData.logo.url!}
                         alt={headerData.logo.alt || "Store logo"}
                         width={200}
                         height={headerData?.logoSize?.mobile || 28}

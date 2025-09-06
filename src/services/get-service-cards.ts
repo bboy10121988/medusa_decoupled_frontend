@@ -1,4 +1,4 @@
-import client from "@lib/sanity"
+import client from "../lib/sanity"
 
 export type ServiceCardType = {
   title: string

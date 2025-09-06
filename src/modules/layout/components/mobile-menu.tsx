@@ -5,11 +5,11 @@ import { XMarkIcon, Bars3Icon, MagnifyingGlassIcon } from "@heroicons/react/24/o
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CountrySelect from "@modules/layout/components/country-select"
-import { SanityHeader } from "../../../types/global"
+import { SanityHeader, NavigationItem } from "../../../types/global"
 
 type MobileMenuProps = {
   regions: StoreRegion[]
-  navigation?: Array<{name: string; href: string}>
+  navigation?: NavigationItem[]  // 更新為 NavigationItem[] 類型
   categories?: Array<{id: string; handle: string; name: string}>
   headerData?: SanityHeader
 }
@@ -158,7 +158,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
                 <a
                   key={uniqueKey}
                   href={href}
-                  className="block py-2 text-xs"
+                  className="block py-2 text-lg"
                   target="_blank" 
                   rel="noopener noreferrer"
                   onClick={() => setIsOpen(false)}
@@ -169,7 +169,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
                 <LocalizedClientLink
                   key={uniqueKey}
                   href={processedHref}
-                  className="block py-2 text-xs"
+                  className="block py-2 text-lg"
                   onClick={() => setIsOpen(false)}
                 >
                   {name}
@@ -186,13 +186,13 @@ export default function MobileMenu({ regions, navigation, categories, headerData
             {/* Categories */}
             {categories && categories.length > 0 && (
               <div className="pt-2 border-t">
-                <h3 className="py-2 font-medium text-xs">商品分類</h3>
+                <h3 className="py-2 font-medium">商品分類</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((category) => (
                     <LocalizedClientLink
                       key={category.id}
                       href={`/categories/${category.handle}`}
-                      className="block py-1 text-xs"
+                      className="block py-1 text-sm"
                       onClick={() => setIsOpen(false)}
                     >
                       {category.name}
@@ -206,7 +206,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
             <div className="pt-2 border-t">
               <LocalizedClientLink
                 href="/account"
-                className="block py-2 text-xs"
+                className="block py-2 text-lg"
                 onClick={() => setIsOpen(false)}
               >
                 Account

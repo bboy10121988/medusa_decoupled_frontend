@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { listProducts } from "@lib/data/products"
 import ProductPreview from "../../products/components/product-preview/index"
 import { HttpTypes } from "@medusajs/types"
+import { convertToStandardProducts } from "../../../lib/util/product-type-converter"
 
 const LIMIT = 12
 
@@ -57,7 +58,9 @@ export default function InfiniteProducts({
         },
       })
 
-      setProducts((prev) => [...prev, ...response.products])
+      // 轉換產品類型以匹配 HttpTypes.StoreProduct
+      const standardProducts = convertToStandardProducts(response.products)
+      setProducts((prev) => [...prev, ...standardProducts])
       setPageParam((prev) => prev + 1)
       setHasMore(products.length + response.products.length < totalCount)
     } catch (error) {

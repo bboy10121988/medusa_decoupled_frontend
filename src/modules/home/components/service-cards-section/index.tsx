@@ -46,7 +46,7 @@ function DesignerSelectorCard({
       <div className="h-full flex flex-col items-center justify-center p-4 md:p-8 space-y-4 md:space-y-6">
         {/* 標題 - 繼承區塊標題屬性 */}
         <div className="text-center space-y-2 md:space-y-4">
-          <h1 className="text-3xl md:text-4xl font-light text-stone-900 group-hover:text-stone-700 transition-colors duration-300 tracking-wide">
+          <h1 className="text-xl md:text-2xl font-light text-stone-900 group-hover:text-stone-700 transition-colors duration-300 tracking-wide">
             選擇設計師
           </h1>
           <p className="text-[10px] md:text-xs text-stone-500 font-light tracking-[0.2em] uppercase">
@@ -331,17 +331,17 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
       {/* 卡片內容區域 - Kitsuné 風格 */}
       <div className="p-4 md:p-8 space-y-4 md:space-y-6">
         {/* 服務標題區域 - 固定高度確保對齊 */}
-        <div className="space-y-2 md:space-y-3 min-h-[5.5rem] md:min-h-[6.5rem]">
+        <div className="space-y-2 md:space-y-3 min-h-[4.5rem] md:min-h-[5.5rem]">
           {/* 主標題和價格 - 兩欄布局 */}
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-light text-stone-900 group-hover:text-stone-700 transition-colors duration-300 tracking-wide leading-tight">
+              <h1 className="text-xl md:text-2xl font-light text-stone-900 group-hover:text-stone-700 transition-colors duration-300 tracking-wide leading-tight">
                 {card.title}
               </h1>
             </div>
             {/* 價格區域 - 右側對齊 */}
             <div className="ml-2 md:ml-4 text-right">
-              <span className="text-lg md:text-xl font-light text-stone-600 tracking-wide">
+              <span className="text-base md:text-lg font-light text-stone-600 tracking-wide">
                 {getCardPrice(card)}
               </span>
             </div>

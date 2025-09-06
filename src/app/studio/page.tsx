@@ -1,9 +1,8 @@
 "use client"
 
-import { NextStudio } from "next-sanity/studio"
-import config from "../../../sanity.config"
 import { ErrorBoundary } from "react-error-boundary"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { NextStudio } from 'next-sanity/studio'
 
 function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBoundary: () => void}) {
   return (
@@ -21,65 +20,30 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 export default function StudioPage() {
-  // 清理可能存在的 EventSource 連接
+  const [config, setConfig] = useState<any>(null)
+
   useEffect(() => {
-    // 僅開發環境過濾由中止請求引起的無害錯誤日誌（RxJS AbortError 噪音）
-    const enableNoiseFilter = process.env.NODE_ENV !== 'production'
-    const originalConsoleError = console.error
-    let handleRejection: ((e: PromiseRejectionEvent) => void) | null = null
-
-    if (enableNoiseFilter) {
-      const errorFilter = (...args: any[]) => {
-        try {
-          const text = args.map((a) => (a?.stack || a?.message || String(a))).join(" ")
-          if (text.includes('AbortError') || text.includes('signal is aborted')) {
-            // 靜音這類錯誤
-            return
-          }
-        } catch {}
-        originalConsoleError(...args)
-      }
-      console.error = errorFilter as any
-
-      handleRejection = (e: PromiseRejectionEvent) => {
-        const msg = String(e?.reason?.message || e?.reason || '')
-        if ((e?.reason?.name === 'AbortError') || msg.includes('signal is aborted')) {
-          // 阻止未處理拒絕在控制台噪音
-          e.preventDefault()
-        }
-      }
-      if (typeof window !== 'undefined') {
-        window.addEventListener('unhandledrejection', handleRejection)
-      }
-    }
-
-    // 在組件卸載時清理所有可能的連接
-    return () => {
-      // 還原 console.error / 事件監聽（僅在開發時有安裝）
-      console.error = originalConsoleError
-      if (enableNoiseFilter && typeof window !== 'undefined' && handleRejection) {
-        window.removeEventListener('unhandledrejection', handleRejection)
-      }
-      // 清理任何可能的 EventSource 連接
-      if (typeof window !== 'undefined') {
-        // 查找並關閉任何開啟的 EventSource 連接
-        const eventSources = (window as any).__sanityEventSources || []
-        eventSources.forEach((es: EventSource) => {
-          if (es.readyState !== EventSource.CLOSED) {
-            es.close()
-          }
-        })
-      }
-    }
+    console.log('Sanity Studio page loaded')
+    
+    // 動態導入配置
+    import('../../../sanity.config').then((module) => {
+      setConfig(module.default)
+    }).catch((error) => {
+      console.error('Failed to load Sanity config:', error)
+    })
   }, [])
 
+  if (!config) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <h1>載入 Sanity Studio...</h1>
+        <p>正在初始化 Studio 配置</p>
+      </div>
+    )
+  }
+
   return (
-    <ErrorBoundary 
-      FallbackComponent={ErrorFallback}
-      onError={(error) => {
-        console.error('Sanity Studio Error:', error)
-      }}
-    >
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
       <NextStudio config={config} />
     </ErrorBoundary>
   )

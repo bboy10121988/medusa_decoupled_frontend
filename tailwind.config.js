@@ -8,6 +8,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-base)'],
+        heading: ['var(--font-heading)'],
+        body: ['var(--font-base)'],
+      },
       maxWidth: {
         '8xl': '90rem',
       },
@@ -26,6 +31,15 @@ module.exports = {
       },
       fontSize: {
         'xsmall': '10px',
+        "xs": ["0.75rem", { lineHeight: "1rem" }],  // 12px
+        "sm": ["0.875rem", { lineHeight: "1.25rem" }],  // 14px
+        "base": ["1rem", { lineHeight: "1.5rem" }],     // 16px
+        "lg": ["1.125rem", { lineHeight: "1.75rem" }],  // 18px
+        "xl": ["1.25rem", { lineHeight: "1.75rem" }],   // 20px
+        "2xl": ["1.5rem", { lineHeight: "2rem" }],      // 24px
+        "3xl": ["1.875rem", { lineHeight: "2.25rem" }], // 30px
+        "4xl": ["2.25rem", { lineHeight: "2.5rem" }],   // 36px
+        "5xl": ["3rem", { lineHeight: "1.16" }],        // 48px
       },
       screens: {
         xs: '475px',
@@ -33,5 +47,87 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+    function({ addUtilities, theme }) {
+      addUtilities({
+        // 標題等級系統
+        '.h1': {
+          fontSize: theme('fontSize.2xl')[0],
+          lineHeight: theme('fontSize.2xl')[1].lineHeight,
+          fontFamily: "'Helvetica Neue', sans-serif",
+          fontWeight: '300',
+          letterSpacing: '0.2em',
+          marginBottom: theme('spacing.4'),
+          '@screen md': {
+            fontSize: '2rem',
+            lineHeight: '1.2',
+          }
+        },
+        '.h2': {
+          fontFamily: "'Noto Sans TC', sans-serif",
+          color: theme('colors.gray.600'),
+          fontSize: theme('fontSize.base')[0],
+          lineHeight: theme('fontSize.base')[1].lineHeight,
+          fontWeight: '400'
+        },
+        '.h3': {
+          fontSize: theme('fontSize.xl')[0],
+          lineHeight: theme('fontSize.xl')[1].lineHeight,
+          fontFamily: "'Helvetica Neue', sans-serif",
+          fontWeight: '400',
+          letterSpacing: '0.1em'
+        },
+        
+        // 統一容器樣式
+        '.content-container': {
+          maxWidth: theme('maxWidth.4xl'),
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          paddingLeft: theme('spacing.4'),
+          paddingRight: theme('spacing.4'),
+          '@screen md': {
+            paddingLeft: theme('spacing.8'),
+            paddingRight: theme('spacing.8'),
+          }
+        },
+        
+        '.section-container': {
+          marginBottom: theme('spacing.16'),
+          textAlign: 'center',
+          paddingLeft: theme('spacing.4'),
+          paddingRight: theme('spacing.4'),
+          '@screen md': {
+            paddingLeft: theme('spacing.8'),
+            paddingRight: theme('spacing.8'),
+          }
+        },
+        
+        // 向後相容的舊樣式類別
+        '.section-heading': {
+          fontSize: theme('fontSize.3xl')[0],
+          lineHeight: theme('fontSize.3xl')[1].lineHeight,
+          fontFamily: "'Helvetica Neue', sans-serif",
+          fontWeight: '300',
+          letterSpacing: '0.2em',
+          marginBottom: theme('spacing.4'),
+          '@screen md': {
+            fontSize: theme('fontSize.4xl')[0],
+            lineHeight: theme('fontSize.4xl')[1].lineHeight,
+          }
+        },
+        '.section-subheading': {
+          fontFamily: "'Noto Sans TC', sans-serif",
+          color: theme('colors.gray.600')
+        },
+        
+        // 文字樣式工具類
+        '.text-content': {
+          fontSize: theme('fontSize.base')[0],
+          lineHeight: theme('fontSize.base')[1].lineHeight,
+          color: theme('colors.gray.700')
+        }
+      })
+    }
+  ],
 }

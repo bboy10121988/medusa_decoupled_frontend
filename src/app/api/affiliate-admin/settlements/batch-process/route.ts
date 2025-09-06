@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
+import { SettlementsData, Settlement } from '../../../../../types/affiliate'
 
 const dataDir = path.join(process.cwd(), 'data')
 const settlementsPath = path.join(dataDir, 'affiliate-settlements.json')
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     // 讀取現有結算
-    let settlements = { settlements: [] }
+    let settlements: SettlementsData = { settlements: [] }
     if (fs.existsSync(settlementsPath)) {
       const settlementsContent = fs.readFileSync(settlementsPath, 'utf8')
       settlements = JSON.parse(settlementsContent)
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
     let failedCount = 0
 
     // 批量處理結算
-    settlements.settlements = settlements.settlements.map((settlement: any) => {
+    settlements.settlements = settlements.settlements.map((settlement: Settlement) => {
       if (settlementIds.includes(settlement.id) && settlement.status === 'pending') {
         processedCount++
         return {

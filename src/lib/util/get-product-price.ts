@@ -19,6 +19,7 @@ export const getPricesForVariant = (variant: any) => {
       currency_code: variant.calculated_price.currency_code,
     }),
     currency_code: variant.calculated_price.currency_code,
+    amount: variant.calculated_price.calculated_amount, // 新增 amount 屬性
     price_type: variant.calculated_price.calculated_price.price_list_type,
     percentage_diff: getPercentageDiff(
       variant.calculated_price.original_amount,

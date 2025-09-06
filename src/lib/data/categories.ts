@@ -1,5 +1,5 @@
-import { sdk, MEDUSA_BACKEND_URL } from "@lib/config"
-import { getPublishableKeyForBackend } from "@lib/medusa-publishable-key"
+import { sdk, MEDUSA_BACKEND_URL } from "../config"
+import { getPublishableKeyForBackend } from "../medusa-publishable-key"
 import { HttpTypes } from "@medusajs/types"
 
 type CacheOptions = {

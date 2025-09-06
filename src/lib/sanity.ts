@@ -1,7 +1,7 @@
 import { createClient } from "@sanity/client"
 import { requestDeduplicator } from "./request-deduplicator"
 import type { Footer } from './types/footer'
-import type { BlogPost, FeaturedProduct } from './types/global'
+import type { BlogPost, FeaturedProduct } from '../types/global'
 import type { MainSection } from './types/page-sections'
 import type { PageData } from './types/pages'
 import type { Category } from '../types/sanity'
@@ -732,6 +732,11 @@ export async function getFooter(): Promise<Footer | null> {
       alt
     },
     logoWidth,
+    contactInfo {
+      phone,
+      email,
+      address
+    },
     sections[] {
       title,
       links[] {
@@ -784,4 +789,5 @@ export async function getAllFooters(): Promise<Footer[]> {
   return await safeFetch(query, {}, {}, [])
 }
 
+export { client }
 export default client

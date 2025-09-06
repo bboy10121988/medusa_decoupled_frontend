@@ -1,6 +1,28 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
+
+// 類型定義
+interface AffiliateStats {
+  affiliateStats: Record<string, any>
+}
+
+interface AffiliateSettlements {
+  settlements: any[]
+}
+
+interface AffiliateSettings {
+  settings: Record<string, any>
+}
+
+interface RecentActivity {
+  id: string
+  type: string
+  affiliateId: string
+  description: string
+  timestamp: string
+  amount?: number
+}
 
 const dataDir = path.join(process.cwd(), 'data')
 const statsPath = path.join(dataDir, 'affiliate-stats.json')
@@ -10,31 +32,31 @@ const settingsPath = path.join(dataDir, 'affiliate-settings.json')
 export async function GET(request: Request) {
   try {
     // 讀取統計數據
-    let stats = { affiliateStats: {} }
+    let stats: AffiliateStats = { affiliateStats: {} }
     if (fs.existsSync(statsPath)) {
       const statsContent = fs.readFileSync(statsPath, 'utf8')
       stats = JSON.parse(statsContent)
     }
 
     // 讀取結算數據
-    let settlements = { settlements: [] }
+    let settlements: AffiliateSettlements = { settlements: [] }
     if (fs.existsSync(settlementsPath)) {
       const settlementsContent = fs.readFileSync(settlementsPath, 'utf8')
       settlements = JSON.parse(settlementsContent)
     }
 
-    // 讀取設置數據來獲取會員列表
-    let settings = { settings: {} }
+    // 讀取設定數據
+    let settings: AffiliateSettings = { settings: {} }
     if (fs.existsSync(settingsPath)) {
       const settingsContent = fs.readFileSync(settingsPath, 'utf8')
       settings = JSON.parse(settingsContent)
     }
 
     // 計算統計摘要
-    const affiliateIds = Object.keys(stats.affiliateStats)
+    const affiliateIds = Object.keys(stats.affiliateStats || {})
     const totalAffiliates = affiliateIds.length
     const activeAffiliates = affiliateIds.filter(id => {
-      const affiliateStats = stats.affiliateStats[id]
+      const affiliateStats = (stats.affiliateStats as Record<string, any>)?.[id]
       return affiliateStats?.orders?.length > 0
     }).length
     const pendingAffiliates = 0 // 需要實際的申請系統
@@ -73,7 +95,7 @@ export async function GET(request: Request) {
     })
 
     // 生成最近活動
-    const recentActivities = []
+    const recentActivities: RecentActivity[] = []
     let activityId = 1
 
     // 從訂單中生成活動

@@ -57,3 +57,6 @@ export async function getCategories(): Promise<CategoryType[]> {
     return []
   }
 }
+
+// 為了向後兼容，添加默認導出
+export default client

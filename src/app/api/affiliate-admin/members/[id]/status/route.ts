@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
 
 // 後端資料檔案路徑
 const backendDataPath = path.join('/Users/raychou/tim-web/medusa_decoupled/backend_vm/medusa-backend/src/data/affiliate.json')

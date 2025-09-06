@@ -1,8 +1,8 @@
 "use server"
 
-import { sdk, MEDUSA_BACKEND_URL } from "@lib/config"
-import { getPublishableKeyForBackend } from "@lib/medusa-publishable-key"
-import { HttpTypes } from "@medusajs/types"
+import { sdk, MEDUSA_BACKEND_URL } from "../config"
+import { getPublishableKeyForBackend } from "../medusa-publishable-key"
+import { LocalHttpTypes } from "../../types/medusa-local"
 import { getCacheOptions } from "./cookies"
 
 export const retrieveCollection = async (id: string) => {
@@ -11,7 +11,7 @@ export const retrieveCollection = async (id: string) => {
   }
 
   return sdk.client
-    .fetch<{ collection: HttpTypes.StoreCollection }>(
+    .fetch<{ collection: LocalHttpTypes.StoreCollection }>(
       `/store/collections/${id}`,
       {
         next,
@@ -23,12 +23,12 @@ export const retrieveCollection = async (id: string) => {
 
 export const listCollections = async (
   queryParams: Record<string, string> = {}
-): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
+): Promise<{ collections: LocalHttpTypes.StoreCollection[]; count: number }> => {
   queryParams.limit = queryParams.limit || "100"
   queryParams.offset = queryParams.offset || "0"
 
   return sdk.client
-    .fetch<{ collections: HttpTypes.StoreCollection[]; count: number }>(
+    .fetch<{ collections: LocalHttpTypes.StoreCollection[]; count: number }>(
       "/store/collections",
       {
         query: {
@@ -47,13 +47,13 @@ export const listCollections = async (
 
 export const getCollectionByHandle = async (
   handle: string
-): Promise<HttpTypes.StoreCollection> => {
+): Promise<LocalHttpTypes.StoreCollection> => {
   const next = {
     ...(await getCacheOptions("collections")),
   }
 
   return sdk.client
-    .fetch<HttpTypes.StoreCollectionListResponse>(`/store/collections`, {
+    .fetch<LocalHttpTypes.StoreCollectionListResponse>(`/store/collections`, {
       query: { handle, fields: "*products" },
       next,
       cache: "force-cache",

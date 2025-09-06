@@ -1,5 +1,5 @@
 import Medusa from "@medusajs/js-sdk"
-import { getPublishableKeyForBackend } from "@lib/medusa-publishable-key"
+import { getPublishableKeyForBackend } from "./medusa-publishable-key"
 
 // 網站基本配置
 export const SITE_NAME = "Your Site Name"

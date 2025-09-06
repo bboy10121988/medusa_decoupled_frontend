@@ -10,19 +10,25 @@ interface ImageConfig {
 
 interface ImageTextBlockProps {
   heading: string
+  content?: string
   image?: ImageConfig
   layout: 'imageLeft' | 'imageRight' | 'imageLeftImageRight' | 'textLeftTextRight' | 'centerText'
   leftImage?: ImageConfig
   rightImage?: ImageConfig
+  leftContent?: string
+  rightContent?: string
   hideTitle?: boolean
 }
 
 const ImageTextBlock = ({
   heading,
+  content,
   image,
   layout,
   leftImage,
   rightImage,
+  leftContent,
+  rightContent,
   hideTitle = false
 }: ImageTextBlockProps) => {
   // 檢查是否真的有標題內容
@@ -54,6 +60,9 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
+            {content && (
+              <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
+            )}
           </div>
         </div>
       )}
@@ -69,6 +78,9 @@ const ImageTextBlock = ({
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-primary">
                 {heading}
               </h2>
+            )}
+            {content && (
+              <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
             )}
           </div>
           <div className="relative aspect-[4/3] w-full overflow-hidden order-1 md:order-2 border border-white">
@@ -95,6 +107,9 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
+            {content && (
+              <div className="prose prose-lg max-w-none mx-auto" dangerouslySetInnerHTML={{ __html: content }} />
+            )}
           </div>
         </div>
       )}
@@ -109,7 +124,7 @@ const ImageTextBlock = ({
               </h2>
             </div>
           )}
-          <div className="grid md:grid-cols-2 w-full m-0 p-0 gap-0">
+          <div className="grid grid-cols-2 w-full m-0 p-0 gap-0">
             {leftImage?.url && (
               <div className="relative aspect-[4/3] w-full overflow-hidden m-0 p-0">
                 <Image
@@ -136,7 +151,31 @@ const ImageTextBlock = ({
         </div>
       )}
 
-  {/* 雙文布局已移除 */}
+      {/* 雙文布局 */}
+      {layout === 'textLeftTextRight' && (
+        <div className="w-full max-w-none">
+          {hasTitle && (
+            <div className="text-center max-w-4xl mx-auto mb-8">
+              <h2 className="h1">
+                {heading}
+              </h2>
+            </div>
+          )}
+          <div className="grid md:grid-cols-2 gap-8 px-6 md:px-12 xl:px-16 2xl:px-24">
+            {leftContent && (
+              <div className="prose prose-lg max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: leftContent }} />
+              </div>
+            )}
+            {rightContent && (
+              <div className="prose prose-lg max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: rightContent }} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

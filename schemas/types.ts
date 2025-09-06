@@ -1,4 +1,5 @@
-import { Rule, ValidationContext } from '@sanity/types'
+// Sanity Schema Types
+// These types are used across various schema definitions
 
 export interface SanityReference {
   _type: string
@@ -41,6 +42,3 @@ export interface ServiceCardSection {
   cardsPerRow: number
   cards: ServiceCard[]
 }
-
-export type SanityRule = Rule
-export type SanityValidationContext = ValidationContext

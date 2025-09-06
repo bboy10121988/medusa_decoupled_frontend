@@ -6,6 +6,11 @@ export interface Footer {
   }
   logoWidth?: number
   sections?: Section[]
+  contactInfo?: {
+    phone?: string
+    email?: string
+    address?: string
+  }
   // contactInfo 已移至 sections[].customInfo
   socialMedia?: {
     facebook?: SocialMediaItem

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { retrieveAffiliate } from '../../../../lib/data/affiliate-auth'
 import { getAllStats } from '../../../../lib/data/affiliate-stats'
+import { ClickRecord } from '../../../../types/affiliate'
 
 // 訂單類型定義
 type AffiliateOrder = {
@@ -46,18 +47,18 @@ export async function GET() {
     
     // 篩選該聯盟夥伴的已轉換點擊記錄
     const affiliateClicks = stats.clicks.filter(
-      click => click.affiliateId === session.id && click.converted && click.conversionValue
+      (click: any) => click.affiliateId === session.id && click.converted && click.conversionValue
     )
 
     // 生成訂單資料
-    const orders: AffiliateOrder[] = affiliateClicks.map(click => ({
+    const orders: AffiliateOrder[] = affiliateClicks.map((click: any) => ({
       id: `order_${click.id}`,
       clickId: click.id,
       linkId: click.linkId,
       linkName: linkNames[click.linkId] || `連結 ${click.linkId}`,
       orderValue: click.conversionValue || 0,
       commission: (click.conversionValue || 0) * 0.1, // 10% 佣金
-      customerEmail: click.customerEmail,
+      customerEmail: click.customerEmail || '',
       createdAt: click.timestamp,
       status: 'confirmed' as const,
     }))

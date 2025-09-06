@@ -5,7 +5,7 @@ import { Button } from "@medusajs/ui"
 import ErrorMessage from "../error-message"
 import { HttpTypes } from "@medusajs/types"
 import { placeOrder } from "@lib/data/cart"
-import { PaymentData } from "internal/ecpayments/paymentdata"
+import { PaymentData } from "../../../../internal/ecpayments"
 import { de, id } from "date-fns/locale"
 
 type Props = {
@@ -110,7 +110,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
       // form.submit()
 
     }catch(err:any){
-      setErrorMessage(err)
+      setErrorMessage(err.message || err)
     }
 
   }

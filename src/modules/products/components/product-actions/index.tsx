@@ -170,9 +170,9 @@ export default function ProductActions({
         <div>
           {(product.variants?.length ?? 0) > 1 && (
             <div className="flex flex-col gap-y-4">
-              {(product.options || []).map((option) => {
+              {(product.options || []).map((option, index) => {
                 return (
-                  <div key={option.id}>
+                  <div key={option.id ? `${option.id}-${option.title}` : `option-${index}-${option.title}`}>
                     <OptionSelect
                       option={option}
                       current={options[option.id]}

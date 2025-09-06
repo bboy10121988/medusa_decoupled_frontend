@@ -4,8 +4,8 @@ import { loadStripe } from "@stripe/stripe-js"
 import React from "react"
 import StripeWrapper from "./stripe-wrapper"
 import { HttpTypes } from "@medusajs/types"
-import { isStripe } from "@lib/constants"
-import EcpayCheckout from "@/components/checkout/ecpay-checkout"
+import { isStripe } from "../../../../constants"
+import EcpayCheckout from "../../../../components/checkout/ecpay-checkout"
 
 type PaymentWrapperProps = {
   cart: HttpTypes.StoreCart
@@ -29,7 +29,7 @@ const PaymentWrapper: React.FC<PaymentWrapperProps> = ({ cart, children }) => {
     return (
       <div>
         {children}
-        {cart.id && <EcpayCheckout orderId={cart.id} />}
+        {cart.id && <EcpayCheckout cart={cart} />}
       </div>
     )
   }

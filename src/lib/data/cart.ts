@@ -260,6 +260,21 @@ export async function deleteLineItem(lineId: string) {
     .catch(medusaError)
 }
 
+/**
+ * 清空整個購物車 - 當遇到支付會話衝突時的最後手段
+ */
+export async function clearCart() {
+  try {
+    removeCartId()
+    const cartCacheTag = await getCacheTag("carts")
+    revalidateTag(cartCacheTag)
+    return true
+  } catch (error: any) {
+    console.error("清空購物車失敗:", error)
+    throw new Error("清空購物車失敗")
+  }
+}
+
 export async function setShippingMethod({
   cartId,
   shippingMethodId,

@@ -1,7 +1,7 @@
 "use client"
 
 import { RadioGroup } from "@headlessui/react"
-import { isStripe as isStripeFunc, paymentInfoMap } from "@lib/constants"
+import { isStripe as isStripeFunc, paymentInfoMap } from "../../../../constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
@@ -51,7 +51,7 @@ const Payment = ({
   const isEcpayMethod = isEcpay(selectedPaymentMethod)
 
   const setPaymentMethod = async (method: string) => {
-
+    
     const action: string = "setPaymentMethod"
     
     console.log(action,"選擇支付方式：",method)

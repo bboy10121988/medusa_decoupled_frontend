@@ -11,7 +11,7 @@ import {
 import { Button, clx } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useState } from "react"
-import { StoreFreeShippingPrice } from "types/global"
+import { StoreFreeShippingPrice } from "../../../../types/global"
 
 const computeTarget = (
   cart: HttpTypes.StoreCart,
@@ -240,7 +240,7 @@ function FreeShippingPopup({
                 Only{" "}
                 <span className="text-white">
                   {convertToLocale({
-                    amount: price.target_remaining,
+                    amount: price.target_remaining || 0,  // 添加默認值處理
                     currency_code: cart.currency_code,
                   })}
                 </span>{" "}

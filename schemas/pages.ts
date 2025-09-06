@@ -1,111 +1,90 @@
-import { Rule } from '@sanity/types'
+import { defineField, defineType } from 'sanity'
 
-export default {
+export default defineType({
   name: 'pages',
   title: '動態頁面',
   type: 'document',
   icon: () => '📄',
-  groups: [
-    { name: 'content', title: '頁面內容', default: true },
-    { name: 'basic', title: '基本 SEO 設定' },
-    { name: 'social', title: '社群媒體分享' },
-    { name: 'advanced', title: '進階設定' },
-    { name: 'structured', title: '結構化資料' }
-  ],
   fields: [
-    {
+    defineField({
       name: 'title',
       title: '頁面標題',
       type: 'string',
-      description: '顯示在頁面內容區域的標題，瀏覽器分頁標題將使用SEO設定中的預設網站標題',
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().min(1).max(100).error('標題必填，且限制在 100 字元內'),
       group: 'content'
-    },
-    {
+    }),
+    defineField({
       name: 'slug',
-      title: '頁面路徑',
+      title: '網址路徑',
       type: 'slug',
       options: {
         source: 'title',
         maxLength: 96,
+        isUnique: (value, context) => context.defaultIsUnique(value, context)
       },
-      validation: (Rule: Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().error('網址路徑為必填'),
       group: 'content'
-    },
-    {
+    }),
+    defineField({
       name: 'isActive',
-      title: '啟用狀態',
+      title: '啟用頁面',
       type: 'boolean',
-      initialValue: true,
+      initialValue: false,
+      description: '勾選後此頁面才會顯示在網站上',
       group: 'content'
-    },
-    // Flattened SEO fields (moved from seoMeta into top-level fields)
-    {
-      name: 'seoTitle',
-      title: 'SEO 標題',
-      type: 'string',
-      description: '搜尋引擎顯示的標題（建議 50-60 字元）- 留空則使用頁面標題',
-      group: 'basic'
-    },
-    {
+    }),
+    defineField({
       name: 'seoDescription',
       title: 'SEO 描述',
       type: 'text',
-      description: '搜尋引擎顯示的描述（建議 140-160 字元）',
       rows: 3,
-      group: 'basic'
-    },
-    {
+      validation: (Rule) => Rule.max(160).warning('建議不超過 160 字元以獲得最佳 SEO 效果'),
+      group: 'seo'
+    }),
+    defineField({
       name: 'focusKeyword',
-      title: '目標關鍵字',
+      title: '主要關鍵字',
       type: 'string',
-      description: '此頁面主要優化的關鍵字（建議 1-3 個詞）',
-      group: 'basic'
-    },
-    {
-      name: 'seoKeywords',
+      description: '此頁面要優化的主要關鍵字',
+      group: 'seo'
+    }),
+    defineField({
+      name: 'additionalKeywords',
       title: '相關關鍵字',
       type: 'array',
       of: [{ type: 'string' }],
-      options: { layout: 'tags' },
-      description: '與頁面內容相關的關鍵字',
-      group: 'basic'
-    },
-    {
-      name: 'canonicalUrl',
-      title: '標準網址 (Canonical URL)',
-      type: 'url',
-      description: '指定此頁面的首選網址',
-      group: 'advanced'
-    },
-    {
+      description: '與此頁面相關的其他關鍵字',
+      group: 'seo'
+    }),
+    defineField({
       name: 'noIndex',
-      title: '禁止搜尋引擎索引',
+      title: '不索引此頁面',
       type: 'boolean',
       initialValue: false,
-      group: 'advanced'
-    },
-    {
-      name: 'noFollow',
-      title: '禁止跟隨連結',
-      type: 'boolean',
-      initialValue: false,
-      group: 'advanced'
-    },
-    {
+      description: '勾選後搜尋引擎將不會索引此頁面',
+      group: 'seo'
+    }),
+    defineField({
+      name: 'canonicalUrl',
+      title: '標準網址',
+      type: 'url',
+      description: '如果此頁面內容重複，請指定標準版本的網址',
+      group: 'seo'
+    }),
+    defineField({
       name: 'ogTitle',
       title: 'Facebook/社群標題',
       type: 'string',
       group: 'social'
-    },
-    {
+    }),
+    defineField({
       name: 'ogDescription',
       title: 'Facebook/社群描述',
       type: 'text',
       rows: 2,
       group: 'social'
-    },
-    {
+    }),
+    defineField({
       name: 'ogImage',
       title: '社群分享圖片',
       type: 'image',
@@ -118,8 +97,8 @@ export default {
           type: 'string'
         }
       ]
-    },
-    {
+    }),
+    defineField({
       name: 'twitterCard',
       title: 'Twitter 卡片類型',
       type: 'string',
@@ -133,15 +112,15 @@ export default {
       },
       initialValue: 'summary_large_image',
       group: 'social'
-    },
-    {
+    }),
+    defineField({
       name: 'priority',
       title: '頁面優先級',
       type: 'number',
       initialValue: 0.8,
       group: 'advanced'
-    },
-    {
+    }),
+    defineField({
       name: 'changeFrequency',
       title: '更新頻率',
       type: 'string',
@@ -156,8 +135,8 @@ export default {
       },
       initialValue: 'weekly',
       group: 'advanced'
-    },
-    {
+    }),
+    defineField({
       name: 'structuredDataType',
       title: '結構化資料類型',
       type: 'string',
@@ -171,15 +150,15 @@ export default {
       },
       initialValue: 'webpage',
       group: 'structured'
-    },
-    {
+    }),
+    defineField({
       name: 'customJsonLd',
       title: '自訂 JSON-LD',
       type: 'text',
       rows: 8,
       group: 'structured'
-    },
-    {
+    }),
+    defineField({
       name: 'mainSections',
       title: '頁面區塊',
       type: 'array',
@@ -192,9 +171,32 @@ export default {
         { type: 'contentSection' },
         { type: 'serviceCardSection' },
       ],
-      validation: (Rule: Rule) => Rule.min(1).error('至少需要一個頁面區塊'),
+      validation: (Rule) => Rule.min(1).error('至少需要一個頁面區塊'),
       group: 'content'
+    }),
+  ],
+  groups: [
+    {
+      name: 'content',
+      title: '內容',
+      default: true
     },
+    {
+      name: 'seo',
+      title: 'SEO'
+    },
+    {
+      name: 'social',
+      title: '社群分享'
+    },
+    {
+      name: 'advanced',
+      title: '進階設定'
+    },
+    {
+      name: 'structured',
+      title: '結構化資料'
+    }
   ],
   preview: {
     select: {
@@ -210,4 +212,4 @@ export default {
       }
     },
   },
-}
+})

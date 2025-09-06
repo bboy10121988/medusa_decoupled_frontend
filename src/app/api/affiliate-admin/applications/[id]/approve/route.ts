@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { retrieveAffiliateAdmin } from '@lib/data/affiliate-admin-auth'
 import { promises as fs } from 'fs'
-import path from 'path'
-import crypto from 'crypto'
+import * as path from 'path'
+import * as crypto from 'crypto'
 
 type AffiliateApplication = {
   id: string

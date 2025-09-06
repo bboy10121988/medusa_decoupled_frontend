@@ -58,7 +58,6 @@ const CheckoutItem = ({ item, currencyCode }: CheckoutItemProps) => {
                 item={item}
                 style="tight"
                 currencyCode={currencyCode}
-                className="text-sm"
               />
             </div>
           </div>
@@ -70,7 +69,6 @@ const CheckoutItem = ({ item, currencyCode }: CheckoutItemProps) => {
                 item={item}
                 style="tight"
                 currencyCode={currencyCode}
-                className="text-sm font-semibold text-gray-900"
               />
             </div>
           </div>

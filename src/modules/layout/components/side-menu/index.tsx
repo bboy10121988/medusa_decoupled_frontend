@@ -78,7 +78,6 @@ const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
                       >
                         {regions && (
                           <CountrySelect
-                            toggleState={toggleState}
                             regions={regions}
                           />
                         )}
