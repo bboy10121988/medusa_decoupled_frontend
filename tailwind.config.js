@@ -45,6 +45,28 @@ module.exports = {
         xs: '475px',
         small: '640px',  // 定義 small breakpoint
       },
+      scale: {
+        '102': '1.02',
+        '105': '1.05',
+      },
+      animation: {
+        'option-select': 'option-select 0.2s ease-out',
+        'indicator-appear': 'indicator-appear 0.15s ease-out',
+      },
+      keyframes: {
+        'option-select': {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+          '100%': { transform: 'scale(1.05)' },
+        },
+        'indicator-appear': {
+          '0%': { opacity: '0', transform: 'scale(0)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+      },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+      },
     },
   },
   plugins: [

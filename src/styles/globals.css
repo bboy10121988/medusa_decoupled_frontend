@@ -1272,6 +1272,65 @@ input[type="search"]::-webkit-search-results-decoration {
   cursor: not-allowed;
 }
 
+/* 規格選擇按鈕動畫效果 */
+@keyframes option-select {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+.option-button-selected {
+  animation: option-select 0.2s ease-out;
+}
+
+/* 規格選擇區域 */
+.product-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.product-option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-option-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.product-option-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* 選中指示器動畫 */
+@keyframes indicator-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.option-indicator {
+  animation: indicator-appear 0.15s ease-out;
+}
+
 /* 圖片畫廊 */
 .product-gallery {
   --gallery-gap: 1rem;

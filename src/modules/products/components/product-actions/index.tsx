@@ -39,6 +39,13 @@ export default function ProductActions({
     if (product.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
+      console.log("🔧 自動預選單一變體:", {
+        productTitle: product.title,
+        variantId: product.variants[0].id,
+        variantTitle: product.variants[0].title,
+        options: variantOptions,
+        calculated_price: product.variants[0].calculated_price
+      })
     }
   }, [product.variants])
 
@@ -47,10 +54,21 @@ export default function ProductActions({
       return
     }
 
-    return product.variants.find((v) => {
+    const variant = product.variants.find((v) => {
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
     })
+
+    console.log("🔍 變體選擇檢查:", {
+      productTitle: product.title,
+      totalVariants: product.variants.length,
+      currentOptions: options,
+      selectedVariantId: variant?.id,
+      selectedVariantTitle: variant?.title,
+      hasCalculatedPrice: !!(variant as any)?.calculated_price?.calculated_amount
+    })
+
+    return variant
   }, [product.variants, options])
 
   // update the options when a variant is selected
@@ -99,8 +117,21 @@ export default function ProductActions({
       return false
     }
     
-    // 檢查是否有 calculated_price
-    return !!(selectedVariant as any).calculated_price?.calculated_amount
+    // 檢查是否有 calculated_price - 支援多種價格結構
+    const variant = selectedVariant as any
+    console.log("🔍 價格檢查:", {
+      variantId: selectedVariant.id,
+      calculated_price: variant.calculated_price,
+      hasCalculatedAmount: !!(variant.calculated_price?.calculated_amount),
+      hasAmount: !!(variant.calculated_price?.amount),
+      fullVariant: variant
+    })
+    
+    return !!(
+      variant.calculated_price?.calculated_amount || 
+      variant.calculated_price?.amount ||
+      (variant.prices && variant.prices.length > 0)
+    )
   }, [selectedVariant])
 
   const actionsRef = useRef<HTMLDivElement>(null)
@@ -208,6 +239,8 @@ export default function ProductActions({
         >
           {!selectedVariant && !options
             ? "選擇規格"
+            : !selectedVariant && options
+            ? "請選擇規格"
             : !hasPrice
             ? "此地區暫無價格"
             : !inStock || !isValidVariant

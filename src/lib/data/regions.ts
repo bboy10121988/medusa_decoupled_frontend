@@ -3,7 +3,7 @@
 import { sdk, MEDUSA_BACKEND_URL } from "../config"
 import { getPublishableKeyForBackend } from "../medusa-publishable-key"
 import medusaError from "../util/medusa-error"
-import { LocalHttpTypes } from "../../types/medusa-local"
+import { HttpTypes } from "@medusajs/types"
 import { getCacheOptions } from "./cookies"
 
 export const listRegions = async () => {
@@ -12,7 +12,7 @@ export const listRegions = async () => {
   }
 
   return sdk.client
-    .fetch<{ regions: LocalHttpTypes.StoreRegion[] }>(`/store/regions`, {
+    .fetch<{ regions: HttpTypes.StoreRegion[] }>(`/store/regions`, {
       method: "GET",
       next,
       cache: "force-cache",
@@ -30,7 +30,7 @@ export const retrieveRegion = async (id: string) => {
   }
 
   return sdk.client
-    .fetch<{ region: LocalHttpTypes.StoreRegion }>(`/store/regions/${id}`, {
+    .fetch<{ region: HttpTypes.StoreRegion }>(`/store/regions/${id}`, {
       method: "GET",
       next,
       cache: "force-cache",
@@ -42,7 +42,7 @@ export const retrieveRegion = async (id: string) => {
     .catch(medusaError)
 }
 
-const regionMap = new Map<string, LocalHttpTypes.StoreRegion>()
+const regionMap = new Map<string, HttpTypes.StoreRegion>()
 
 export const getRegion = async (countryCode: string) => {
   try {
