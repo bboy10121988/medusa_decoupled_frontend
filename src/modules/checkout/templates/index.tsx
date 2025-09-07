@@ -165,7 +165,6 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
     { id: "delivery", name: "配送方式", completed: false },
     { id: "payment", name: "付款方式", completed: false },
     { id: "review", name: "檢視訂單", completed: false },
-    { id: "order-confirmed", name: "訂單確認", completed: false },
   ]
 
   // Determine completion status based on cart state
@@ -173,13 +172,14 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
   const hasShipping = !!(cart.shipping_methods && cart.shipping_methods.length > 0)
   const hasPayment = !!(cart.payment_collection?.payment_sessions && cart.payment_collection.payment_sessions.length > 0)
 
-  steps[0].completed = !!hasAddress
-  steps[1].completed = !!(hasAddress && hasShipping)
-  steps[2].completed = !!(hasAddress && hasShipping && hasPayment)
-  steps[3].completed = !!(hasAddress && hasShipping && hasPayment && (currentStep === "review" || currentStep === "order-confirmed"))
-  steps[4].completed = currentStep === "order-confirmed" // 訂單確認步驟在進入時就算完成
-
   const currentStepIndex = steps.findIndex(step => step.id === currentStep)
+
+  // 根據當前步驟和購物車狀態決定完成狀態
+  // 只有在已完成且不是當前步驟時才標記為完成
+  steps[0].completed = hasAddress && currentStepIndex > 0
+  steps[1].completed = hasAddress && hasShipping && currentStepIndex > 1
+  steps[2].completed = hasAddress && hasShipping && hasPayment && currentStepIndex > 2
+  steps[3].completed = hasAddress && hasShipping && hasPayment && currentStep === "review"
 
   return (
     <nav aria-label="結帳步驟" className="mb-8">
@@ -187,7 +187,10 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
         {steps.map((step, index) => {
           const isCurrent = step.id === currentStep
           const isCompleted = step.completed
+          // 只允許訪問當前步驟及之前的步驟（如果已完成的話）
           const isAccessible = index <= currentStepIndex || isCompleted
+          // 如果用戶返回到之前的步驟，後面的步驟不應顯示為已完成
+          const shouldShowAsCompleted = isCompleted && !isCurrent
 
           return (
             <li key={step.id} className="flex items-center">
@@ -198,13 +201,13 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
                     ${
                       isCurrent
                         ? "bg-gray-900 border-gray-900 text-white"
-                        : isCompleted
+                        : shouldShowAsCompleted
                         ? "bg-gray-900 border-gray-900 text-white"
                         : "bg-gray-200 border-gray-300 text-gray-700"
                     }
                   `}
                 >
-                  {isCompleted ? (
+                  {shouldShowAsCompleted ? (
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
@@ -222,7 +225,7 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
                     ${
                       isCurrent
                         ? "text-ui-fg-base"
-                        : isCompleted
+                        : shouldShowAsCompleted
                         ? "text-ui-fg-subtle"
                         : "text-ui-fg-muted"
                     }

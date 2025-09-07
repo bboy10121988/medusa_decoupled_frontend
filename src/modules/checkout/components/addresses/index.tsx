@@ -4,7 +4,7 @@ import { setAddresses } from "@lib/data/cart"
 import compareAddresses from "@lib/util/compare-addresses"
 import { CheckCircleSolid } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Heading, Text, useToggleState } from "@medusajs/ui"
+import { Button, Heading, Text, useToggleState } from "@medusajs/ui"
 import Divider from "@modules/common/components/divider"
 import Spinner from "@modules/common/icons/spinner"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -83,9 +83,11 @@ const Addresses = ({
                 <BillingAddress cart={cart} />
               </div>
             )}
-            <SubmitButton className="mt-6" data-testid="submit-address-button">
-              繼續選擇運送方式
-            </SubmitButton>
+            <div className="mt-6">
+              <SubmitButton className="w-full" data-testid="submit-address-button">
+                繼續選擇運送方式
+              </SubmitButton>
+            </div>
             <ErrorMessage error={message} data-testid="address-error-message" />
           </div>
         </form>

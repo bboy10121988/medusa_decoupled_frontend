@@ -197,19 +197,30 @@ const Payment = ({
             data-testid="payment-method-error-message"
           />
 
-          <Button
-            size="large"
-            className="mt-6"
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            disabled={
-              (isStripe && !cardComplete) ||
-              (!selectedPaymentMethod && !paidByGiftcard)
-            }
-            data-testid="submit-payment-button"
-          >
-            繼續檢視訂單
-          </Button>
+          <div className="flex gap-4 mt-6">
+            <Button
+              variant="secondary"
+              onClick={() => router.push(pathname + "?" + createQueryString("step", "delivery"), { scroll: false })}
+              className="flex-1"
+            >
+              上一步：修改配送方式
+            </Button>
+            <div className="flex-2">
+              <Button
+                size="large"
+                className="w-full"
+                onClick={handleSubmit}
+                isLoading={isLoading}
+                disabled={
+                  (isStripe && !cardComplete) ||
+                  (!selectedPaymentMethod && !paidByGiftcard)
+                }
+                data-testid="submit-payment-button"
+              >
+                繼續檢視訂單
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className={isOpen ? "hidden" : "block"}>

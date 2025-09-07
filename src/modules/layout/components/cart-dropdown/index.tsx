@@ -136,7 +136,11 @@ const CartDropdown = ({
                 })}
               </span>
             </div>
-            <LocalizedClientLink href="/cart" passHref>
+            <LocalizedClientLink 
+              href="/cart" 
+              passHref
+              onClick={onClose}
+            >
               <Button
                 className="w-full"
                 size="large"
