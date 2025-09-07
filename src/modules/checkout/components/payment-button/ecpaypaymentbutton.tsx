@@ -101,13 +101,13 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
     try{
 
-      const data = await placeOrder(cart.id)
+      // const data = await placeOrder(cart.id)
 
-      console.log("place order:",data)
+      // console.log("place order:",data)
 
       const form = e.target as HTMLFormElement
 
-      // form.submit()
+      form.submit()
 
     }catch(err:any){
       setErrorMessage(err.message || err)
