@@ -23,7 +23,7 @@
   --color-gray-100: #f3f4f6;
   --color-gray-200: #e5e7eb;
   --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
+  --color-gray-400: #FFFFFF;
   --color-gray-500: #6b7280;
   --color-gray-600: #4b5563;
   --color-gray-700: #374151;
@@ -677,16 +677,16 @@ input[type="search"]::-webkit-search-results-decoration {
 
 /* 跑馬燈暫停功能 */
 .hover\:animation-paused:hover {
-  animation-play-state: paused !important;
+  animation-play-state: paused ;
 }
 
 /* 支持自定義動畫播放狀態 */
 .animation-paused {
-  animation-play-state: paused !important;
+  animation-play-state: paused ;
 }
 
 .animation-running {
-  animation-play-state: running !important;
+  animation-play-state: running ;
 }
 
 /* ===== 高級動畫效果 ===== */
@@ -1249,7 +1249,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .product-option-button:hover {
-  border-color: #9ca3af;
+  border-color: #FFFFFF;
   background-color: #f9fafb;
 }
 
@@ -1268,67 +1268,8 @@ input[type="search"]::-webkit-search-results-decoration {
 .product-option-button:disabled {
   border-color: #e5e7eb;
   background-color: #f3f4f6;
-  color: #9ca3af;
+  color: #FFFFFF;
   cursor: not-allowed;
-}
-
-/* 規格選擇按鈕動畫效果 */
-@keyframes option-select {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1.05);
-  }
-}
-
-.option-button-selected {
-  animation: option-select 0.2s ease-out;
-}
-
-/* 規格選擇區域 */
-.product-options-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.product-option-group {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.product-option-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 0.5rem;
-}
-
-.product-option-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-/* 選中指示器動畫 */
-@keyframes indicator-appear {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.option-indicator {
-  animation: indicator-appear 0.15s ease-out;
 }
 
 /* 圖片畫廊 */
@@ -1453,7 +1394,7 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .btn-primary:disabled {
   background-color: #e5e7eb;
-  color: #9ca3af;
+  color: #FFFFFF;
   border-color: #e5e7eb;
   cursor: not-allowed;
 }
@@ -1474,12 +1415,12 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  border-color: #9ca3af;
+  border-color: #FFFFFF;
   background-color: #f9fafb;
 }
 
 .btn-secondary:disabled {
-  color: #9ca3af;
+  color: #FFFFFF;
   cursor: not-allowed;
 }
 
@@ -1747,13 +1688,13 @@ input[type="search"]::-webkit-search-results-decoration {
   .product-labels-container .product-label.gold-gradient-pulse,
   .product-labels-container .product-label.gold-coin-effect {
     /* 完全重置所有可能影響寬度的屬性 */
-    all: unset !important;
+    all: unset ;
     
     /* 重新設定基本樣式 */
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    border-radius: 0.375rem !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    font-size: 0.75rem ;
+    font-weight: 600 ;
+    border-radius: 0.375rem ;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) ;
     
     /* 紅金配色 - 純紅色背景漸層 */
     background: linear-gradient(135deg, 
@@ -1762,22 +1703,22 @@ input[type="search"]::-webkit-search-results-decoration {
       #DC143C 50%,    /* 深紅 */
       #CD5C5C 75%,    /* 淺紅色 */
       #8B0000 100%    /* 回到深紅色 */
-    ) !important;
-    color: #FFD700 !important; /* 金色文字 */
-    border: 2px solid #FFD700 !important; /* 金色外框 */
+    ) ;
+    color: #FFD700 ; /* 金色文字 */
+    border: 2px solid #FFD700 ; /* 金色外框 */
     
     /* 強制垂直排列且自適應寬度 */
-    display: block !important;
-    width: fit-content !important;
-    white-space: nowrap !important;
-    padding: 2px 0.75rem 2px 1rem !important; /* 增加左邊距為小點留空間 */
+    display: block ;
+    width: fit-content ;
+    white-space: nowrap ;
+    padding: 2px 0.75rem 2px 1rem ; /* 增加左邊距為小點留空間 */
     
     /* 明確設定標籤間距 */
-    margin-bottom: 4px !important;
+    margin-bottom: 4px ;
     
     /* 確保在容器中正確顯示 */
-    position: relative !important;
-    z-index: 20 !important;
+    position: relative ;
+    z-index: 20 ;
   }
 
   /* 最後一個標籤不需要下邊距 */
@@ -1785,7 +1726,7 @@ input[type="search"]::-webkit-search-results-decoration {
   .product-labels-container .product-label.gold-gradient-shine:last-child,
   .product-labels-container .product-label.gold-gradient-pulse:last-child,
   .product-labels-container .product-label.gold-coin-effect:last-child {
-    margin-bottom: 0 !important;
+    margin-bottom: 0 ;
   }
 
   /* 內線框 - 金色內框 */
@@ -1793,16 +1734,16 @@ input[type="search"]::-webkit-search-results-decoration {
   .product-labels-container .product-label.gold-gradient-shine::before,
   .product-labels-container .product-label.gold-gradient-pulse::before,
   .product-labels-container .product-label.gold-coin-effect::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 3px !important;
-    left: 3px !important;
-    right: 3px !important;
-    bottom: 3px !important;
-    border: 1px solid #FFD700 !important; /* 金色內框 */
-    border-radius: 2px !important;
-    pointer-events: none !important;
-    z-index: 1 !important;
+    content: '' ;
+    position: absolute ;
+    top: 3px ;
+    left: 3px ;
+    right: 3px ;
+    bottom: 3px ;
+    border: 1px solid #FFD700 ; /* 金色內框 */
+    border-radius: 2px ;
+    pointer-events: none ;
+    z-index: 1 ;
   }
 
   /* 左側小點裝飾 - 金色 */
@@ -1810,16 +1751,16 @@ input[type="search"]::-webkit-search-results-decoration {
   .product-labels-container .product-label.gold-gradient-shine::after,
   .product-labels-container .product-label.gold-gradient-pulse::after,
   .product-labels-container .product-label.gold-coin-effect::after {
-    content: '•' !important;
-    position: absolute !important;
-    left: 6px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    color: #FFD700 !important; /* 金色小點 */
-    font-size: 8px !important;
-    font-weight: bold !important;
-    pointer-events: none !important;
-    z-index: 3 !important; /* 確保在內線框之上 */
+    content: '•' ;
+    position: absolute ;
+    left: 6px ;
+    top: 50% ;
+    transform: translateY(-50%) ;
+    color: #FFD700 ; /* 金色小點 */
+    font-size: 8px ;
+    font-weight: bold ;
+    pointer-events: none ;
+    z-index: 3 ; /* 確保在內線框之上 */
   }
 
 /* ===== 促銷標籤樣式 ===== */
@@ -2176,7 +2117,7 @@ input[type="search"]::-webkit-search-results-decoration {
 /* ========== 頁面與導航列對齊 ========== */
 /* 確保頁面內容與sticky導航列完美貼齊 */
 .page-content-start {
-  padding-top: 0 !important;
+  padding-top: 0 ;
 }
 
 .page-header-spacing {
@@ -2720,97 +2661,97 @@ input[type="search"]::-webkit-search-results-decoration {
 
 /* Primary Button 樣式 */
 .shadow-buttons-inverted {
-  background-color: #1f2937 !important;
-  color: white !important;
-  border: 1px solid #1f2937 !important;
+  background-color: #1f2937 ;
+  color: white ;
+  border: 1px solid #1f2937 ;
 }
 
 .shadow-buttons-inverted:hover {
-  background-color: #374151 !important;
+  background-color: #374151 ;
 }
 
 .shadow-buttons-inverted:active {
-  background-color: #111827 !important;
+  background-color: #111827 ;
 }
 
 /* Secondary Button 樣式 */
 .shadow-buttons-neutral {
-  background-color: transparent !important;
-  color: #1f2937 !important;
-  border: 1px solid #d1d5db !important;
+  background-color: transparent ;
+  color: #1f2937 ;
+  border: 1px solid #d1d5db ;
 }
 
 .shadow-buttons-neutral:hover {
-  background-color: #f9fafb !important;
+  background-color: #f9fafb ;
 }
 
 /* Button Variants */
 .bg-ui-button-inverted {
-  background-color: #1f2937 !important;
+  background-color: #1f2937 ;
 }
 
 .bg-ui-button-inverted-hover {
-  background-color: #374151 !important;
+  background-color: #374151 ;
 }
 
 .bg-ui-button-inverted-pressed {
-  background-color: #111827 !important;
+  background-color: #111827 ;
 }
 
 .text-ui-contrast-fg-primary {
-  color: white !important;
+  color: white ;
 }
 
 .bg-ui-bg-disabled {
-  background-color: #f3f4f6 !important;
-  color: #9ca3af !important;
+  background-color: #f3f4f6 ;
+  color: #FFFFFF ;
 }
 
 /* 漸變效果 */
 .after\:button-inverted-gradient::after {
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%) ;
 }
 
 .after\:button-inverted-hover-gradient:hover::after {
-  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%) ;
 }
 
 .after\:button-inverted-pressed-gradient:active::after {
-  background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%) !important;
+  background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%) ;
 }
 
 /* Focus 狀態 */
 .shadow-buttons-inverted-focus:focus-visible {
-  box-shadow: 0 0 0 2px #3b82f6 !important;
+  box-shadow: 0 0 0 2px #3b82f6 ;
 }
 
 /* 確保按鈕有正確的最小寬度和高度 */
 .txt-compact-medium-plus {
-  min-height: 40px !important;
-  min-width: 120px !important;
+  min-height: 40px ;
+  min-width: 120px ;
 }
 
 /* Danger Button 樣式 */
 .bg-ui-button-danger {
-  background-color: #dc2626 !important;
-  color: white !important;
+  background-color: #dc2626 ;
+  color: white ;
 }
 
 .bg-ui-button-danger:hover {
-  background-color: #b91c1c !important;
+  background-color: #b91c1c ;
 }
 
 /* Ghost Button 樣式 */
 .bg-ui-button-transparent {
-  background-color: transparent !important;
-  color: #1f2937 !important;
+  background-color: transparent ;
+  color: #1f2937 ;
 }
 
 .bg-ui-button-transparent:hover {
-  background-color: #f3f4f6 !important;
+  background-color: #f3f4f6 ;
 }
 
 /* 確保所有按鈕都有適當的過渡效果 */
 button[class*="shadow-buttons"] {
-  transition: all 0.2s ease-in-out !important;
+  transition: all 0.2s ease-in-out ;
 }
