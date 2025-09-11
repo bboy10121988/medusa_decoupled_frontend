@@ -1,12 +1,11 @@
 'use client'
 
-import GrapesJSEditorWrapper from '@/components/grapesjs/GrapesJSEditorWrapper';
-import './grapesjs-clean.css';
+import ReactStudioEditor from '@/components/grapesjs/ReactStudioEditor';
 
 export default function StudioPage() {
   return (
-    <div className="w-full h-screen">
-      <GrapesJSEditorWrapper />
+    <div className="w-full h-screen bg-gray-100">
+      <ReactStudioEditor />
     </div>
   );
 }

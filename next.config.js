@@ -6,7 +6,7 @@ checkEnvVariables()
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false, // 暫時關閉嚴格模式以避免 React 19 警告
   logging: {
     fetches: {
       fullUrl: true,
