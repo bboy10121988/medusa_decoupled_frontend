@@ -91,6 +91,54 @@ const ReactStudioEditor: React.FC = () => {
     );
   }
 
+  const handleSave = async (editor: any) => {
+    try {
+      const pages = editor.Pages.getAll()
+      const currentPage = editor.Pages.getSelected()
+      
+      if (!currentPage) {
+        alert('請選擇要儲存的頁面')
+        return
+      }
+      
+      const pageName = currentPage.get('name') || 'untitled'
+      const pageId = pageName.toLowerCase().replace(/[^a-z0-9]/g, '_')
+      
+      // 獲取頁面的 HTML 和 CSS
+      const html = editor.getHtml()
+      const css = editor.getCss()
+      const components = currentPage.getMainComponent().toJSON()
+      const styles = editor.CssComposer.getAll().map((rule: any) => rule.toJSON())
+      
+      // 儲存到後端
+      const response = await fetch('/api/grapesjs-pages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pageId,
+          name: pageName,
+          html,
+          css,
+          components,
+          styles,
+        }),
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        alert(`頁面儲存成功！\n您可以在以下網址查看頁面：\n${window.location.origin}/${pageId}`)
+      } else {
+        alert('儲存失敗：' + result.message)
+      }
+    } catch (error) {
+      console.error('儲存頁面時發生錯誤:', error)
+      alert('儲存頁面時發生錯誤')
+    }
+  }
+
   return (
     <div style={{ 
       width: '100%', 
@@ -114,6 +162,35 @@ const ReactStudioEditor: React.FC = () => {
               ]
             },
           }
+        }}
+        onReady={(editor) => {
+          // 添加儲存命令
+          editor.Commands.add('save-page', {
+            run: () => handleSave(editor),
+          })
+          
+          // 添加儲存按鈕到工具列
+          editor.Panels.addButton('options', {
+            id: 'save-page',
+            className: 'fa fa-save',
+            command: 'save-page',
+            attributes: { title: '儲存頁面' },
+          })
+          
+          // 添加鍵盤快捷鍵 Ctrl+S
+          editor.setCustomRte({
+            actions: ['bold', 'italic', 'underline', 'strikethrough'],
+            // 重要：設定默認的 RTE
+            disable: false,
+          })
+          
+          // 監聽鍵盤事件
+          document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+              e.preventDefault()
+              handleSave(editor)
+            }
+          })
         }}
       />
     </div>
