@@ -8,7 +8,7 @@ const GrapesEditor = dynamic(() => import('@/components/grapesjs/grapes_editor')
   loading: () => <div>載入編輯器中...</div>
 });
 
-export default function StudioPage() {
+export default function StudioTestPage() {
   const handleSave = (content: string) => {
     console.log('保存的完整頁面內容:', content);
     // 這裡可以添加保存到後端的邏輯

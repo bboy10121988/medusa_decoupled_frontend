@@ -169,7 +169,7 @@
 
 /* ========== 2. 基礎文字渲染優化 ========== */
 html {
-  font-family: var(--font-base);
+  /* 移除全域字體設定，避免影響第三方組件如 GrapesJS */
   font-size: 16px;  /* 確保基礎字體大小為16px */
   line-height: var(--line-height-normal);
   
@@ -179,8 +179,7 @@ html {
   text-rendering: optimizeLegibility;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   
-  /* 顏色設定 */
-  color: #111827;  /* 近黑色，利於閱讀 */
+  /* 移除全域文字顏色設定，避免影響第三方組件如 GrapesJS */
   
   /* 字體顯示優化 */
   font-display: var(--font-display);
@@ -233,8 +232,12 @@ h6 {
   margin-bottom: 0.5rem;
 }
 
-/* 內文元素設定 - 採用部落格卡片的文字樣式 */
-p, span, div {
+/* 內文元素設定 - 限制作用範圍，避免影響第三方組件 */
+/* 移除過於廣泛的 p, span, div 選擇器，改用更具體的類別 */
+.content-text,
+.blog-content p,
+.blog-content span,
+.blog-content div {
   font-family: var(--font-base);
   font-weight: var(--font-weight-light);
   font-size: var(--font-size-base);
@@ -245,7 +248,10 @@ p, span, div {
 
 /* 響應式內文調整 */
 @media (min-width: 768px) {
-  p, span, div {
+  .content-text,
+  .blog-content p,
+  .blog-content span,
+  .blog-content div {
     font-size: var(--font-size-lg);
   }
 }

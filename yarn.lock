@@ -8308,6 +8308,46 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.5, graceful-fs@^4.2.0, graceful-fs@^4.2.11,
   resolved "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz"
   integrity sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==
 
+grapesjs-blocks-basic@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/grapesjs-blocks-basic/-/grapesjs-blocks-basic-1.0.2.tgz"
+  integrity sha512-SsPKf/CvQkZ+kABOsN01auAPHXh/2J20g0AWYF7fHR3Gw3TZLtdIxT1mk90Qzi76u/7sUYi3CTI+i3ZaTtXHRA==
+
+grapesjs-component-countdown@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/grapesjs-component-countdown/-/grapesjs-component-countdown-1.0.2.tgz"
+  integrity sha512-YEDlDY8AxUvNNHojDgOFv76jqDwo49LyFf9ES/Yrda1ou0ohQfoouxRXS+3RzDDN5NEBKkM1PggZlcbiIQfr8Q==
+
+grapesjs-custom-code@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/grapesjs-custom-code/-/grapesjs-custom-code-1.0.2.tgz"
+  integrity sha512-B8IZQyB+HjLb9HkHzQ+RVHE5Q6zqX7Ry8b+kYk8Jh7vjmPawe+/kL0pXYxYQ2bSmdaUEuq8mLngiNY+l6EFEVQ==
+
+grapesjs-plugin-forms@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.npmjs.org/grapesjs-plugin-forms/-/grapesjs-plugin-forms-2.0.6.tgz"
+  integrity sha512-4rDob01NLiJWas5JW1FCpQc/4R4oS4wc/qr7pQwjGUiDzHNPKZLix10FqUKEv7hnzPmBaR2ejBL87sMwz11Tlw==
+
+grapesjs-preset-webpage@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/grapesjs-preset-webpage/-/grapesjs-preset-webpage-1.0.3.tgz"
+  integrity sha512-C0VOKLAdhv0j1f81c6F2uk3JpJvxgXl5DeHUtDa5qGf/HZzaCmQxsvd8Re3Oh5Cah4uUCqoi9uB5FYx3hLND2w==
+
+grapesjs-tabs@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/grapesjs-tabs/-/grapesjs-tabs-1.0.6.tgz"
+  integrity sha512-Xmdte7jMvmGDHIL29t8jlGWL/oSmXOEgswmlKSaYKc7z4ZJEfF0Vr+YTfF6MZq/FFYjzk+0kOad6dnS3TDgZ5Q==
+
+grapesjs-tooltip@^0.1.8:
+  version "0.1.8"
+  resolved "https://registry.npmjs.org/grapesjs-tooltip/-/grapesjs-tooltip-0.1.8.tgz"
+  integrity sha512-8q8ck/Ri167fPCAtyXslyRQ88wWk3w6pXKEcd1va5hIy/YNierZQ7AbKkdmXwbd2mR65lJWRv8tjhFsEDE3ZoQ==
+
+grapesjs-typed@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/grapesjs-typed/-/grapesjs-typed-2.0.1.tgz"
+  integrity sha512-3Z5hATX/Zp9PkdOv94RtIzqB/n1mMUdTO5X/ZyNUMzSmGZG4CHtTmw3bIQDIkrSTWdbcqInlbFPzvzKYr4rKaw==
+
 grapesjs@^0.22.12, grapesjs@^0.22.5:
   version "0.22.12"
   resolved "https://registry.npmjs.org/grapesjs/-/grapesjs-0.22.12.tgz"
