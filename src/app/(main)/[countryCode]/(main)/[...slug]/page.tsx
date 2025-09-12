@@ -40,9 +40,17 @@ const SYSTEM_ROUTES = [
   'login-affiliate',
   'order',
   'products',
-  'regitster-affiliate',
+  'regitster-affiliate', // 保留原有的拼寫錯誤以保持一致性
   'store',
-  'test-footer'
+  'test-footer',
+  // 管理相關路由
+  'studio',
+  'grapesjs-pages',
+  'pages-manager',
+  // 其他系統路由
+  'checkout',
+  'admin',
+  'api'
 ]
 
 // 生成頁面組件
