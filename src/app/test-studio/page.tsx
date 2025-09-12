@@ -1,3 +1,5 @@
+'use client'
+
 import dynamic from 'next/dynamic'
 
 // 動態載入 SimpleStudioEditor 組件，避免 SSR 問題

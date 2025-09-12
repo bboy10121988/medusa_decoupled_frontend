@@ -1,0 +1,1 @@
+# Backup of current editor with issues for reference

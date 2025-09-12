@@ -1,14 +1,359 @@
-/* Official GrapesJS Demo Styles - Clean Version */
+/* GrapesJS with Sanity Integration Styles */
 
-body {
-  margin: 0;
+.gjs-editor-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
 }
 
+.gjs-toolbar {
+  height: 60px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.gjs-editor-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+.gjs-sidebar-left,
+.gjs-sidebar-right {
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+/* 編輯器主體樣式 */
 #gjs {
   border: none;
 }
 
+.gjs-frame {
+  border: none !important;
+}
+
 .gjs-cv-canvas {
+  background: white;
   width: 100%;
   height: 100%;
+}
+
+/* 面板按鈕樣式 */
+.panel__basic-actions button,
+.panel__devices button,
+.panel__sanity button {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0 2px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.panel__basic-actions button:hover,
+.panel__devices button:hover,
+.panel__sanity button:hover {
+  background: #f8f9fa;
+  border-color: #007bff;
+}
+
+.panel__basic-actions button.gjs-pn-active,
+.panel__devices button.gjs-pn-active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+/* 特殊按鈕樣式 */
+.btn-save-sanity {
+  background: #28a745 !important;
+  color: white !important;
+  border-color: #28a745 !important;
+}
+
+.btn-save-sanity:hover {
+  background: #218838 !important;
+  border-color: #1e7e34 !important;
+}
+
+.btn-load-sanity {
+  background: #17a2b8 !important;
+  color: white !important;
+  border-color: #17a2b8 !important;
+}
+
+.btn-load-sanity:hover {
+  background: #138496 !important;
+  border-color: #117a8b !important;
+}
+
+.btn-new-page {
+  background: #ffc107 !important;
+  color: #212529 !important;
+  border-color: #ffc107 !important;
+}
+
+.btn-new-page:hover {
+  background: #e0a800 !important;
+  border-color: #d39e00 !important;
+}
+
+/* 區塊管理器樣式 */
+#blocks-container .gjs-block {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+#blocks-container .gjs-block:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+#blocks-container .gjs-block-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #495057;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* 特徵管理器樣式 */
+#traits-container .gjs-trt-trait {
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+#traits-container .gjs-trt-trait:last-child {
+  border-bottom: none;
+}
+
+#traits-container .gjs-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 4px;
+  display: block;
+}
+
+#traits-container .gjs-field {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 13px;
+  background: white;
+}
+
+#traits-container .gjs-field:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* 樣式管理器樣式 */
+#styles-container .gjs-sm-sector {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+#styles-container .gjs-sm-title {
+  background: #f8f9fa;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+  cursor: pointer;
+  user-select: none;
+}
+
+#styles-container .gjs-sm-properties {
+  padding: 12px;
+}
+
+#styles-container .gjs-sm-property {
+  margin-bottom: 8px;
+}
+
+#styles-container .gjs-sm-label {
+  font-size: 11px;
+  color: #6c757d;
+  margin-bottom: 4px;
+  display: block;
+}
+
+#styles-container .gjs-field {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* 圖層管理器樣式 */
+#layers-container .gjs-layer {
+  padding: 4px 8px;
+  border-radius: 3px;
+  margin: 2px 0;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+
+#layers-container .gjs-layer:hover {
+  background: #f8f9fa;
+}
+
+#layers-container .gjs-layer.gjs-selected {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+#layers-container .gjs-layer-name {
+  flex: 1;
+  padding: 2px 4px;
+}
+
+/* 響應式設計 */
+@media (max-width: 1200px) {
+  .gjs-sidebar-left,
+  .gjs-sidebar-right {
+    width: 240px;
+  }
+}
+
+@media (max-width: 992px) {
+  .gjs-sidebar-left {
+    position: absolute;
+    left: -240px;
+    height: 100%;
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .gjs-sidebar-left.open {
+    left: 0;
+  }
+  
+  .gjs-sidebar-right {
+    width: 280px;
+  }
+}
+
+/* 載入動畫 */
+.loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 模態框樣式覆蓋 */
+.gjs-mdl-dialog {
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.gjs-mdl-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #343a40;
+  padding: 20px 24px 0;
+}
+
+.gjs-mdl-content {
+  padding: 20px 24px 24px;
+  color: #495057;
+}
+
+/* 自訂滾動條 */
+.gjs-sidebar-left::-webkit-scrollbar,
+.gjs-sidebar-right::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gjs-sidebar-left::-webkit-scrollbar-track,
+.gjs-sidebar-right::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.gjs-sidebar-left::-webkit-scrollbar-thumb,
+.gjs-sidebar-right::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.gjs-sidebar-left::-webkit-scrollbar-thumb:hover,
+.gjs-sidebar-right::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.gjs-page-dropdown-menu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  background: #2c2c2c !important;
+  border: 1px solid #555 !important;
+  border-radius: 4px !important;
+  min-width: 200px !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  z-index: 10000 !important;
+  display: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+.gjs-page-menu-item {
+  padding: 10px 15px !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  transition: background-color 0.2s !important;
+}
+
+.gjs-page-menu-item:hover {
+  background-color: rgba(255,255,255,0.1) !important;
+}
+
+.gjs-page-menu-item.add-page-btn {
+  color: #007bff !important;
+  border-bottom: 1px solid #555 !important;
+  font-weight: bold !important;
+}
+
+.gjs-page-dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gjs-page-dropdown-menu::-webkit-scrollbar-track {
+  background: #444;
+}
+
+.gjs-page-dropdown-menu::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 3px;
+}
+
+.gjs-page-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }
