@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import SanityGrapesJSEditor from '@/components/grapesjs/SanityGrapesJSEditor';
+import ReactStudioEditor from '@/components/grapesjs/ReactStudioEditor';
 import { client as sanityClient } from '@/sanity-client';
 
 interface GrapesJSContent {

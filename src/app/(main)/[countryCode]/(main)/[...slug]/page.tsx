@@ -55,6 +55,11 @@ const SYSTEM_ROUTES = [
 
 // 生成頁面組件
 function PageViewer({ page }: { page: GrapesJSPage }) {
+  // 移除 HTML 中的 body 標籤，避免 hydration 錯誤
+  const cleanHtml = page.html
+    .replace(/<body[^>]*>/gi, '') // 移除開始的 body 標籤（含屬性）
+    .replace(/<\/body>/gi, '')    // 移除結束的 body 標籤
+  
   return (
     <div>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -65,7 +70,7 @@ function PageViewer({ page }: { page: GrapesJSPage }) {
         }
         ${page.css}
       ` }} />
-      <div dangerouslySetInnerHTML={{ __html: page.html }} />
+      <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />
     </div>
   )
 }

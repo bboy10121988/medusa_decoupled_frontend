@@ -1,6 +1,4 @@
-const checkEnvVariables = require("./check-env-variables")
-
-checkEnvVariables()
+// 已移除 check-env-variables 檢查，因為檔案已被刪除
 
 /**
  * @type {import('next').NextConfig}
