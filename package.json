@@ -22,7 +22,6 @@
     "@fortawesome/free-brands-svg-icons": "^7.0.1",
     "@fortawesome/react-fontawesome": "^3.0.2",
     "@grapesjs/react": "^2.0.0",
-    "@grapesjs/studio-sdk": "^1.0.56",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@medusajs/icons": "^2.10.1",

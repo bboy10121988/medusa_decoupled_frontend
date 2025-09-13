@@ -1,5 +1,4 @@
 import { createClient } from '@sanity/client'
-import { getClientsFromContext } from 'sanity'
 
 // 檢查是否在客戶端環境中
 const isClient = typeof window !== 'undefined'

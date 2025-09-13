@@ -1861,14 +1861,6 @@
     react "^19.0.0"
     react-dom "^19.0.0"
 
-"@grapesjs/studio-sdk@^1.0.56":
-  version "1.0.56"
-  resolved "https://registry.npmjs.org/@grapesjs/studio-sdk/-/studio-sdk-1.0.56.tgz"
-  integrity sha512-9Po/gWg+FsJbWbTBpOE7EPZjRAwgqfJ+/7nLuD1OfhMYt+F+0ck3ErTwl7Ri9/VT9NfOGDW//3NqlNzy5p0wtA==
-  dependencies:
-    "@grapesjs/react" "^2.0.0"
-    grapesjs "^0.22.12"
-
 "@headlessui/react@^2.2.0":
   version "2.2.7"
   resolved "https://registry.npmjs.org/@headlessui/react/-/react-2.2.7.tgz"
