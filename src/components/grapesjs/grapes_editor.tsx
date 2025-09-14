@@ -348,62 +348,276 @@ const loadPages = async () => {
             
             // 創建工作區內容
             workspaceContainer.innerHTML = `
-              <div style="border-bottom: 1px solid #5a4e50; padding-bottom: 10px; margin-bottom: 15px;">
-                <h3 style="margin: 0 0 5px 0; color: #b9a5a6; font-size: 14px; font-weight: 600;">工作區</h3>
-                <p style="margin: 0; color: #8a7a7c; font-size: 12px;">客戶管理工具</p>
-              </div>
-              
-              <div style="margin-bottom: 20px;">
-                <div style="background: #5a4e50; border-radius: 4px; padding: 15px; margin-bottom: 10px;">
-                  <div style="font-size: 24px; font-weight: bold; color: #b9a5a6; text-align: center;">123</div>
-                  <div style="font-size: 11px; color: #8a7a7c; text-align: center; margin-top: 5px;">客戶編號</div>
+              <div style="
+                background: #2a2a2a;
+                border: 1px solid #5a4e50;
+                border-radius: 6px;
+                padding: 15px;
+                margin: 10px;
+                color: #e8d5d6;
+              ">
+                <h3 style="
+                  margin: 0 0 12px 0;
+                  font-size: 14px;
+                  color: #e8d5d6;
+                  border-bottom: 1px solid #5a4e50;
+                  padding-bottom: 8px;
+                ">頁面管理</h3>
+                
+                <div id="page-list-container" style="margin-bottom: 12px;">
+                  <!-- 頁面清單將在這裡動態生成 -->
                 </div>
-              </div>
-              
-              <div>
-                <button onclick="console.log('客戶資料')" style="
-                  width: 100%;
-                  background: transparent;
-                  border: 1px solid #5a4e50;
-                  color: #b9a5a6;
-                  padding: 8px 12px;
-                  border-radius: 4px;
-                  font-size: 12px;
-                  cursor: pointer;
-                  margin-bottom: 8px;
-                  transition: all 0.2s;
-                " onmouseover="this.style.background='#5a4e50'" onmouseout="this.style.background='transparent'">
-                  📋 客戶資料
-                </button>
                 
-                <button onclick="console.log('預約記錄')" style="
-                  width: 100%;
-                  background: transparent;
-                  border: 1px solid #5a4e50;
-                  color: #b9a5a6;
-                  padding: 8px 12px;
-                  border-radius: 4px;
-                  font-size: 12px;
-                  cursor: pointer;
-                  margin-bottom: 8px;
-                  transition: all 0.2s;
-                " onmouseover="this.style.background='#5a4e50'" onmouseout="this.style.background='transparent'">
-                  📅 預約記錄
-                </button>
+                <script>
+                  // 動態載入頁面清單
+                  function loadPageList() {
+                    const container = document.getElementById('page-list-container');
+                    if (!container) return;
+                    
+                    // 從 Sanity API 載入頁面列表
+                    fetch('/api/pages/list')
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success && data.pages) {
+                          let html = '';
+                          
+                          // 如果沒有頁面，顯示預設頁面
+                          if (data.pages.length === 0) {
+                            html = '<div class="no-pages" style="padding: 20px; text-align: center; color: #888; font-size: 12px;">尚無頁面，請點擊「新增」創建第一個頁面</div>';
+                          } else {
+                            // 顯示 Sanity 中的頁面
+                            data.pages.forEach(page => {
+                              const pageId = page.slug?.current || page._id;
+                              const pageName = page.title || pageId;
+                              html += '<div onclick="selectPage(\\'' + pageId + '\\', \\'' + pageName + '\\')" class="page-item" style="padding: 8px 10px; margin-bottom: 4px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #b9a5a6; display: flex; align-items: center; transition: all 0.2s ease;" onmouseover="if (this.style.backgroundColor !== \\'rgb(90, 78, 80)\\') { this.style.backgroundColor = \\'rgba(90, 78, 80, 0.3)\\'; }" onmouseout="if (this.style.backgroundColor !== \\'rgb(90, 78, 80)\\') { this.style.backgroundColor = \\'transparent\\'; }"><span style="margin-right: 8px;">📄</span><span>' + pageName + '</span><span style="margin-left: auto; font-size: 10px; color: #666;">(' + page.status + ')</span></div>';
+                            });
+                          }
+                          
+                          container.innerHTML = html;
+                          console.log('頁面清單已從 Sanity 載入:', data.pages.length + ' 個頁面');
+                        } else {
+                          throw new Error(data.error || '載入頁面列表失敗');
+                        }
+                      })
+                      .catch(error => {
+                        console.error('載入頁面清單失敗:', error);
+                        // 如果 API 載入失敗，顯示錯誤訊息
+                        container.innerHTML = '<div class="error" style="padding: 20px; text-align: center; color: #ff6b6b; font-size: 12px;">載入頁面列表失敗<br>請重新整理頁面</div>';
+                      });
+                  }
+                  
+                  // 選擇頁面函數
+                  function selectPage(pageId, pageName) {
+                    document.querySelectorAll('.page-item').forEach(item => {
+                      item.style.backgroundColor = 'transparent';
+                      item.style.fontWeight = 'normal';
+                    });
+                    event.target.closest('.page-item').style.backgroundColor = '#5a4e50';
+                    event.target.closest('.page-item').style.fontWeight = 'bold';
+                    window.selectedPageId = pageId;
+                    console.log('選中頁面:', pageName);
+                  }
+                  
+                  // 頁面載入後執行
+                  setTimeout(loadPageList, 100);
+                </script>
                 
-                <button onclick="console.log('服務歷史')" style="
-                  width: 100%;
-                  background: transparent;
-                  border: 1px solid #5a4e50;
-                  color: #b9a5a6;
-                  padding: 8px 12px;
-                  border-radius: 4px;
-                  font-size: 12px;
-                  cursor: pointer;
-                  transition: all 0.2s;
-                " onmouseover="this.style.background='#5a4e50'" onmouseout="this.style.background='transparent'">
-                  ✂️ 服務歷史
-                </button>
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                  <button onclick="
+                    // 保存當前編輯器內容到 Sanity
+                    const editor = window.grapesEditor;
+                    if (editor && window.selectedPageId) {
+                      const html = editor.getHtml();
+                      const css = editor.getCss();
+                      const components = editor.getComponents();
+                      const styles = editor.getStyles();
+                      
+                      // 創建 Sanity 文檔數據
+                      const pageData = {
+                        _type: 'grapesJSPage',
+                        title: window.selectedPageId === 'page_2' ? 'Page 2' : window.selectedPageId,
+                        slug: {
+                          current: window.selectedPageId.toLowerCase().replace(/[^a-z0-9]/g, '-')
+                        },
+                        status: 'draft',
+                        grapesHtml: html,
+                        grapesCss: css,
+                        grapesComponents: JSON.stringify(components),
+                        grapesStyles: JSON.stringify(styles)
+                      };
+                      
+                      // 發送到 Sanity API
+                      fetch('/api/pages/save', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          pageId: window.selectedPageId,
+                          pageData: pageData
+                        })
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          console.log('頁面已保存到 Sanity:', data);
+                          alert('✅ 頁面已成功保存到資料庫: ' + window.selectedPageId);
+                        } else {
+                          throw new Error(data.error || '保存失敗');
+                        }
+                      })
+                      .catch(error => {
+                        console.error('保存到 Sanity 失敗:', error);
+                        alert('❌ 保存失敗: ' + error.message);
+                      });
+                    } else if (!window.selectedPageId) {
+                      alert('請先選擇要保存的頁面');
+                    } else {
+                      alert('編輯器未初始化');
+                    }
+                  " style="
+                    flex: 1;
+                    background: #4a5c3a;
+                    border: 1px solid #6a7c5a;
+                    color: #e8f5e8;
+                    padding: 6px 10px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                  " onmouseover="this.style.background='#5a6c4a'; this.style.color='#ffffff';" onmouseout="this.style.background='#4a5c3a'; this.style.color='#e8f5e8';">
+                    💾 保存
+                  </button>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                  <button onclick="
+                    if (window.selectedPageId) {
+                      console.log('編輯頁面:', window.selectedPageId);
+                      
+                      // 從 Sanity 載入選中頁面的內容到編輯器
+                      const editor = window.grapesEditor;
+                      if (editor) {
+                        // 從 Sanity API 載入頁面數據
+                        fetch('/api/pages/load?pageId=' + encodeURIComponent(window.selectedPageId))
+                          .then(response => response.json())
+                          .then(data => {
+                            if (data.success && data.page) {
+                              const page = data.page;
+                              
+                              // 載入 HTML 和 CSS
+                              if (page.grapesHtml) {
+                                editor.setComponents(page.grapesHtml);
+                              }
+                              if (page.grapesCss) {
+                                editor.setStyle(page.grapesCss);
+                              }
+                              
+                              console.log('頁面內容已從 Sanity 載入:', window.selectedPageId);
+                              alert('✅ 頁面已從資料庫載入: ' + page.title);
+                            } else if (data.success && !data.page) {
+                              // 如果沒有找到頁面，載入空白內容
+                              editor.setComponents('<div><h1>新頁面</h1><p>開始編輯您的頁面內容...</p></div>');
+                              editor.setStyle('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }');
+                              alert('ℹ️ 載入空白頁面: ' + window.selectedPageId);
+                            } else {
+                              throw new Error(data.error || '載入失敗');
+                            }
+                          })
+                          .catch(error => {
+                            console.error('從 Sanity 載入頁面失敗:', error);
+                            alert('❌ 載入頁面失敗: ' + error.message);
+                            
+                            // 如果 API 載入失敗，載入預設內容
+                            editor.setComponents('<div><h1>新頁面</h1><p>開始編輯您的頁面內容...</p></div>');
+                            editor.setStyle('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }');
+                          });
+                      } else {
+                        alert('編輯器未準備好');
+                      }
+                    } else {
+                      alert('請先選擇一個頁面');
+                    }
+                  " style="
+                    flex: 1;
+                    background: transparent;
+                    border: 1px solid #5a4e50;
+                    color: #b9a5a6;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                  " onmouseover="this.style.background='#5a4e50'" onmouseout="this.style.background='transparent'">
+                    � 編輯
+                  </button>
+                  
+                  <button onclick="
+                    const name = prompt('新頁面名稱:');
+                    if (name && name.trim()) {
+                      const pageId = name.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+                      const slug = name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+                      
+                      // 創建新頁面數據
+                      const newPageData = {
+                        _type: 'grapesJSPage',
+                        title: name.trim(),
+                        slug: {
+                          current: slug
+                        },
+                        status: 'draft',
+                        grapesHtml: '<div><h1>' + name.trim() + '</h1><p>開始編輯您的頁面內容...</p></div>',
+                        grapesCss: 'body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }',
+                        grapesComponents: '',
+                        grapesStyles: ''
+                      };
+                      
+                      // 發送到 Sanity API
+                      fetch('/api/pages/save', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          pageId: pageId,
+                          pageData: newPageData
+                        })
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          console.log('新頁面已在 Sanity 中創建:', data);
+                          alert('✅ 新頁面已創建: ' + name.trim());
+                          
+                          // 重新載入頁面清單
+                          if (typeof loadPageList === 'function') {
+                            loadPageList();
+                          } else {
+                            window.location.reload();
+                          }
+                        } else {
+                          throw new Error(data.error || '創建失敗');
+                        }
+                      })
+                      .catch(error => {
+                        console.error('在 Sanity 中創建頁面失敗:', error);
+                        alert('❌ 創建頁面失敗: ' + error.message);
+                      });
+                    }
+                  " style="
+                    flex: 1;
+                    background: transparent;
+                    border: 1px solid #5a4e50;
+                    color: #b9a5a6;
+                    padding: 6px 10px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                  " onmouseover="this.style.background='#5a4e50'; this.style.color='#e8d5d6';" onmouseout="this.style.background='transparent'; this.style.color='#b9a5a6';">
+                    新增
+                  </button>
+                </div>
               </div>
             `
             

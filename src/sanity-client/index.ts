@@ -6,6 +6,7 @@ export const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   apiVersion: "2024-01-01",
   useCdn: false,
+  token: process.env.NEXT_PUBLIC_SANITY_TOKEN || process.env.SANITY_API_TOKEN, // 支援兩種 token 名稱
 })
 
 export async function getAllPosts(category?: string, limit: number = 50): Promise<BlogPostType[]> {

@@ -84,24 +84,19 @@ class GrapesJSPageService {
    * 獲取所有 GrapesJS 頁面列表
    */
   async getAllPages(): Promise<GrapesJSPageData[]> {
-    const query = `
-      *[_type == "grapesJSPageV2"] | order(lastModified desc) {
-        _id,
-        _type,
-        title,
-        slug,
-        description,
-        status,
-        publishedAt,
-        version,
-        lastModified,
-        seoTitle,
-        seoDescription,
-        "previewImage": ogImage.asset->url
+    try {
+      const response = await fetch('/api/pages/list')
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || '載入頁面列表失敗')
       }
-    `
-    
-    return await readClient.fetch(query)
+      
+      return result.pages || []
+    } catch (error) {
+      console.error('載入頁面列表失敗:', error)
+      throw error
+    }
   }
 
   /**
@@ -177,19 +172,9 @@ class GrapesJSPageService {
    */
   async createPage(params: SavePageParams): Promise<GrapesJSPageData> {
     try {
-      const writeClient = getWriteClient()
-      
-      // 檢查 token 配置
-      const token = process.env.NEXT_PUBLIC_SANITY_TOKEN || process.env.SANITY_API_TOKEN
-      const hasValidToken = token && token !== 'your_sanity_write_token_here' && token.length > 10
-      
-      if (!hasValidToken && typeof window !== 'undefined' && !(window as any).__sanityStudioClient) {
-        throw new Error('❌ 需要 Sanity 寫入權限。請:\n1. 前往 https://sanity.io/manage/personal/project/m7o2mv1n\n2. 創建一個具有 Editor 權限的 token\n3. 在 .env.local 中設定 NEXT_PUBLIC_SANITY_TOKEN')
-      }
-      
       const now = new Date().toISOString()
       
-      const document: Omit<GrapesJSPageData, '_id'> = {
+      const pageData = {
         _type: 'grapesJSPageV2',
         title: params.title,
         slug: {
@@ -200,8 +185,8 @@ class GrapesJSPageService {
         version: 1,
         grapesHtml: params.grapesHtml,
         grapesCss: params.grapesCss,
-        grapesComponents: JSON.stringify(params.grapesComponents),
-        grapesStyles: JSON.stringify(params.grapesStyles),
+        grapesComponents: params.grapesComponents,
+        grapesStyles: params.grapesStyles,
         homeModules: params.homeModules || [],
         seoTitle: params.seoTitle,
         seoDescription: params.seoDescription,
@@ -209,29 +194,31 @@ class GrapesJSPageService {
         customCSS: params.customCSS,
         customJS: params.customJS,
         viewport: params.viewport || 'responsive',
-        lastModified: now,
-        editHistory: [{
-          timestamp: now,
-          action: 'created',
-          editor: 'GrapesJS Editor',
-          changes: '頁面建立'
-        }]
+        createdAt: now,
+        updatedAt: now
       }
 
-      const result = await writeClient.create(document)
-      return result as unknown as GrapesJSPageData
+      const response = await fetch('/api/pages/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pageId: params.slug,
+          pageData
+        })
+      })
+
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || '創建頁面失敗')
+      }
+      
+      return result.data
     } catch (error: any) {
       console.error('創建頁面失敗:', error)
-      
-      if (error.message?.includes('Insufficient permissions') || error.message?.includes('Unauthorized')) {
-        throw new Error('❌ Sanity 寫入權限不足。請:\n1. 前往 https://sanity.io/manage/personal/project/m7o2mv1n\n2. 創建一個具有 Editor 權限的 token\n3. 在 .env.local 中設定 NEXT_PUBLIC_SANITY_TOKEN\n4. 重新啟動開發伺服器')
-      }
-      
-      if (error.message?.includes('需要 Sanity 寫入權限')) {
-        throw error // 重新拋出我們自定義的錯誤
-      }
-      
-      throw new Error('創建頁面失敗: ' + error.message)
+      throw error
     }
   }
 
