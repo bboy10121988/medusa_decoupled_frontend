@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { grapesJSPageService, type GrapesJSPageData, type SavePageParams, type UpdatePageParams } from '@/lib/services/grapesjs-page-service'
+import { grapesJSPageService, type GrapesJSPageData, type SavePageParams } from '@/lib/services/grapesjs-page-service'
 import { registerCustomComponents } from './custom-components'
+import { compressImagesInHtml, compressImage } from '@/lib/image-compression'
+import { uploadImageToSanity, getSanityImages, buildSanityImageUrl } from '@/lib/services/sanity-media-service'
 import 'grapesjs/dist/css/grapes.min.css'
 import './grapes-editor.css'
 
@@ -14,9 +16,10 @@ interface GrapesEditorProps {
   onSave?: (content: string) => void
 }
 
-export default function GrapesEditor({ onSave }: GrapesEditorProps) {
+export default function GrapesEditor({ onSave }: Readonly<GrapesEditorProps>) {
   const editorRef = useRef<HTMLDivElement>(null)
   const editorInstance = useRef<any>(null)
+  const isPageLoadedRef = useRef<boolean>(false)
   const [pages, setPages] = useState<GrapesJSPageData[]>([])
   const [currentPageId, setCurrentPageId] = useState<string>('')
   const [currentPage, setCurrentPage] = useState<GrapesJSPageData | null>(null)
@@ -50,15 +53,48 @@ const loadPages = async () => {
           setPages([newPage])
           setCurrentPage(newPage)
           setCurrentPageId(newPage._id!)
+          
+          // 設置全域變數以支援儲存功能
+          currentWorkspacePageId = newPage._id!
+          currentWorkspacePageName = newPage.title
+          
+          // 延遲更新工作區頁面列表選中狀態
+          setTimeout(() => {
+            updateWorkspacePageSelection(newPage._id!, newPage.title)
+          }, 100)
         }
       } catch (e: any) {
         console.error('創建默認頁面失敗:', e)
         alert('創建默認頁面失敗: ' + (e.message || e))
       }
     } else {
-      const firstPage = loadedPages[0]
-      setCurrentPage(firstPage)
-      setCurrentPageId(firstPage._id!)
+      // 優先查找標題為"首頁"的頁面
+      let homePage = loadedPages.find(page => 
+        page.title === '首頁' || 
+        page.slug.current === 'home' || 
+        page.title?.toLowerCase().includes('home') ||
+        page.title?.includes('首頁')
+      )
+      
+      // 如果沒有找到首頁，則使用第一個頁面
+      if (!homePage) {
+        homePage = loadedPages[0]
+        console.log('未找到首頁，使用第一個頁面:', homePage.title)
+      } else {
+        console.log('找到首頁，載入頁面:', homePage.title)
+      }
+      
+      setCurrentPage(homePage)
+      setCurrentPageId(homePage._id!)
+      
+      // 設置全域變數以支援儲存功能
+      currentWorkspacePageId = homePage._id!
+      currentWorkspacePageName = homePage.title
+      
+      // 延遲更新工作區頁面列表選中狀態
+      setTimeout(() => {
+        updateWorkspacePageSelection(homePage._id!, homePage.title)
+      }, 100)
     }
   } catch (error) {
     console.error('載入頁面失敗:', error)
@@ -67,23 +103,61 @@ const loadPages = async () => {
   }
 }
 
+// 更新工作區頁面列表選中狀態的函數
+const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
+  try {
+    const allPageItems = document.querySelectorAll('#workspace-page-list > div')
+    allPageItems.forEach(item => {
+      item.classList.remove('selected')
+      ;(item as HTMLElement).style.backgroundColor = 'transparent'
+    })
+    
+    // 找到對應的頁面項目並設為選中
+    const targetPageItem = Array.from(allPageItems).find(item => {
+      const onclick = (item as HTMLElement).getAttribute('onclick')
+      return onclick && onclick.includes(pageId)
+    })
+    
+    if (targetPageItem) {
+      targetPageItem.classList.add('selected')
+      ;(targetPageItem as HTMLElement).style.backgroundColor = 'rgb(90, 78, 80)'
+      console.log('工作區頁面列表已同步選中:', pageTitle)
+    }
+  } catch (error) {
+    console.warn('更新工作區頁面選中狀態失敗:', error)
+  }
+}
+
   // 載入頁面內容到編輯器
   const loadPageToEditor = async (pageId: string, editor: any) => {
     try {
       const pageData = await grapesJSPageService.getPageById(pageId)
       if (pageData) {
-        setCurrentPage(pageData)
+        console.log('🔄 載入頁面數據:', {
+          title: pageData.title,
+          htmlLength: pageData.grapesHtml?.length || 0,
+          cssLength: pageData.grapesCss?.length || 0,
+          hasComponents: !!pageData.grapesComponents,
+          hasStyles: !!pageData.grapesStyles
+        })
         
-        editor.setComponents(pageData.grapesHtml || '')
-        editor.setStyle(pageData.grapesCss || '')
+        // 清空編輯器內容防止累積
+        editor.setComponents('')
+        editor.setStyle('')
         
-        if (pageData.grapesComponents) {
+        // 如果有結構化的組件和樣式數據，優先使用
+        if (pageData.grapesComponents || pageData.grapesStyles) {
           const projectData: any = {
             assets: [],
             styles: [],
-            pages: []
+            pages: [{
+              frames: [{
+                component: []
+              }]
+            }]
           }
 
+          // 載入樣式
           if (pageData.grapesStyles) {
             try {
               projectData.styles = typeof pageData.grapesStyles === 'string' 
@@ -94,27 +168,30 @@ const loadPages = async () => {
             }
           }
 
-          try {
-            const components = typeof pageData.grapesComponents === 'string'
-              ? JSON.parse(pageData.grapesComponents)
-              : pageData.grapesComponents
-            
-            projectData.pages = [{
-              frames: [{
-                component: components
-              }]
-            }]
-          } catch (e) {
-            console.warn('Failed to parse grapesComponents:', e)
+          // 載入組件
+          if (pageData.grapesComponents) {
+            try {
+              const components = typeof pageData.grapesComponents === 'string'
+                ? JSON.parse(pageData.grapesComponents)
+                : pageData.grapesComponents
+              
+              projectData.pages[0].frames[0].component = components
+            } catch (e) {
+              console.warn('Failed to parse grapesComponents:', e)
+            }
           }
 
           editor.loadProjectData(projectData)
+        } else {
+          // 如果沒有結構化數據，使用 HTML/CSS
+          editor.setComponents(pageData.grapesHtml || '')
+          editor.setStyle(pageData.grapesCss || '')
         }
         
-        console.log('頁面載入成功:', pageData.title)
+        console.log('✅ 頁面載入成功:', pageData.title)
       }
     } catch (error) {
-      console.error('載入頁面到編輯器失敗:', error)
+      console.error('❌ 載入頁面到編輯器失敗:', error)
     }
   }
 
@@ -132,62 +209,150 @@ const loadPages = async () => {
       const styleManager = editor.StyleManager
       const styles = styleManager ? styleManager.getAll().map((style: any) => style.toJSON()) : []
       
+      // 清理和優化數據
+      const cleanedComponents = JSON.stringify(components, null, 0) // 移除格式化空格
+      const cleanedStyles = JSON.stringify(styles, null, 0)
+      
+      // 移除 HTML 中的多餘空格和換行
+      let cleanedHtml = html.replace(/\s+/g, ' ').trim()
+      const cleanedCss = css.replace(/\s+/g, ' ').trim()
+      
+      // 壓縮圖片以減少數據大小
+      try {
+        console.log('🖼️ 開始壓縮圖片...')
+        const compressedHtml = await compressImagesInHtml(cleanedHtml)
+        cleanedHtml = compressedHtml
+        console.log('✅ 圖片壓縮完成')
+      } catch (error) {
+        console.warn('⚠️ 圖片壓縮失敗，使用原始 HTML:', error)
+        // 繼續使用原始 HTML，但會在後面的大小檢查中被攔截
+      }
+      
       console.log('準備保存的數據:', {
-        html: html.length + ' 字符',
-        css: css.length + ' 字符', 
-        components: components.length + ' 個組件',
-        styles: styles.length + ' 個樣式'
+        html: `${cleanedHtml.length} 字符 (原: ${html.length})`,
+        css: `${cleanedCss.length} 字符 (原: ${css.length})`, 
+        components: `${cleanedComponents.length} 字符`,
+        styles: `${cleanedStyles.length} 字符`
       })
 
       // 檢查是否有當前頁面狀態
       let targetPageId = currentPageId
       
-      // 如果沒有當前頁面狀態，從工作區獲取選中的頁面
-      if (!targetPageId && currentWorkspacePageId) {
-        targetPageId = currentWorkspacePageId
-        console.log('使用工作區選中的頁面:', currentWorkspacePageName)
+      // 如果沒有當前頁面狀態，從工作區獲取選中的頁面（包括全域變數）
+      if (!targetPageId) {
+        const workspacePageId = (window as any).currentWorkspacePageId || currentWorkspacePageId
+        if (workspacePageId) {
+          targetPageId = workspacePageId
+          const workspacePageName = (window as any).currentWorkspacePageName || currentWorkspacePageName
+          console.log('使用工作區選中的頁面:', workspacePageName, 'ID:', workspacePageId)
+        }
       }
       
       if (!targetPageId) {
         // 如果仍然沒有目標頁面，提示用戶先選擇頁面
+        console.error('❌ 沒有找到要保存的頁面 ID')
         alert('請先在工作區選擇要保存的頁面')
         return false
+      }
+
+      // 獲取正確的 slug
+      let pageSlug = 'home' // 預設值
+      if (currentPage?.slug?.current) {
+        pageSlug = currentPage.slug.current
+      } else {
+        const workspacePageName = (window as any).currentWorkspacePageName || currentWorkspacePageName
+        if (workspacePageName) {
+          // 如果有工作區頁面名稱，將其轉換為 slug 格式
+          pageSlug = workspacePageName.toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9-]/g, '')
+        }
       }
 
       // 使用 API 正確的參數格式保存
       const savePayload = {
         pageId: targetPageId,
         pageData: {
-          _type: "grapesJSPageV2",
+          _type: 'grapesJSPageV2',
+          title: currentPage?.title || (window as any).currentWorkspacePageName || currentWorkspacePageName || '未命名頁面',
           slug: {
-            _type: "slug",
-            current: targetPageId
+            current: pageSlug,
+            _type: 'slug'
           },
-          pageName: currentWorkspacePageName || `頁面-${targetPageId}`,
-          grapesHtml: html,
-          grapesCss: css,
-          grapesComponents: JSON.stringify(components),
-          grapesStyles: JSON.stringify(styles)
+          status: 'draft',
+          grapesHtml: cleanedHtml,
+          grapesCss: cleanedCss,
+          grapesComponents: cleanedComponents,
+          grapesStyles: cleanedStyles
         }
       }
       
-      console.log('正在保存到 API...', savePayload)
-      
-      const response = await fetch('/api/pages/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(savePayload)
+      console.log('正在保存到 API...', {
+        pageId: targetPageId,
+        slug: pageSlug,
+        htmlLength: html.length,
+        cssLength: css.length
       })
       
-      const result = await response.json()
+      // 檢查數據大小，防止超過 Sanity 限制（4MB）
+      const jsonString = JSON.stringify(savePayload)
+      const dataSizeInBytes = new Blob([jsonString]).size
+      const dataSizeInMB = dataSizeInBytes / (1024 * 1024)
       
-      if (result.success) {
-        console.log('✅ 頁面保存成功!')
+      console.log(`📊 數據大小: ${dataSizeInMB.toFixed(2)} MB`)
+      
+      if (dataSizeInMB > 3.8) { // 留點緩衝空間
+        const error = `數據太大無法保存 (${dataSizeInMB.toFixed(2)} MB)，Sanity 限制為 4MB`
+        console.error('❌', error)
         
-        // 重新載入頁面列表
-        await loadPages()
+        // 提供用戶友好的建議
+        const suggestions = [
+          '• 刪除一些不必要的圖片',
+          '• 減少頁面內容的複雜度', 
+          '• 刪除未使用的組件或樣式',
+          '• 將大圖片分離到外部存儲'
+        ].join('\n')
+        
+        alert(`❌ 頁面數據過大，無法保存！\n\n當前大小: ${dataSizeInMB.toFixed(2)} MB\nSanity 限制: 4 MB\n\n建議解決方案:\n${suggestions}`)
+        throw new Error(error)
+      }
+      
+      // 添加更詳細的錯誤處理
+      let response, result
+      try {
+        response = await fetch('/api/pages/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(savePayload)
+        })
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        result = await response.json()
+      } catch (fetchError) {
+        console.error('❌ Fetch 錯誤詳細信息:', fetchError)
+        console.error('請求數據:', savePayload)
+        throw new Error(`網絡請求失敗: ${fetchError instanceof Error ? fetchError.message : '未知錯誤'}`)
+      }
+      
+      console.log('API 響應:', result)
+      
+      if (response.ok && result.success) {
+        console.log('✅ 頁面保存成功!', result.message || '')
+        
+        // 不要重新載入頁面列表，避免重置編輯器內容
+        // await loadPages()
+        
+        // 僅更新工作區頁面列表顯示（如果需要的話）
+        const workspaceContainer = document.querySelector('#workspace-page-list')
+        if (workspaceContainer) {
+          // 可以在這裡更新特定頁面的狀態指示器，而不是重新載入整個列表
+          console.log('頁面列表更新已跳過，保持編輯器狀態')
+        }
         
         if (onSave) {
           onSave(html)
@@ -195,7 +360,7 @@ const loadPages = async () => {
         
         return true
       } else {
-        throw new Error(result.error || '保存失敗')
+        throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`)
       }
       
     } catch (error) {
@@ -204,10 +369,44 @@ const loadPages = async () => {
     }
   }
 
-  // 初始載入頁面列表
   useEffect(() => {
     loadPages()
   }, [])
+
+  // 監聽工作區頁面變更事件
+  useEffect(() => {
+    const handleWorkspacePageChange = (event: any) => {
+      const { pageId, pageName } = event.detail
+      console.log('🔄 工作區頁面已變更:', pageName, 'ID:', pageId)
+      
+      // 重置頁面載入標記，允許載入新頁面
+      isPageLoadedRef.current = false
+      
+      // 更新當前頁面信息，用於自動保存
+      currentWorkspacePageId = pageId
+      currentWorkspacePageName = pageName
+      
+      // 根據頁面 ID 找到對應的頁面數據
+      const foundPage = pages.find(p => 
+        p._id === pageId || 
+        p.slug?.current === pageId || 
+        p.title === pageName
+      )
+      
+      if (foundPage) {
+        setCurrentPage(foundPage)
+        setCurrentPageId(foundPage._id!)
+        console.log('📄 更新當前頁面狀態:', foundPage.title)
+      }
+      
+    }
+
+    window.addEventListener('workspacePageChange', handleWorkspacePageChange)
+    
+    return () => {
+      window.removeEventListener('workspacePageChange', handleWorkspacePageChange)
+    }
+  }, [pages]) // 依賴 pages 以確保能找到正確的頁面數據
 
   useEffect(() => {
     if (!editorRef.current || editorInstance.current || isLoading) return
@@ -264,6 +463,59 @@ const loadPages = async () => {
           
           storageManager: {
             type: 'none'
+          },
+
+          assetManager: {
+            assets: [], // 初始為空，稍後通過命令載入
+            upload: '/api/upload', // Sanity 上傳 API 端點
+            uploadFile: async function(e: any) {
+              const files = e.dataTransfer ? e.dataTransfer.files : e.target.files
+              const uploadedImages: any[] = []
+              
+              for (let i = 0; i < files.length; i++) {
+                const file = files[i]
+                if (file.type.startsWith('image/')) {
+                  try {
+                    console.log(`🖼️ AssetManager 處理上傳圖片: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
+                    
+                    // 壓縮圖片
+                    const compressedDataUrl = await compressImage(file, {
+                      maxWidth: 1200,
+                      maxHeight: 800,
+                      quality: 0.8,
+                      maxSizeKB: 500
+                    })
+                    
+                    // 將壓縮後的 base64 轉換回 File 對象
+                    const response = await fetch(compressedDataUrl)
+                    const blob = await response.blob()
+                    const compressedFile = new File([blob], file.name, { type: 'image/jpeg' })
+                    
+                    console.log(`✅ 圖片壓縮完成: ${file.name} (${(file.size / 1024).toFixed(1)}KB → ${(compressedFile.size / 1024).toFixed(1)}KB)`)
+                    
+                    // 上傳到 Sanity
+                    const uploadedImage = await uploadImageToSanity(compressedFile)
+                    
+                    if (uploadedImage) {
+                      const imageUrl = buildSanityImageUrl(uploadedImage, 1200, 800, 90)
+                      uploadedImages.push({
+                        type: 'image',
+                        src: imageUrl,
+                        height: uploadedImage.metadata.dimensions.height,
+                        width: uploadedImage.metadata.dimensions.width
+                      })
+                      console.log(`✅ 圖片已上傳到 Sanity: ${file.name}`)
+                    } else {
+                      console.error(`❌ 上傳到 Sanity 失敗: ${file.name}`)
+                    }
+                  } catch (error) {
+                    console.error(`❌ 處理圖片失敗: ${file.name}`, error)
+                  }
+                }
+              }
+              
+              return uploadedImages
+            }
           },
 
           deviceManager: {
@@ -331,9 +583,127 @@ const loadPages = async () => {
         // 註冊自定義組件
         registerCustomComponents(editor)
 
+        // 載入 Sanity 圖片到 AssetManager
+        const loadSanityImages = async () => {
+          try {
+            const images = await getSanityImages()
+            const assetManager = editor.AssetManager
+            
+            // 清空現有的 assets 並添加 Sanity 圖片
+            const sanityAssets = images.map(img => ({
+              type: 'image',
+              src: buildSanityImageUrl(img, 800, 600, 80),
+              height: Math.min(img.metadata.dimensions.height, 150),
+              width: Math.min(img.metadata.dimensions.width, 150),
+              name: img.originalFilename || 'Sanity Image'
+            }))
+            
+            assetManager.getAll().reset(sanityAssets)
+            console.log(`✅ 載入了 ${images.length} 張 Sanity 圖片到 AssetManager`)
+          } catch (error) {
+            console.error('載入 Sanity 圖片失敗:', error)
+          }
+        }
+
+        // 編輯器載入完成後載入 Sanity 圖片
+        editor.on('load', loadSanityImages)
+
+        // 修改默認 Image 組件設定 - 讓圖片填滿容器寬度
+        editor.DomComponents.addType('image', {
+          isComponent: el => {
+            if (el.tagName == 'IMG') {
+              return {type: 'image'}
+            }
+          },
+          model: {
+            defaults: {
+              tagName: 'img',
+              draggable: '*',
+              droppable: false,
+              resizable: {
+                ratioDefault: 1, // 保持比例
+                minDim: 32, // 最小尺寸
+                currentUnit: 1,
+                step: 0.2,
+                keyHeight: 'height',
+                keyWidth: 'width',
+                keepAutoHeight: 1,
+                keepAutoWidth: 1,
+              },
+              style: {
+                width: '100%', // 預設填滿容器寬度
+                height: 'auto', // 自動高度保持比例
+                'object-fit': 'cover', // 填充方式
+                display: 'block'
+              },
+              attributes: {
+                src: 'https://via.placeholder.com/400x300/cccccc/969696?text=Image',
+                alt: 'Image'
+              },
+              traits: [
+                {
+                  type: 'text',
+                  name: 'alt',
+                  label: '替代文字'
+                },
+                {
+                  type: 'text', 
+                  name: 'title',
+                  label: '標題'
+                },
+                {
+                  type: 'select',
+                  name: 'object-fit',
+                  label: '填充方式',
+                  options: [
+                    {id: 'cover', value: 'cover', name: '覆蓋 (裁切填滿)'},
+                    {id: 'contain', value: 'contain', name: '包含 (完整顯示)'},
+                    {id: 'fill', value: 'fill', name: '拉伸填滿'},
+                    {id: 'none', value: 'none', name: '原始尺寸'},
+                    {id: 'scale-down', value: 'scale-down', name: '縮小顯示'}
+                  ]
+                }
+              ]
+            }
+          },
+          extend: 'image'
+        })
+
+        // 添加全局 CSS 規則來確保圖片填滿容器
+        editor.setStyle(`
+          /* 確保所有圖片都填滿其容器 */
+          img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+          }
+          
+          /* 圖片容器樣式 */
+          [data-gjs-type="image"] {
+            width: 100%;
+            height: auto;
+          }
+          
+          /* 響應式圖片 */
+          .responsive-image {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            object-fit: cover;
+          }
+        `)
+
         // 確保工具欄功能啟用
         editor.on('load', () => {
           console.log('GrapesJS 載入完成，工具欄功能應該已啟用')
+          
+          // 在編輯器載入完成後，自動加載 home 頁面（如果還沒載入過）
+          if (currentPage && currentPageId && !isPageLoadedRef.current) {
+            console.log('🏠 自動載入 home 頁面:', currentPage.title)
+            loadPageToEditor(currentPageId, editor)
+            isPageLoadedRef.current = true
+          }
         })
 
         // 監聽組件選擇事件以調試工具欄
@@ -1025,8 +1395,7 @@ const loadPages = async () => {
         
         // 工作區全局變數
         let isWorkspaceLoading = false
-        let currentWorkspacePageId: string | null = null
-        let currentWorkspacePageName: string | null = null
+        // 注意：currentWorkspacePageId 和 currentWorkspacePageName 已在組件頂部定義
         
         // 選擇工作區頁面函數
         async function selectWorkspacePage(pageId: string, pageName: string, clickedElement: HTMLElement, editor: any) {
@@ -1141,11 +1510,35 @@ const loadPages = async () => {
         
         editor.Commands.add('save-content', {
           run: async (editor: any) => {
-            const success = await saveCurrentPage(editor)
-            if (success) {
-              alert('頁面已保存成功！')
-            } else {
-              alert('保存失敗，請重試。')
+            console.log('💾 儲存命令被觸發')
+            console.log('當前頁面狀態:', {
+              currentPageId,
+              currentWorkspacePageId,
+              currentWorkspacePageName,
+              currentPage: currentPage?.title
+            })
+            
+            // 先檢查編輯器和頁面狀態
+            if (!editor) {
+              alert('編輯器未初始化')
+              return
+            }
+            
+            if (!currentPageId && !currentWorkspacePageId && !(window as any).currentWorkspacePageId) {
+              alert('請先選擇要保存的頁面')
+              return
+            }
+            
+            try {
+              const success = await saveCurrentPage(editor)
+              if (success) {
+                alert('頁面已保存成功！')
+              } else {
+                alert('保存失敗，請重試。')
+              }
+            } catch (error) {
+              console.error('保存過程中出現錯誤:', error)
+              alert(`保存失敗: ${error instanceof Error ? error.message : '未知錯誤'}`)
             }
           }
         })
@@ -1233,6 +1626,9 @@ const loadPages = async () => {
                             data.pages.forEach(page => {
                               const pageId = page.slug?.current || page._id;
                               const pageName = page.title || pageId;
+                              
+                              const pageSlug = page.slug?.current || pageId;
+                              
                               html += '<div onclick="selectPage(\\'' + pageId + '\\', \\'' + pageName + '\\')" class="page-item" style="padding: 8px 10px; margin-bottom: 4px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #b9a5a6; display: flex; align-items: center; transition: all 0.2s ease;" onmouseover="if (this.style.backgroundColor !== \\'rgb(90, 78, 80)\\') { this.style.backgroundColor = \\'rgba(90, 78, 80, 0.3)\\'; }" onmouseout="if (this.style.backgroundColor !== \\'rgb(90, 78, 80)\\') { this.style.backgroundColor = \\'transparent\\'; }"><span style="margin-right: 8px;">📄</span><span>' + pageName + '</span><span style="margin-left: auto; font-size: 10px; color: #666;">(' + page.status + ')</span></div>';
                             });
                           }
@@ -1259,7 +1655,18 @@ const loadPages = async () => {
                     event.target.closest('.page-item').style.backgroundColor = '#5a4e50';
                     event.target.closest('.page-item').style.fontWeight = 'bold';
                     window.selectedPageId = pageId;
-                    console.log('選中頁面:', pageName);
+                    
+                    // 設置當前工作區頁面信息，供保存功能使用
+                    window.currentWorkspacePageId = pageId;
+                    window.currentWorkspacePageName = pageName;
+                    
+                    // 通過自定義事件通知 React 組件更新狀態
+                    const pageChangeEvent = new CustomEvent('workspacePageChange', {
+                      detail: { pageId, pageName }
+                    });
+                    window.dispatchEvent(pageChangeEvent);
+                    
+                    console.log('選中頁面:', pageName, 'ID:', pageId);
                   }
                   
                   // 頁面載入後執行
@@ -1533,6 +1940,15 @@ const loadPages = async () => {
       }
     }
   }, [onSave, isLoading, pages.length])
+
+  // 當currentPage和編輯器都準備好時，載入頁面內容
+  useEffect(() => {
+    if (editorInstance.current && currentPage && currentPageId && !isLoading && !isPageLoadedRef.current) {
+      console.log('🔄 載入當前頁面到編輯器:', currentPage.title)
+      loadPageToEditor(currentPageId, editorInstance.current)
+      isPageLoadedRef.current = true
+    }
+  }, [currentPage, currentPageId, isLoading])
 
   if (isLoading) {
     return (

@@ -1,9 +1,10 @@
-/**
+對/**
  * 自定義 GrapesJS 圖片選擇器
  * 整合 Sanity 媒體庫功能
  */
 
 import { getSanityImages, uploadImageToSanity, buildSanityImageUrl, type SanityImage } from '@/lib/services/sanity-media-service'
+import { compressImage } from '@/lib/image-compression'
 
 export interface ImagePickerOptions {
   onSelect: (imageUrl: string) => void
@@ -163,6 +164,31 @@ export class SanityImagePicker {
     if (progressEl) progressEl.style.display = 'block'
 
     try {
+      console.log(`🖼️ 開始處理上傳圖片: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
+      
+      // 壓縮圖片
+      let fileToUpload: File = file
+      if (file.type.startsWith('image/')) {
+        try {
+          const compressedDataUrl = await compressImage(file, {
+            maxWidth: 1200,
+            maxHeight: 800,
+            quality: 0.8,
+            maxSizeKB: 500 // 限制為 500KB
+          })
+          
+          // 將壓縮後的 base64 轉換回 File 對象
+          const response = await fetch(compressedDataUrl)
+          const blob = await response.blob()
+          fileToUpload = new File([blob], file.name, { type: 'image/jpeg' })
+          
+          console.log(`✅ 圖片壓縮完成: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(fileToUpload.size / 1024 / 1024).toFixed(2)}MB)`)
+        } catch (compressionError) {
+          console.warn('⚠️ 圖片壓縮失敗，使用原始檔案:', compressionError)
+          // 繼續使用原始文件
+        }
+      }
+
       // 模擬進度（實際上 Sanity 上傳沒有進度回調）
       let progress = 0
       const progressInterval = setInterval(() => {
@@ -171,7 +197,7 @@ export class SanityImagePicker {
         if (progressBarEl) progressBarEl.style.width = progress + '%'
       }, 200)
 
-      const uploadedImage = await uploadImageToSanity(file)
+      const uploadedImage = await uploadImageToSanity(fileToUpload)
       
       clearInterval(progressInterval)
       if (progressBarEl) progressBarEl.style.width = '100%'
