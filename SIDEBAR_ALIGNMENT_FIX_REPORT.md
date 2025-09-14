@@ -15,13 +15,13 @@
 ### 1. 動態計算左側面板寬度
 ```typescript
 // 動態獲取 GrapesJS 左側面板的寬度
-const getLeftPanelWidth = () => {
-  const leftPanel = document.querySelector('.gjs-pn-panels-left') || 
+const getrightPanelWidth = () => {
+  const rightPanel = document.querySelector('.gjs-pn-panels-left') || 
                    document.querySelector('.gjs-sm-sectors') ||
                    document.querySelector('[class*="gjs-pn-panel"]:first-child')
   
-  if (leftPanel) {
-    const width = leftPanel.getBoundingClientRect().width
+  if (rightPanel) {
+    const width = rightPanel.getBoundingClientRect().width
     return Math.max(width, 0)
   }
   return 0 // 如果沒有左側面板，返回0
@@ -30,12 +30,12 @@ const getLeftPanelWidth = () => {
 
 ### 2. 精確定位側邊欄
 ```typescript
-const leftPanelWidth = getLeftPanelWidth()
+const rightPanelWidth = getrightPanelWidth()
 
 sidebar.style.cssText = `
   position: fixed;
   top: ${headerHeight}px;
-  left: ${leftPanelWidth}px;  // 考慮左側面板寬度
+  left: ${rightPanelWidth}px;  // 考慮左側面板寬度
   width: 280px;
   height: calc(100vh - ${headerHeight}px);
   // ... 其他樣式
@@ -47,9 +47,9 @@ sidebar.style.cssText = `
 // 監聽視窗大小變化
 const handleResize = () => {
   if (sidebarElement) {
-    const newLeftPanelWidth = getLeftPanelWidth()
+    const newrightPanelWidth = getrightPanelWidth()
     const newHeaderHeight = getHeaderHeight()
-    sidebarElement.style.left = `${newLeftPanelWidth}px`
+    sidebarElement.style.left = `${newrightPanelWidth}px`
     sidebarElement.style.top = `${newHeaderHeight}px`
     sidebarElement.style.height = `calc(100vh - ${newHeaderHeight}px)`
   }
@@ -64,9 +64,9 @@ const handleFullscreenChange = () => {
   setTimeout(() => {
     // 重新計算左側面板寬度並調整側邊欄位置
     if (sidebarElement) {
-      const newLeftPanelWidth = getLeftPanelWidth()
+      const newrightPanelWidth = getrightPanelWidth()
       const newHeaderHeight = getHeaderHeight()
-      sidebarElement.style.left = `${newLeftPanelWidth}px`
+      sidebarElement.style.left = `${newrightPanelWidth}px`
       sidebarElement.style.top = `${newHeaderHeight}px`
       sidebarElement.style.height = `calc(100vh - ${newHeaderHeight}px)`
     }

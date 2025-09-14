@@ -18,59 +18,49 @@ export default function GrapesEditor({ onSave }: GrapesEditorProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   // 載入頁面列表
-  const loadPages = async () => {
-    try {
-      setIsLoading(true)
-      console.log('🔍 開始載入 Sanity 頁面...')
-      
-      const loadedPages = await grapesJSPageService.getAllPages()
-      console.log('📄 載入的頁面數量:', loadedPages.length)
-      
-      setPages(loadedPages)
-      
-      if (loadedPages.length === 0) {
-        console.log('沒有找到頁面，嘗試創建默認首頁...')
-        
-        const defaultPageParams: SavePageParams = {
-          title: '首頁',
-          slug: 'home',
-          description: '使用 GrapesJS 編輯器創建的首頁',
-          status: 'draft',
-          grapesHtml: '<div><h1>歡迎來到首頁</h1><p>這是使用 GrapesJS 編輯器創建的頁面。</p></div>',
-          grapesCss: '',
-          grapesComponents: {},
-          grapesStyles: {},
-          homeModules: []
-        }
-        
-        try {
-          const newPage = await grapesJSPageService.createPage(defaultPageParams)
-          if (newPage) {
-            const updatedPages = await grapesJSPageService.getAllPages()
-            setPages(updatedPages)
-            setCurrentPage(newPage)
-            setCurrentPageId(newPage._id!)
-          }
-        } catch (createError: any) {
-          console.error('創建默認頁面失敗:', createError)
-          if (createError.message?.includes('需要 Sanity 寫入權限') || 
-              createError.message?.includes('Sanity 寫入權限不足')) {
-            alert('⚠️ 需要設定 Sanity Token\n\n' + createError.message)
-          } else {
-            alert('創建默認頁面失敗: ' + createError.message)
-          }
-        }
-      } else {
-        const firstPage = loadedPages[0]
-        setCurrentPage(firstPage)
-        setCurrentPageId(firstPage._id!)
+const loadPages = async () => {
+  setIsLoading(true)
+  try {
+    console.log('🔍 開始載入 Sanity 頁面...')
+    const loadedPages = await grapesJSPageService.getAllPages()
+    console.log('📄 載入的頁面數量:', loadedPages.length)
+    setPages(loadedPages)
+
+    if (loadedPages.length === 0) {
+      console.log('沒有找到頁面，嘗試創建默認首頁...')
+      const defaultPageParams: SavePageParams = {
+        title: '首頁',
+        slug: 'home',
+        description: '使用 GrapesJS 編輯器創建的首頁',
+        status: 'draft',
+        grapesHtml: '<div><h1>歡迎來到首頁</h1><p>這是使用 GrapesJS 編輯器創建的頁面。</p></div>',
+        grapesCss: '',
+        grapesComponents: {},
+        grapesStyles: {},
+        homeModules: []
       }
-    } catch (error) {
-      console.error('載入頁面失敗:', error)
-    } finally {
-      setIsLoading(false)
+      try {
+        const newPage = await grapesJSPageService.createPage(defaultPageParams)
+        if (newPage) {
+          setPages([newPage])
+          setCurrentPage(newPage)
+          setCurrentPageId(newPage._id!)
+        }
+      } catch (e: any) {
+        console.error('創建默認頁面失敗:', e)
+        alert('創建默認頁面失敗: ' + (e.message || e))
+      }
+    } else {
+      const firstPage = loadedPages[0]
+      setCurrentPage(firstPage)
+      setCurrentPageId(firstPage._id!)
     }
+  } catch (error) {
+    console.error('載入頁面失敗:', error)
+  } finally {
+    setIsLoading(false)
   }
+}
 
   // 載入頁面內容到編輯器
   const loadPageToEditor = async (pageId: string, editor: any) => {
@@ -277,24 +267,34 @@ export default function GrapesEditor({ onSave }: GrapesEditorProps) {
             label: '💾',
             command: 'save-content',
             attributes: { title: 'Save Content (Ctrl+S)' }
-          },
-          {
-            id: 'preview-btn',
-            className: 'btn-preview',
-            label: '👁️',
-            command: 'preview-page',
-            attributes: { title: 'Preview Page' }
-          },
-          {
-            id: 'publish-btn',
-            className: 'btn-publish',
-            label: '🚀',
-            command: 'publish-page',
-            attributes: { title: 'Publish Page' }
           }
+          // {
+          //   id: 'preview-btn',
+          //   className: 'btn-preview',
+          //   label: '👁️',
+          //   command: 'preview-page',
+          //   attributes: { title: 'Preview Page' }
+          // },
+          // {
+          //   id: 'publish-btn',
+          //   className: 'btn-publish',
+          //   label: '🚀',
+          //   command: 'publish-page',
+          //   attributes: { title: 'Publish Page' }
+          // }
         ])
-
-        // 保存命令
+        
+        // 在 view 面板添加圖標按鈕
+        editor.Panels.addButton('views', {
+          id: 'toggle-customer-panel',
+          label: '⠿',
+          command: 'toggle-customer-panel',
+          attributes: { title: '工作區' }
+        })
+        
+        console.log('✅ 按鈕已添加到 views 面板')
+        
+        
         editor.Commands.add('save-content', {
           run: async (editor: any) => {
             const success = await saveCurrentPage(editor)
@@ -306,68 +306,123 @@ export default function GrapesEditor({ onSave }: GrapesEditorProps) {
           }
         })
 
-        // 預覽命令
-        editor.Commands.add('preview-page', {
-          run: async (editor: any) => {
-            if (!currentPageId) {
-              alert('請先選擇或創建一個頁面')
+        // 添加工作區面板切換命令
+        editor.Commands.add('toggle-customer-panel', {
+          run: (editor: any) => {
+            console.log('🔍 正在切換工作區面板...')
+            
+            // 檢查工作區容器是否已存在
+            let workspaceContainer = document.getElementById('workspace-container')
+            
+            if (workspaceContainer) {
+              // 切換顯示/隱藏
+              const isVisible = workspaceContainer.style.display !== 'none'
+              workspaceContainer.style.display = isVisible ? 'none' : 'block'
+              console.log(`工作區面板${isVisible ? '已隱藏' : '已顯示'}`)
               return
             }
             
-            const success = await saveCurrentPage(editor)
-            if (success) {
-              const previewUrl = `/preview/${currentPageId}`
-              window.open(previewUrl, '_blank')
-            } else {
-              alert('保存失敗，無法預覽')
-            }
-          }
-        })
-
-        // 發布命令
-        editor.Commands.add('publish-page', {
-          run: async (editor: any) => {
-            if (!currentPageId || !currentPage) {
-              alert('請先選擇或創建一個頁面')
+            // 找到右側面板區域
+            const rightPanelArea = document.querySelector('.gjs-pn-panel.gjs-pn-views-container')
+            
+            if (!rightPanelArea) {
+              console.error('找不到右側面板區域')
               return
             }
             
-            const confirmed = confirm('確定要發布這個頁面嗎？發布後將在前端網站中可見。')
-            if (!confirmed) return
+            // 創建工作區容器
+            workspaceContainer = document.createElement('div')
+            workspaceContainer.id = 'workspace-container'
+            workspaceContainer.className = 'workspace-panel-content'
             
-            try {
-              await saveCurrentPage(editor)
+            // 設置工作區容器樣式
+            workspaceContainer.style.cssText = `
+              background: #463a3c;
+              color: #b9a5a6;
+              padding: 15px;
+              border-top: 1px solid #5a4e50;
+              min-height: 200px;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              display: block;
+            `
+            
+            // 創建工作區內容
+            workspaceContainer.innerHTML = `
+              <div style="border-bottom: 1px solid #5a4e50; padding-bottom: 10px; margin-bottom: 15px;">
+                <h3 style="margin: 0 0 5px 0; color: #b9a5a6; font-size: 14px; font-weight: 600;">工作區</h3>
+                <p style="margin: 0; color: #8a7a7c; font-size: 12px;">客戶管理工具</p>
+              </div>
               
-              const updateParams = {
-                _id: currentPage._id!,
-                status: 'published' as const
-              }
+              <div style="margin-bottom: 20px;">
+                <div style="background: #5a4e50; border-radius: 4px; padding: 15px; margin-bottom: 10px;">
+                  <div style="font-size: 24px; font-weight: bold; color: #b9a5a6; text-align: center;">123</div>
+                  <div style="font-size: 11px; color: #8a7a7c; text-align: center; margin-top: 5px;">客戶編號</div>
+                </div>
+              </div>
               
-              const updatedPage = await grapesJSPageService.updatePage(updateParams)
-              setCurrentPage(updatedPage)
-              
-              alert('頁面已發布成功！')
-              
-              const viewPublished = confirm('要在新視窗中查看已發布的頁面嗎？')
-              if (viewPublished) {
-                const publishedUrl = `/pages/${updatedPage.slug.current}`
-                window.open(publishedUrl, '_blank')
-              }
-            } catch (error) {
-              console.error('發布失敗:', error)
-              alert('發布失敗，請重試。')
-            }
+              <div>
+                <button onclick="console.log('客戶資料')" style="
+                  width: 100%;
+                  background: transparent;
+                  border: 1px solid #5a4e50;
+                  color: #b9a5a6;
+                  padding: 8px 12px;
+                  border-radius: 4px;
+                  font-size: 12px;
+                  cursor: pointer;
+                  margin-bottom: 8px;
+                  transition: all 0.2s;
+                " onmouseover="this.style.background='#5a4e50'" onmouseout="this.style.background='transparent'">
+                  📋 客戶資料
+                </button>
+                
+                <button onclick="console.log('預約記錄')" style="
+                  width: 100%;
+                  background: transparent;
+                  border: 1px solid #5a4e50;
+                  color: #b9a5a6;
+                  padding: 8px 12px;
+                  border-radius: 4px;
+                  font-size: 12px;
+                  cursor: pointer;
+                  margin-bottom: 8px;
+                  transition: all 0.2s;
+                " onmouseover="this.style.background='#5a4e50'" onmouseout="this.style.background='transparent'">
+                  📅 預約記錄
+                </button>
+                
+                <button onclick="console.log('服務歷史')" style="
+                  width: 100%;
+                  background: transparent;
+                  border: 1px solid #5a4e50;
+                  color: #b9a5a6;
+                  padding: 8px 12px;
+                  border-radius: 4px;
+                  font-size: 12px;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                " onmouseover="this.style.background='#5a4e50'" onmouseout="this.style.background='transparent'">
+                  ✂️ 服務歷史
+                </button>
+              </div>
+            `
+            
+            // 將容器添加到右側面板
+            rightPanelArea.appendChild(workspaceContainer)
+            
+            console.log('✅ 工作區容器已創建並添加到面板')
           }
         })
 
-        // 載入當前頁面
-        editor.on('load', () => {
-          setTimeout(() => {
-            if (currentPageId && pages.length > 0) {
-              loadPageToEditor(currentPageId, editor)
-            }
-          }, 500)
-        })
+
+        // // 載入當前頁面
+        // editor.on('load', () => {
+        //   setTimeout(() => {
+        //     if (currentPageId && pages.length > 0) {
+        //       loadPageToEditor(currentPageId, editor)
+        //     }
+        //   }, 500)
+        // })
 
         // 鍵盤快捷鍵
         const handleKeydown = (e: KeyboardEvent) => {
@@ -447,6 +502,7 @@ export default function GrapesEditor({ onSave }: GrapesEditorProps) {
         ref={editorRef}
         suppressHydrationWarning={true}
         key="grapesjs-editor-container"
+        style={{ height: '100%' }}
       >
         {/* GrapesJS 會在這裡渲染編輯器 */}
       </div>
