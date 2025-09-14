@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { grapesJSPageService, type GrapesJSPageData, type SavePageParams, type UpdatePageParams } from '@/lib/services/grapesjs-page-service'
+import { registerCustomComponents } from './custom-components'
 import 'grapesjs/dist/css/grapes.min.css'
 import './grapes-editor.css'
 
@@ -225,13 +226,13 @@ const loadPages = async () => {
 
         console.log('基本插件載入完成')
 
-        // 逐步添加 carousel 插件
-        let pluginBootstrap4
+        // 添加 carousel 插件
+        let pluginCarousel
         try {
-          pluginBootstrap4 = (await import('grapesjs-blocks-bootstrap4')).default
-          console.log('✅ grapesjs-blocks-bootstrap4 載入成功')
+          pluginCarousel = (await import('grapesjs-carousel-component')).default
+          console.log('✅ grapesjs-carousel-component 載入成功')
         } catch (e) {
-          console.warn('❌ 無法載入 grapesjs-blocks-bootstrap4:', e)
+          console.warn('❌ 無法載入 grapesjs-carousel-component:', e)
         }
 
         // 暫時移除其他可能有問題的插件
@@ -288,10 +289,12 @@ const loadPages = async () => {
           canvas: {
             styles: [
               'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
-              'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+              'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+              'https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css'
             ],
             scripts: [
-              'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js'
+              'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js',
+              'https://cdn.jsdelivr.net/npm/@redoc_a2k/splide@4.1.4/dist/js/splide.min.js'
             ]
           },
           
@@ -304,8 +307,8 @@ const loadPages = async () => {
             pluginCustomCode,
             pluginTooltip,
             pluginTyped,
-            // 添加 Bootstrap 4 插件（如果載入成功）
-            ...(pluginBootstrap4 ? [pluginBootstrap4] : [])
+            // 添加 Carousel 插件（如果載入成功）
+            ...(pluginCarousel ? [pluginCarousel] : [])
           ],
 
           pluginsOpts: {
@@ -319,15 +322,120 @@ const loadPages = async () => {
                 enableImport: true
               }
             },
-            // 添加 Bootstrap 4 插件配置（如果插件載入成功）
-            ...(pluginBootstrap4 && {
-              'grapesjs-blocks-bootstrap4': {
-                blocks: ['carousel', 'collapse', 'dropdown', 'modal'],
-                blockCategories: {
-                  carousel: 'Bootstrap Components',
-                  collapse: 'Bootstrap Components', 
-                  dropdown: 'Bootstrap Components',
-                  modal: 'Bootstrap Components'
+            'grapesjs-carousel-component': {
+              // 輪播組件配置選項
+            }
+          }
+        })
+
+        // 註冊自定義組件
+        registerCustomComponents(editor)
+
+        // 確保工具欄功能啟用
+        editor.on('load', () => {
+          console.log('GrapesJS 載入完成，工具欄功能應該已啟用')
+        })
+
+        // 監聽組件選擇事件以調試工具欄
+        editor.on('component:selected', (model: any) => {
+          console.log('組件被選中:', {
+            type: model.get('type'),
+            tagName: model.get('tagName'),
+            toolbar: model.get('toolbar'),
+            attributes: model.get('attributes')
+          })
+        })
+
+        // 自定義資源管理器 - 整合 Sanity
+        editor.Storage.add('sanity-assets', {
+          load() {
+            return Promise.resolve({})
+          },
+          store() {
+            return Promise.resolve({})
+          }
+        })
+
+        // 自定義圖片選擇命令
+        editor.Commands.add('open-sanity-image-picker', {
+          run: async (editor: any, sender: any, options: any = {}) => {
+            const { showSanityImagePicker } = await import('./sanity-image-picker')
+            
+            showSanityImagePicker({
+              onSelect: (imageUrl: string) => {
+                if (options.target) {
+                  // 如果有指定目標組件，直接設置圖片
+                  options.target.set('src', imageUrl)
+                } else if (options.callback) {
+                  // 如果有回調函數，執行回調
+                  options.callback(imageUrl)
+                }
+              },
+              onClose: () => {
+                // 關閉時的處理
+              },
+              allowUpload: true
+            })
+          }
+        })
+
+        // 覆蓋默認的圖片管理器
+        editor.on('run:open-assets', () => {
+          editor.runCommand('open-sanity-image-picker')
+        })
+
+        // 為圖片組件添加雙擊事件來打開圖片選擇器
+        editor.on('component:selected', (model: any) => {
+          if (model.get('type') === 'image') {
+            console.log('圖片組件被選中:', {
+              src: model.get('attributes')?.src,
+              type: model.get('type')
+            })
+          }
+        })
+
+        // 監聽畫布上的雙擊事件
+        editor.on('canvas:ready', () => {
+          const canvas = editor.Canvas.getFrameEl()
+          if (canvas) {
+            canvas.addEventListener('dblclick', async (e: any) => {
+              const target = e.target
+              if (target && target.tagName === 'IMG') {
+                console.log('圖片被雙擊:', target.src)
+                
+                // 找到對應的 GrapesJS 組件
+                const wrapper = editor.DomComponents.getWrapper()
+                if (wrapper) {
+                  const imageComponents = wrapper.find('image')
+                  const component = imageComponents.filter((comp: any) => {
+                    const compEl = comp.getEl && comp.getEl()
+                    return compEl === target
+                  })[0]
+                  
+                  if (component) {
+                    // 打開 Sanity 圖片選擇器
+                    const { showSanityImagePicker } = await import('./sanity-image-picker')
+                    
+                    showSanityImagePicker({
+                      onSelect: (imageUrl: string) => {
+                        // 更新組件的屬性
+                        component.set('attributes', {
+                          ...component.get('attributes'),
+                          src: imageUrl
+                        })
+                        
+                        console.log('圖片已更新為:', imageUrl)
+                      },
+                      onClose: () => {
+                        console.log('圖片選擇器已關閉')
+                      },
+                      allowUpload: true
+                    })
+                  } else {
+                    console.warn('找不到對應的 GrapesJS 組件')
+                  }
+                } else {
+                  console.warn('找不到 GrapesJS wrapper')
                 }
               }
             })

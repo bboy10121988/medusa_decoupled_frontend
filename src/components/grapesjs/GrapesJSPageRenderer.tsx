@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { grapesJSPageService, type GrapesJSPageData } from '@/lib/services/grapesjs-page-service'
 
 interface Props {
@@ -12,6 +12,42 @@ export default function GrapesJSPageRenderer({ slug, preview = false }: Props) {
   const [page, setPage] = useState<GrapesJSPageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  // 執行內聯 JavaScript
+  const executeInlineScripts = (content: string) => {
+    if (typeof window === 'undefined') return content
+
+    // 提取並執行 script 標籤
+    const scriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi
+    const scripts: string[] = []
+    
+    const cleanContent = content.replace(scriptRegex, (match, scriptContent) => {
+      if (scriptContent && scriptContent.trim()) {
+        scripts.push(scriptContent.trim())
+      }
+      return '' // 移除 script 標籤，避免重複執行
+    })
+
+    // 延遲執行腳本，確保 DOM 已載入
+    setTimeout(() => {
+      scripts.forEach((scriptContent, index) => {
+        try {
+          console.log(`🔧 執行內聯腳本 ${index + 1}:`, scriptContent.substring(0, 100) + '...')
+          
+          // 創建函數來執行腳本，提供更好的作用域隔離
+          const executeScript = new Function(scriptContent)
+          executeScript()
+          
+          console.log(`✅ 腳本 ${index + 1} 執行成功`)
+        } catch (error) {
+          console.error(`❌ 腳本 ${index + 1} 執行失敗:`, error)
+        }
+      })
+    }, 100)
+
+    return cleanContent
+  }
 
   useEffect(() => {
     const loadPage = async () => {
@@ -44,6 +80,35 @@ export default function GrapesJSPageRenderer({ slug, preview = false }: Props) {
     loadPage()
   }, [slug, preview])
 
+  // 當頁面內容載入後，執行內聯腳本
+  useEffect(() => {
+    if (page && page.grapesHtml && contentRef.current) {
+      console.log('🎬 開始處理頁面內容和腳本...')
+      
+      // 執行內聯腳本
+      executeInlineScripts(page.grapesHtml)
+      
+      // 初始化輪播等互動組件
+      setTimeout(() => {
+        // 檢查並初始化靜態輪播
+        const carousels = document.querySelectorAll('.static-carousel')
+        console.log(`🎠 找到 ${carousels.length} 個輪播組件`)
+        
+        carousels.forEach((carousel, index) => {
+          console.log(`🔧 初始化輪播 ${index + 1}`)
+          
+          // 觸發輪播初始化
+          if (typeof window !== 'undefined' && (window as any).showSlide) {
+            (window as any).showSlide(0)
+            if ((window as any).startAutoplay) {
+              (window as any).startAutoplay()
+            }
+          }
+        })
+      }, 200)
+    }
+  }, [page])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -73,6 +138,9 @@ export default function GrapesJSPageRenderer({ slug, preview = false }: Props) {
     )
   }
 
+  // 處理頁面內容，移除 script 標籤避免重複執行
+  const processedHtml = page.grapesHtml ? executeInlineScripts(page.grapesHtml) : '<div>此頁面沒有內容</div>'
+
   return (
     <>
       {/* 預覽模式提示 */}
@@ -84,9 +152,10 @@ export default function GrapesJSPageRenderer({ slug, preview = false }: Props) {
       
       {/* 頁面內容 */}
       <div 
+        ref={contentRef}
         className={preview ? 'pt-12' : ''}
         dangerouslySetInnerHTML={{ 
-          __html: page.grapesHtml || '<div>此頁面沒有內容</div>' 
+          __html: processedHtml
         }} 
       />
       

@@ -54,7 +54,6 @@
     "google-auth-library": "^10.3.0",
     "grapesjs": "^0.22.12",
     "grapesjs-blocks-basic": "^1.0.2",
-    "grapesjs-blocks-bootstrap4": "^0.2.5",
     "grapesjs-carousel": "^1.0.0",
     "grapesjs-carousel-component": "^1.0.1",
     "grapesjs-component-countdown": "^1.0.2",
