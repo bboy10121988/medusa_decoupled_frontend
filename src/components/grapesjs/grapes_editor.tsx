@@ -5,6 +5,10 @@ import { grapesJSPageService, type GrapesJSPageData, type SavePageParams, type U
 import 'grapesjs/dist/css/grapes.min.css'
 import './grapes-editor.css'
 
+// 全域變數來追蹤工作區選中的頁面
+let currentWorkspacePageId: string | null = null
+let currentWorkspacePageName: string | null = null
+
 interface GrapesEditorProps {
   onSave?: (content: string) => void
 }
@@ -113,35 +117,86 @@ const loadPages = async () => {
     }
   }
 
-  // 保存當前頁面
+  // 保存當前頁面 - 改進版，支持工作區
   const saveCurrentPage = async (editor: any) => {
-    if (!currentPageId || !currentPage) return false
-    
     try {
-      const html = editor.getHtml()
-      const css = editor.getCss()
-      const components = editor.getComponents()
-      const styles = editor.getStyles()
+      console.log('開始保存當前頁面...')
       
-      const updateParams: UpdatePageParams = {
-        _id: currentPage._id!,
-        grapesHtml: html,
-        grapesCss: css,
-        grapesComponents: components,
-        grapesStyles: styles
+      // 獲取當前編輯器中的內容
+      const html = editor.getHtml()
+      const css = editor.getCss() 
+      const components = editor.getComponents()
+      
+      // 使用正確的 GrapesJS API 獲取樣式
+      const styleManager = editor.StyleManager
+      const styles = styleManager ? styleManager.getAll().map((style: any) => style.toJSON()) : []
+      
+      console.log('準備保存的數據:', {
+        html: html.length + ' 字符',
+        css: css.length + ' 字符', 
+        components: components.length + ' 個組件',
+        styles: styles.length + ' 個樣式'
+      })
+
+      // 檢查是否有當前頁面狀態
+      let targetPageId = currentPageId
+      
+      // 如果沒有當前頁面狀態，從工作區獲取選中的頁面
+      if (!targetPageId && currentWorkspacePageId) {
+        targetPageId = currentWorkspacePageId
+        console.log('使用工作區選中的頁面:', currentWorkspacePageName)
+      }
+      
+      if (!targetPageId) {
+        // 如果仍然沒有目標頁面，提示用戶先選擇頁面
+        alert('請先在工作區選擇要保存的頁面')
+        return false
       }
 
-      const updatedPage = await grapesJSPageService.updatePage(updateParams)
-      setCurrentPage(updatedPage)
-      
-      await loadPages()
-      
-      if (onSave) {
-        onSave(html)
+      // 使用 API 正確的參數格式保存
+      const savePayload = {
+        pageId: targetPageId,
+        pageData: {
+          _type: "grapesJSPageV2",
+          slug: {
+            _type: "slug",
+            current: targetPageId
+          },
+          pageName: currentWorkspacePageName || `頁面-${targetPageId}`,
+          grapesHtml: html,
+          grapesCss: css,
+          grapesComponents: JSON.stringify(components),
+          grapesStyles: JSON.stringify(styles)
+        }
       }
       
-      console.log('頁面保存成功')
-      return true
+      console.log('正在保存到 API...', savePayload)
+      
+      const response = await fetch('/api/pages/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(savePayload)
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log('✅ 頁面保存成功!')
+        
+        // 重新載入頁面列表
+        await loadPages()
+        
+        if (onSave) {
+          onSave(html)
+        }
+        
+        return true
+      } else {
+        throw new Error(result.error || '保存失敗')
+      }
+      
     } catch (error) {
       console.error('保存頁面失敗:', error)
       return false
@@ -167,10 +222,20 @@ const loadPages = async () => {
         const pluginCustomCode = (await import('grapesjs-custom-code')).default
         const pluginTooltip = (await import('grapesjs-tooltip')).default
         const pluginTyped = (await import('grapesjs-typed')).default
-        const enhancedHomeModulesPlugin = (await import('./plugins/enhanced-home-modules')).default
-        const addBootstrapComponents = (await import('./bootstrap-components-simple')).default
 
-        console.log('所有插件載入完成')
+        console.log('基本插件載入完成')
+
+        // 逐步添加 carousel 插件
+        let pluginBootstrap4
+        try {
+          pluginBootstrap4 = (await import('grapesjs-blocks-bootstrap4')).default
+          console.log('✅ grapesjs-blocks-bootstrap4 載入成功')
+        } catch (e) {
+          console.warn('❌ 無法載入 grapesjs-blocks-bootstrap4:', e)
+        }
+
+        // 暫時移除其他可能有問題的插件
+        // 我們稍後會重新添加它們
 
         if (!editorRef.current) {
           console.error('編輯器容器不存在')
@@ -239,7 +304,8 @@ const loadPages = async () => {
             pluginCustomCode,
             pluginTooltip,
             pluginTyped,
-            enhancedHomeModulesPlugin
+            // 添加 Bootstrap 4 插件（如果載入成功）
+            ...(pluginBootstrap4 ? [pluginBootstrap4] : [])
           ],
 
           pluginsOpts: {
@@ -252,12 +318,21 @@ const loadPages = async () => {
               importViewerOptions: {
                 enableImport: true
               }
-            }
+            },
+            // 添加 Bootstrap 4 插件配置（如果插件載入成功）
+            ...(pluginBootstrap4 && {
+              'grapesjs-blocks-bootstrap4': {
+                blocks: ['carousel', 'collapse', 'dropdown', 'modal'],
+                blockCategories: {
+                  carousel: 'Bootstrap Components',
+                  collapse: 'Bootstrap Components', 
+                  dropdown: 'Bootstrap Components',
+                  modal: 'Bootstrap Components'
+                }
+              }
+            })
           }
         })
-
-        // 載入 Bootstrap 組件
-        addBootstrapComponents(editor)
 
         // 添加工具列按鈕
         editor.Panels.addButton('options', [
@@ -284,15 +359,676 @@ const loadPages = async () => {
           // }
         ])
         
-        // 在 view 面板添加圖標按鈕
+        // 在 views 面板添加工作區按鈕
         editor.Panels.addButton('views', {
-          id: 'toggle-customer-panel',
+          id: 'show-workspace',
           label: '⠿',
-          command: 'toggle-customer-panel',
+          command: 'show-workspace',
           attributes: { title: '工作區' }
         })
         
         console.log('✅ 按鈕已添加到 views 面板')
+        
+        // 添加工作區面板顯示命令 - 作為第四個按鈕的專屬面板
+        editor.Commands.add('show-workspace', {
+          run: (editor: any) => {
+            console.log('🔍 正在切換到工作區面板...')
+            
+            // 等待 DOM 準備就緒
+            setTimeout(() => {
+              // 移除其他按鈕的 active 狀態
+              const allViewButtons = document.querySelectorAll('.gjs-pn-views .gjs-pn-btn')
+              allViewButtons.forEach(btn => {
+                btn.classList.remove('gjs-pn-active')
+              })
+              
+              // 設置工作區按鈕為 active
+              const workspaceBtn = document.querySelector('[data-tooltip="工作區"], [title="工作區"]')
+              if (workspaceBtn) {
+                workspaceBtn.classList.add('gjs-pn-active')
+              }
+              
+              // 隱藏所有現有的面板內容
+              const viewsContainer = document.querySelector('.gjs-pn-panel.gjs-pn-views-container')
+              if (viewsContainer) {
+                const existingContents = viewsContainer.querySelectorAll('.gjs-blocks-c, .gjs-layers-c, .gjs-sm-c, .workspace-button-content')
+                existingContents.forEach(content => {
+                  ;(content as HTMLElement).style.display = 'none'
+                })
+              }
+              
+              // 查找或創建工作區內容容器
+              let workspaceContainer = document.querySelector('.workspace-button-content') as HTMLElement
+              
+              if (!workspaceContainer) {
+                // 創建工作區按鈕專屬的內容容器
+                workspaceContainer = document.createElement('div')
+                workspaceContainer.className = 'workspace-button-content'
+                workspaceContainer.style.cssText = `
+                  display: block;
+                  height: 100%;
+                  overflow: auto;
+                  background: transparent;
+                `
+                
+                if (viewsContainer) {
+                  viewsContainer.appendChild(workspaceContainer)
+                }
+              } else {
+                // 顯示工作區內容並重新載入
+                workspaceContainer.style.display = 'block'
+                workspaceContainer.innerHTML = ''
+              }
+              
+              // 創建工作區內容
+              const workspaceContent = createWorkspaceContent(editor)
+              workspaceContainer.appendChild(workspaceContent)
+              
+              console.log('✅ 工作區已作為第四個按鈕的專屬面板顯示')
+            }, 100)
+          },
+          
+          stop: (editor: any) => {
+            // 當切換到其他按鈕時隱藏工作區
+            const workspaceContainer = document.querySelector('.workspace-button-content') as HTMLElement
+            if (workspaceContainer) {
+              workspaceContainer.style.display = 'none'
+            }
+          }
+        })
+        
+        // 監聽其他面板按鈕的點擊事件，當切換到其他面板時隱藏工作區
+        editor.on('run:open-sm', () => {
+          const workspaceContainer = document.querySelector('.workspace-button-content') as HTMLElement
+          if (workspaceContainer) {
+            workspaceContainer.style.display = 'none'
+          }
+        })
+        
+        editor.on('run:open-layers', () => {
+          const workspaceContainer = document.querySelector('.workspace-button-content') as HTMLElement
+          if (workspaceContainer) {
+            workspaceContainer.style.display = 'none'
+          }
+        })
+        
+        editor.on('run:open-blocks', () => {
+          const workspaceContainer = document.querySelector('.workspace-button-content') as HTMLElement
+          if (workspaceContainer) {
+            workspaceContainer.style.display = 'none'
+          }
+        })
+        
+        // 工作區內容創建函數
+        function createWorkspaceContent(editor: any) {
+          // 創建工作區 DOM 結構
+          const workspaceDiv = document.createElement('div')
+          workspaceDiv.className = 'workspace-content'
+          workspaceDiv.style.cssText = `
+            background: #2a2a2a;
+            border: 1px solid #5a4e50;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px;
+            color: #e8d5d6;
+            height: calc(100% - 20px);
+            overflow-y: auto;
+          `
+          
+          // 標題
+          const header = document.createElement('h3')
+          header.textContent = '頁面管理'
+          header.style.cssText = `
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: #e8d5d6;
+            border-bottom: 1px solid #5a4e50;
+            padding-bottom: 8px;
+          `
+          
+          // 頁面列表容器
+          const pageListContainer = document.createElement('div')
+          pageListContainer.id = 'workspace-page-list'
+          pageListContainer.style.marginBottom = '12px'
+          
+          workspaceDiv.appendChild(header)
+          workspaceDiv.appendChild(pageListContainer)
+          
+          // 載入頁面數據
+          loadWorkspacePages(pageListContainer, editor)
+          
+          return workspaceDiv
+        }
+        
+        // 載入工作區頁面函數
+        async function loadWorkspacePages(container: HTMLElement, editor: any) {
+          try {
+            const response = await fetch('/api/pages/list')
+            const data = await response.json()
+            
+            if (data.success && data.pages) {
+              container.innerHTML = ''
+              
+              if (data.pages.length === 0) {
+                const emptyState = document.createElement('div')
+                emptyState.textContent = '尚無頁面，請點擊「新增」創建第一個頁面'
+                emptyState.style.cssText = `
+                  padding: 20px;
+                  text-align: center;
+                  color: #888;
+                  font-size: 12px;
+                `
+                container.appendChild(emptyState)
+              } else {
+                // 渲染頁面列表
+                data.pages.forEach((page: any) => {
+                  const pageItem = createPageItem(page, editor)
+                  container.appendChild(pageItem)
+                })
+              }
+              
+              console.log('工作區頁面列表已載入:', data.pages.length, '個頁面')
+            } else {
+              throw new Error(data.error || '載入頁面列表失敗')
+            }
+          } catch (error) {
+            console.error('載入工作區頁面失敗:', error)
+            container.innerHTML = `
+              <div style="color: #ff6b6b; text-align: center; padding: 10px; font-size: 12px;">
+                載入頁面列表失敗: ${(error as Error).message}
+              </div>
+            `
+          }
+        }
+        
+        // 頁面設定對話框函數
+        function openPageSettingsDialog(page: any, editor: any) {
+          // 創建對話框背景
+          const overlay = document.createElement('div')
+          overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+          `
+          
+          // 創建對話框主體
+          const dialog = document.createElement('div')
+          dialog.style.cssText = `
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 24px;
+            width: 400px;
+            max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            color: #fff;
+          `
+          
+          dialog.innerHTML = `
+            <h3 style="margin: 0 0 20px 0; color: #fff; font-size: 18px;">頁面設定</h3>
+            <form id="page-settings-form">
+              <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; color: #ddd; font-size: 14px;">頁面標題</label>
+                <input type="text" id="page-title" value="${page.title || ''}" style="
+                  width: 100%;
+                  padding: 8px 12px;
+                  border: 1px solid #555;
+                  border-radius: 4px;
+                  background: #3a3a3a;
+                  color: #fff;
+                  font-size: 14px;
+                ">
+              </div>
+              
+              <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; color: #ddd; font-size: 14px;">
+                  頁面路徑 (slug)
+                  <span style="color: #888; font-size: 12px;">例如: home, about, contact</span>
+                </label>
+                <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                  <span style="color: #888; font-size: 12px;">localhost:8000/tw/</span>
+                  <input type="text" id="page-slug" value="${page.slug?.current || ''}" style="
+                    flex: 1;
+                    padding: 8px 12px;
+                    border: 1px solid #555;
+                    border-radius: 4px;
+                    background: #3a3a3a;
+                    color: #fff;
+                    font-size: 14px;
+                  " pattern="[a-z0-9-]+" placeholder="頁面路徑">
+                </div>
+                <small style="color: #666; font-size: 11px;">只能包含小寫字母、數字和連字符</small>
+              </div>
+              
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; color: #ddd; font-size: 14px;">頁面狀態</label>
+                <select id="page-status" style="
+                  width: 100%;
+                  padding: 8px 12px;
+                  border: 1px solid #555;
+                  border-radius: 4px;
+                  background: #3a3a3a;
+                  color: #fff;
+                  font-size: 14px;
+                ">
+                  <option value="draft" ${page.status === 'draft' ? 'selected' : ''}>草稿</option>
+                  <option value="preview" ${page.status === 'preview' ? 'selected' : ''}>預覽</option>
+                  <option value="published" ${page.status === 'published' ? 'selected' : ''}>已發布</option>
+                  <option value="archived" ${page.status === 'archived' ? 'selected' : ''}>已封存</option>
+                </select>
+              </div>
+              
+              <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" id="cancel-btn" style="
+                  padding: 8px 16px;
+                  border: 1px solid #666;
+                  border-radius: 4px;
+                  background: transparent;
+                  color: #ddd;
+                  cursor: pointer;
+                  font-size: 14px;
+                ">取消</button>
+                <button type="submit" id="save-btn" style="
+                  padding: 8px 16px;
+                  border: none;
+                  border-radius: 4px;
+                  background: #007bff;
+                  color: #fff;
+                  cursor: pointer;
+                  font-size: 14px;
+                ">保存</button>
+              </div>
+            </form>
+          `
+          
+          overlay.appendChild(dialog)
+          document.body.appendChild(overlay)
+          
+          // 綁定事件
+          const form = dialog.querySelector('#page-settings-form') as HTMLFormElement
+          const titleInput = dialog.querySelector('#page-title') as HTMLInputElement
+          const slugInput = dialog.querySelector('#page-slug') as HTMLInputElement
+          const statusSelect = dialog.querySelector('#page-status') as HTMLSelectElement
+          const cancelBtn = dialog.querySelector('#cancel-btn') as HTMLButtonElement
+          const saveBtn = dialog.querySelector('#save-btn') as HTMLButtonElement
+          
+          // slug 輸入驗證
+          slugInput.addEventListener('input', () => {
+            let value = slugInput.value
+            value = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+            slugInput.value = value
+          })
+          
+          // 取消按鈕
+          cancelBtn.addEventListener('click', () => {
+            document.body.removeChild(overlay)
+          })
+          
+          // 點擊背景關閉
+          overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+              document.body.removeChild(overlay)
+            }
+          })
+          
+          // 表單提交
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const newTitle = titleInput.value.trim()
+            const newSlug = slugInput.value.trim()
+            const newStatus = statusSelect.value
+            
+            if (!newTitle) {
+              alert('請輸入頁面標題')
+              return
+            }
+            
+            if (!newSlug) {
+              alert('請輸入頁面路徑')
+              return
+            }
+            
+            try {
+              saveBtn.disabled = true
+              saveBtn.textContent = '保存中...'
+              
+              // 調用 API 更新頁面設定
+              await updatePageSettings(page._id, {
+                title: newTitle,
+                slug: newSlug,
+                status: newStatus
+              })
+              
+              // 重新載入工作區
+              const workspaceContainer = document.querySelector('#workspace-page-list') as HTMLElement
+              if (workspaceContainer) {
+                await loadWorkspacePages(workspaceContainer, editor)
+              }
+              
+              document.body.removeChild(overlay)
+            } catch (error) {
+              alert('保存失敗: ' + (error as Error).message)
+            } finally {
+              saveBtn.disabled = false
+              saveBtn.textContent = '保存'
+            }
+          })
+        }
+        
+        // 確認刪除頁面對話框
+        function confirmDeletePage(page: any, editor: any) {
+          const confirmed = confirm(`確定要刪除頁面「${page.title || page.slug?.current || 'Untitled'}」嗎？\n\n此操作無法復原。`)
+          
+          if (confirmed) {
+            deletePage(page._id, editor)
+          }
+        }
+        
+        // 刪除頁面函數
+        async function deletePage(pageId: string, editor: any) {
+          try {
+            console.log('正在刪除頁面:', pageId)
+            
+            const response = await fetch(`/api/pages/delete`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ pageId })
+            })
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+            }
+            
+            const result = await response.json()
+            
+            if (result.success) {
+              console.log('頁面已刪除:', pageId)
+              // 重新載入工作區
+              const workspaceContainer = document.querySelector('#workspace-page-list') as HTMLElement
+              if (workspaceContainer) {
+                await loadWorkspacePages(workspaceContainer, editor)
+              }
+            } else {
+              alert('刪除失敗: ' + (result.error || '未知錯誤'))
+            }
+          } catch (error) {
+            console.error('刪除頁面失敗:', error)
+            alert('刪除失敗: ' + (error as Error).message)
+          }
+        }
+        
+        // 更新頁面設定函數
+        async function updatePageSettings(pageId: string, settings: any) {
+          const response = await fetch('/api/pages/update-settings', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ pageId, settings })
+          })
+          
+          const result = await response.json()
+          
+          if (!result.success) {
+            throw new Error(result.error || '更新失敗')
+          }
+          
+          return result
+        }
+        
+        // 創建頁面項目函數
+        function createPageItem(page: any, editor: any) {
+          const pageItem = document.createElement('div')
+          // 使用與 API 匹配的 pageId - 直接使用 slug.current
+          const pageId = page.slug?.current || page._id
+          const pageName = page.title || page.slug?.current || 'Untitled Page'
+          
+          // 調試信息
+          console.log('創建頁面項目:', {
+            pageId,
+            pageName,
+            slug: page.slug,
+            _id: page._id,
+            title: page.title
+          })
+          
+          pageItem.style.cssText = `
+            padding: 8px 10px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #b9a5a6;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+          `
+          
+          pageItem.innerHTML = `
+            <span style="margin-right: 8px;">📄</span>
+            <span class="page-name" style="flex: 1;">${pageName}</span>
+            <span style="font-size: 10px; color: #666; margin-right: 8px;">(${page.status})</span>
+            <div class="page-actions" style="display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;">
+              <button class="settings-btn" style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                color: #888;
+                padding: 2px 4px;
+                border-radius: 3px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              " title="頁面設定">⚙️</button>
+              <button class="delete-btn" style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                color: #888;
+                padding: 2px 4px;
+                border-radius: 3px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              " title="刪除頁面">🗑️</button>
+            </div>
+          `
+          
+          // 互動效果
+          pageItem.addEventListener('mouseover', () => {
+            if (!pageItem.classList.contains('selected')) {
+              pageItem.style.backgroundColor = 'rgba(90, 78, 80, 0.3)'
+            }
+            // 顯示管理按鈕
+            const actions = pageItem.querySelector('.page-actions') as HTMLElement
+            if (actions) {
+              actions.style.opacity = '1'
+            }
+          })
+          
+          pageItem.addEventListener('mouseout', () => {
+            if (!pageItem.classList.contains('selected')) {
+              pageItem.style.backgroundColor = 'transparent'
+            }
+            // 隱藏管理按鈕
+            const actions = pageItem.querySelector('.page-actions') as HTMLElement
+            if (actions) {
+              actions.style.opacity = '0'
+            }
+          })
+          
+          // 設定按鈕事件
+          const settingsBtn = pageItem.querySelector('.settings-btn') as HTMLButtonElement
+          const deleteBtn = pageItem.querySelector('.delete-btn') as HTMLButtonElement
+          
+          settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation() // 防止觸發頁面選擇
+            openPageSettingsDialog(page, editor)
+          })
+          
+          settingsBtn.addEventListener('mouseover', () => {
+            settingsBtn.style.backgroundColor = 'rgba(255,255,255,0.1)'
+          })
+          
+          settingsBtn.addEventListener('mouseout', () => {
+            settingsBtn.style.backgroundColor = 'transparent'
+          })
+          
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation() // 防止觸發頁面選擇
+            confirmDeletePage(page, editor)
+          })
+          
+          deleteBtn.addEventListener('mouseover', () => {
+            deleteBtn.style.backgroundColor = 'rgba(255,0,0,0.1)'
+            deleteBtn.style.color = '#ff6b6b'
+          })
+          
+          deleteBtn.addEventListener('mouseout', () => {
+            deleteBtn.style.backgroundColor = 'transparent'
+            deleteBtn.style.color = '#888'
+          })
+          
+          // 點擊切換頁面 - 防止重複觸發
+          let isLoading = false
+          pageItem.addEventListener('click', () => {
+            if (!isLoading) {
+              isLoading = true
+              selectWorkspacePage(pageId, pageName, pageItem, editor)
+                .finally(() => {
+                  isLoading = false
+                })
+            }
+          })
+          
+          return pageItem
+        }
+        
+        // 工作區全局變數
+        let isWorkspaceLoading = false
+        let currentWorkspacePageId: string | null = null
+        let currentWorkspacePageName: string | null = null
+        
+        // 選擇工作區頁面函數
+        async function selectWorkspacePage(pageId: string, pageName: string, clickedElement: HTMLElement, editor: any) {
+          // 防止重複載入
+          if (isWorkspaceLoading) {
+            console.log('正在載入其他頁面，請稍候...')
+            return
+          }
+          
+          console.log('工作區選擇頁面:', pageName, '(ID:', pageId, ')')
+          
+          // 檢查 pageId 是否有效
+          if (!pageId || pageId.trim() === '') {
+            console.error('pageId 無效:', pageId)
+            alert('頁面 ID 無效，無法載入頁面')
+            return
+          }
+          
+          isWorkspaceLoading = true
+          
+          // 更新選中狀態
+          const allPageItems = document.querySelectorAll('#workspace-page-list > div')
+          allPageItems.forEach(item => {
+            item.classList.remove('selected')
+            ;(item as HTMLElement).style.backgroundColor = 'transparent'
+          })
+          
+          clickedElement.classList.add('selected')
+          clickedElement.style.backgroundColor = 'rgb(90, 78, 80)'
+          
+          try {
+            // 構建 API URL，使用 pageId 參數
+            const apiUrl = `/api/pages/load?pageId=${encodeURIComponent(pageId)}`
+            console.log('正在調用 API:', apiUrl)
+            console.log('載入頁面信息:', { pageId, pageName })
+            
+            // 載入頁面內容
+            const response = await fetch(apiUrl)
+            const data = await response.json()
+            
+            console.log('API 響應:', data)
+            
+            if (data.success && data.page) {
+              // 從 page 對象中提取 GrapesJS 組件數據
+              let grapesComponents = data.page.grapesComponents || data.page.grapesHtml || ''
+              console.log('工作區頁面內容已載入:', String(grapesComponents).length, '字符')
+              console.log('原始組件數據:', grapesComponents)
+              
+              // 使用 GrapesJS API 設置內容
+              if (grapesComponents) {
+                try {
+                  // 如果是字符串，嘗試解析為 JSON
+                  if (typeof grapesComponents === 'string') {
+                    try {
+                      const parsedComponents = JSON.parse(grapesComponents)
+                      console.log('解析後的組件數據:', parsedComponents)
+                      
+                      // 檢查是否是數組格式
+                      if (Array.isArray(parsedComponents)) {
+                        editor.setComponents(parsedComponents)
+                      } else {
+                        // 如果不是數組，直接使用字符串
+                        editor.setComponents(grapesComponents)
+                      }
+                    } catch (parseError) {
+                      console.log('JSON 解析失敗，作為 HTML 處理:', parseError)
+                      // 如果 JSON 解析失敗，作為 HTML 字符串處理
+                      editor.setComponents(grapesComponents)
+                    }
+                  } else if (Array.isArray(grapesComponents)) {
+                    // 如果已經是數組，直接使用
+                    console.log('直接使用數組格式')
+                    editor.setComponents(grapesComponents)
+                  } else {
+                    // 其他情況，使用 loadProjectData
+                    console.log('使用 loadProjectData 格式')
+                    editor.loadProjectData({
+                      assets: [],
+                      styles: data.page.grapesStyles || [],
+                      pages: [{
+                        frames: [{
+                          component: grapesComponents
+                        }]
+                      }]
+                    })
+                  }
+                  
+                  // 設置當前工作區頁面信息，供保存功能使用
+                  currentWorkspacePageId = pageId
+                  currentWorkspacePageName = pageName
+                  
+                  console.log('✅ 工作區已切換至頁面:', pageName)
+                } catch (loadError) {
+                  console.error('載入組件數據失敗:', loadError)
+                  // 如果所有方法都失敗，設置一個簡單的默認內容
+                  editor.setComponents('<div>載入內容時出現問題，請檢查頁面數據</div>')
+                }
+              } else {
+                editor.setComponents('<div>此頁面沒有內容</div>')
+              }
+            } else {
+              throw new Error(data.error || data.message || '載入頁面失敗')
+            }
+          } catch (error) {
+            console.error('工作區載入頁面失敗:', error)
+            alert('載入頁面失敗: ' + (error as Error).message)
+          } finally {
+            isWorkspaceLoading = false
+          }
+        }
         
         
         editor.Commands.add('save-content', {

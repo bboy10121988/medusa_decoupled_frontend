@@ -8322,6 +8322,21 @@ grapesjs-blocks-basic@^1.0.2:
   resolved "https://registry.npmjs.org/grapesjs-blocks-basic/-/grapesjs-blocks-basic-1.0.2.tgz"
   integrity sha512-SsPKf/CvQkZ+kABOsN01auAPHXh/2J20g0AWYF7fHR3Gw3TZLtdIxT1mk90Qzi76u/7sUYi3CTI+i3ZaTtXHRA==
 
+grapesjs-blocks-bootstrap4@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.npmjs.org/grapesjs-blocks-bootstrap4/-/grapesjs-blocks-bootstrap4-0.2.5.tgz"
+  integrity sha512-YocA8fhygEsf2yuWY32XVAkLyPlsxM/8+QzdN/t50eTk/FLv5e3C5z8OxD7MGRhAdZO3G+o2Gy67sSNMAVqdyw==
+
+grapesjs-carousel-component@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/grapesjs-carousel-component/-/grapesjs-carousel-component-1.0.1.tgz"
+  integrity sha512-n0wKy4+gc0KjYScgMQQsAMu3X5jknn18VDAe7NOTjVU6w5B6AQMHZeoOu4HpLrjMgc3LrdrOV3RGBckHgZALDA==
+
+grapesjs-carousel@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/grapesjs-carousel/-/grapesjs-carousel-1.0.0.tgz"
+  integrity sha512-H2CnKHlvcrYDxp0R5sohVWZgg0lOnzEOE8VTcz4HA4S7AFeGJkcWWZmoBwbR14yyoafR80I3MSnGV0gmw3j6Ig==
+
 grapesjs-component-countdown@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/grapesjs-component-countdown/-/grapesjs-component-countdown-1.0.2.tgz"
@@ -8357,7 +8372,7 @@ grapesjs-typed@^2.0.1:
   resolved "https://registry.npmjs.org/grapesjs-typed/-/grapesjs-typed-2.0.1.tgz"
   integrity sha512-3Z5hATX/Zp9PkdOv94RtIzqB/n1mMUdTO5X/ZyNUMzSmGZG4CHtTmw3bIQDIkrSTWdbcqInlbFPzvzKYr4rKaw==
 
-grapesjs@^0.22.12, grapesjs@^0.22.5:
+grapesjs@^0.22.12, grapesjs@^0.22.5, grapesjs@0.x:
   version "0.22.12"
   resolved "https://registry.npmjs.org/grapesjs/-/grapesjs-0.22.12.tgz"
   integrity sha512-1zhUKoKZCDyN0j/Z19/lJ25UBR4GUHtyeRMHgewskRiQSdb/du+9L/R/q/sijmp1cKPxQZihzvwoc69Ya/pXIQ==

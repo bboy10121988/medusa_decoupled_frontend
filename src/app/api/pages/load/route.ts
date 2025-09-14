@@ -13,11 +13,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 將 pageId 轉換為 slug 格式
+    // 將 pageId 轉換為 slug 格式（如果需要）
     const slug = pageId.toLowerCase().replace(/[^a-z0-9]/g, '-')
 
-    // 從 Sanity 查詢頁面
-    const page = await client.fetch(
+    console.log('載入頁面查詢:', { originalPageId: pageId, processedSlug: slug })
+
+    // 從 Sanity 查詢頁面 - 嘗試多種查詢方式
+    let page = await client.fetch(
       `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
         _id,
         title,
@@ -30,13 +32,40 @@ export async function GET(request: NextRequest) {
         createdAt,
         updatedAt
       }`,
-      { slug }
+      { slug: pageId } // 先嘗試原始 pageId
     )
+
+    // 如果沒找到，嘗試處理後的 slug
+    if (!page && pageId !== slug) {
+      page = await client.fetch(
+        `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+          _id,
+          title,
+          slug,
+          status,
+          grapesHtml,
+          grapesCss,
+          grapesComponents,
+          grapesStyles,
+          createdAt,
+          updatedAt
+        }`,
+        { slug }
+      )
+    }
+
+    if (!page) {
+      return NextResponse.json({
+        success: false,
+        error: '頁面不存在',
+        message: `找不到 pageId: ${pageId} (slug: ${slug}) 對應的頁面`
+      }, { status: 404 })
+    }
 
     return NextResponse.json({
       success: true,
-      page: page || null,
-      message: page ? '頁面載入成功' : '頁面不存在'
+      page: page,
+      message: '頁面載入成功'
     })
 
   } catch (error) {
