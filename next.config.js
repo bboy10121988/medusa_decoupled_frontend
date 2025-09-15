@@ -1,12 +1,10 @@
-const checkEnvVariables = require("./check-env-variables")
-
-checkEnvVariables()
+// 已移除 check-env-variables 檢查，因為檔案已被刪除
 
 /**
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false, // 暫時關閉嚴格模式以避免 React 19 警告
   logging: {
     fetches: {
       fullUrl: true,
@@ -43,33 +41,18 @@ const nextConfig = {
     return config
   },
   images: {
+    // 僅允許受信任的圖片來源，避免從未知網域載入
     remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-      },
-      {
-        protocol: "https",
-        hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "medusa-server-testing.s3.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "medusa-server-testing.s3.us-east-1.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.sanity.io",
-      },
-      {
-        protocol: "https",
-        hostname: "**", // 允許所有 HTTPS 圖片源，用於開發階段
-      },
+      { protocol: "http", hostname: "localhost" },
+      { protocol: "http", hostname: "35.236.182.29" },
+      { protocol: "http", hostname: "35.236.182.29", port: "9000" },
+      { protocol: "https", hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com" },
+      { protocol: "https", hostname: "medusa-server-testing.s3.amazonaws.com" },
+      { protocol: "https", hostname: "medusa-server-testing.s3.us-east-1.amazonaws.com" },
+      { protocol: "https", hostname: "cdn.sanity.io" },
     ],
-    dangerouslyAllowSVG: true,
+    // 停用 SVG 直通，避免 XSS 風險；如需 SVG，建議先行清洗
+    dangerouslyAllowSVG: false,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
