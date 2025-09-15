@@ -12,6 +12,206 @@ import './grapes-editor.css'
 let currentWorkspacePageId: string | null = null
 let currentWorkspacePageName: string | null = null
 
+// 全局 CSS 樣式定義
+const globalCSS = `
+  /* 確保所有圖片都填滿其容器 */
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* 圖片容器樣式 */
+  [data-gjs-type="image"] {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+  }
+  
+  /* 響應式圖片 */
+  .responsive-image {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* 列布局中的圖片自適應 */
+  .gjs-row img, 
+  .gjs-column img {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* 列布局基本樣式 - 強化版本 */
+  .gjs-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    min-height: 50px !important;
+    box-sizing: border-box !important;
+    gap: 15px !important;
+  }
+
+  .gjs-column {
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 0;
+    box-sizing: border-box;
+    padding: 10px;
+    min-height: 50px;
+    position: relative;
+  }
+
+  /* 兩列布局樣式 */
+  .gjs-row.two-columns {
+    display: flex !important;
+    flex-direction: row !important;
+  }
+  .gjs-row.two-columns .gjs-column {
+    flex: 1 1 calc(50% - 7.5px) !important;
+    width: calc(50% - 7.5px) !important;
+  }
+
+  /* 三列布局樣式 */
+  .gjs-row.three-columns {
+    display: flex !important;
+    flex-direction: row !important;
+  }
+  .gjs-row.three-columns .gjs-column {
+    flex: 1 1 calc(33.333% - 10px) !important;
+    width: calc(33.333% - 10px) !important;
+  }
+
+  /* 手機響應式 */
+  @media (max-width: 768px) {
+    .gjs-row {
+      flex-direction: column !important;
+    }
+    .gjs-column {
+      flex: 1 1 100% !important;
+      min-width: 100% !important;
+    }
+  }
+
+  .container { 
+    max-width: 100% !important; 
+    width: 100% !important; 
+    padding: 0 !important; 
+    margin: 0 !important; 
+  }
+  .row { 
+    margin: 0 !important; 
+    padding: 0 !important; 
+  }
+  [class*="col-"] { 
+    padding: 0 !important; 
+    margin: 0 !important; 
+  }
+  .d-flex { 
+    display: flex !important; 
+  }
+  .flex-column { 
+    flex-direction: column !important; 
+  }
+  .flex-row { 
+    flex-direction: row !important; 
+  }
+`
+
+// 重新應用全局樣式的函數
+const reapplyGlobalStyles = (editor: any) => {
+  console.log('🔄 重新應用全局樣式...')
+  
+  // 添加到 CSS Composer
+  editor.CssComposer.add(globalCSS)
+  
+  // 添加到 canvas iframe
+  const canvas = editor.Canvas
+  const canvasDoc = canvas.getDocument()
+  if (canvasDoc) {
+    // 移除舊樣式（避免重複）
+    const oldStyle = canvasDoc.querySelector('[data-grapes-global="true"]')
+    if (oldStyle) {
+      oldStyle.remove()
+    }
+    
+    const canvasHead = canvasDoc.head || canvasDoc.getElementsByTagName('head')[0]
+    const canvasStyle = canvasDoc.createElement('style')
+    canvasStyle.setAttribute('data-grapes-global', 'true')
+    canvasStyle.appendChild(canvasDoc.createTextNode(globalCSS))
+    canvasHead.appendChild(canvasStyle)
+    console.log('✅ 全局 CSS 已重新添加到 canvas')
+  }
+}
+
+// 通用錯誤提示函數
+const showUploadError = (title: string, message: string) => {
+  // 移除現有的錯誤提示
+  const existing = document.querySelector('.upload-error-modal')
+  if (existing) existing.remove()
+
+  const errorModal = document.createElement('div')
+  errorModal.className = 'upload-error-modal'
+  errorModal.innerHTML = `
+    <div class="upload-error-overlay">
+      <div class="upload-error-content">
+        <div class="upload-error-icon">🚫</div>
+        <h3 class="upload-error-title">${title}</h3>
+        <p class="upload-error-message">${message}</p>
+        <button class="upload-error-btn" onclick="this.closest('.upload-error-modal').remove()">
+          確定
+        </button>
+      </div>
+    </div>
+  `
+
+  // 添加樣式（如果還沒有）
+  if (!document.querySelector('#upload-error-styles')) {
+    const style = document.createElement('style')
+    style.id = 'upload-error-styles'
+    style.textContent = `
+      .upload-error-modal {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10001;
+        background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
+        opacity: 0; animation: fadeIn 0.3s ease forwards;
+      }
+      @keyframes fadeIn { to { opacity: 1; } }
+      .upload-error-content {
+        background: white; border-radius: 12px; padding: 24px; max-width: 400px;
+        text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      }
+      .upload-error-icon { font-size: 48px; margin-bottom: 16px; }
+      .upload-error-title { color: #e74c3c; font-size: 18px; font-weight: 600; margin: 0 0 12px; }
+      .upload-error-message { color: #666; font-size: 14px; line-height: 1.5; margin: 0 0 20px; }
+      .upload-error-btn { background: #e74c3c; color: white; border: none; padding: 8px 16px;
+        border-radius: 6px; cursor: pointer; font-size: 14px; }
+      .upload-error-btn:hover { background: #c0392b; }
+    `
+    document.head.appendChild(style)
+  }
+
+  document.body.appendChild(errorModal)
+  
+  // 點擊遮罩關閉
+  errorModal.querySelector('.upload-error-overlay')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) errorModal.remove()
+  })
+
+  // 自動關閉
+  setTimeout(() => {
+    if (document.body.contains(errorModal)) errorModal.remove()
+  }, 8000)
+}
+
 interface GrapesEditorProps {
   onSave?: (content: string) => void
 }
@@ -187,6 +387,11 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           editor.setComponents(pageData.grapesHtml || '')
           editor.setStyle(pageData.grapesCss || '')
         }
+        
+        // 重要：重新應用全局樣式（在頁面載入後）
+        setTimeout(() => {
+          reapplyGlobalStyles(editor)
+        }, 100)
         
         console.log('✅ 頁面載入成功:', pageData.title)
       }
@@ -466,8 +671,10 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           },
 
           assetManager: {
-            assets: [], // 初始為空，稍後通過命令載入
+            // 預先載入 Sanity 圖片庫
+            assets: [],
             upload: '/api/upload', // Sanity 上傳 API 端點
+            // 完全整合 Sanity 的上傳功能
             uploadFile: async function(e: any) {
               const files = e.dataTransfer ? e.dataTransfer.files : e.target.files
               const uploadedImages: any[] = []
@@ -476,7 +683,7 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
                 const file = files[i]
                 if (file.type.startsWith('image/')) {
                   try {
-                    console.log(`🖼️ AssetManager 處理上傳圖片: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
+                    console.log(`🖼️ Sanity AssetManager 處理上傳圖片: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
                     
                     // 壓縮圖片
                     const compressedDataUrl = await compressImage(file, {
@@ -498,18 +705,46 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
                     
                     if (uploadedImage) {
                       const imageUrl = buildSanityImageUrl(uploadedImage, 1200, 800, 90)
-                      uploadedImages.push({
+                      const sanityAsset = {
                         type: 'image',
                         src: imageUrl,
                         height: uploadedImage.metadata.dimensions.height,
-                        width: uploadedImage.metadata.dimensions.width
-                      })
+                        width: uploadedImage.metadata.dimensions.width,
+                        name: uploadedImage.originalFilename || file.name,
+                        sanityId: uploadedImage._id // 保存 Sanity ID 方便後續管理
+                      }
+                      
+                      uploadedImages.push(sanityAsset)
                       console.log(`✅ 圖片已上傳到 Sanity: ${file.name}`)
+                      
+                      // 立即添加到 AssetManager 中
+                      const assetManager = (this as any).em?.get('AssetManager')
+                      if (assetManager) {
+                        assetManager.add(sanityAsset)
+                        console.log('📁 新圖片已添加到 Sanity AssetManager')
+                      }
                     } else {
                       console.error(`❌ 上傳到 Sanity 失敗: ${file.name}`)
+                      showUploadError(
+                        'Sanity 上傳失敗', 
+                        `圖片「${file.name}」無法上傳到 Sanity，請檢查網絡連接後重試。`
+                      )
                     }
                   } catch (error) {
-                    console.error(`❌ 處理圖片失敗: ${file.name}`, error)
+                    console.error(`❌ Sanity 圖片處理失敗: ${file.name}`, error)
+                    
+                    let errorMessage = `處理圖片「${file.name}」時發生錯誤。`
+                    if (error instanceof Error) {
+                      if (error.message.includes('network') || error.message.includes('fetch')) {
+                        errorMessage = `網絡連接失敗，無法上傳圖片「${file.name}」到 Sanity。`
+                      } else if (error.message.includes('size') || error.message.includes('large')) {
+                        errorMessage = `圖片「${file.name}」過大，請選擇較小的文件。`
+                      } else if (error.message.includes('format')) {
+                        errorMessage = `圖片「${file.name}」格式不支持，請使用 JPG、PNG 或 WebP。`
+                      }
+                    }
+                    
+                    showUploadError('Sanity 上傳錯誤', errorMessage)
                   }
                 }
               }
@@ -583,32 +818,105 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         // 註冊自定義組件
         registerCustomComponents(editor)
 
-        // 載入 Sanity 圖片到 AssetManager
+        // 載入 Sanity 圖片到 AssetManager 圖片管理器
         const loadSanityImages = async () => {
           try {
+            console.log('🔄 載入 Sanity 圖片庫到 AssetManager...')
             const images = await getSanityImages()
             const assetManager = editor.AssetManager
             
-            // 清空現有的 assets 並添加 Sanity 圖片
+            // 將 Sanity 圖片轉換為 GrapesJS AssetManager 格式
             const sanityAssets = images.map(img => ({
               type: 'image',
               src: buildSanityImageUrl(img, 800, 600, 80),
-              height: Math.min(img.metadata.dimensions.height, 150),
-              width: Math.min(img.metadata.dimensions.width, 150),
-              name: img.originalFilename || 'Sanity Image'
+              height: Math.min(img.metadata.dimensions.height, 200),
+              width: Math.min(img.metadata.dimensions.width, 200),
+              name: img.originalFilename || `Sanity 圖片 ${img._id.slice(-6)}`,
+              sanityId: img._id, // 保存 Sanity ID
+              category: 'sanity-images' // 標記為 Sanity 圖片
             }))
             
+            // 重置 AssetManager 內容為 Sanity 圖片
             assetManager.getAll().reset(sanityAssets)
-            console.log(`✅ 載入了 ${images.length} 張 Sanity 圖片到 AssetManager`)
+            console.log(`✅ 成功載入 ${images.length} 張 Sanity 圖片到 AssetManager`)
+            console.log('📸 Sanity 圖片管理器已就緒')
           } catch (error) {
-            console.error('載入 Sanity 圖片失敗:', error)
+            console.error('❌ 載入 Sanity 圖片庫失敗:', error)
           }
         }
 
-        // 編輯器載入完成後載入 Sanity 圖片
+        // AssetManager 選擇事件 - 處理用戶從 Sanity 圖片庫選擇圖片
+        editor.on('asset:select', (asset: any) => {
+          console.log('🎯 用戶從 Sanity 圖片管理器選擇了圖片:', asset)
+          
+          try {
+            // 獲取當前選中的組件
+            const selected = editor.getSelected()
+            const assetSrc = asset.get ? asset.get('src') : asset.src
+            
+            if (selected && selected.get('type') === 'image') {
+              // 如果選中的是圖片組件，更新其 src 屬性
+              console.log('🖼️ 更新現有圖片組件的 src:', assetSrc)
+              
+              selected.addAttributes({ src: assetSrc })
+              selected.set('src', assetSrc)
+              
+              // 觸發重新渲染
+              selected.trigger('change:attributes')
+              editor.trigger('change:canvas')
+              
+            } else {
+              // 如果沒有選中圖片組件，創建新的圖片組件
+              const assetWidth = asset.get ? asset.get('width') : asset.width
+              const assetHeight = asset.get ? asset.get('height') : asset.height
+              
+              console.log('🆕 從 Sanity 圖片創建新的圖片組件:', { 
+                src: assetSrc, 
+                width: assetWidth, 
+                height: assetHeight 
+              })
+              
+              const imageComponent = {
+                type: 'image',
+                attributes: {
+                  src: assetSrc,
+                  alt: '從 Sanity 圖片庫載入的圖片'
+                },
+                style: {
+                  'max-width': '100%',
+                  'height': 'auto'
+                }
+              }
+              
+              // 添加到畫布中央或當前選中的容器
+              const wrapper = editor.getWrapper()
+              if (wrapper) {
+                editor.addComponents([imageComponent], { at: 0 })
+                
+                // 選中新添加的圖片
+                setTimeout(() => {
+                  const addedComponents = wrapper.components()
+                  if (addedComponents.length > 0) {
+                    const lastComponent = addedComponents.at(addedComponents.length - 1)
+                    if (lastComponent && lastComponent.get('type') === 'image') {
+                      editor.select(lastComponent)
+                    }
+                  }
+                }, 100)
+              }
+            }
+            
+            console.log('✅ Sanity 圖片已成功插入/更新到編輯器')
+            
+          } catch (error) {
+            console.error('❌ 處理 Sanity 圖片選擇時發生錯誤:', error)
+          }
+        })
+
+        // 編輯器載入完成後自動載入 Sanity 圖片庫
         editor.on('load', loadSanityImages)
 
-        // 修改默認 Image 組件設定 - 讓圖片填滿容器寬度
+        // 修改默認 Image 組件設定 - 讓圖片填滿容器寬度並在列布局中自適應
         editor.DomComponents.addType('image', {
           isComponent: el => {
             if (el.tagName == 'IMG') {
@@ -633,8 +941,10 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
               style: {
                 width: '100%', // 預設填滿容器寬度
                 height: 'auto', // 自動高度保持比例
+                'max-width': '100%', // 確保不會超出容器
                 'object-fit': 'cover', // 填充方式
-                display: 'block'
+                display: 'block',
+                'box-sizing': 'border-box' // 包含邊框和內邊距
               },
               attributes: {
                 src: 'https://via.placeholder.com/400x300/cccccc/969696?text=Image',
@@ -662,37 +972,75 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
                     {id: 'none', value: 'none', name: '原始尺寸'},
                     {id: 'scale-down', value: 'scale-down', name: '縮小顯示'}
                   ]
+                },
+                {
+                  type: 'checkbox',
+                  name: 'responsive',
+                  label: '響應式圖片',
+                  changeProp: true
                 }
               ]
+            },
+
+            init() {
+              // 監聽響應式設定變化
+              this.on('change:responsive', this.toggleResponsive);
+            },
+
+            toggleResponsive() {
+              const isResponsive = this.get('responsive');
+              if (isResponsive) {
+                this.addClass('responsive-image');
+                this.setStyle({
+                  width: '100%',
+                  height: 'auto',
+                  'max-width': '100%',
+                  'object-fit': 'cover',
+                  display: 'block'
+                });
+              } else {
+                this.removeClass('responsive-image');
+              }
             }
           },
           extend: 'image'
         })
 
-        // 添加全局 CSS 規則來確保圖片填滿容器
-        editor.setStyle(`
-          /* 確保所有圖片都填滿其容器 */
-          img {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: cover;
+        // 添加全局 CSS 規則來確保圖片填滿容器並在列布局中正確縮放
+        // 添加到編輯器樣式管理器
+        editor.on('load', () => {
+          // 添加到 CSS Composer
+          editor.CssComposer.add(globalCSS)
+          
+          // 添加到 canvas iframe
+          const canvas = editor.Canvas
+          const canvasDoc = canvas.getDocument()
+          if (canvasDoc) {
+            const canvasHead = canvasDoc.head || canvasDoc.getElementsByTagName('head')[0]
+            const canvasStyle = canvasDoc.createElement('style')
+            canvasStyle.setAttribute('data-grapes-global', 'true')
+            canvasStyle.appendChild(canvasDoc.createTextNode(globalCSS))
+            canvasHead.appendChild(canvasStyle)
+            console.log('✅ 全局 CSS 已添加到 canvas')
           }
           
-          /* 圖片容器樣式 */
-          [data-gjs-type="image"] {
-            width: 100%;
-            height: auto;
-          }
+          console.log('✅ 全局樣式已應用到編輯器')
+        })
+
+        // Canvas 準備好時的備用樣式添加
+        editor.on('canvas:ready', () => {
+          const canvas = editor.Canvas
+          const canvasDoc = canvas.getDocument()
           
-          /* 響應式圖片 */
-          .responsive-image {
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-            object-fit: cover;
+          if (canvasDoc && !canvasDoc.querySelector('[data-grapes-global="true"]')) {
+            const canvasHead = canvasDoc.head || canvasDoc.getElementsByTagName('head')[0]
+            const canvasStyle = canvasDoc.createElement('style')
+            canvasStyle.setAttribute('data-grapes-global', 'true')
+            canvasStyle.appendChild(canvasDoc.createTextNode(globalCSS))
+            canvasHead.appendChild(canvasStyle)
+            console.log('✅ Canvas ready：備用全局 CSS 已添加')
           }
-        `)
+        })
 
         // 確保工具欄功能啟用
         editor.on('load', () => {
@@ -1486,6 +1834,11 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
                   // 設置當前工作區頁面信息，供保存功能使用
                   currentWorkspacePageId = pageId
                   currentWorkspacePageName = pageName
+                  
+                  // 重新應用全局樣式（在頁面載入後）
+                  setTimeout(() => {
+                    reapplyGlobalStyles(editor)
+                  }, 100)
                   
                   console.log('✅ 工作區已切換至頁面:', pageName)
                 } catch (loadError) {
