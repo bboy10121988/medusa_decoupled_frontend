@@ -1,6 +1,5 @@
 import { promises as fs } from 'fs'
 import path from 'path'
-import { notFound } from 'next/navigation'
 
 // 頁面資料類型
 interface GrapesJSPage {
@@ -28,31 +27,6 @@ async function loadPageFromFile(pageId: string): Promise<GrapesJSPage | null> {
     return null
   }
 }
-
-// 已知的系統路由，這些路由不應該被 GrapesJS 頁面處理
-const SYSTEM_ROUTES = [
-  'account',
-  'affiliate',
-  'affiliate-admin', 
-  'blog',
-  'cart',
-  'categories',
-  'collections',
-  'login-affiliate',
-  'order',
-  'products',
-  'regitster-affiliate', // 保留原有的拼寫錯誤以保持一致性
-  'store',
-  'test-footer',
-  // 管理相關路由
-  'studio',
-  'grapesjs-pages',
-  'pages-manager',
-  // 其他系統路由
-  'checkout',
-  'admin',
-  'api'
-]
 
 // 生成頁面組件
 function PageViewer({ page }: { page: GrapesJSPage }) {
@@ -103,54 +77,12 @@ function NotFoundPage({ message }: { message: string }) {
   )
 }
 
-// 生成靜態參數，只為已存在的 GrapesJS 頁面生成路由
-export async function generateStaticParams({ 
-  params 
-}: { 
-  params: Promise<{ countryCode: string }> 
-}) {
-  // 在開發模式下，返回空陣列以允許動態路由
-  if (process.env.NODE_ENV === 'development') {
-    return []
-  }
-  
-  const { countryCode } = await params
-  
-  try {
-    const data = await fs.readFile(PAGES_FILE, 'utf-8')
-    const pages = JSON.parse(data)
-    
-    // 只為已存在的頁面生成路由，並排除系統路由
-    const validPages = Object.keys(pages).filter(pageId => !SYSTEM_ROUTES.includes(pageId))
-    
-    return validPages.map(pageId => ({
-      countryCode,
-      slug: [pageId]
-    }))
-  } catch (error) {
-    console.error('Error generating static params:', error)
-    return []
-  }
-}
-
-export default async function CatchAllPage({
+export default async function PageByIdRoute({
   params,
 }: {
-  params: Promise<{ countryCode: string; slug: string[] }>
+  params: Promise<{ countryCode: string; pageId: string }>
 }) {
-  const { countryCode, slug } = await params
-  
-  // 如果沒有 slug 或 slug 長度不是 1，則顯示 404
-  if (!slug || slug.length !== 1) {
-    return <NotFoundPage message="無效的頁面路徑" />
-  }
-  
-  const pageId = slug[0]
-  
-  // 如果是系統路由，則調用 notFound() 讓其他路由處理
-  if (SYSTEM_ROUTES.includes(pageId)) {
-    notFound()
-  }
+  const { pageId } = await params
   
   // 嘗試載入 GrapesJS 頁面
   const page = await loadPageFromFile(pageId)
@@ -166,18 +98,9 @@ export default async function CatchAllPage({
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ countryCode: string; slug: string[] }>
+  params: Promise<{ countryCode: string; pageId: string }>
 }) {
-  const { slug } = await params
-  
-  if (!slug || slug.length !== 1) {
-    return {
-      title: '頁面不存在',
-      description: '找不到指定的頁面',
-    }
-  }
-  
-  const pageId = slug[0]
+  const { pageId } = await params
   const page = await loadPageFromFile(pageId)
   
   return {

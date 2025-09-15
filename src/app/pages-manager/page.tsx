@@ -104,7 +104,7 @@ export default async function PagesIndex() {
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <Link
-                    href={`/${page.id}`}
+                    href={`/page/${page.id}`}
                     target="_blank"
                     style={{
                       padding: '6px 12px',
@@ -162,10 +162,10 @@ export default async function PagesIndex() {
             使用 Ctrl+S (Windows) 或 Cmd+S (Mac) 儲存頁面
           </li>
           <li style={{ marginBottom: '8px' }}>
-            儲存後，您的頁面將可以在 <code>/{'{'}頁面名稱{'}'}</code> 路徑訪問
+            儲存後，您的頁面將可以在 <code>/page/{'{'}頁面名稱{'}'}</code> 路徑訪問
           </li>
           <li>
-            例如：頁面名稱為 "page_2" 的頁面可以在 <code>/page_2</code> 訪問（會自動重新導向到 <code>/tw/page_2</code>）
+            例如：頁面名稱為 "page_2" 的頁面可以在 <code>/page/page_2</code> 訪問（會自動重新導向到 <code>/tw/page/page_2</code>）
           </li>
         </ol>
       </div>
