@@ -42,12 +42,13 @@ const ImageTextBlock = ({
       {/* 左圖右文布局 */}
       {layout === 'imageLeft' && image?.url && (
         <div className="grid md:grid-cols-2 items-center">
-          <div className="relative aspect-[4/3] w-full overflow-hidden border border-white">
+          <div className="relative w-full overflow-hidden border border-white">
             <Image
               src={image.url}
               alt={image.alt || '區塊圖片'}
-              fill
-              className="object-cover"
+              width={1920}
+              height={1080}
+              className="w-full h-auto object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
@@ -83,12 +84,13 @@ const ImageTextBlock = ({
               <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
             )}
           </div>
-          <div className="relative aspect-[4/3] w-full overflow-hidden order-1 md:order-2 border border-white">
+          <div className="relative w-full overflow-hidden order-1 md:order-2 border border-white">
             <Image
               src={image.url}
               alt={image.alt || '區塊圖片'}
-              fill
-              className="object-cover"
+              width={1920}
+              height={1080}
+              className="w-full h-auto object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
@@ -124,25 +126,27 @@ const ImageTextBlock = ({
               </h2>
             </div>
           )}
-          <div className="grid grid-cols-2 w-full m-0 p-0 gap-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 w-full m-0 p-0 gap-2 md:gap-0">
             {leftImage?.url && (
-              <div className="relative aspect-[4/3] w-full overflow-hidden m-0 p-0">
+              <div className="relative w-full overflow-hidden m-0 p-0">
                 <Image
                   src={leftImage.url}
                   alt={leftImage.alt || '左側圖片'}
-                  fill
-                  className="object-cover"
+                  width={1920}
+                  height={1080}
+                  className="w-full h-auto object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
             )}
             {rightImage?.url && (
-              <div className="relative aspect-[4/3] w-full overflow-hidden m-0 p-0">
+              <div className="relative w-full overflow-hidden m-0 p-0">
                 <Image
                   src={rightImage.url}
                   alt={rightImage.alt || '右側圖片'}
-                  fill
-                  className="object-cover"
+                  width={1920}
+                  height={1080}
+                  className="w-full h-auto object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
