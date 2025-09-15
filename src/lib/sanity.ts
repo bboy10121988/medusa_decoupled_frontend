@@ -35,34 +35,18 @@ async function safeFetch<T = any>(query: string, params: any = {}, options: any 
   }
 }
 
-// 建立快取實例
-const cache = new Map()
+// 建立快取實例（按需淘汰，不使用 setInterval 以相容無伺服器環境）
+const cache = new Map<string, { data: any; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5分鐘
 const MAX_CACHE_SIZE = 50 // 最大快取項目數
 
-// 定期清理快取
-let cleanupInterval: NodeJS.Timeout | null = null
-if (typeof window === 'undefined') {
-  // 僅在服務端設定清理
-  cleanupInterval = setInterval(() => {
-    const now = Date.now()
-    cache.forEach((entry, key) => {
-      if (now - entry.timestamp > CACHE_TTL * 2) {
-        cache.delete(key)
-      }
-    })
-    
-    // 如果快取太大，移除最舊的項目
-    if (cache.size > MAX_CACHE_SIZE) {
-      const entries: [string, any][] = []
-      cache.forEach((entry, key) => {
-        entries.push([key, entry])
-      })
-      entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
-      const toRemove = entries.slice(0, cache.size - MAX_CACHE_SIZE)
-      toRemove.forEach(([key]) => cache.delete(key))
-    }
-  }, 60000) // 每分鐘清理一次
+function pruneCacheIfNeeded() {
+  if (cache.size <= MAX_CACHE_SIZE) return
+  const entries: [string, { data: any; timestamp: number }][] = []
+  cache.forEach((entry, key) => entries.push([key, entry]))
+  entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
+  const toRemove = entries.slice(0, cache.size - MAX_CACHE_SIZE)
+  toRemove.forEach(([key]) => cache.delete(key))
 }
 
 // 快取包裝函數 - 優化版，加入去重功能
@@ -76,6 +60,7 @@ function withCache<T>(key: string, fn: () => Promise<T>, ttl: number = CACHE_TTL
     try {
       const data = await fn()
       cache.set(key, { data, timestamp: Date.now() })
+      pruneCacheIfNeeded()
       return data
     } catch (error) {
       // 如果有快取資料但已過期，在錯誤時仍返回舊資料

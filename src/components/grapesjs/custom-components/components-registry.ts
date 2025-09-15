@@ -3,45 +3,25 @@
  * 統一管理所有自定義組件的註冊和初始化
  */
 
-import CarouselComponent from './carousel-component-fixed';
-import StaticCarouselComponent from './static-carousel-component';
-import HeroSectionComponent from './hero-section-component';
+import { registerPageComponents } from './page-components-group';
 
 // 組件註冊介面
 export interface CustomComponent {
   name: string;
   register: (editor: any) => void;
   description?: string;
+  category?: string;
 }
 
 // 所有可用的自定義組件
 export const customComponents: CustomComponent[] = [
   {
-    name: 'carousel',
-    register: CarouselComponent,
-    description: '主要橫幅輪播組件 - 支援自動播放、觸控操作和響應式設計（修復版）'
-  },
-  {
-    name: 'static-carousel',
-    register: StaticCarouselComponent,
-    description: '靜態輪播組件 - 適用於前端頁面渲染，使用純 CSS 和內聯 JavaScript'
-  },
-  {
-    name: 'hero-section',
-    register: HeroSectionComponent,
-    description: 'Hero 區塊組件 - 基於現有 Hero 組件的 GrapesJS 版本，支援響應式設計'
+    name: 'page-components',
+    register: registerPageComponents,
+    description: '頁面組件群組 - 包含所有從 page.tsx 遷移的組件，如 Hero Section、Service Cards 等',
+    category: 'Page Sections'
   }
-  // 未來可以在這裡添加更多組件
-  // {
-  //   name: 'hero-section',
-  //   register: HeroSectionComponent,
-  //   description: '英雄區塊組件'
-  // },
-  // {
-  //   name: 'testimonials',
-  //   register: TestimonialsComponent,
-  //   description: '客戶評價組件'
-  // }
+  // 未來可以在這裡添加更多組件或外掛
 ];
 
 /**

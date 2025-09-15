@@ -5,6 +5,7 @@
 
 import { client } from '@/sanity-client/client'
 import { createClient } from '@sanity/client'
+import imageUrlBuilder from '@sanity/image-url'
 
 // 創建具有寫入權限的客戶端
 const writeClient = createClient({
@@ -90,17 +91,19 @@ export async function uploadImageToSanity(file: File): Promise<SanityImage | nul
 /**
  * 生成 Sanity 圖片 URL 與參數
  */
+const builder = imageUrlBuilder(client as any)
+
 export function buildSanityImageUrl(image: SanityImage, width?: number, height?: number, quality?: number): string {
-  let url = image.url
-  const params: string[] = []
-  
-  if (width) params.push(`w=${width}`)
-  if (height) params.push(`h=${height}`)
-  if (quality) params.push(`q=${quality}`)
-  
-  if (params.length > 0) {
-    url += `?${params.join('&')}`
+  try {
+    let b = builder.image(image).auto('format')
+    if (width) b = b.width(width)
+    if (height) b = b.height(height)
+    if (quality) b = b.quality(quality)
+    // 預設以 cover/max 方式縮放，避免拉伸
+    b = b.fit('max')
+    return b.url()
+  } catch {
+    // 後備：回退至原始 URL（不含轉換參數）
+    return image.url
   }
-  
-  return url
 }

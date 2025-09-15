@@ -92,60 +92,15 @@ export default async function Home({
     
     return (
       <>
-        {/* 簡單的歡迎區塊 */}
-        <div className="min-h-[600px] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-              歡迎來到 Tim's Fantasy World
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-700 mb-8">
-              專業美髮沙龍與高級美髮產品
-            </p>
-            <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-              我們座落於繁華永康商圈，提供專業男士理髮和染髮、燙髮服務。
-              秉持著專業熱忱，讓 barber 精神融入男士們的日常、創造自己的風格。
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-900 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                  ✂️
-                </div>
-                <h3 className="text-xl font-semibold mb-2">專業剪髮</h3>
-                <p className="text-gray-600">資深設計師親自為您打造完美髮型</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-900 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                  🎨
-                </div>
-                <h3 className="text-xl font-semibold mb-2">染髮服務</h3>
-                <p className="text-gray-600">多元化染髮選擇，展現個人風格</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-900 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                  🌊
-                </div>
-                <h3 className="text-xl font-semibold mb-2">燙髮造型</h3>
-                <p className="text-gray-600">各式燙髮技術，創造層次感</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-900 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                  💆
-                </div>
-                <h3 className="text-xl font-semibold mb-2">頭皮護理</h3>
-                <p className="text-gray-600">深層清潔與滋養，維持頭皮健康</p>
-              </div>
-            </div>
-            <div className="mt-16">
-              <a 
-                href="https://page.line.me/timsfantasyworld" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
-              >
-                立即預約 LINE 諮詢
-              </a>
-            </div>
-          </div>
+        <div className="mt-16">
+          <a 
+            href="https://page.line.me/timsfantasyworld" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
+          >
+            立即預約 LINE 諮詢
+          </a>
         </div>
         
         {/* 精選商品區塊 */}
@@ -194,10 +149,17 @@ export default async function Home({
                 switch (sectionType) {
                   case "serviceCardSection": {
                     const serviceSection = section as ServiceCards;
+                    
+                    // 檢查是否被停用
+                    if (serviceSection.isActive === false) {
+                      console.log("❌ ServiceCardSection 已被停用，跳過渲染");
+                      return null;
+                    }
+                    
                     // 直接渲染從 Sanity 獲取的資料
                     return (
                       <ServiceCardsSection
-                        key={index}
+                        key={`service-${index}`}
                         heading={serviceSection.heading}
                         cardsPerRow={serviceSection.cardsPerRow}
                         cards={serviceSection.cards}

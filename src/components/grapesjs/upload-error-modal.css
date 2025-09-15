@@ -1,0 +1,63 @@
+/* 上傳錯誤提示模態框樣式 */
+.upload-error-modal {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0; 
+  z-index: 10001;
+  background: rgba(0,0,0,0.6); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  opacity: 0; 
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn { 
+  to { 
+    opacity: 1; 
+  } 
+}
+
+.upload-error-content {
+  background: white; 
+  border-radius: 12px; 
+  padding: 24px; 
+  max-width: 400px;
+  text-align: center; 
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.upload-error-icon { 
+  font-size: 48px; 
+  margin-bottom: 16px; 
+}
+
+.upload-error-title { 
+  color: #e74c3c; 
+  font-size: 18px; 
+  font-weight: 600; 
+  margin: 0 0 12px; 
+}
+
+.upload-error-message { 
+  color: #666; 
+  font-size: 14px; 
+  line-height: 1.5; 
+  margin: 0 0 20px; 
+}
+
+.upload-error-btn { 
+  background: #e74c3c; 
+  color: white; 
+  border: none; 
+  padding: 8px 16px;
+  border-radius: 6px; 
+  cursor: pointer; 
+  font-size: 14px; 
+}
+
+.upload-error-btn:hover { 
+  background: #c0392b; 
+}

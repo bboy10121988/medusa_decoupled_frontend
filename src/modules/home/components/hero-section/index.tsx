@@ -13,8 +13,8 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
   }
   
   return (
-    <section className="w-full">
-      <div className="mb-4 last:mb-0">
+    <section className="w-full overflow-hidden">
+      <div className="w-full mb-4 last:mb-0 h-auto">
         <Hero
           slides={banner.slides.map((slide: BannerSlide) => ({
             heading: slide.heading,

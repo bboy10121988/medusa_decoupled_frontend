@@ -1,0 +1,476 @@
+/* ===================================== */
+/* 第三方插件自訂樣式覆寫 */
+/* ===================================== */
+
+/* 1. grapesjs-blocks-basic 優化 */
+.gjs-block-basic {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gjs-block-basic:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* 網格佈局優化 */
+.gjs-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+  min-height: 50px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,150,255,0.1) 50%, transparent 100%);
+}
+
+.gjs-column {
+  padding: 0 15px;
+  flex: 1 1 auto;
+  min-height: 50px;
+  border: 2px dashed rgba(0,150,255,0.3);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.gjs-column:hover {
+  border-color: rgba(0,150,255,0.6);
+  background: rgba(0,150,255,0.05);
+}
+
+/* 2. grapesjs-plugin-forms 表單優化 */
+.form-input, .form-textarea, .form-select {
+  border-radius: 6px;
+  border: 2px solid #e1e5e9;
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+}
+
+.form-button {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+}
+
+/* 3. grapesjs-component-countdown 倒計時優化 */
+.countdown-timer {
+  display: inline-block;
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-weight: bold;
+  color: #dc3545;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  padding: 8px 16px;
+  background: linear-gradient(45deg, #fff3cd, #ffeaa7);
+  border-radius: 8px;
+  border: 2px solid #f39c12;
+  margin: 0 4px;
+}
+
+/* 4. grapesjs-tabs 標籤頁優化 */
+.tab-nav {
+  display: flex;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.tab-nav-item {
+  padding: 12px 20px;
+  background: #f8f9fa;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  position: relative;
+}
+
+.tab-nav-item:hover {
+  background: #e9ecef;
+}
+
+.tab-nav-item.active {
+  background: white;
+  color: #007bff;
+}
+
+.tab-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #007bff;
+}
+
+.tab-content {
+  background: white;
+  padding: 20px;
+  border-radius: 0 0 8px 8px;
+  min-height: 200px;
+  border: 1px solid #dee2e6;
+  border-top: none;
+}
+
+/* 5. grapesjs-custom-code 自訂代碼優化 */
+.cc-container {
+  background: #f8f9fa;
+  border: 2px dashed #6c757d;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  min-height: 100px;
+}
+
+.cc-container::before {
+  content: '自訂代碼區塊';
+  display: block;
+  color: #6c757d;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.cc-edit-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* 6. grapesjs-tooltip 提示框優化 */
+.tooltip-trigger {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted #007bff;
+}
+
+.tooltip-content {
+  position: absolute;
+  background: #343a40;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.tooltip-trigger:hover .tooltip-content {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 7. grapesjs-typed 打字效果優化 */
+.typed-cursor {
+  opacity: 1;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.typed-text {
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #007bff;
+}
+
+/* 8. grapesjs-carousel-component 輪播優化 - 全寬版本 */
+.carousel-container {
+  position: relative;
+  width: 100vw; /* 全螢幕寬度 */
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  border-radius: 0; /* 移除圓角以達到真正全寬效果 */
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+/* 全寬輪播的特殊樣式 */
+.carousel-container.full-width {
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  border-radius: 0;
+}
+
+/* 確保父容器不會限制輪播寬度 */
+.carousel-container.full-width * {
+  box-sizing: border-box;
+}
+
+.carousel-item {
+  transition: all 0.6s ease-in-out;
+}
+
+.carousel-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.carousel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-dot.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-arrow:hover {
+  background: rgba(0,0,0,0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-arrow.prev { left: 30px; }
+.carousel-arrow.next { right: 30px; }
+
+/* 全寬輪播的控制按鈕優化 */
+.full-width .carousel-arrow {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+
+.full-width .carousel-arrow.prev { left: 30px; }
+.full-width .carousel-arrow.next { right: 30px; }
+
+/* 全寬輪播的指示器優化 */
+.full-width .carousel-indicators {
+  bottom: 30px;
+  gap: 15px;
+  z-index: 10;
+}
+
+.full-width .carousel-dot {
+  width: 16px;
+  height: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* 響應式優化 */
+@media (max-width: 768px) {
+  .gjs-row {
+    margin: 0 -10px;
+  }
+  
+  .gjs-column {
+    padding: 0 10px;
+    margin-bottom: 10px;
+  }
+  
+  .tab-nav-item {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  /* 移動設備上的輪播優化 */
+  .carousel-container.full-width {
+    width: 100vw;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+  
+  .carousel-container.full-width .carousel-slides {
+    height: 50vh;
+    min-height: 300px;
+  }
+  
+  .carousel-arrow {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+  
+  .full-width .carousel-arrow {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+  
+  .full-width .carousel-arrow.prev { left: 15px; }
+  .full-width .carousel-arrow.next { right: 15px; }
+  
+  .full-width .carousel-indicators {
+    bottom: 15px;
+    gap: 10px;
+  }
+  
+  .full-width .carousel-dot {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* 編輯器內顯示優化 */
+.gjs-selected {
+  outline: 2px solid #007bff !important;
+  outline-offset: 2px;
+}
+
+.gjs-hovered {
+  outline: 1px dashed #28a745 !important;
+  outline-offset: 1px;
+}
+
+/* 暗色主題支持 */
+@media (prefers-color-scheme: dark) {
+  .gjs-row {
+    background: linear-gradient(90deg, transparent 0%, rgba(100,200,255,0.1) 50%, transparent 100%);
+  }
+  
+  .gjs-column {
+    border-color: rgba(100,200,255,0.3);
+  }
+  
+  .gjs-column:hover {
+    border-color: rgba(100,200,255,0.6);
+    background: rgba(100,200,255,0.05);
+  }
+}
+
+/* ============================================
+   Splide.js 全寬輪播樣式修正
+   ============================================ */
+
+/* 全寬輪播容器 - 針對 full-width-carousel 類名 */
+.full-width-carousel {
+  width: 100vw !important;
+  position: relative !important;
+  left: 50% !important;
+  right: 50% !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+}
+
+/* 移除輪播軌道的左右邊距，實現真正全寬 */
+.full-width-carousel .splide__track {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 確保輪播列表也是全寬 */
+.full-width-carousel .splide__list {
+  width: 100% !important;
+}
+
+/* 全寬輪播幻燈片樣式 */
+.full-width-carousel .splide__slide {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 400px !important;
+}
+
+/* 全寬輪播中的圖片樣式 */
+.full-width-carousel .slide_image {
+  width: 100% !important;
+  height: 400px !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* 全寬輪播中的文字樣式 */
+.full-width-carousel .slide_text {
+  position: absolute !important;
+  bottom: 30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  color: white !important;
+  background: rgba(0,0,0,0.6) !important;
+  padding: 15px 30px !important;
+  border-radius: 8px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .full-width-carousel .slide_image {
+    height: 300px !important;
+  }
+  
+  .full-width-carousel .slide_text {
+    font-size: 16px !important;
+    padding: 12px 20px !important;
+    bottom: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .full-width-carousel .slide_image {
+    height: 250px !important;
+  }
+  
+  .full-width-carousel .slide_text {
+    font-size: 14px !important;
+    padding: 10px 15px !important;
+    bottom: 15px !important;
+  }
+}

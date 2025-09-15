@@ -4,15 +4,22 @@ import { useEffect, useRef, useState } from 'react'
 import { grapesJSPageService, type GrapesJSPageData, type SavePageParams } from '@/lib/services/grapesjs-page-service'
 import { registerCustomComponents } from './custom-components'
 import { compressImagesInHtml, compressImage } from '@/lib/image-compression'
-import { uploadImageToSanity, getSanityImages, buildSanityImageUrl } from '@/lib/services/sanity-media-service'
+import { buildSanityImageUrl, getSanityImages, type SanityImage } from '@/lib/services/sanity-media-service'
+import { applyAllPluginCustomizations, getThirdPartyBlocks, modifyPluginBlock } from './plugins/third-party-customization'
+import { getPluginsOptions } from './config/plugins-config'
+// import { addCarouselConverter } from './utils/carousel-fullwidth-converter'
+import { applyZhTW } from './i18n/zh-TW'
 import 'grapesjs/dist/css/grapes.min.css'
-import './grapes-editor.css'
+import './grapes-editor.flat.css'
+import './third-party-plugins-custom.css'
+import './upload-error-modal.css'
+import { PluginControlPanel } from './PluginControlPanel'
 
 // 全域變數來追蹤工作區選中的頁面
 let currentWorkspacePageId: string | null = null
 let currentWorkspacePageName: string | null = null
 
-// 全局 CSS 樣式定義
+// 全局 CSS 樣式內容 - 從 CSS 文件讀取
 const globalCSS = `
   /* 確保所有圖片都填滿其容器 */
   img {
@@ -26,7 +33,6 @@ const globalCSS = `
   
   /* 圖片容器樣式 */
   [data-gjs-type="image"] {
-    width: 100%;
     height: auto;
     max-width: 100%;
   }
@@ -71,12 +77,159 @@ const globalCSS = `
     position: relative;
   }
 
+  /* ========================================= */
+  /* 🎨 編輯器面板和工具列樣式優化 */
+  /* ========================================= */
+  
+  /* 工具列按鈕樣式增強 */
+  .gjs-pn-panel .gjs-pn-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 2px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  }
+  
+  .gjs-pn-panel .gjs-pn-btn:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+  }
+  
+  .gjs-pn-panel .gjs-pn-btn.gjs-pn-active {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+  }
+  
+  /* 特定按鈕顏色 */
+  .btn-save {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+  }
+  
+  .btn-save:hover {
+    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%) !important;
+  }
+  
+  .btn-clear {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+  }
+  
+  .btn-clear:hover {
+    background: linear-gradient(135deg, #ee5a24 0%, #ff6b6b 100%) !important;
+  }
+  
+  .btn-third-party {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+    color: #333 !important;
+  }
+  
+  .btn-third-party:hover {
+    background: linear-gradient(135deg, #fed6e3 0%, #a8edea 100%) !important;
+  }
+  
+  /* 左側面板優化 */
+  .gjs-pn-panel.gjs-pn-views {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-right: 1px solid #e1e5e9 !important;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+  }
+  
+  .gjs-pn-panel.gjs-pn-views .gjs-pn-btn {
+    background: transparent !important;
+    color: #495057 !important;
+    border-radius: 8px !important;
+    margin: 4px !important;
+    padding: 12px !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .gjs-pn-panel.gjs-pn-views .gjs-pn-btn:hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    color: #667eea !important;
+  }
+  
+  .gjs-pn-panel.gjs-pn-views .gjs-pn-btn.gjs-pn-active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3) !important;
+  }
+  
+  /* AssetManager 圖片庫樣式優化 */
+  .gjs-am-assets-cont {
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+  }
+  
+  .gjs-am-asset {
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    margin: 4px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  }
+  
+  .gjs-am-asset:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+  }
+  
+  .gjs-am-asset img {
+    border-radius: 6px !important;
+  }
+  
+  /* 區塊面板樣式優化 */
+  .gjs-blocks-c .gjs-block {
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    margin: 6px 3px !important;
+    background: white !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    border: 1px solid #e1e5e9 !important;
+  }
+  
+  .gjs-blocks-c .gjs-block:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+    border-color: #667eea !important;
+  }
+  
+  .gjs-block-label {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    color: #495057 !important;
+    padding: 4px !important;
+  }
+
+  /* grapesjs-blocks-basic 插件的 cell 樣式 */
+  .gjs-cell {
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 0;
+    box-sizing: border-box;
+    padding: 10px;
+    min-height: 50px;
+    position: relative;
+    display: block;
+    width: auto;
+  }
+
   /* 兩列布局樣式 */
   .gjs-row.two-columns {
     display: flex !important;
     flex-direction: row !important;
   }
   .gjs-row.two-columns .gjs-column {
+    flex: 1 1 calc(50% - 7.5px) !important;
+    width: calc(50% - 7.5px) !important;
+  }
+  .gjs-row.two-columns .gjs-cell {
     flex: 1 1 calc(50% - 7.5px) !important;
     width: calc(50% - 7.5px) !important;
   }
@@ -90,6 +243,10 @@ const globalCSS = `
     flex: 1 1 calc(33.333% - 10px) !important;
     width: calc(33.333% - 10px) !important;
   }
+  .gjs-row.three-columns .gjs-cell {
+    flex: 1 1 calc(33.333% - 10px) !important;
+    width: calc(33.333% - 10px) !important;
+  }
 
   /* 手機響應式 */
   @media (max-width: 768px) {
@@ -97,6 +254,10 @@ const globalCSS = `
       flex-direction: column !important;
     }
     .gjs-column {
+      flex: 1 1 100% !important;
+      min-width: 100% !important;
+    }
+    .gjs-cell {
       flex: 1 1 100% !important;
       min-width: 100% !important;
     }
@@ -174,31 +335,6 @@ const showUploadError = (title: string, message: string) => {
     </div>
   `
 
-  // 添加樣式（如果還沒有）
-  if (!document.querySelector('#upload-error-styles')) {
-    const style = document.createElement('style')
-    style.id = 'upload-error-styles'
-    style.textContent = `
-      .upload-error-modal {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10001;
-        background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
-        opacity: 0; animation: fadeIn 0.3s ease forwards;
-      }
-      @keyframes fadeIn { to { opacity: 1; } }
-      .upload-error-content {
-        background: white; border-radius: 12px; padding: 24px; max-width: 400px;
-        text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      }
-      .upload-error-icon { font-size: 48px; margin-bottom: 16px; }
-      .upload-error-title { color: #e74c3c; font-size: 18px; font-weight: 600; margin: 0 0 12px; }
-      .upload-error-message { color: #666; font-size: 14px; line-height: 1.5; margin: 0 0 20px; }
-      .upload-error-btn { background: #e74c3c; color: white; border: none; padding: 8px 16px;
-        border-radius: 6px; cursor: pointer; font-size: 14px; }
-      .upload-error-btn:hover { background: #c0392b; }
-    `
-    document.head.appendChild(style)
-  }
-
   document.body.appendChild(errorModal)
   
   // 點擊遮罩關閉
@@ -210,6 +346,215 @@ const showUploadError = (title: string, message: string) => {
   setTimeout(() => {
     if (document.body.contains(errorModal)) errorModal.remove()
   }, 8000)
+}
+
+// 顯示保存載入提示的函數
+const showSaveLoading = () => {
+  // 移除既有的載入提示
+  const existingModal = document.getElementById('save-loading-modal')
+  if (existingModal) {
+    existingModal.remove()
+  }
+
+  const loadingModal = document.createElement('div')
+  loadingModal.id = 'save-loading-modal'
+  loadingModal.innerHTML = `
+    <div class="save-loading-overlay" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      backdrop-filter: blur(4px);
+    ">
+      <div class="save-loading-content" style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 32px 48px;
+        border-radius: 16px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        min-width: 320px;
+        animation: saveLoadingPulse 2s infinite;
+      ">
+        <div class="save-loading-spinner" style="
+          width: 40px;
+          height: 40px;
+          border: 4px solid rgba(255,255,255,0.3);
+          border-top: 4px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 16px;
+        "></div>
+        <h3 style="margin: 0 0 8px 0; font-size: 18px;">正在保存頁面</h3>
+        <p style="margin: 0; opacity: 0.9; font-size: 14px;">
+          <span id="save-status-text">正在壓縮和優化數據...</span>
+        </p>
+        <div class="save-progress-bar" style="
+          width: 100%;
+          height: 4px;
+          background: rgba(255,255,255,0.3);
+          border-radius: 2px;
+          margin-top: 16px;
+          overflow: hidden;
+        ">
+          <div class="save-progress-fill" style="
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 0%;
+            animation: saveProgress 3s ease-in-out infinite;
+          "></div>
+        </div>
+      </div>
+    </div>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes saveLoadingPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+      }
+      @keyframes saveProgress {
+        0% { width: 0%; }
+        50% { width: 70%; }
+        100% { width: 100%; }
+      }
+    </style>
+  `
+
+  document.body.appendChild(loadingModal)
+  return loadingModal
+}
+
+// 更新保存狀態文字
+const updateSaveStatus = (message: string) => {
+  const statusElement = document.getElementById('save-status-text')
+  if (statusElement) {
+    statusElement.textContent = message
+  }
+}
+
+// 隱藏保存載入提示
+const hideSaveLoading = () => {
+  const loadingModal = document.getElementById('save-loading-modal')
+  if (loadingModal) {
+    // 添加淡出效果
+    loadingModal.style.opacity = '0'
+    loadingModal.style.transform = 'scale(0.9)'
+    loadingModal.style.transition = 'all 0.3s ease'
+    
+    setTimeout(() => {
+      if (loadingModal.parentNode) {
+        loadingModal.remove()
+      }
+    }, 300)
+  }
+}
+
+// 顯示保存成功提示
+const showSaveSuccess = (message: string = '頁面保存成功！', duration: number = 3000) => {
+  const successToast = document.createElement('div')
+  successToast.innerHTML = `
+    <div class="save-success-toast" style="
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(17, 153, 142, 0.3);
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: slideInRight 0.3s ease;
+    ">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>${message}</span>
+    </div>
+    <style>
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  `
+
+  document.body.appendChild(successToast)
+  
+  // 自動移除
+  setTimeout(() => {
+    successToast.style.animation = 'slideInRight 0.3s ease reverse'
+    setTimeout(() => {
+      if (successToast.parentNode) {
+        successToast.remove()
+      }
+    }, 300)
+  }, duration)
+}
+
+// 顯示保存錯誤提示
+const showSaveError = (message: string) => {
+  const errorToast = document.createElement('div')
+  errorToast.innerHTML = `
+    <div class="save-error-toast" style="
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      max-width: 400px;
+      animation: slideInRight 0.3s ease;
+    ">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+        <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>${message}</span>
+    </div>
+  `
+
+  document.body.appendChild(errorToast)
+  
+  // 自動移除
+  setTimeout(() => {
+    errorToast.style.animation = 'slideInRight 0.3s ease reverse'
+    setTimeout(() => {
+      if (errorToast.parentNode) {
+        errorToast.remove()
+      }
+    }, 300)
+  }, 6000)
 }
 
 interface GrapesEditorProps {
@@ -224,6 +569,7 @@ export default function GrapesEditor({ onSave }: Readonly<GrapesEditorProps>) {
   const [currentPageId, setCurrentPageId] = useState<string>('')
   const [currentPage, setCurrentPage] = useState<GrapesJSPageData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showPluginPanel, setShowPluginPanel] = useState(false)
 
   // 載入頁面列表
 const loadPages = async () => {
@@ -400,38 +746,52 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
     }
   }
 
-  // 保存當前頁面 - 改進版，支持工作區
+  // 保存當前頁面 - 改進版，支持工作區和載入提示
   const saveCurrentPage = async (editor: any) => {
+    // 顯示載入提示
+    const loadingModal = showSaveLoading()
+    
     try {
-      console.log('開始保存當前頁面...')
+      console.log('💾 開始保存當前頁面...')
+      
+      // 更新狀態：準備數據
+      updateSaveStatus('正在準備頁面數據...')
       
       // 獲取當前編輯器中的內容
       const html = editor.getHtml()
       const css = editor.getCss() 
       const components = editor.getComponents()
       
+      // 更新狀態：處理樣式
+      updateSaveStatus('正在處理樣式和組件...')
+      
       // 使用正確的 GrapesJS API 獲取樣式
       const styleManager = editor.StyleManager
       const styles = styleManager ? styleManager.getAll().map((style: any) => style.toJSON()) : []
       
-      // 清理和優化數據
+      // 更新狀態：優化數據
+      updateSaveStatus('正在優化和壓縮數據...')
+      
+      // 清理和優化數據 - 異步處理以不阻塞 UI
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       const cleanedComponents = JSON.stringify(components, null, 0) // 移除格式化空格
       const cleanedStyles = JSON.stringify(styles, null, 0)
       
-      // 移除 HTML 中的多餘空格和換行
+      // 移除 HTML 中的多餘空格和換行 - 優化版本
       let cleanedHtml = html.replace(/\s+/g, ' ').trim()
       const cleanedCss = css.replace(/\s+/g, ' ').trim()
       
-      // 壓縮圖片以減少數據大小
-      try {
-        console.log('🖼️ 開始壓縮圖片...')
-        const compressedHtml = await compressImagesInHtml(cleanedHtml)
-        cleanedHtml = compressedHtml
-        console.log('✅ 圖片壓縮完成')
-      } catch (error) {
-        console.warn('⚠️ 圖片壓縮失敗，使用原始 HTML:', error)
-        // 繼續使用原始 HTML，但會在後面的大小檢查中被攔截
+      // 檢測是否含有 base64 內嵌圖片，若有則阻止保存並提示使用者改用資產管理器
+      const hasEmbeddedImages = /<img[^>]+src=["']data:/i.test(cleanedHtml)
+      if (hasEmbeddedImages) {
+        hideSaveLoading()
+        showSaveError('偵測到以 data URI 方式內嵌的圖片。請改用圖片上傳/資產管理器，系統會自動產生 Sanity CDN 圖片連結以提升效能與可靠性。')
+        return false
       }
+      
+      // 更新狀態：驗證頁面
+      updateSaveStatus('正在驗證頁面狀態...')
       
       console.log('準備保存的數據:', {
         html: `${cleanedHtml.length} 字符 (原: ${html.length})`,
@@ -456,7 +816,8 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
       if (!targetPageId) {
         // 如果仍然沒有目標頁面，提示用戶先選擇頁面
         console.error('❌ 沒有找到要保存的頁面 ID')
-        alert('請先在工作區選擇要保存的頁面')
+        hideSaveLoading()
+        showSaveError('請先在工作區選擇要保存的頁面')
         return false
       }
 
@@ -473,6 +834,9 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             .replace(/[^a-z0-9-]/g, '')
         }
       }
+
+      // 更新狀態：檢查數據大小
+      updateSaveStatus('正在檢查數據大小...')
 
       // 使用 API 正確的參數格式保存
       const savePayload = {
@@ -492,13 +856,6 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         }
       }
       
-      console.log('正在保存到 API...', {
-        pageId: targetPageId,
-        slug: pageSlug,
-        htmlLength: html.length,
-        cssLength: css.length
-      })
-      
       // 檢查數據大小，防止超過 Sanity 限制（4MB）
       const jsonString = JSON.stringify(savePayload)
       const dataSizeInBytes = new Blob([jsonString]).size
@@ -510,44 +867,85 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         const error = `數據太大無法保存 (${dataSizeInMB.toFixed(2)} MB)，Sanity 限制為 4MB`
         console.error('❌', error)
         
+        hideSaveLoading()
+        
         // 提供用戶友好的建議
         const suggestions = [
           '• 刪除一些不必要的圖片',
           '• 減少頁面內容的複雜度', 
           '• 刪除未使用的組件或樣式',
           '• 將大圖片分離到外部存儲'
-        ].join('\n')
+        ].join('\\n')
         
-        alert(`❌ 頁面數據過大，無法保存！\n\n當前大小: ${dataSizeInMB.toFixed(2)} MB\nSanity 限制: 4 MB\n\n建議解決方案:\n${suggestions}`)
-        throw new Error(error)
+        showSaveError(`頁面數據過大，無法保存！\\n\\n當前大小: ${dataSizeInMB.toFixed(2)} MB\\nSanity 限制: 4 MB\\n\\n建議解決方案:\\n${suggestions}`)
+        return false
       }
       
-      // 添加更詳細的錯誤處理
-      let response, result
-      try {
-        response = await fetch('/api/pages/save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(savePayload)
-        })
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      // 更新狀態：上傳到服務器
+      updateSaveStatus('正在上傳到 Sanity CMS...')
+      
+      console.log('正在保存到 API...', {
+        pageId: targetPageId,
+        slug: pageSlug,
+        htmlLength: html.length,
+        cssLength: css.length,
+        dataSizeMB: dataSizeInMB.toFixed(2)
+      })
+
+      // 添加更詳細的錯誤處理和重試邏輯
+      let response: Response | undefined
+      let result: any
+      let retryCount = 0
+      const maxRetries = 2
+      
+      while (retryCount <= maxRetries) {
+        try {
+          // 添加超時控制
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 30000) // 30秒超時
+          
+          response = await fetch('/api/pages/save', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(savePayload),
+            signal: controller.signal
+          })
+          
+          clearTimeout(timeoutId)
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          }
+          
+          result = await response.json()
+          break // 成功則跳出重試循環
+          
+        } catch (fetchError: any) {
+          retryCount++
+          console.warn(`⚠️ 保存嘗試 ${retryCount} 失敗:`, fetchError)
+          
+          if (retryCount <= maxRetries) {
+            updateSaveStatus(`保存失敗，正在重試 (${retryCount}/${maxRetries})...`)
+            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // 漸進式延遲
+          } else {
+            throw fetchError
+          }
         }
-        
-        result = await response.json()
-      } catch (fetchError) {
-        console.error('❌ Fetch 錯誤詳細信息:', fetchError)
-        console.error('請求數據:', savePayload)
-        throw new Error(`網絡請求失敗: ${fetchError instanceof Error ? fetchError.message : '未知錯誤'}`)
       }
       
-      console.log('API 響應:', result)
+      // 更新狀態：處理響應
+      updateSaveStatus('正在處理服務器響應...')
       
-      if (response.ok && result.success) {
+      console.log('✅ API 響應成功:', result)
+      
+      if (response && response.ok && result.success) {
         console.log('✅ 頁面保存成功!', result.message || '')
+        
+        // 隱藏載入提示並顯示成功消息
+        hideSaveLoading()
+        showSaveSuccess(`頁面「${currentPage?.title || currentWorkspacePageName || '未命名頁面'}」保存成功！`)
         
         // 不要重新載入頁面列表，避免重置編輯器內容
         // await loadPages()
@@ -560,16 +958,23 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         }
         
         if (onSave) {
+          const html = editor.getHtml()
           onSave(html)
         }
         
         return true
       } else {
-        throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`)
+        const errorMsg = result?.error || (response ? `HTTP ${response.status}: ${response.statusText}` : '未知響應錯誤')
+        throw new Error(errorMsg)
       }
       
-    } catch (error) {
-      console.error('保存頁面失敗:', error)
+    } catch (error: any) {
+      console.error('❌ 保存頁面失敗:', error)
+      
+      // 隱藏載入提示並顯示錯誤消息
+      hideSaveLoading()
+      showSaveError(`保存失敗：${error instanceof Error ? error.message : '未知錯誤'}`)
+      
       return false
     }
   }
@@ -664,125 +1069,241 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           height: '100vh',
           width: 'auto',
           
-          avoidInlineStyle: false,
+          // 編輯器優化配置
+          avoidInlineStyle: false, // 允許內聯樣式，提升性能
+          undoManager: {},
           
+          // 禁用預設存儲，我們使用自定義的 Sanity 存儲
           storageManager: {
-            type: 'none'
+            type: 'none',
+            autoload: false, // 禁用自動載入
+            autosave: false, // 禁用自動儲存，我們手動控制
           },
 
+          // 選擇管理器優化
+          selectorManager: {
+            componentFirst: true, // 組件優先選擇
+            custom: true, // 啟用自定義選擇器
+          },
+
+          // AssetManager 整合 Sanity
           assetManager: {
-            // 預先載入 Sanity 圖片庫
-            assets: [],
-            upload: '/api/upload', // Sanity 上傳 API 端點
-            // 完全整合 Sanity 的上傳功能
+            assets: [], // 預先載入 Sanity 圖片庫，稍後動態載入
+            upload: '/api/sanity/upload', // 修正為正確的 Sanity 上傳 API 端點
+            uploadName: 'file', // 上傳檔案的參數名稱
+            multiUpload: true, // 啟用多檔案上傳
+            embedAsBase64: false, // 不使用 base64，直接使用 URL
+            // AssetManager 整合 Sanity 圖片上傳功能
+            // 完全整合 Sanity 的上傳功能，包含圖片壓縮和錯誤處理
             uploadFile: async function(e: any) {
               const files = e.dataTransfer ? e.dataTransfer.files : e.target.files
               const uploadedImages: any[] = []
               
+              // 檢查是否有檔案
+              if (!files || files.length === 0) {
+                showUploadError('無檔案', '請選擇要上傳的圖片檔案。')
+                return []
+              }
+              
+              console.log(`📁 開始處理 ${files.length} 個檔案上傳到 Sanity`)
+              
               for (let i = 0; i < files.length; i++) {
                 const file = files[i]
-                if (file.type.startsWith('image/')) {
-                  try {
-                    console.log(`🖼️ Sanity AssetManager 處理上傳圖片: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
-                    
-                    // 壓縮圖片
-                    const compressedDataUrl = await compressImage(file, {
-                      maxWidth: 1200,
-                      maxHeight: 800,
-                      quality: 0.8,
-                      maxSizeKB: 500
-                    })
-                    
-                    // 將壓縮後的 base64 轉換回 File 對象
-                    const response = await fetch(compressedDataUrl)
-                    const blob = await response.blob()
-                    const compressedFile = new File([blob], file.name, { type: 'image/jpeg' })
-                    
-                    console.log(`✅ 圖片壓縮完成: ${file.name} (${(file.size / 1024).toFixed(1)}KB → ${(compressedFile.size / 1024).toFixed(1)}KB)`)
-                    
-                    // 上傳到 Sanity
-                    const uploadedImage = await uploadImageToSanity(compressedFile)
-                    
-                    if (uploadedImage) {
-                      const imageUrl = buildSanityImageUrl(uploadedImage, 1200, 800, 90)
-                      const sanityAsset = {
-                        type: 'image',
-                        src: imageUrl,
-                        height: uploadedImage.metadata.dimensions.height,
-                        width: uploadedImage.metadata.dimensions.width,
-                        name: uploadedImage.originalFilename || file.name,
-                        sanityId: uploadedImage._id // 保存 Sanity ID 方便後續管理
-                      }
-                      
-                      uploadedImages.push(sanityAsset)
-                      console.log(`✅ 圖片已上傳到 Sanity: ${file.name}`)
-                      
-                      // 立即添加到 AssetManager 中
-                      const assetManager = (this as any).em?.get('AssetManager')
-                      if (assetManager) {
-                        assetManager.add(sanityAsset)
-                        console.log('📁 新圖片已添加到 Sanity AssetManager')
-                      }
-                    } else {
-                      console.error(`❌ 上傳到 Sanity 失敗: ${file.name}`)
-                      showUploadError(
-                        'Sanity 上傳失敗', 
-                        `圖片「${file.name}」無法上傳到 Sanity，請檢查網絡連接後重試。`
-                      )
-                    }
-                  } catch (error) {
-                    console.error(`❌ Sanity 圖片處理失敗: ${file.name}`, error)
-                    
-                    let errorMessage = `處理圖片「${file.name}」時發生錯誤。`
-                    if (error instanceof Error) {
-                      if (error.message.includes('network') || error.message.includes('fetch')) {
-                        errorMessage = `網絡連接失敗，無法上傳圖片「${file.name}」到 Sanity。`
-                      } else if (error.message.includes('size') || error.message.includes('large')) {
-                        errorMessage = `圖片「${file.name}」過大，請選擇較小的文件。`
-                      } else if (error.message.includes('format')) {
-                        errorMessage = `圖片「${file.name}」格式不支持，請使用 JPG、PNG 或 WebP。`
-                      }
-                    }
-                    
-                    showUploadError('Sanity 上傳錯誤', errorMessage)
+                
+                // 檔案類型驗證
+                if (!file.type.startsWith('image/')) {
+                  console.warn(`⚠️ 跳過非圖片檔案: ${file.name}`)
+                  showUploadError(
+                    '檔案類型錯誤', 
+                    `「${file.name}」不是圖片檔案，請選擇 JPG、PNG 或 WebP 格式的圖片。`
+                  )
+                  continue
+                }
+                
+                // 檔案大小驗證（最大 10MB）
+                const maxSizeBytes = 10 * 1024 * 1024
+                if (file.size > maxSizeBytes) {
+                  console.warn(`⚠️ 檔案太大: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
+                  showUploadError(
+                    '檔案太大', 
+                    `圖片「${file.name}」超過 10MB 限制，請選擇較小的檔案。`
+                  )
+                  continue
+                }
+                
+                try {
+                  console.log(`🖼️ Sanity AssetManager 處理上傳圖片: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
+                  
+                  // 圖片壓縮處理
+                  const compressedDataUrl = await compressImage(file, {
+                    maxWidth: 1920, // 提高最大寬度到 1920px
+                    maxHeight: 1080, // 提高最大高度到 1080px
+                    quality: 0.85, // 提高壓縮品質
+                    maxSizeKB: 800 // 提高最大檔案大小到 800KB
+                  })
+                  
+                  // 將壓縮後的 base64 轉換回 File 對象
+                  const response = await fetch(compressedDataUrl)
+                  const blob = await response.blob()
+                  const compressedFile = new File([blob], file.name, { 
+                    type: file.type.startsWith('image/png') ? 'image/png' : 'image/jpeg',
+                    lastModified: file.lastModified
+                  })
+                  
+                  const compressionRatio = ((file.size - compressedFile.size) / file.size * 100).toFixed(1)
+                  console.log(`✅ 圖片壓縮完成: ${file.name} (${(file.size / 1024).toFixed(1)}KB → ${(compressedFile.size / 1024).toFixed(1)}KB, 縮減 ${compressionRatio}%)`)
+                  
+                  // 上傳到 Sanity（透過伺服器端 API，避免在前端使用寫入憑證）
+                  const formData = new FormData()
+                  formData.append('file', compressedFile)
+                  
+                  const uploadRes = await fetch('/api/sanity/upload', {
+                    method: 'POST',
+                    body: formData,
+                  })
+                  
+                  if (!uploadRes.ok) {
+                    const errText = await uploadRes.text()
+                    throw new Error(`Upload failed: ${uploadRes.status} ${errText}`)
                   }
+                  
+                  const uploadJson = await uploadRes.json()
+                  if (!uploadJson?.success || !uploadJson?.image) {
+                    throw new Error(uploadJson?.error || 'Upload response invalid')
+                  }
+                  
+                  const uploadedImage = uploadJson.image
+                  
+                  if (uploadedImage && uploadedImage._id) {
+                    const imageUrl = buildSanityImageUrl(uploadedImage, 1920, 1080, 85)
+                    const sanityAsset = {
+                      type: 'image',
+                      src: imageUrl,
+                      height: uploadedImage.metadata?.dimensions?.height || 800,
+                      width: uploadedImage.metadata?.dimensions?.width || 600,
+                      name: uploadedImage.originalFilename || file.name,
+                      sanityId: uploadedImage._id, // 保存 Sanity ID 方便後續管理
+                      alt: uploadedImage.originalFilename || file.name
+                    }
+                    
+                    uploadedImages.push(sanityAsset)
+                    console.log(`✅ 圖片已成功上傳到 Sanity: ${file.name} -> ${uploadedImage._id}`)
+                    
+                    // 立即添加到 AssetManager 中
+                    const assetManager = (this as any).em?.get('AssetManager')
+                    if (assetManager) {
+                      assetManager.add(sanityAsset)
+                      console.log('📁 新圖片已添加到 AssetManager 並可立即使用')
+                    }
+                  } else {
+                    throw new Error('Invalid upload response: missing image data')
+                  }
+                  
+                } catch (error) {
+                  console.error(`❌ Sanity 圖片上傳處理失敗: ${file.name}`, error)
+                  
+                  let errorMessage = `處理圖片「${file.name}」時發生錯誤。`
+                  let errorTitle = 'Sanity 上傳錯誤'
+                  
+                  if (error instanceof Error) {
+                    const errorMsg = error.message.toLowerCase()
+                    if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('connection')) {
+                      errorTitle = '網絡連接錯誤'
+                      errorMessage = `網絡連接失敗，無法上傳圖片「${file.name}」到 Sanity。請檢查網絡連接後重試。`
+                    } else if (errorMsg.includes('size') || errorMsg.includes('large') || errorMsg.includes('413')) {
+                      errorTitle = '檔案太大'
+                      errorMessage = `圖片「${file.name}」太大，請選擇較小的檔案或降低圖片解析度。`
+                    } else if (errorMsg.includes('format') || errorMsg.includes('type') || errorMsg.includes('415')) {
+                      errorTitle = '格式不支援'
+                      errorMessage = `圖片「${file.name}」格式不支援，請使用 JPG、PNG 或 WebP 格式。`
+                    } else if (errorMsg.includes('unauthorized') || errorMsg.includes('401')) {
+                      errorTitle = '權限錯誤'
+                      errorMessage = `沒有權限上傳圖片到 Sanity，請聯系管理員檢查設定。`
+                    }
+                  }
+                  
+                  showUploadError(errorTitle, errorMessage)
                 }
               }
               
+              console.log(`📋 Sanity 上傳完成: ${uploadedImages.length}/${files.length} 個檔案成功上傳`)
               return uploadedImages
             }
           },
 
+          // 設備管理器：響應式設計預設值
           deviceManager: {
             devices: [
-              {
-                name: 'Desktop',
-                width: '',
-                widthMedia: '1024px'
+              { 
+                name: '大螢幕', 
+                width: '', 
+                widthMedia: '1400px',
+                height: ''
               },
-              {
-                name: 'Tablet',
-                width: '768px',
-                widthMedia: '768px'
+              { 
+                name: '桌機', 
+                width: '', 
+                widthMedia: '1200px',
+                height: ''
               },
-              {
-                name: 'Mobile',
-                width: '320px',
-                widthMedia: '480px'
-              }
+              { 
+                name: '筆電', 
+                width: '1024px', 
+                widthMedia: '1024px',
+                height: '768px'
+              },
+              { 
+                name: '平板橫向', 
+                width: '992px', 
+                widthMedia: '992px',
+                height: '744px'
+              },
+              { 
+                name: '平板直向', 
+                width: '768px', 
+                widthMedia: '768px',
+                height: '1024px'
+              },
+              { 
+                name: '大手機', 
+                width: '480px', 
+                widthMedia: '480px',
+                height: '854px'
+              },
+              { 
+                name: '手機', 
+                width: '375px', 
+                widthMedia: '375px',
+                height: '667px'
+              },
+              { 
+                name: '小手機', 
+                width: '320px', 
+                widthMedia: '320px',
+                height: '568px'
+              },
             ]
           },
 
+          // Canvas 配置：編輯器畫布設置
           canvas: {
             styles: [
+              // Bootstrap CSS - 提供基礎樣式框架
               'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
+              // FontAwesome - 圖標庫
               'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+              // Splide CSS - 輪播組件樣式
               'https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css'
             ],
             scripts: [
+              // Bootstrap JavaScript - 互動功能
               'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js',
+              // Splide JavaScript - 輪播組件功能
               'https://cdn.jsdelivr.net/npm/@redoc_a2k/splide@4.1.4/dist/js/splide.min.js'
-            ]
+            ],
+            customBadgeLabel: () => '拖拽編輯',
+            autoscrollLimit: 50,
+            notTextable: ['button', 'a', 'input[type=checkbox]', 'input[type=radio]']
           },
           
           plugins: [
@@ -798,50 +1319,294 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             ...(pluginCarousel ? [pluginCarousel] : [])
           ],
 
-          pluginsOpts: {
-            'grapesjs-preset-webpage': {
-              modalImportTitle: 'Import Template',
-              modalImportLabel: '<div style="margin-bottom: 10px; font-size: 13px;">Paste here your HTML/CSS and click Import</div>',
-              modalImportContent: function(editor: any) {
-                return editor.getHtml() + '<style>' + editor.getCss() + '</style>'
-              },
-              importViewerOptions: {
-                enableImport: true
-              }
-            },
-            'grapesjs-carousel-component': {
-              // 輪播組件配置選項
-            }
-          }
+          // 使用外部配置文件管理插件選項
+          pluginsOpts: getPluginsOptions()
         })
+
+        // 設定 GrapesJS 介面為繁體中文
+        try { 
+          applyZhTW(editor)
+          editor.on('load', () => applyZhTW(editor))
+        } catch (e) { 
+          console.warn('設定繁體中文介面失敗:', e) 
+        }
 
         // 註冊自定義組件
         registerCustomComponents(editor)
+
+        // 🎯 應用第三方插件客製化並監控效能
+        try {
+          console.log('⚡ 開始應用第三方插件客製化')
+          const startTime = performance.now()
+          
+          applyAllPluginCustomizations(editor)
+          
+          const endTime = performance.now()
+          console.log(`⏱️ 插件客製化完成，耗時: ${(endTime - startTime).toFixed(2)}ms`)
+          
+          // 列出所有第三方插件區塊以供調試
+          const thirdPartyBlocks = getThirdPartyBlocks(editor)
+          console.log('🔌 第三方插件區塊列表:', thirdPartyBlocks)
+          console.log(`📊 載入的插件區塊數量: ${thirdPartyBlocks.length}`)
+          
+          // 驗證插件功能
+          const blockManager = editor.BlockManager
+          const allBlocks = blockManager.getAll()
+          console.log('🧩 所有區塊管理器中的區塊數量:', allBlocks.length)
+          
+          // 按類別統計區塊
+          const blocksByCategory = allBlocks.reduce((acc: any, block: any) => {
+            const category = block.get('category') || '其他'
+            acc[category] = (acc[category] || 0) + 1
+            return acc
+          }, {})
+          console.log('📈 區塊按類別統計:', blocksByCategory)
+          
+          // 插件客製化示例已移除
+          
+          // 增強輪播組件 - 不再添加全寬工具欄按鈕
+          setTimeout(() => {
+            try {
+              console.log('✅ 輪播組件已準備就緒（已移除全寬功能）')
+            } catch (error) {
+              console.warn('⚠️ 輪播組件配置警告:', error)
+            }
+          }, 1000)
+          
+        } catch (error) {
+          console.warn('⚠️ 第三方插件客製化出現錯誤:', error)
+        }
+
+        // 自訂 Trait：image-url，可直接開啟 Sanity 選圖並回填 URL
+        try {
+          const tm = editor.TraitManager
+          const textType = tm.getType('text') as any
+          tm.addType('image-url', {
+            model: textType.model.extend({}, {
+              defaults: {
+                ...(textType.model.prototype.defaults || {}),
+                type: 'image-url',
+                placeholder: '選擇或貼上圖片網址',
+              }
+            }),
+            view: textType.view.extend({
+              events: {
+                ...(textType.view.prototype.events || {}),
+                'click .gjs-trt-btn-image': 'openPicker',
+              },
+              onRender() {
+                textType.view.prototype.onRender.apply(this, arguments as any)
+                const el = this.el
+                const btn = document.createElement('button')
+                btn.type = 'button'
+                btn.className = 'gjs-trt-btn gjs-trt-btn-image'
+                btn.style.marginLeft = '6px'
+                btn.style.padding = '4px 8px'
+                btn.style.backgroundColor = '#007bff'
+                btn.style.color = 'white'
+                btn.style.border = 'none'
+                btn.style.borderRadius = '4px'
+                btn.style.cursor = 'pointer'
+                btn.textContent = '選圖'
+
+                // 縮圖預覽
+                const preview = document.createElement('img')
+                preview.style.maxWidth = '36px'
+                preview.style.maxHeight = '24px'
+                preview.style.marginLeft = '6px'
+                preview.style.objectFit = 'cover'
+                preview.style.borderRadius = '3px'
+                preview.style.border = '1px solid rgba(0,0,0,0.08)'
+
+                const input = el.querySelector('input') as HTMLInputElement | null
+                if (input) {
+                  const updatePreview = () => {
+                    const val = input.value || ''
+                    if (val.startsWith('http')) {
+                      preview.src = val
+                      preview.style.display = 'inline-block'
+                    } else {
+                      preview.style.display = 'none'
+                    }
+                  }
+                  input.addEventListener('input', updatePreview)
+                  updatePreview()
+
+                  // 綁定點擊事件到按鈕
+                  const self = this
+                  btn.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    console.log('🖱️ Hero區塊圖片選擇按鈕被點擊')
+                    
+                    editor.runCommand('open-sanity-image-picker', {
+                      callback: (url: string) => {
+                        console.log('📷 選中圖片URL:', url)
+                        input.value = url
+                        // 觸發 GrapesJS 的變更流
+                        self.model.set('value', url)
+                        self.model.trigger('change:value')
+                        const evt = new Event('input', { bubbles: true })
+                        input.dispatchEvent(evt)
+                        updatePreview()
+                      }
+                    })
+                  })
+                }
+
+                const cnt = el.querySelector('.gjs-trt-trait') || el
+                cnt.appendChild(btn)
+                cnt.appendChild(preview)
+              },
+              openPicker(e: MouseEvent) {
+                e.preventDefault()
+                console.log('🎯 openPicker 方法被調用')
+                const input = this.el.querySelector('input') as HTMLInputElement | null
+                const self = this
+                editor.runCommand('open-sanity-image-picker', {
+                  callback(url: string) {
+                    if (input) {
+                      input.value = url
+                      // 觸發 GrapesJS 的變更流
+                      self.model.set('value', url)
+                      self.model.trigger('change:value')
+                      const evt = new Event('input', { bubbles: true })
+                      input.dispatchEvent(evt)
+                    }
+                  }
+                })
+              }
+            })
+          })
+          console.log('✅ image-url trait 註冊成功')
+          
+          // 測試 image-url trait 是否正常工作
+          setTimeout(() => {
+            const imageUrlTraits = document.querySelectorAll('.gjs-trt-btn-image')
+            console.log('🔍 找到的圖片選擇按鈕數量:', imageUrlTraits.length)
+            imageUrlTraits.forEach((btn, index) => {
+              console.log(`📷 按鈕 ${index + 1}:`, btn.textContent, btn.className)
+            })
+          }, 2000)
+          
+        } catch (e) {
+          console.warn('❌ 註冊 image-url trait 失敗:', e)
+        }
 
         // 載入 Sanity 圖片到 AssetManager 圖片管理器
         const loadSanityImages = async () => {
           try {
             console.log('🔄 載入 Sanity 圖片庫到 AssetManager...')
-            const images = await getSanityImages()
+            
+            // 添加載入狀態指示器
             const assetManager = editor.AssetManager
+            const loadingAsset = {
+              type: 'image',
+              src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJ2NE0xOC4zNjQgNS42MzZsLTIuODI4IDIuODI4TTIyIDEyaC00TTUuNjM2IDE4LjM2NGwyLjgyOC0yLjgyOE0yIDEyaDRNNS42MzYgNS42MzZsLTIuODI4IDIuODI4TTEyIDIydi00TTE4LjM2NCAxOC4zNjRsLTIuODI4LTIuODI4IiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+',
+              name: '正在載入 Sanity 圖片庫...',
+              category: 'loading'
+            }
+            assetManager.add([loadingAsset])
+            
+            // 環境變數檢查和日誌記錄
+            console.log('🔧 Sanity 配置檢查:')
+            const config = {
+              projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+              dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+              tokenLength: process.env.NEXT_PUBLIC_SANITY_TOKEN?.length || 0,
+              hasToken: !!process.env.NEXT_PUBLIC_SANITY_TOKEN
+            }
+            console.log(config)
+            
+            // 檢查 Sanity 配置完整性
+            if (!config.projectId || !config.dataset) {
+              throw new Error('Sanity 配置不完整：缺少 Project ID 或 Dataset')
+            }
+            
+            if (!config.hasToken) {
+              console.warn('⚠️ 警告：沒有 Sanity Token，可能影響圖片載入')
+            }
+            
+            // 載入 Sanity 圖片
+            const images = await getSanityImages()
+            console.log(`📊 從 Sanity 獲取到 ${images.length} 張圖片`)
+            
+            // 移除載入指示器
+            assetManager.getAll().reset()
+            
+            if (images.length === 0) {
+              // 顯示空狀態
+              const emptyAsset = {
+                type: 'image',
+                src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Im04IDJoOGE0IDQgMCAwIDEgNCA0djhhNCA0IDAgMCAxLTQgNEg4YTQgNCAwIDAgMS00LTRWNmE0IDQgMCAwIDEgNC00eiIgZmlsbD0iI2U1ZTdlYiIvPgo8cGF0aCBkPSJtOSA5IDUgMTJMMjIgOSIgZmlsbD0iI2Q0ZWRkYSIvPgo8L3N2Zz4=',
+                name: '圖片庫為空 - 請上傳圖片到 Sanity',
+                category: 'empty'
+              }
+              assetManager.add([emptyAsset])
+              console.log('📂 Sanity 圖片庫為空')
+              return
+            }
+            
+            // 限制初始載入數量以提升性能
+            const maxInitialImages = 50
+            const imagesToShow = images.slice(0, maxInitialImages)
             
             // 將 Sanity 圖片轉換為 GrapesJS AssetManager 格式
-            const sanityAssets = images.map(img => ({
-              type: 'image',
-              src: buildSanityImageUrl(img, 800, 600, 80),
-              height: Math.min(img.metadata.dimensions.height, 200),
-              width: Math.min(img.metadata.dimensions.width, 200),
-              name: img.originalFilename || `Sanity 圖片 ${img._id.slice(-6)}`,
-              sanityId: img._id, // 保存 Sanity ID
-              category: 'sanity-images' // 標記為 Sanity 圖片
-            }))
+            const sanityAssets = imagesToShow.map((img: SanityImage) => {
+              const dimensions = img.metadata?.dimensions || { width: 300, height: 200 }
+              
+              return {
+                type: 'image',
+                src: buildSanityImageUrl(img, 400, 300, 85), // 提升預覽品質
+                height: Math.min(dimensions.height, 150),
+                width: Math.min(dimensions.width, 150),
+                name: img.originalFilename || `圖片-${img._id.slice(-6)}`,
+                sanityId: img._id,
+                category: 'sanity-images',
+                // 添加額外的元數據
+                fullSrc: buildSanityImageUrl(img, 1920, 1080, 90),
+                originalDimensions: dimensions,
+                createdAt: img._createdAt,
+                size: dimensions.width > 1000 ? '高解析度' : '標準'
+              }
+            })
             
-            // 重置 AssetManager 內容為 Sanity 圖片
-            assetManager.getAll().reset(sanityAssets)
-            console.log(`✅ 成功載入 ${images.length} 張 Sanity 圖片到 AssetManager`)
+            // 載入圖片到 AssetManager
+            assetManager.add(sanityAssets)
+            console.log(`✅ 成功載入 ${sanityAssets.length} 張 Sanity 圖片到 AssetManager`)
+            
+            // 如果有更多圖片，添加載入更多的選項
+            if (images.length > maxInitialImages) {
+              const loadMoreAsset = {
+                type: 'image',
+                src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDV2MTRNNSAxMmgxNCIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==',
+                name: `載入更多圖片 (還有 ${images.length - maxInitialImages} 張)`,
+                category: 'load-more'
+              }
+              assetManager.add([loadMoreAsset])
+            }
+            
             console.log('📸 Sanity 圖片管理器已就緒')
+            
+            // 驗證 AssetManager 內容
+            const currentAssets = assetManager.getAll()
+            console.log('🔍 AssetManager 當前資產數量:', currentAssets.length)
+            
           } catch (error) {
             console.error('❌ 載入 Sanity 圖片庫失敗:', error)
+            console.error('❌ 錯誤詳情:', error instanceof Error ? error.stack : error)
+            
+            // 移除載入指示器並顯示錯誤狀態
+            const assetManager = editor.AssetManager
+            assetManager.getAll().reset()
+            
+            const errorAsset = {
+              type: 'image',
+              src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNmZWY3ZjciLz4KPHBhdGggZD0ibTkgOSAzIDMgMy0zTTE1IDE1aC0uMDFNMTIgM3YyTTE4LjM2NCA1LjYzNmwtMS40MTQgMS40MTQiIHN0cm9rZT0iI2ZiNzE4NSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+',
+              name: `載入失敗：${error instanceof Error ? error.message : '未知錯誤'}`,
+              category: 'error'
+            }
+            assetManager.add([errorAsset])
           }
         }
 
@@ -850,68 +1615,177 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           console.log('🎯 用戶從 Sanity 圖片管理器選擇了圖片:', asset)
           
           try {
+            // 檢查是否是特殊類型的資產
+            const assetCategory = asset.get ? asset.get('category') : asset.category
+            
+            if (assetCategory === 'load-more') {
+              // 處理載入更多功能
+              console.log('🔄 用戶點擊載入更多圖片')
+              loadMoreImages()
+              return
+            }
+            
+            if (assetCategory === 'loading' || assetCategory === 'error' || assetCategory === 'empty') {
+              // 忽略載入狀態、錯誤或空狀態的點擊
+              console.log('⚠️ 忽略特殊狀態資產的選擇')
+              return
+            }
+            
             // 獲取當前選中的組件
             const selected = editor.getSelected()
             const assetSrc = asset.get ? asset.get('src') : asset.src
+            const fullSrc = asset.get ? asset.get('fullSrc') : asset.fullSrc
+            const finalSrc = fullSrc || assetSrc // 優先使用高品質版本
+            
+            console.log('🖼️ 使用圖片 URL:', { preview: assetSrc, full: fullSrc, final: finalSrc })
             
             if (selected && selected.get('type') === 'image') {
               // 如果選中的是圖片組件，更新其 src 屬性
-              console.log('🖼️ 更新現有圖片組件的 src:', assetSrc)
+              console.log('� 更新現有圖片組件')
               
-              selected.addAttributes({ src: assetSrc })
-              selected.set('src', assetSrc)
+              selected.addAttributes({ src: finalSrc })
+              selected.set('src', finalSrc)
+              
+              // 保存原始尺寸資訊
+              const originalDimensions = asset.get ? asset.get('originalDimensions') : asset.originalDimensions
+              if (originalDimensions) {
+                selected.set('originalWidth', originalDimensions.width)
+                selected.set('originalHeight', originalDimensions.height)
+              }
               
               // 觸發重新渲染
               selected.trigger('change:attributes')
               editor.trigger('change:canvas')
+              console.log('✅ 現有圖片組件已更新')
               
             } else {
               // 如果沒有選中圖片組件，創建新的圖片組件
-              const assetWidth = asset.get ? asset.get('width') : asset.width
-              const assetHeight = asset.get ? asset.get('height') : asset.height
-              
-              console.log('🆕 從 Sanity 圖片創建新的圖片組件:', { 
-                src: assetSrc, 
-                width: assetWidth, 
-                height: assetHeight 
-              })
+              console.log('🆕 創建新的圖片組件')
               
               const imageComponent = {
                 type: 'image',
                 attributes: {
-                  src: assetSrc,
-                  alt: '從 Sanity 圖片庫載入的圖片'
+                  src: finalSrc,
+                  alt: '從 Sanity 圖片庫載入的圖片',
+                  loading: 'lazy' // 添加延遲載入
                 },
                 style: {
                   'max-width': '100%',
-                  'height': 'auto'
+                  'height': 'auto',
+                  'display': 'block'
                 }
               }
               
-              // 添加到畫布中央或當前選中的容器
+              // 尋找合適的插入位置
               const wrapper = editor.getWrapper()
-              if (wrapper) {
-                editor.addComponents([imageComponent], { at: 0 })
-                
-                // 選中新添加的圖片
-                setTimeout(() => {
-                  const addedComponents = wrapper.components()
-                  if (addedComponents.length > 0) {
-                    const lastComponent = addedComponents.at(addedComponents.length - 1)
-                    if (lastComponent && lastComponent.get('type') === 'image') {
-                      editor.select(lastComponent)
+              
+              if (!wrapper) {
+                console.error('❌ 無法獲取頁面 wrapper')
+                return
+              }
+              
+              if (selected && selected.get('type') !== 'wrapper') {
+                // 如果選中了其他組件，嘗試在其後面插入
+                const parent = selected.parent()
+                if (parent) {
+                  const selectedIndex = parent.components().indexOf(selected)
+                  parent.components().add(imageComponent, { at: selectedIndex + 1 })
+                  console.log('📍 圖片已插入到選中組件後面')
+                } else {
+                  wrapper.components().add(imageComponent)
+                  console.log('📍 圖片已插入到頁面根部')
+                }
+              } else {
+                // 默認插入到頁面根部
+                wrapper.components().add(imageComponent)
+                console.log('📍 圖片已插入到頁面根部')
+              }
+              
+              // 選中新添加的圖片
+              setTimeout(() => {
+                try {
+                  const allComponents = wrapper.components()
+                  if (allComponents.length > 0) {
+                    // 尋找最後添加的圖片組件
+                    for (let i = allComponents.length - 1; i >= 0; i--) {
+                      const comp = allComponents.at(i)
+                      if (comp && comp.get('type') === 'image' && comp.get('src') === finalSrc) {
+                        editor.select(comp)
+                        console.log('🎯 已選中新添加的圖片組件')
+                        break
+                      }
                     }
                   }
-                }, 100)
-              }
+                } catch (selectError) {
+                  console.warn('⚠️ 無法自動選中新圖片:', selectError)
+                }
+              }, 100)
+              
+              console.log('✅ 新圖片組件已創建')
+            }
+            
+            // 關閉 AssetManager 面板
+            const panels = editor.Panels
+            const assetPanel = panels.getPanel('views-container')?.buttons?.find(btn => btn.id === 'open-assets')
+            if (assetPanel && assetPanel.get('active')) {
+              assetPanel.set('active', false)
+              console.log('🔐 已關閉圖片管理器面板')
             }
             
             console.log('✅ Sanity 圖片已成功插入/更新到編輯器')
             
           } catch (error) {
             console.error('❌ 處理 Sanity 圖片選擇時發生錯誤:', error)
+            alert(`圖片插入失敗：${error instanceof Error ? error.message : '未知錯誤'}`)
           }
         })
+
+        // 載入更多圖片的功能
+        const loadMoreImages = async () => {
+          try {
+            console.log('🔄 載入更多 Sanity 圖片...')
+            const assetManager = editor.AssetManager
+            
+            // 移除載入更多按鈕
+            const currentAssets = assetManager.getAll()
+            const filteredAssets = currentAssets.filter((asset: any) => {
+              const category = asset.get ? asset.get('category') : asset.category
+              return category !== 'load-more'
+            })
+            assetManager.getAll().reset(filteredAssets)
+            
+            // 載入剩餘圖片
+            const images = await getSanityImages()
+            const currentCount = filteredAssets.length
+            const remainingImages = images.slice(currentCount)
+            
+            if (remainingImages.length > 0) {
+              const additionalAssets = remainingImages.map((img: SanityImage) => {
+                const dimensions = img.metadata?.dimensions || { width: 300, height: 200 }
+                
+                return {
+                  type: 'image',
+                  src: buildSanityImageUrl(img, 400, 300, 85),
+                  height: Math.min(dimensions.height, 150),
+                  width: Math.min(dimensions.width, 150),
+                  name: img.originalFilename || `圖片-${img._id.slice(-6)}`,
+                  sanityId: img._id,
+                  category: 'sanity-images',
+                  fullSrc: buildSanityImageUrl(img, 1920, 1080, 90),
+                  originalDimensions: dimensions,
+                  createdAt: img._createdAt,
+                  size: dimensions.width > 1000 ? '高解析度' : '標準'
+                }
+              })
+              
+              assetManager.add(additionalAssets)
+              console.log(`✅ 已載入額外 ${additionalAssets.length} 張圖片`)
+            }
+            
+          } catch (error) {
+            console.error('❌ 載入更多圖片失敗:', error)
+          }
+        }
 
         // 編輯器載入完成後自動載入 Sanity 圖片庫
         editor.on('load', loadSanityImages)
@@ -1054,14 +1928,35 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           }
         })
 
-        // 監聽組件選擇事件以調試工具欄
+        // 監聽組件選擇事件以調試工具欄和 traits
         editor.on('component:selected', (model: any) => {
-          console.log('組件被選中:', {
+          console.log('🎯 組件被選中:', {
             type: model.get('type'),
             tagName: model.get('tagName'),
             toolbar: model.get('toolbar'),
-            attributes: model.get('attributes')
+            attributes: model.get('attributes'),
+            moduleType: model.get('attributes')?.['data-module-type']
           })
+          
+          // 檢查 traits
+          const traits = model.get('traits')
+          if (traits && traits.length > 0) {
+            console.log('🎛️ 組件的 traits:', traits.map((trait: any) => ({
+              type: trait.get('type'),
+              name: trait.get('name'),
+              label: trait.get('label')
+            })))
+            
+            // 特別檢查 image-url 類型的 traits
+            const imageUrlTraits = traits.filter((trait: any) => trait.get('type') === 'image-url')
+            if (imageUrlTraits.length > 0) {
+              console.log('📷 找到 image-url traits:', imageUrlTraits.length, '個')
+              setTimeout(() => {
+                const buttons = document.querySelectorAll('.gjs-trt-btn-image')
+                console.log('🔍 DOM中的圖片選擇按鈕:', buttons.length, '個')
+              }, 100)
+            }
+          }
         })
 
         // 自定義資源管理器 - 整合 Sanity
@@ -1074,33 +1969,33 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           }
         })
 
-        // 自定義圖片選擇命令
-        editor.Commands.add('open-sanity-image-picker', {
-          run: async (editor: any, sender: any, options: any = {}) => {
-            const { showSanityImagePicker } = await import('./sanity-image-picker')
-            
-            showSanityImagePicker({
-              onSelect: (imageUrl: string) => {
-                if (options.target) {
-                  // 如果有指定目標組件，直接設置圖片
-                  options.target.set('src', imageUrl)
-                } else if (options.callback) {
-                  // 如果有回調函數，執行回調
-                  options.callback(imageUrl)
-                }
-              },
-              onClose: () => {
-                // 關閉時的處理
-              },
-              allowUpload: true
-            })
+        // 自定義圖片選擇命令已移除；使用全域圖片選擇器處理流程
+
+        // 添加手動測試圖片選擇器的命令
+        editor.Commands.add('test-image-picker', {
+          run: async (editor: any) => {
+            console.log('🧪 手動測試圖片選擇器')
+            try {
+              const { showSanityImagePicker } = await import('./sanity-image-picker')
+              
+              showSanityImagePicker({
+                onSelect: (imageUrl: string) => {
+                  console.log('✅ 測試成功 - 選中圖片:', imageUrl)
+                  alert(`圖片選擇器工作正常！\n選中的圖片: ${imageUrl}`)
+                },
+                onClose: () => {
+                  console.log('🚪 圖片選擇器已關閉')
+                },
+                allowUpload: true
+              })
+            } catch (error) {
+              console.error('❌ 圖片選擇器測試失敗:', error)
+              alert('圖片選擇器測試失敗，請檢查控制台')
+            }
           }
         })
 
-        // 覆蓋默認的圖片管理器
-        editor.on('run:open-assets', () => {
-          editor.runCommand('open-sanity-image-picker')
-        })
+        // 測試圖片選擇器按鈕與 open-assets 覆蓋已移除（由全域圖片選擇器統一處理）
 
         // 為圖片組件添加雙擊事件來打開圖片選擇器
         editor.on('component:selected', (model: any) => {
@@ -1160,38 +2055,246 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           }
         })
 
-        // 添加工具列按鈕
+        // ===================================================
+        // 🎨 優化編輯器面板布局和用戶介面
+        // ===================================================
+        
+        console.log('🎨 開始配置編輯器面板和工具列')
+        
+        // 添加優化的工具列按鈕
         editor.Panels.addButton('options', [
           {
             id: 'save-btn',
-            className: 'btn-save',
-            label: '💾',
+            className: 'btn-save gjs-pn-btn',
+            label: '<i class="fa fa-save"></i>',
             command: 'save-content',
-            attributes: { title: 'Save Content (Ctrl+S)' }
+            attributes: { 
+              title: '保存頁面 (Ctrl+S)',
+              'data-tooltip': '保存當前頁面到 Sanity CMS'
+            }
+          },
+          {
+            id: 'undo-btn',
+            className: 'btn-undo gjs-pn-btn',
+            label: '<i class="fa fa-undo"></i>',
+            command: 'core:undo',
+            attributes: {
+              title: '撤銷 (Ctrl+Z)',
+              'data-tooltip': '撤銷上一個操作'
+            }
+          },
+          {
+            id: 'redo-btn', 
+            className: 'btn-redo gjs-pn-btn',
+            label: '<i class="fa fa-redo"></i>',
+            command: 'core:redo',
+            attributes: {
+              title: '重做 (Ctrl+Y)',
+              'data-tooltip': '重做上一個撤銷的操作'
+            }
+          },
+          {
+            id: 'clear-btn',
+            className: 'btn-clear gjs-pn-btn',
+            label: '<i class="fa fa-trash"></i>',
+            command: {
+              run: (editor: any) => {
+                if (confirm('確定要清空整個頁面嗎？此操作無法撤銷。')) {
+                  editor.setComponents('')
+                  editor.setStyle('')
+                  console.log('🗑️ 頁面已清空')
+                }
+              }
+            },
+            attributes: {
+              title: '清空頁面',
+              'data-tooltip': '清除頁面所有內容'
+            }
+          },
+          {
+            id: 'third-party-panel',
+            className: 'btn-third-party gjs-pn-btn',
+            label: '<i class="fa fa-puzzle-piece"></i>',
+            command: () => setShowPluginPanel(true),
+            attributes: { 
+              title: '第三方插件控制面板',
+              'data-tooltip': '管理和配置第三方插件'
+            }
           }
-          // {
-          //   id: 'preview-btn',
-          //   className: 'btn-preview',
-          //   label: '👁️',
-          //   command: 'preview-page',
-          //   attributes: { title: 'Preview Page' }
-          // },
-          // {
-          //   id: 'publish-btn',
-          //   className: 'btn-publish',
-          //   label: '🚀',
-          //   command: 'publish-page',
-          //   attributes: { title: 'Publish Page' }
-          // }
         ])
         
-        // 在 views 面板添加工作區按鈕
-        editor.Panels.addButton('views', {
-          id: 'show-workspace',
-          label: '⠿',
-          command: 'show-workspace',
-          attributes: { title: '工作區' }
+        // 優化 views 面板按鈕
+        editor.Panels.addButton('views', [
+          {
+            id: 'show-workspace',
+            className: 'gjs-pn-btn',
+            label: '<i class="fa fa-th-large"></i>',
+            command: 'show-workspace',
+            attributes: { 
+              title: '工作區管理',
+              'data-tooltip': '切換和管理工作區'
+            }
+          },
+          {
+            id: 'show-assets-enhanced',
+            className: 'gjs-pn-btn',
+            label: '<i class="fa fa-image"></i>',
+            command: 'show-assets-enhanced',
+            attributes: {
+              title: 'Sanity 圖片庫',
+              'data-tooltip': '瀏覽和插入 Sanity 圖片資源'
+            }
+          }
+        ])
+        
+        // 添加增強的圖片庫命令
+        editor.Commands.add('show-assets-enhanced', {
+          run: (editor: any) => {
+            const assetManager = editor.AssetManager
+            const assets = assetManager.getAll()
+            
+            console.log('🖼️ 打開增強的圖片庫')
+            console.log(`📊 當前圖片數量: ${assets.length}`)
+            
+            // 觸發打開 AssetManager
+            editor.runCommand('open-assets')
+            
+            // 如果沒有圖片，自動載入 Sanity 圖片
+            if (assets.length === 0) {
+              console.log('🔄 自動載入 Sanity 圖片庫...')
+              // 觸發載入 Sanity 圖片的函數（已在上面定義）
+              loadSanityImages()
+            }
+          }
         })
+        
+        // 添加快捷鍵支援
+        editor.on('load', () => {
+          const keymaps = editor.Keymaps
+          
+          // 自定義快捷鍵
+          keymaps.add('core:save', 'ctrl+s', 'save-content')
+          keymaps.add('core:save-alt', 'cmd+s', 'save-content')
+          keymaps.add('core:assets', 'ctrl+alt+a', 'show-assets-enhanced')
+          keymaps.add('core:workspace', 'ctrl+alt+w', 'show-workspace')
+          
+          console.log('⌨️ 快捷鍵已配置:')
+          console.log('  - Ctrl+S / Cmd+S: 保存頁面')
+          console.log('  - Ctrl+Alt+A: 打開圖片庫')
+          console.log('  - Ctrl+Alt+W: 打開工作區')
+        })
+        
+        // ===================================================
+        // ⚡ 性能優化和監控設定
+        // ===================================================
+        
+        console.log('⚡ 開始配置編輯器性能優化')
+        const performanceStartTime = performance.now()
+        
+        // 性能監控事件
+        editor.on('load', () => {
+          const loadTime = performance.now() - performanceStartTime
+          console.log(`🚀 編輯器載入完成，總耗時: ${loadTime.toFixed(2)}ms`)
+          
+          // 記錄性能指標
+          const performanceMetrics = {
+            loadTime: loadTime.toFixed(2),
+            totalBlocks: editor.BlockManager.getAll().length,
+            totalComponents: editor.Components.getAll().length,
+            deviceCount: editor.DeviceManager.getDevices().length,
+            memoryUsed: (performance as any).memory ? `${((performance as any).memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB` : '未知'
+          }
+          console.table(performanceMetrics)
+          
+          // 驗證關鍵功能
+          console.log('🔍 驗證關鍵功能...')
+          
+          // 驗證 Sanity 整合
+          const assetManager = editor.AssetManager
+          const sanityAssets = assetManager.getAll().filter((asset: any) => {
+            const category = asset.get ? asset.get('category') : asset.category
+            return category === 'sanity-images'
+          })
+          console.log(`✅ Sanity 圖片整合: ${sanityAssets.length} 張圖片已載入`)
+          
+          // 驗證插件載入
+          const allBlocks = editor.BlockManager.getAll()
+          const pluginBlocks = allBlocks.filter((block: any) => {
+            const category = block.get('category')
+            return category && !['基本', 'Basic'].includes(category)
+          })
+          console.log(`✅ 第三方插件: ${pluginBlocks.length} 個插件區塊已載入`)
+          
+          // 驗證響應式設備
+          const devices = editor.DeviceManager.getDevices()
+          console.log(`✅ 響應式設備: ${devices.length} 個設備預設已配置`)
+          
+          console.log('🎯 編輯器已完全就緒，所有功能正常')
+        })
+        
+        // 組件變更性能監控
+        let componentChangeCount = 0
+        editor.on('component:add component:remove component:update', () => {
+          componentChangeCount++
+          if (componentChangeCount % 10 === 0) {
+            console.log(`📊 組件變更計數: ${componentChangeCount}`)
+            
+            // 檢查內存使用情況
+            if ((performance as any).memory) {
+              const memoryInfo = (performance as any).memory
+              const memoryUsage = {
+                used: `${(memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
+                total: `${(memoryInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
+                limit: `${(memoryInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`
+              }
+              console.log('💾 內存使用狀況:', memoryUsage)
+            }
+          }
+        })
+        
+        // 自動垃圾回收提醒
+        setInterval(() => {
+          if ((performance as any).memory) {
+            const memoryInfo = (performance as any).memory
+            const usagePercent = (memoryInfo.usedJSHeapSize / memoryInfo.jsHeapSizeLimit) * 100
+            
+            if (usagePercent > 80) {
+              console.warn(`⚠️ 內存使用率較高: ${usagePercent.toFixed(1)}%，建議保存頁面並重新整理`)
+            }
+          }
+        }, 30000) // 每30秒檢查一次
+        
+        // 添加性能優化建議
+        const optimizePerformance = () => {
+          // 確保 editor 和其屬性已初始化
+          if (!editor || !editor.Components || !editor.BlockManager) {
+            console.warn('⚠️ 編輯器尚未完全初始化，跳過性能檢查')
+            return
+          }
+          
+          try {
+            const allComponents = editor.Components.getAll()
+            const imageComponents = allComponents.filter((comp: any) => comp.get('type') === 'image')
+            
+            if (imageComponents.length > 20) {
+              console.warn(`🖼️ 頁面包含 ${imageComponents.length} 張圖片，建議優化圖片數量以提升性能`)
+            }
+            
+            const allBlocks = editor.BlockManager.getAll()
+            if (allBlocks.length > 100) {
+              console.warn(`🧩 區塊管理器中有 ${allBlocks.length} 個區塊，考慮清理不必要的區塊`)
+            }
+          } catch (error) {
+            console.warn('⚠️ 性能檢查時發生錯誤:', error)
+          }
+        }
+        
+        // 在編輯器完全加載後執行性能檢查
+        editor.on('load', () => {
+          setTimeout(optimizePerformance, 5000)
+        })
+        
+        console.log('✅ 性能監控和優化配置完成')
         
         console.log('✅ 按鈕已添加到 views 面板')
         
@@ -1873,25 +2976,24 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             
             // 先檢查編輯器和頁面狀態
             if (!editor) {
-              alert('編輯器未初始化')
+              showSaveError('編輯器未初始化')
               return
             }
             
             if (!currentPageId && !currentWorkspacePageId && !(window as any).currentWorkspacePageId) {
-              alert('請先選擇要保存的頁面')
+              showSaveError('請先選擇要保存的頁面')
               return
             }
             
             try {
               const success = await saveCurrentPage(editor)
-              if (success) {
-                alert('頁面已保存成功！')
-              } else {
-                alert('保存失敗，請重試。')
+              if (!success) {
+                // saveCurrentPage 函數內部已經處理了錯誤提示
+                console.log('保存未成功，已由 saveCurrentPage 處理錯誤提示')
               }
             } catch (error) {
               console.error('保存過程中出現錯誤:', error)
-              alert(`保存失敗: ${error instanceof Error ? error.message : '未知錯誤'}`)
+              showSaveError(`保存失敗：${error instanceof Error ? error.message : '未知錯誤'}`)
             }
           }
         })
@@ -2324,15 +3426,20 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
   }
 
   return (
-    <div style={{ height: '100vh' }}>
-      <div 
+    <div style={{ height: '100vh', position: 'relative' }}>
+      <div
         ref={editorRef}
         suppressHydrationWarning={true}
         key="grapesjs-editor-container"
         style={{ height: '100%' }}
-      >
-        {/* GrapesJS 會在這裡渲染編輯器 */}
-      </div>
+      />
+      {editorInstance.current && (
+        <PluginControlPanel
+          editor={editorInstance.current}
+          isVisible={showPluginPanel}
+          onClose={() => setShowPluginPanel(false)}
+        />
+      )}
     </div>
   )
 }

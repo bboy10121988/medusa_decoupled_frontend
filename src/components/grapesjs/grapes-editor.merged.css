@@ -1,0 +1,13 @@
+/* Draft merged CSS for review
+   - Preserves original files via @import so we can review behavior before flattening
+   - Order preserved: grapes-editor.css then grapes-editor-global.css
+   - Keep third-party plugin CSS separate (do not import here)
+
+   Next steps after review:
+   1) Produce a flattened, deduplicated CSS file (remove duplicates, keep necessary !important)
+   2) Backup originals and update imports in grapes_editor.tsx
+   3) Run build and smoke-test editor
+*/
+
+@import "./grapes-editor.css";
+@import "./grapes-editor-global.css";

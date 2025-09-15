@@ -3,7 +3,6 @@
  * 統一導出所有自定義組件
  */
 
-export { default as CarouselComponent } from './carousel-component-fixed';
 export { 
   default as registerCustomComponents,
   customComponents,
@@ -12,3 +11,14 @@ export {
 } from './components-registry';
 
 export type { CustomComponent } from './components-registry';
+
+// 導出頁面組件相關
+export {
+  registerPageComponents,
+  pageComponents,
+  getPageComponentsList,
+  isPageComponentRegistered,
+  getPageComponentsByDataSource
+} from './page-components-group';
+
+export type { PageComponent } from './page-components-group';

@@ -1,9 +1,9 @@
-對/**
+/**
  * 自定義 GrapesJS 圖片選擇器
  * 整合 Sanity 媒體庫功能
  */
 
-import { getSanityImages, uploadImageToSanity, buildSanityImageUrl, type SanityImage } from '@/lib/services/sanity-media-service'
+import { buildSanityImageUrl, type SanityImage } from '@/lib/services/sanity-media-service'
 import { compressImage } from '@/lib/image-compression'
 
 export interface ImagePickerOptions {
@@ -16,6 +16,11 @@ export class SanityImagePicker {
   private modal: HTMLElement | null = null
   private images: SanityImage[] = []
   private options: ImagePickerOptions
+  private page = 1
+  private pageSize = 24
+  private q = ''
+  private sort: 'newest' | 'oldest' | 'largest' | 'smallest' = 'newest'
+  private nextPage?: number
 
   constructor(options: ImagePickerOptions) {
     this.options = options
@@ -28,7 +33,18 @@ export class SanityImagePicker {
   }
 
   private async loadImages() {
-    this.images = await getSanityImages()
+    const params = new URLSearchParams({
+      page: String(this.page),
+      pageSize: String(this.pageSize),
+      sort: this.sort,
+    })
+    if (this.q) params.set('q', this.q)
+    const res = await fetch(`/api/sanity/assets?${params.toString()}`)
+    if (!res.ok) throw new Error(`List assets failed: ${res.status}`)
+    const json = await res.json()
+    if (!json?.success) throw new Error(json?.error || 'List assets failed')
+    this.images = json.items || []
+    this.nextPage = json.nextPage
   }
 
   private createModal() {
@@ -45,7 +61,16 @@ export class SanityImagePicker {
         <div class="sanity-image-picker-content">
           <div class="sanity-image-picker-header">
             <h3>選擇圖片</h3>
-            <button class="sanity-image-picker-close" aria-label="關閉">&times;</button>
+            <div class="sanity-image-picker-tools">
+              <input type="search" class="sanity-image-search" placeholder="搜尋檔名..." value="${this.q}">
+              <select class="sanity-image-sort">
+                <option value="newest" ${this.sort==='newest'?'selected':''}>最新</option>
+                <option value="oldest" ${this.sort==='oldest'?'selected':''}>最舊</option>
+                <option value="largest" ${this.sort==='largest'?'selected':''}>最大</option>
+                <option value="smallest" ${this.sort==='smallest'?'selected':''}>最小</option>
+              </select>
+              <button class="sanity-image-picker-close" aria-label="關閉">&times;</button>
+            </div>
           </div>
           
           ${this.options.allowUpload !== false ? `
@@ -67,6 +92,11 @@ export class SanityImagePicker {
           
           <div class="sanity-image-picker-grid">
             ${this.renderImageGrid()}
+          </div>
+          <div class="sanity-image-pagination">
+            <button class="btn-prev" ${this.page<=1?'disabled':''}>上一頁</button>
+            <span class="page-indicator">第 ${this.page} 頁</span>
+            <button class="btn-next" ${this.nextPage? '': 'disabled'}>下一頁</button>
           </div>
           
           ${this.images.length === 0 ? `
@@ -151,6 +181,44 @@ export class SanityImagePicker {
       const uploadInput = this.modal.querySelector('#sanity-image-upload') as HTMLInputElement
       uploadInput?.addEventListener('change', (e) => this.handleFileUpload(e))
     }
+
+    // 搜尋與排序
+    const searchInput = this.modal.querySelector('.sanity-image-search') as HTMLInputElement | null
+    const sortSelect = this.modal.querySelector('.sanity-image-sort') as HTMLSelectElement | null
+    if (searchInput) {
+      let t: any
+      searchInput.addEventListener('input', async () => {
+        clearTimeout(t)
+        t = setTimeout(async () => {
+          this.q = searchInput.value.trim()
+          this.page = 1
+          await this.refreshList()
+        }, 300)
+      })
+    }
+    if (sortSelect) {
+      sortSelect.addEventListener('change', async () => {
+        this.sort = (sortSelect.value as any) || 'newest'
+        this.page = 1
+        await this.refreshList()
+      })
+    }
+
+    // 分頁
+    const prevBtn = this.modal.querySelector('.btn-prev') as HTMLButtonElement | null
+    const nextBtn = this.modal.querySelector('.btn-next') as HTMLButtonElement | null
+    prevBtn?.addEventListener('click', async () => {
+      if (this.page > 1) {
+        this.page -= 1
+        await this.refreshList()
+      }
+    })
+    nextBtn?.addEventListener('click', async () => {
+      if (this.nextPage) {
+        this.page = this.nextPage
+        await this.refreshList()
+      }
+    })
   }
 
   private async handleFileUpload(e: Event) {
@@ -197,7 +265,14 @@ export class SanityImagePicker {
         if (progressBarEl) progressBarEl.style.width = progress + '%'
       }, 200)
 
-      const uploadedImage = await uploadImageToSanity(fileToUpload)
+      // 透過伺服器端 API 上傳，避免在前端暴露憑證
+      const formData = new FormData()
+      formData.append('file', fileToUpload)
+      const res = await fetch('/api/sanity/upload', { method: 'POST', body: formData })
+      if (!res.ok) throw new Error(`Upload failed ${res.status}`)
+      const j = await res.json()
+      if (!j?.success || !j?.image) throw new Error(j?.error || 'Upload failed')
+      const uploadedImage = j.image as SanityImage
       
       clearInterval(progressInterval)
       if (progressBarEl) progressBarEl.style.width = '100%'
@@ -205,10 +280,11 @@ export class SanityImagePicker {
       if (uploadedImage) {
         // 選擇剛上傳的圖片
         const imageUrl = buildSanityImageUrl(uploadedImage, 1200, 800, 90)
-        setTimeout(() => {
+        setTimeout(async () => {
           this.options.onSelect(imageUrl)
+          await this.refreshList()
           this.close()
-        }, 500)
+        }, 300)
       } else {
         alert('上傳失敗，請重試')
         if (progressEl) progressEl.style.display = 'none'
@@ -221,6 +297,40 @@ export class SanityImagePicker {
 
     // 清除選擇
     input.value = ''
+  }
+
+  private async refreshList() {
+    try {
+      // 顯示 loading 骨架
+      const grid = this.modal?.querySelector('.sanity-image-picker-grid') as HTMLElement | null
+      const pag = this.modal?.querySelector('.sanity-image-pagination') as HTMLElement | null
+      if (grid) grid.innerHTML = '<div style="padding:16px;color:#6b7280;">載入中...</div>'
+      await this.loadImages()
+      if (grid) grid.innerHTML = this.renderImageGrid()
+      // 重新綁定圖片點擊事件
+      const imageItems = this.modal?.querySelectorAll('.sanity-image-item')
+      imageItems?.forEach(item => {
+        item.addEventListener('click', () => {
+          const url = item.getAttribute('data-url')
+          if (url) {
+            this.options.onSelect(url)
+            this.close()
+          }
+        })
+      })
+      // 更新分頁狀態
+      if (pag) {
+        const prevBtn = pag.querySelector('.btn-prev') as HTMLButtonElement | null
+        const nextBtn = pag.querySelector('.btn-next') as HTMLButtonElement | null
+        const indicator = pag.querySelector('.page-indicator') as HTMLElement | null
+        if (indicator) indicator.textContent = `第 ${this.page} 頁`
+        if (prevBtn) prevBtn.disabled = this.page <= 1
+        if (nextBtn) nextBtn.disabled = !this.nextPage
+      }
+    } catch (e) {
+      const grid = this.modal?.querySelector('.sanity-image-picker-grid') as HTMLElement | null
+      if (grid) grid.innerHTML = '<div style="padding:16px;color:#b91c1c;">載入失敗，請重試</div>'
+    }
   }
 
   private addStyles() {
