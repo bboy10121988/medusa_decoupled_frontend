@@ -56,22 +56,23 @@ const Hero = ({ slides, settings }: HeroProps) => {
 
   return (
     <div className="relative w-full">
-      {/* 輪播圖片容器 - 調整高度比例及響應式設計 */}
-      <div className="relative aspect-[16/11] xs:aspect-[16/10] sm:aspect-[16/9] md:aspect-[21/9] overflow-hidden">
+      {/* 輪播圖片容器 - 全寬顯示，不強制高度 */}
+      <div className="relative w-full overflow-hidden">
         {slides.map((slideItem, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            className={`transition-opacity duration-1000 ease-in-out ${
               index === currentSlide ? 'opacity-100' : 'opacity-0'
-            }`}
+            } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
           >
             {slideItem.backgroundImage && (
               <Image
                 src={slideItem.backgroundImage}
                 alt={slideItem.backgroundImageAlt || slideItem.heading || `輪播圖片 ${index + 1}`}
-                fill
-                className="object-cover object-center"
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, 100vw"
+                width={1920}
+                height={1080}
+                className="w-full h-auto object-cover"
+                sizes="100vw"
                 priority={index === 0}
               />
             )}
@@ -79,10 +80,10 @@ const Hero = ({ slides, settings }: HeroProps) => {
         ))}
       </div>
       
-      {/* 內容覆蓋層 - 優化手機版顯示 */}
+      {/* 內容覆蓋層 - 適應動態高度 */}
       <div className="absolute inset-0 z-10 flex flex-col justify-end sm:justify-center items-center text-center p-4 pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
         <div 
-          key={currentSlide}
+          key={`slide-${currentSlide}`}
           className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"
         >
           <Heading
@@ -110,12 +111,12 @@ const Hero = ({ slides, settings }: HeroProps) => {
         </div>
       </div>
 
-      {/* 點點導航 - 改進響應式樣式 */}
+      {/* 點點導航 - 適應動態高度 */}
       {settings?.showDots && slides.length > 1 && (
         <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 sm:gap-3">
           {slides.map((_, index) => (
             <button
-              key={index}
+              key={`dot-${index}`}
               onClick={() => goToSlide(index)}
               className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide 
