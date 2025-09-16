@@ -123,3 +123,7 @@ You'll also need to setup the integrations in your Medusa server. See the [Medus
 - [Website](https://nextjs.org/)
 - [GitHub](https://github.com/vercel/next.js)
 - [Documentation](https://nextjs.org/docs)
+
+# 部署
+pm2 restart 
+gcloud compute ssh --zone "asia-east1-c" "tim-web-dev" --command="cd ~/medusa-frontend && git pull origin main && npm run build && pm2 restart frontend"

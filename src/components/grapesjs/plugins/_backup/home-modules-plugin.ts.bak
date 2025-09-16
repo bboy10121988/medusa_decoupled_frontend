@@ -1,7 +1,0 @@
-/* Backup of home-modules-plugin.ts - created before deletion */
-
-import { Editor } from 'grapesjs'
-
-export default function homePageModulesPlugin(editor: Editor) {
-  // Backup content omitted for brevity. Full original file saved in workspace.
-}
