@@ -13,6 +13,7 @@ import 'grapesjs/dist/css/grapes.min.css'
 import './grapes-editor.flat.css'
 import './third-party-plugins-custom.css'
 import './upload-error-modal.css'
+import './material-ui-styles.css'
 import { PluginControlPanel } from './PluginControlPanel'
 
 // 全域變數來追蹤工作區選中的頁面

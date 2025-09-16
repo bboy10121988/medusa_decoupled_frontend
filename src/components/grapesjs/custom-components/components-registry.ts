@@ -4,6 +4,7 @@
  */
 
 import { registerPageComponents } from './page-components-group';
+import { registerMaterialUIComponents } from './material-ui-components';
 
 // 組件註冊介面
 export interface CustomComponent {
@@ -20,6 +21,12 @@ export const customComponents: CustomComponent[] = [
     register: registerPageComponents,
     description: '頁面組件群組 - 包含所有從 page.tsx 遷移的組件，如 Hero Section、Service Cards 等',
     category: 'Page Sections'
+  },
+  {
+    name: 'material-ui',
+    register: registerMaterialUIComponents,
+    description: 'Material UI 組件 - 包含常用的 Material Design 組件如 Button、TextField、Card 等',
+    category: 'Material UI'
   }
   // 未來可以在這裡添加更多組件或外掛
 ];

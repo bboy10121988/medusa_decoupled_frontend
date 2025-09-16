@@ -18,6 +18,8 @@
     "env:status": "echo '當前環境:' && grep 'NEXT_PUBLIC_MEDUSA_BACKEND_URL=' .env.local"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@fortawesome/fontawesome-svg-core": "^7.0.1",
     "@fortawesome/free-brands-svg-icons": "^7.0.1",
     "@fortawesome/react-fontawesome": "^3.0.2",
@@ -28,6 +30,8 @@
     "@medusajs/js-sdk": "latest",
     "@medusajs/types": "^2.10.1",
     "@medusajs/ui": "latest",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
     "@mux/mux-player": "^3.5.3",
     "@mux/mux-player-react": "^3.5.3",
     "@portabletext/react": "^4.0.1",
