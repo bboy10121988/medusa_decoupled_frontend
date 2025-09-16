@@ -3,9 +3,9 @@
 import { useActionState } from 'react'
 import { useParams } from 'next/navigation'
 import { affiliateAdminLogin } from '@lib/data/affiliate-admin-auth'
-import Input from '@modules/common/components/input'
-import { SubmitButton } from '@modules/checkout/components/submit-button'
-import ErrorMessage from '@modules/checkout/components/error-message'
+import Input from '@components/common/components/input'
+import { SubmitButton } from '@features/ecommerce/checkout/components/submit-button'
+import ErrorMessage from '@features/ecommerce/checkout/components/error-message'
 
 export default function AffiliateAdminLogin() {
   const [message, formAction] = useActionState(affiliateAdminLogin, null)
