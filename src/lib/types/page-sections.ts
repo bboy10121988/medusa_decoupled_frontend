@@ -29,14 +29,14 @@ export type ImageConfig = {
 export type ImageTextBlock = {
   _type: "imageTextBlock"
   isActive: boolean
-  heading: string
-  content: string
+  heading: string | null
+  content: string | null
   image: ImageConfig
   layout: "imageLeft" | "imageRight" | "imageLeftImageRight" | "textLeftTextRight" | "centerText"
   leftImage?: ImageConfig
   rightImage?: ImageConfig
-  leftContent?: string
-  rightContent?: string
+  leftContent?: string | null
+  rightContent?: string | null
   hideTitle?: boolean
 }
 
