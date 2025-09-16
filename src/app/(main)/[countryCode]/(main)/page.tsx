@@ -86,9 +86,9 @@ export default async function Home({
     willUseFallback: !hasSanityData
   })
 
-  // 如果沒有數據或數據無效，顯示備用內容
-  if (!hasSanityData || !regionData) {
-    console.warn('⚠️ No valid Sanity data or region found, showing fallback content')
+  // 如果沒有Sanity數據，顯示備用內容
+  if (!hasSanityData) {
+    console.warn('⚠️ No valid Sanity data found, showing fallback content')
     
     return (
       <>
@@ -114,13 +114,9 @@ export default async function Home({
     )
   }
 
-  // 如果有有效的Sanity數據，使用它
+  // 如果有有效的Sanity數據，使用它（即使沒有regionData）
   if (hasSanityData && homepageData) {
     const { mainSections } = homepageData
-
-    if (!region) {
-      return null
-    }
 
     console.log("🎨 Rendering Sanity content - mainSections:", JSON.stringify(mainSections, null, 2))
 
@@ -205,9 +201,9 @@ export default async function Home({
                       return null
                     }
 
-                    // 安全檢查 collections
-                    if (!collections || !collections.collections || !Array.isArray(collections.collections)) {
-                      console.warn("Featured products skipped - backend unavailable")
+                    // 安全檢查 collections 和 regionData
+                    if (!collections || !collections.collections || !Array.isArray(collections.collections) || !regionData) {
+                      console.warn("Featured products skipped - backend or region data unavailable")
                       return null  // 安靜地跳過，不阻塞其他區塊
                     }
 
