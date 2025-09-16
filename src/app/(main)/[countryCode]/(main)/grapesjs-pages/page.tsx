@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { client as sanityClient } from '@/sanity-client';
+import { client as sanityClient } from '@shared/sanity-integration';
 import GrapesJSPageRenderer from '@/components/grapesjs/GrapesJSPageRenderer';
 
 interface PageData {

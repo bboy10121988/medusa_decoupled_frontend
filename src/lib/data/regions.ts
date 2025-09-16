@@ -2,7 +2,7 @@
 
 import { sdk, MEDUSA_BACKEND_URL } from "../config"
 import { getPublishableKeyForBackend } from "../medusa-publishable-key"
-import medusaError from "../util/medusa-error"
+import medusaError from "@shared/utilities/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { getCacheOptions } from "./cookies"
 

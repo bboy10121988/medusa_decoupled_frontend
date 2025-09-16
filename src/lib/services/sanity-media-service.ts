@@ -3,7 +3,7 @@
  * 提供 GrapesJS 與 Sanity 媒體庫的整合功能
  */
 
-import { client } from '@/sanity-client/client'
+import { client } from '@shared/sanity-integration/client'
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 
