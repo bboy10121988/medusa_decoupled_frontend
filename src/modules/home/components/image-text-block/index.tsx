@@ -9,14 +9,14 @@ interface ImageConfig {
 }
 
 interface ImageTextBlockProps {
-  heading: string
-  content?: string
+  heading?: string | null
+  content?: string | null
   image?: ImageConfig
   layout: 'imageLeft' | 'imageRight' | 'imageLeftImageRight' | 'textLeftTextRight' | 'centerText'
   leftImage?: ImageConfig
   rightImage?: ImageConfig
-  leftContent?: string
-  rightContent?: string
+  leftContent?: string | null
+  rightContent?: string | null
   hideTitle?: boolean
 }
 
@@ -31,8 +31,9 @@ const ImageTextBlock = ({
   rightContent,
   hideTitle = false
 }: ImageTextBlockProps) => {
-  // 檢查是否真的有標題內容
-  const hasTitle = !hideTitle && heading && heading.trim().length > 0
+  // 檢查是否真的有標題內容 - handle null/undefined heading
+  const hasTitle = !hideTitle && heading && typeof heading === 'string' && heading.trim().length > 0
+  
   
   return (
     <div className={cn(
@@ -61,7 +62,7 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
-            {content && (
+            {content && typeof content === 'string' && content.trim() && (
               <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
             )}
           </div>
@@ -80,7 +81,7 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
-            {content && (
+            {content && typeof content === 'string' && content.trim() && (
               <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
             )}
           </div>
@@ -109,7 +110,7 @@ const ImageTextBlock = ({
                 {heading}
               </h2>
             )}
-            {content && (
+            {content && typeof content === 'string' && content.trim() && (
               <div className="prose prose-lg max-w-none mx-auto" dangerouslySetInnerHTML={{ __html: content }} />
             )}
           </div>
@@ -166,12 +167,12 @@ const ImageTextBlock = ({
             </div>
           )}
           <div className="grid md:grid-cols-2 gap-8 px-6 md:px-12 xl:px-16 2xl:px-24">
-            {leftContent && (
+            {leftContent && typeof leftContent === 'string' && leftContent.trim() && (
               <div className="prose prose-lg max-w-none">
                 <div dangerouslySetInnerHTML={{ __html: leftContent }} />
               </div>
             )}
-            {rightContent && (
+            {rightContent && typeof rightContent === 'string' && rightContent.trim() && (
               <div className="prose prose-lg max-w-none">
                 <div dangerouslySetInnerHTML={{ __html: rightContent }} />
               </div>
