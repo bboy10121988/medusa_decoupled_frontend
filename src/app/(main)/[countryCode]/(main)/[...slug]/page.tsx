@@ -104,17 +104,11 @@ function NotFoundPage({ message }: { message: string }) {
 }
 
 // 生成靜態參數，只為已存在的 GrapesJS 頁面生成路由
-export async function generateStaticParams({ 
-  params 
-}: { 
-  params: Promise<{ countryCode: string }> 
-}) {
+export async function generateStaticParams() {
   // 在開發模式下，返回空陣列以允許動態路由
   if (process.env.NODE_ENV === 'development') {
     return []
   }
-  
-  const { countryCode } = await params
   
   try {
     const data = await fs.readFile(PAGES_FILE, 'utf-8')
@@ -123,10 +117,15 @@ export async function generateStaticParams({
     // 只為已存在的頁面生成路由，並排除系統路由
     const validPages = Object.keys(pages).filter(pageId => !SYSTEM_ROUTES.includes(pageId))
     
-    return validPages.map(pageId => ({
-      countryCode,
-      slug: [pageId]
-    }))
+    // 為所有支援的國家代碼生成路由
+    const countryCodes = ['tw', 'us', 'de', 'fr', 'dk']
+    
+    return countryCodes.flatMap(countryCode => 
+      validPages.map(pageId => ({
+        countryCode,
+        slug: [pageId]
+      }))
+    )
   } catch (error) {
     console.error('Error generating static params:', error)
     return []
