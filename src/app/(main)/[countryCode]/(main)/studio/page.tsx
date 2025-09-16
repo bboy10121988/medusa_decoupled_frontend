@@ -1,6 +1,6 @@
 'use client';
 
-import GrapesEditor from '@/components/grapesjs/grapes_editor';
+import GrapesEditor from '@/components/cms/grapesjs/grapes_editor';
 
 export default function StudioPage() {
   return (

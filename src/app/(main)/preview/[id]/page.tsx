@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { grapesJSPageService } from '@/lib/services/grapesjs-page-service'
-import GrapesJSPageRendererById from '@/components/grapesjs/GrapesJSPageRendererById'
+import GrapesJSPageRendererById from '@/components/cms/grapesjs/GrapesJSPageRendererById'
 
 interface PreviewPageProps {
   params: { id: string }

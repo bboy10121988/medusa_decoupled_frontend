@@ -10,9 +10,9 @@ import { getPluginsOptions } from './config/plugins-config'
 // import { addCarouselConverter } from './utils/carousel-fullwidth-converter'
 import { applyZhTW } from './i18n/zh-TW'
 import 'grapesjs/dist/css/grapes.min.css'
-import './grapes-editor.flat.css'
-import './third-party-plugins-custom.css'
-import './upload-error-modal.css'
+import './styles/grapes-editor.flat.css'
+import './styles/third-party-plugins-custom.css'
+import './styles/upload-error-modal.css'
 import { PluginControlPanel } from './PluginControlPanel'
 
 // 全域變數來追蹤工作區選中的頁面
