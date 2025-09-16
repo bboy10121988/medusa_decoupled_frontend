@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { client } from '@/sanity-client'
+import { client } from '@shared/sanity-integration'
 
 export async function GET(request: NextRequest) {
   try {

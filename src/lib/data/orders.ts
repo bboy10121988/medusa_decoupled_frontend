@@ -1,7 +1,7 @@
 "use server"
 
 import { sdk } from "@lib/config"
-import medusaError from "@lib/util/medusa-error"
+import medusaError from "@shared/utilities/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 

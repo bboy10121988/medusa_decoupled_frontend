@@ -2,11 +2,11 @@ import { Radio as RadioGroupOption } from "@headlessui/react"
 import { Text, clx } from "@medusajs/ui"
 import React, { useContext, useMemo, type JSX } from "react"
 
-import Radio from "@modules/common/components/radio"
+import Radio from "@shared/common/components/radio"
 import PaymentTest from "@/app/(main)/[countryCode]/(checkout)/checkout/components/payment-test"
 
 import { isManual } from "../../../../constants"
-import SkeletonCardDetails from "@modules/skeletons/components/skeleton-card-details"
+import SkeletonCardDetails from "@features/loading-states/skeletons/components/skeleton-card-details"
 import { CardElement } from "@stripe/react-stripe-js"
 import { StripeCardElementOptions } from "@stripe/stripe-js"
 import { StripeContext } from "../payment-wrapper/stripe-wrapper"

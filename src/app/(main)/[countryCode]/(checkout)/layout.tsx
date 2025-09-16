@@ -1,5 +1,5 @@
-import LocalizedClientLink from "@/modules/common/components/localized-client-link"
-import ChevronDown from "@/modules/common/icons/chevron-down"
+import LocalizedClientLink from "@shared/common/components/localized-client-link"
+import ChevronDown from "@shared/common/icons/chevron-down"
 import Image from "next/image"
 import { getHeader } from "@/lib/sanity"
 import { SanityHeader } from "@/types/global"

@@ -19,6 +19,8 @@
         "@/*": ["./*"],
         "@lib/*": ["lib/*", "lib/*.ts", "lib/*.tsx"],
         "@modules/*": ["modules/*"],
+        "@features/*": ["features/*"],
+        "@shared/*": ["shared/*"],
         "@pages/*": ["pages/*"]
       },
     "plugins": [

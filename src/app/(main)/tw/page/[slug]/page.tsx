@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { client } from '@/sanity-client'
+import { client } from '@shared/sanity-integration'
 import { Metadata } from 'next'
 
 // 已知的系統路由，這些路由不應該被 GrapesJS 頁面處理

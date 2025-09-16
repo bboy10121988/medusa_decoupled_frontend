@@ -1,15 +1,15 @@
 import { Metadata } from "next"
 
-import HeroSection from "@modules/home/components/hero-section"
-import BlogPosts from "@modules/blog/components/blog-posts"
-import FeaturedProducts from "@modules/home/components/featured-products"
-import ImageTextBlock from "@modules/home/components/image-text-block"
-import YoutubeSection from "@modules/home/components/youtube-section"
-import ServiceCardsSection from "@modules/home/components/service-cards-section"
-import ContentSection from "@modules/home/components/content-section"
+import HeroSection from "@features/homepage-sections/home/components/hero-section"
+import BlogPosts from "@features/blog-content/blog/components/blog-posts"
+import FeaturedProducts from "@features/homepage-sections/home/components/featured-products"
+import ImageTextBlock from "@features/homepage-sections/home/components/image-text-block"
+import YoutubeSection from "@features/homepage-sections/home/components/youtube-section"
+import ServiceCardsSection from "@features/homepage-sections/home/components/service-cards-section"
+import ContentSection from "@features/homepage-sections/home/components/content-section"
 import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
-import { getHomepage } from "@lib/sanity"; // 使用 getHomepage 並移除 getServiceSection
+import { getHomepage } from "@shared/sanity-integration/sanity"; // 使用 getHomepage 並移除 getServiceSection
 import type { MainBanner } from '@lib/types/page-sections'
 import type { ImageTextBlock as ImageTextBlockType } from '@lib/types/page-sections'
 import type { FeaturedProductsSection } from '@lib/types/page-sections'

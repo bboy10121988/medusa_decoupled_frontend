@@ -1,9 +1,9 @@
 "use server"
 
 import { sdk, MEDUSA_BACKEND_URL } from "../config"
-import medusaError from "../util/medusa-error"
+import medusaError from "@shared/utilities/medusa-error"
 import { getPublishableKeyForBackend } from "../medusa-publishable-key"
-import { sortProducts } from "../util/sort-products"
+import { sortProducts } from "@shared/utilities/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import type { SortOptions } from "../../modules/store/components/refinement-list/sort-products"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
