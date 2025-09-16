@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import GrapesJSPageRenderer from '@/components/grapesjs/GrapesJSPageRenderer'
+import GrapesJSPageRenderer from '@/components/cms/grapesjs/GrapesJSPageRenderer'
 import { grapesJSPageService } from '@/lib/services/grapesjs-page-service'
 
 interface PageProps {

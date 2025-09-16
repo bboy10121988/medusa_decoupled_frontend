@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 
 // 動態導入 GrapesEditor，禁用 SSR
-const GrapesEditor = dynamic(() => import('@/components/grapesjs/grapes_editor'), {
+const GrapesEditor = dynamic(() => import('@/components/cms/grapesjs/grapes_editor'), {
   ssr: false,
   loading: () => <div>載入編輯器中...</div>
 });

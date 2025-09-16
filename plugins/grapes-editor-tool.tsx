@@ -3,7 +3,7 @@ import { EditIcon } from '@sanity/icons'
 import dynamic from 'next/dynamic'
 
 // 動態導入 GrapesJS 編輯器組件，避免 SSR 問題
-const GrapesEditor = dynamic(() => import('../src/components/grapesjs/grapes_editor'), {
+const GrapesEditor = dynamic(() => import('../src/components/cms/grapesjs/grapes_editor'), {
   ssr: false,
   loading: () => <div style={{ padding: '20px', textAlign: 'center' }}>載入 GrapesJS 編輯器中...</div>
 })

@@ -57,3 +57,13 @@ dump.rdb
 /playwright/.auth
 
 *.workspace.code-workspace
+
+# Temporary files
+.temp/
+*.tmp
+*.bak
+*~
+
+# Project specific
+/data/temp/
+/scripts/temp/
