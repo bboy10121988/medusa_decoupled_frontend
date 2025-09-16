@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SettlementsData, Settlement } from '../../../../../../types/affiliate'
+import { SettlementsData, Settlement } from '@shared/types/affiliate'
 
 const dataDir = path.join(process.cwd(), 'data')
 const settlementsPath = path.join(dataDir, 'affiliate-settlements.json')

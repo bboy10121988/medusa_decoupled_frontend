@@ -1,8 +1,8 @@
 import { Suspense } from "react"
 
 import SkeletonProductGrid from "@components/skeletons/templates/skeleton-product-grid/index"
-import { SortOptions } from "../../store/components/refinement-list/sort-products/index"
-import PaginatedProducts from "../../store/templates/paginated-products"
+import { SortOptions } from "@features/ecommerce/store/components/refinement-list/sort-products/index"
+import PaginatedProducts from "@features/ecommerce/store/templates/paginated-products"
 import { HttpTypes } from "@medusajs/types"
 
 export default function CollectionTemplate({

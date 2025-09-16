@@ -2,7 +2,7 @@
 
 import { listProductsWithSort } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import ProductPreview from "../../products/components/product-preview"
+import ProductPreview from "@features/ecommerce/products/components/product-preview"
 import { Pagination } from "../components/pagination"
 import { SortOptions } from "../components/refinement-list/sort-products/index"
 import RefinementList from "../components/refinement-list"

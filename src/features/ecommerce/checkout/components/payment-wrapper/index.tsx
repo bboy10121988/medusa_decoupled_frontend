@@ -5,7 +5,7 @@ import React from "react"
 import StripeWrapper from "./stripe-wrapper"
 import { HttpTypes } from "@medusajs/types"
 import { isStripe } from "@shared/constants/constants"
-import EcpayCheckout from "../../../../components/checkout/ecpay-checkout"
+import EcpayCheckout from "../../@components/layout/components/checkout/ecpay-checkout"
 
 type PaymentWrapperProps = {
   cart: HttpTypes.StoreCart

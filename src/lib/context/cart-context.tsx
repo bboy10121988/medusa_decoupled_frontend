@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { HttpTypes } from '@medusajs/types'
-import { Cart } from "../../types/global"
+import { Cart } from "@shared/types/global"
 
 interface CartItem {
   variantId: string

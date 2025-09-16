@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { promises as fs } from 'fs'
 import path from 'path'
-import type { AffiliateLink } from '../../../../types/affiliate'
+import type { AffiliateLink } from '@shared/types/affiliate'
 
 // 記憶體儲存 (開發模式)
 let memoryStorage: { [affiliateId: string]: AffiliateLink[] } = {}

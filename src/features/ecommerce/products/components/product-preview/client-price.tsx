@@ -1,6 +1,6 @@
 "use client"
 
-import { VariantPrice } from "../../../../types/global"
+import { VariantPrice } from "@shared/types/global"
 
 export default function ClientPreviewPrice({ price }: { price: VariantPrice }) {
   if (!price) {

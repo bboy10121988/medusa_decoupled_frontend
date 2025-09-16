@@ -146,7 +146,7 @@ function SearchModal({ isOpen, onClose, searchQuery, onSearchSubmit }: Props) {
   }
 
   const handleProductClick = (handle: string) => {
-    router.push(`/tw/products/${handle}`)
+    router.push@features/ecommerce/products/${handle}`)
     onClose()
   }
 

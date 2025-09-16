@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { listProducts } from "@lib/data/products"
-import ProductPreview from "../../products/components/product-preview/index"
+import ProductPreview from "@features/ecommerce/products/components/product-preview/index"
 import { HttpTypes } from "@medusajs/types"
 import { convertToStandardProducts } from "@lib/util/product-type-converter"
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { retrieveAffiliate } from '@lib/data/affiliate-auth'
 import { getAllStats } from '@lib/data/affiliate-stats'
-import { ClickRecord } from '../../../../types/affiliate'
+import { ClickRecord } from '@shared/types/affiliate'
 
 // 訂單類型定義
 type AffiliateOrder = {

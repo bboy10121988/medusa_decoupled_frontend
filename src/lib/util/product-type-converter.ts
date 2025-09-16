@@ -4,7 +4,7 @@
  */
 
 import { HttpTypes } from "@medusajs/types"
-import { LocalHttpTypes } from "../../types/medusa-local"
+import { LocalHttpTypes } from "@shared/types/medusa-local"
 
 /**
  * 將 LocalHttpTypes.StoreProduct 轉換為 HttpTypes.StoreProduct

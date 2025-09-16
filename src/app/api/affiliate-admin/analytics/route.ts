@@ -7,7 +7,7 @@ import {
   AffiliatePerformance, 
   ProductPerformance, 
   AnalyticsResponse 
-} from '../../../../types/affiliate-admin'
+} from '@shared/types/affiliate-admin'
 
 const dataDir = path.join(process.cwd(), 'data')
 const statsPath = path.join(dataDir, 'affiliate-stats.json')
