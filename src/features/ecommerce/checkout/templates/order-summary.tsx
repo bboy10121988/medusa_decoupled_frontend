@@ -1,8 +1,8 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import CartTotals from "@modules/common/components/cart-totals"
-import ItemsPreviewTemplate from "@modules/cart/components/items-preview-template"
+import CartTotals from "@components/common/components/cart-totals"
+import ItemsPreviewTemplate from "@features/ecommerce/cart/components/items-preview-template"
 
 type OrderSummaryProps = {
   cart: HttpTypes.StoreCart

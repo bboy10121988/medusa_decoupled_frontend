@@ -4,8 +4,8 @@ import { notFound } from "next/navigation"
 import { getCategoryByHandle, listCategories } from "@lib/data/categories"
 import { listRegions } from "@lib/data/regions"
 import { StoreRegion } from "@medusajs/types"
-import CategoryTemplate from "@modules/categories/templates"
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import CategoryTemplate from "@features/ecommerce/categories/templates"
+import { SortOptions } from "@features/ecommerce/store/components/refinement-list/sort-products"
 
 type Props = {
   params: Promise<{ category: string[]; countryCode: string }>

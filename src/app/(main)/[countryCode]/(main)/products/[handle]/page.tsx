@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { getProduct, listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import { generateProductKeywords } from "@lib/seo"
-import ProductTemplate from "@modules/products/templates"
+import ProductTemplate from "@features/ecommerce/products/templates"
 import { getStoreName } from "@lib/store-name"
 
 type Props = {

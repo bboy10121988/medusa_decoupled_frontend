@@ -1,7 +1,7 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import ProductPreview from "@modules/products/components/product-preview"
+import ProductPreview from "@features/ecommerce/products/components/product-preview"
 
 type ProductDisplayProps = {
   products: HttpTypes.StoreProduct[]

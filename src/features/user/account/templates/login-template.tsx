@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import GoogleLoginButton from "@modules/account/components/google-login-button"
-import Register from "@modules/account/components/register"
-import Login from "@modules/account/components/login"
+import GoogleLoginButton from "@features/user/account/components/google-login-button"
+import Register from "@features/user/account/components/register"
+import Login from "@features/user/account/components/login"
 
 export enum LOGIN_VIEW {
   SIGN_IN = "sign-in",

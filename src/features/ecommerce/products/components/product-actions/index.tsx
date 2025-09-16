@@ -1,10 +1,10 @@
 "use client"
 
-import { useIntersection } from "@lib/hooks/use-in-view"
+import { useIntersection } from "@shared/hooks/use-in-view"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
-import Divider from "@modules/common/components/divider"
-import OptionSelect from "@modules/products/components/product-actions/option-select"
+import Divider from "@components/common/components/divider"
+import OptionSelect from "@features/ecommerce/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"

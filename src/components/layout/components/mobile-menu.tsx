@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useMemo } from "react"
 import { XMarkIcon, Bars3Icon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { StoreRegion } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CountrySelect from "@modules/layout/components/country-select"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
+import CountrySelect from "@components/layout/components/country-select"
 import { SanityHeader, NavigationItem } from "../../../types/global"
 
 type MobileMenuProps = {

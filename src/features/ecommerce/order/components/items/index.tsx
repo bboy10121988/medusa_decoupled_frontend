@@ -2,9 +2,9 @@ import repeat from "@lib/util/repeat"
 import { HttpTypes } from "@medusajs/types"
 import { Table } from "@medusajs/ui"
 
-import Divider from "@modules/common/components/divider"
-import Item from "@modules/order/components/item"
-import SkeletonLineItem from "@modules/skeletons/components/skeleton-line-item"
+import Divider from "@components/common/components/divider"
+import Item from "@features/ecommerce/order/components/item"
+import SkeletonLineItem from "@components/skeletons/components/skeleton-line-item"
 
 type ItemsProps = {
   order: HttpTypes.StoreOrder

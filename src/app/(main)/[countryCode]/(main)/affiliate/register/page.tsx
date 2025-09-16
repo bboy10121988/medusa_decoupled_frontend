@@ -3,10 +3,10 @@
 import { useActionState } from 'react'
 import { useParams } from 'next/navigation'
 import { affiliateSignup } from '@lib/data/affiliate-auth'
-import Input from '@modules/common/components/input'
-import { SubmitButton } from '@modules/checkout/components/submit-button'
-import ErrorMessage from '@modules/checkout/components/error-message'
-import LocalizedClientLink from '@modules/common/components/localized-client-link'
+import Input from '@components/common/components/input'
+import { SubmitButton } from '@features/ecommerce/checkout/components/submit-button'
+import ErrorMessage from '@features/ecommerce/checkout/components/error-message'
+import LocalizedClientLink from '@components/common/components/localized-client-link'
 
 export default function AffiliateRegisterPage() {
   const [message, formAction] = useActionState(affiliateSignup, null)

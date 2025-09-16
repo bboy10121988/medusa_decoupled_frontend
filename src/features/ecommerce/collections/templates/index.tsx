@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 
-import SkeletonProductGrid from "../../skeletons/templates/skeleton-product-grid/index"
+import SkeletonProductGrid from "@components/skeletons/templates/skeleton-product-grid/index"
 import { SortOptions } from "../../store/components/refinement-list/sort-products/index"
 import PaginatedProducts from "../../store/templates/paginated-products"
 import { HttpTypes } from "@medusajs/types"

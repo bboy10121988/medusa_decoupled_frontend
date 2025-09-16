@@ -1,10 +1,10 @@
 import { HttpTypes } from "@medusajs/types"
 import { Table, Text } from "@medusajs/ui"
 
-import LineItemOptions from "@modules/common/components/line-item-options"
-import LineItemPrice from "@modules/common/components/line-item-price"
-import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
-import Thumbnail from "@modules/products/components/thumbnail"
+import LineItemOptions from "@components/common/components/line-item-options"
+import LineItemPrice from "@components/common/components/line-item-price"
+import LineItemUnitPrice from "@components/common/components/line-item-unit-price"
+import Thumbnail from "@features/ecommerce/products/components/thumbnail"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem

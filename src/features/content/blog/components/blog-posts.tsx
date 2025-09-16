@@ -1,6 +1,6 @@
 import BlogCard from "./blog-card"
 import type { BlogPost } from "./blog-card"
-import client from "../../../lib/sanity"
+import client from "@lib/sanity"
 
 async function getBlogPosts(category?: string, limit: number = 6) {
   try {

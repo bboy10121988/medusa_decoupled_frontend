@@ -3,7 +3,7 @@ import type { FeaturedProductsSection } from "@lib/types/page-sections"
 import { Text } from "@medusajs/ui"
 import { Suspense } from "react"
 import ProductPreviewGrid from "./product-rail"
-import SkeletonProductPreview from "@modules/skeletons/components/skeleton-product-preview"
+import SkeletonProductPreview from "@components/skeletons/components/skeleton-product-preview"
 
 type FeaturedProductsProps = {
   collections: HttpTypes.StoreCollection[]

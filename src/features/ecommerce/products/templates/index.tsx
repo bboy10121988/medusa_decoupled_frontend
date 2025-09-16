@@ -1,11 +1,11 @@
 import React, { Suspense } from "react"
 
-import ImageGallery from "@modules/products/components/image-gallery"
-import ProductActions from "@modules/products/components/product-actions"
-import RelatedProducts from "@modules/products/components/related-products"
-import ProductTabs from "@modules/products/components/product-tabs"
-import ProductInfoTab from "@modules/products/components/product-info-tab"
-import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
+import ImageGallery from "@features/ecommerce/products/components/image-gallery"
+import ProductActions from "@features/ecommerce/products/components/product-actions"
+import RelatedProducts from "@features/ecommerce/products/components/related-products"
+import ProductTabs from "@features/ecommerce/products/components/product-tabs"
+import ProductInfoTab from "@features/ecommerce/products/components/product-info-tab"
+import SkeletonRelatedProducts from "@components/skeletons/templates/skeleton-related-products"
 import { ProductActionProvider } from "@lib/context/product-context"
 import StoreName from "../components/store-name"
 

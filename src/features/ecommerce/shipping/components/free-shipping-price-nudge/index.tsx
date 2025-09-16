@@ -9,7 +9,7 @@ import {
   StorePrice,
 } from "@medusajs/types"
 import { Button, clx } from "@medusajs/ui"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
 import { useState } from "react"
 import { StoreFreeShippingPrice } from "../../../../types/global"
 

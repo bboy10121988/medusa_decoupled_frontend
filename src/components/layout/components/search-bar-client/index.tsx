@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
-import safeFetchGlobal from '../../../../lib/safe-fetch'
+import safeFetchGlobal from '@lib/safe-fetch'
 
 type ProductResult = {
   id: string

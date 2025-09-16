@@ -4,12 +4,12 @@ import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import type { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
-import CartTotals from "../../../common/components/cart-totals/index"
-import Help from "../../../order/components/help/index"
-import Items from "../../../order/components/items/index"
-import OrderDetails from "../../../order/components/order-details/index"
-import ShippingDetails from "../../../order/components/shipping-details/index"
-import PaymentDetails from "../../../order/components/payment-details/index"
+import CartTotals from "@components/common/components/cart-totals/index"
+import Help from "@features/ecommerce/order/components/help/index"
+import Items from "@features/ecommerce/order/components/items/index"
+import OrderDetails from "@features/ecommerce/order/components/order-details/index"
+import ShippingDetails from "@features/ecommerce/order/components/shipping-details/index"
+import PaymentDetails from "@features/ecommerce/order/components/payment-details/index"
 
 // 客戶端訂單獲取函數
 const fetchOrder = async (orderId: string): Promise<HttpTypes.StoreOrder> => {

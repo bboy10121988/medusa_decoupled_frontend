@@ -5,7 +5,7 @@ import { Button } from "@medusajs/ui"
 import ErrorMessage from "../error-message"
 import { HttpTypes } from "@medusajs/types"
 import { placeOrder } from "@lib/data/cart"
-import { PaymentData } from "../../../../internal/ecpayments"
+import { PaymentData } from "@/internal/ecpayments"
 import { de, id } from "date-fns/locale"
 
 type Props = {

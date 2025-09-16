@@ -2,12 +2,12 @@
 
 import { XMark } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import Help from "@modules/order/components/help"
-import Items from "@modules/order/components/items"
-import OrderDetails from "@modules/order/components/order-details"
-import OrderSummary from "@modules/order/components/order-summary"
-import ShippingDetails from "@modules/order/components/shipping-details"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
+import Help from "@features/ecommerce/order/components/help"
+import Items from "@features/ecommerce/order/components/items"
+import OrderDetails from "@features/ecommerce/order/components/order-details"
+import OrderSummary from "@features/ecommerce/order/components/order-summary"
+import ShippingDetails from "@features/ecommerce/order/components/shipping-details"
 import React from "react"
 
 type OrderDetailsTemplateProps = {

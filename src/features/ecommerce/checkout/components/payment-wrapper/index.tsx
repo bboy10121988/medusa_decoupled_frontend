@@ -4,7 +4,7 @@ import { loadStripe } from "@stripe/stripe-js"
 import React from "react"
 import StripeWrapper from "./stripe-wrapper"
 import { HttpTypes } from "@medusajs/types"
-import { isStripe } from "../../../../constants"
+import { isStripe } from "@shared/constants/constants"
 import EcpayCheckout from "../../../../components/checkout/ecpay-checkout"
 
 type PaymentWrapperProps = {

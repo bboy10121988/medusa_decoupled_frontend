@@ -2,7 +2,7 @@
 
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
-import LocalizedClientLink from "../../../common/components/localized-client-link/index"
+import LocalizedClientLink from "@components/common/components/localized-client-link/index"
 import { useEffect, useMemo, useState } from "react"
 import Thumbnail from "../thumbnail/index"
 import ClientPreviewPrice from "./client-price"

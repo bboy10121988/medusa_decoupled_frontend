@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { retrieveAffiliate } from '../../../../lib/data/affiliate-auth'
+import { retrieveAffiliate } from '@lib/data/affiliate-auth'
 import { promises as fs } from 'fs'
 import path from 'path'
 

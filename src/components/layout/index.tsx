@@ -1,6 +1,6 @@
 import React from "react"
 
-import Nav from "@modules/layout/templates/nav"
+import Nav from "@components/layout/templates/nav"
 
 const Layout: React.FC<{
   children: React.ReactNode

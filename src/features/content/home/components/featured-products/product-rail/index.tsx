@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import ProductPreview from "@modules/products/components/product-preview"
+import ProductPreview from "@features/ecommerce/products/components/product-preview"
 import { listProducts } from "@lib/data/products"
 import { convertToStandardProducts } from "@/lib/util/product-type-converter"
 

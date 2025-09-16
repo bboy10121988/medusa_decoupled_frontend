@@ -3,7 +3,7 @@ import { listCollections } from "@lib/data/collections"
 import { getFooter } from "@lib/sanity"
 import Image from "next/image"
 
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
 
 export default async function Footer() {
   const { collections } = await listCollections({

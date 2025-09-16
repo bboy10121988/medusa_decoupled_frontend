@@ -1,10 +1,10 @@
 "use client"
 
 import CartDropdown from "../cart-dropdown"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { HttpTypes } from "@medusajs/types"
-import safeFetchGlobal from '../../../../lib/safe-fetch'
+import safeFetchGlobal from '@lib/safe-fetch'
 
 export default function CartButton() {
   const [cart, setCart] = useState<HttpTypes.StoreCart | null>(null)

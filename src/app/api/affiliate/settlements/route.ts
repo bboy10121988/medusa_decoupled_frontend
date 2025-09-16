@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { retrieveAffiliate } from '../../../../lib/data/affiliate-auth'
+import { retrieveAffiliate } from '@lib/data/affiliate-auth'
 import { promises as fs } from 'fs'
 import path from 'path'
 
@@ -54,7 +54,7 @@ async function calculateSettlementSummary(affiliateId: string): Promise<{
   nextSettlementDate: string
 }> {
   try {
-    const { getAffiliateStats } = await import('../../../../lib/data/affiliate-stats')
+    const { getAffiliateStats } = await import('@lib/data/affiliate-stats')
     const stats = await getAffiliateStats(affiliateId, 365) // 一年內的數據
     
     const settlementData = await ensureSettlementFile()

@@ -1,9 +1,9 @@
 import { Container, Heading, Text } from "@medusajs/ui"
 
-import { isStripe, paymentInfoMap } from "../../../../constants"
+import { isStripe, paymentInfoMap } from "@shared/constants/constants"
 
-import { convertToLocale } from "../../../../lib/util/money"
-import Divider from "../../../common/components/divider/index"
+import { convertToLocale } from "@lib/util/money"
+import Divider from "@components/common/components/divider/index"
 import { HttpTypes } from "@medusajs/types"
 
 type PaymentDetailsProps = {

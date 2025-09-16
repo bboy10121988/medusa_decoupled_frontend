@@ -1,4 +1,4 @@
-import { retrieveOrder } from "../../../../lib/data/orders"
+import { retrieveOrder } from "@lib/data/orders"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(

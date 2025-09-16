@@ -1,11 +1,11 @@
 "use client"
 
 import { useActionState } from "react"
-import Input from "@modules/common/components/input"
-import { LOGIN_VIEW } from "@modules/account/templates/login-template"
-import ErrorMessage from "@modules/checkout/components/error-message"
-import { SubmitButton } from "@modules/checkout/components/submit-button"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Input from "@components/common/components/input"
+import { LOGIN_VIEW } from "@features/user/account/templates/login-template"
+import ErrorMessage from "@features/ecommerce/checkout/components/error-message"
+import { SubmitButton } from "@features/ecommerce/checkout/components/submit-button"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
 import { signup } from "@lib/data/customer"
 
 type Props = {

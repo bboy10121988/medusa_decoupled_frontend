@@ -1,10 +1,10 @@
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import Thumbnail from "@modules/products/components/thumbnail"
-import LineItemPrice from "@modules/common/components/line-item-price"
-import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
+import Thumbnail from "@features/ecommerce/products/components/thumbnail"
+import LineItemPrice from "@components/common/components/line-item-price"
+import LineItemUnitPrice from "@components/common/components/line-item-unit-price"
 
 type CheckoutItemProps = {
   item: HttpTypes.StoreCartLineItem

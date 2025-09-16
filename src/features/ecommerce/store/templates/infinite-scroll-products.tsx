@@ -3,7 +3,7 @@ import { listProducts } from "@lib/data/products"
 import { SortOptions } from "../components/refinement-list/sort-products/index"
 import { sortProducts } from "@lib/util/sort-products"
 import InfiniteProducts from "../components/infinite-products"
-import { convertToStandardProducts } from "../../../lib/util/product-type-converter"
+import { convertToStandardProducts } from "@lib/util/product-type-converter"
 
 const PRODUCT_LIMIT = 12
 

@@ -1,9 +1,9 @@
 "use client"
 
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
 import { StoreCustomer } from "@medusajs/types"
 import { useEffect, useState } from "react"
-import safeFetchGlobal from '../../../../lib/safe-fetch'
+import safeFetchGlobal from '@lib/safe-fetch'
 
 export default function AccountButton() {
   const [customer, setCustomer] = useState<StoreCustomer | null>(null)

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useActionState } from "react"
 
-import Input from "@modules/common/components/input"
-import NativeSelect from "@modules/common/components/native-select"
+import Input from "@components/common/components/input"
+import NativeSelect from "@components/common/components/native-select"
 
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
