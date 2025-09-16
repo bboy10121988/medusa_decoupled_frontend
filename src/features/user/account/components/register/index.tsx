@@ -1,0 +1,105 @@
+"use client"
+
+import { useActionState } from "react"
+import Input from "@components/common/components/input"
+import { LOGIN_VIEW } from "@features/user/account/templates/login-template"
+import ErrorMessage from "@features/ecommerce/checkout/components/error-message"
+import { SubmitButton } from "@features/ecommerce/checkout/components/submit-button"
+import LocalizedClientLink from "@components/common/components/localized-client-link"
+import { signup } from "@lib/data/customer"
+
+type Props = {
+  setCurrentView: (view: LOGIN_VIEW) => void
+}
+
+const Register = ({ setCurrentView }: Props) => {
+  const [message, formAction] = useActionState(signup, null)
+
+  return (
+    <div
+      className="max-w-sm flex flex-col items-center"
+      data-testid="register-page"
+    >
+      <h1 className="text-large-semi uppercase mb-6">
+        成為會員
+      </h1>
+      <p className="text-center text-base-regular text-ui-fg-base mb-4">
+        建立您的會員檔案，享受更優質的購物體驗。
+      </p>
+      <form className="w-full flex flex-col" action={formAction}>
+        <div className="flex flex-col w-full gap-y-2">
+          <Input
+            label="名"
+            name="first_name"
+            required
+            autoComplete="given-name"
+            data-testid="first-name-input"
+          />
+          <Input
+            label="姓"
+            name="last_name"
+            required
+            autoComplete="family-name"
+            data-testid="last-name-input"
+          />
+          <Input
+            label="電子郵件"
+            name="email"
+            required
+            type="email"
+            autoComplete="email"
+            data-testid="email-input"
+          />
+          <Input
+            label="電話"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            data-testid="phone-input"
+          />
+          <Input
+            label="密碼"
+            name="password"
+            required
+            type="password"
+            autoComplete="new-password"
+            data-testid="password-input"
+          />
+        </div>
+        <ErrorMessage error={message} data-testid="register-error" />
+        <span className="text-center text-ui-fg-base text-small-regular mt-6">
+          建立帳戶即表示您同意我們的{" "}
+          <LocalizedClientLink
+            href="/content/privacy-policy"
+            className="underline"
+          >
+            隱私政策
+          </LocalizedClientLink>{" "}
+          和{" "}
+          <LocalizedClientLink
+            href="/content/terms-of-use"
+            className="underline"
+          >
+            使用條款
+          </LocalizedClientLink>
+          。
+        </span>
+        <SubmitButton className="w-full mt-6" data-testid="register-button">
+          加入
+        </SubmitButton>
+      </form>
+      <span className="text-center text-ui-fg-base text-small-regular mt-6">
+        已經是會員？{" "}
+        <button
+          onClick={() => setCurrentView(LOGIN_VIEW.SIGN_IN)}
+          className="underline"
+        >
+          立即登入
+        </button>
+        。
+      </span>
+    </div>
+  )
+}
+
+export default Register

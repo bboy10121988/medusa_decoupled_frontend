@@ -1,4 +1,4 @@
-import { affiliateSignout } from '../../../../lib/data/affiliate-auth'
+import { affiliateSignout } from '@lib/data/affiliate-auth'
 import { NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {

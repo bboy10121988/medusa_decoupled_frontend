@@ -8,4 +8,4 @@ export type {
   FooterLink,
   ContactInfo,
   SocialLink 
-} from '../../types/global'
+} from '@shared/types/global'

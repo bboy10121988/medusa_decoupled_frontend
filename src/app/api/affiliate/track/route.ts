@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { recordClick } from '../../../../lib/data/affiliate-stats'
+import { recordClick } from '@lib/data/affiliate-stats'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)

@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import { getBaseURL } from "@lib/util/env"
-import Nav from "@modules/layout/templates/nav"
-import Footer from "@modules/layout/templates/footer"
+import Nav from "@components/layout/templates/nav"
+import Footer from "@components/layout/templates/footer"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),

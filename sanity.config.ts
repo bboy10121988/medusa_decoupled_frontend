@@ -4,7 +4,6 @@ import {visionTool} from '@sanity/vision'
 import { schemaTypes } from './schemas/index'
 import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
 import { structure } from './sanity-structure'
-import { grapesJSPlugin } from './plugins/grapes-editor-tool'
 import type {DocumentActionProps} from 'sanity'
 
 const GeneratePageAction = (props: DocumentActionProps) => {
@@ -53,8 +52,7 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure }),
-    visionTool(),
-    grapesJSPlugin()
+    visionTool()
   ],
 
   document: {

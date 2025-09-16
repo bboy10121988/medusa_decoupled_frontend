@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { retrieveAffiliate } from '../../../../lib/data/affiliate-auth'
+import { retrieveAffiliate } from '@lib/data/affiliate-auth'
 import { promises as fs } from 'fs'
 import path from 'path'
 
@@ -57,7 +57,7 @@ async function calculatePayoutSummary(affiliateId: string): Promise<{
 }> {
   // 從統計系統獲取總收入
   try {
-    const { getAffiliateStats } = await import('../../../../lib/data/affiliate-stats')
+    const { getAffiliateStats } = await import('@lib/data/affiliate-stats')
     const stats = await getAffiliateStats(affiliateId, 365) // 一年內的數據
     
     const payoutData = await ensurePayoutFile()

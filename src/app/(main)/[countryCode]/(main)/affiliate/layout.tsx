@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-// import AffiliateLogoutButton from '@modules/affiliate/components/affiliate-logout-button'
+// import AffiliateLogoutButton from '@features/affiliate/affiliate/components/affiliate-logout-button'
 
 export default async function AffiliateLayout({ children }: { children: ReactNode }) {
   return (

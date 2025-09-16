@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs'
 import path from 'path'
-import type { AffiliateStatPoint, AffiliateStatsSummary } from '../../types/affiliate'
+import type { AffiliateStatPoint, AffiliateStatsSummary } from '@shared/types/affiliate'
 
 const STATS_FILE = path.join(process.cwd(), 'affiliate-stats.json')
 

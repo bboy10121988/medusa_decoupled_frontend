@@ -18,8 +18,9 @@
     "paths": {
         "@/*": ["./*"],
         "@lib/*": ["lib/*", "lib/*.ts", "lib/*.tsx"],
-        "@modules/*": ["modules/*"],
-        "@pages/*": ["pages/*"]
+        "@features/*": ["features/*"],
+        "@components/*": ["components/*"],
+        "@shared/*": ["shared/*"]
       },
     "plugins": [
       {

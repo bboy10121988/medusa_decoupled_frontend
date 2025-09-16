@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
-import type { AffiliateLink } from '../../../../../types/affiliate'
+import type { AffiliateLink } from '../@shared/types/affiliate'
 
 const STORAGE_MODE = process.env.AFFILIATE_STORAGE_MODE || 'memory'
 const STORAGE_DIR = path.join(process.cwd(), 'data', 'affiliate-links')
