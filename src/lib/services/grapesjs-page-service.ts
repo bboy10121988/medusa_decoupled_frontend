@@ -9,6 +9,11 @@ function getWriteClient() {
   const token = process.env.NEXT_PUBLIC_SANITY_TOKEN || process.env.SANITY_API_TOKEN
   const hasValidToken = token && token !== 'your_sanity_write_token_here' && token.length > 10
   
+  if (!hasValidToken) {
+    console.error('Sanity write token is missing or invalid. Please check your environment variables.')
+    throw new Error('Sanity write token is required for write operations')
+  }
+  
   // 如果在 Sanity Studio 環境中，嘗試使用 Studio 的客戶端
   if (isClient && typeof window !== 'undefined' && (window as any).__sanityStudioClient) {
     return (window as any).__sanityStudioClient
@@ -20,8 +25,8 @@ function getWriteClient() {
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
     apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-01-01",
     useCdn: false, // 寫入操作不使用 CDN
-    token: hasValidToken ? token : undefined,
-    withCredentials: isClient && !hasValidToken, // 只有在沒有 token 時才使用 credentials
+    token: token,
+    withCredentials: false,
   })
 }
 
@@ -85,14 +90,25 @@ class GrapesJSPageService {
    */
   async getAllPages(): Promise<GrapesJSPageData[]> {
     try {
-      const response = await fetch('/api/pages/list')
-      const result = await response.json()
+      const pages = await readClient.fetch(`
+        *[_type == "grapesJSPageV2"] | order(_createdAt desc) {
+          _id,
+          _createdAt,
+          _updatedAt,
+          title,
+          slug,
+          status,
+          content,
+          styles,
+          metadata,
+          version,
+          lastModified,
+          countryCode,
+          htmlContent
+        }
+      `)
       
-      if (!result.success) {
-        throw new Error(result.error || '載入頁面列表失敗')
-      }
-      
-      return result.pages || []
+      return pages || []
     } catch (error) {
       console.error('載入頁面列表失敗:', error)
       throw error
@@ -103,68 +119,90 @@ class GrapesJSPageService {
    * 根據 ID 獲取特定頁面
    */
   async getPageById(id: string): Promise<GrapesJSPageData | null> {
-    const query = `
-      *[_type == "grapesJSPageV2" && _id == $id][0] {
-        _id,
-        _type,
-        title,
-        slug,
-        description,
-        status,
-        publishedAt,
-        version,
-        grapesHtml,
-        grapesCss,
-        grapesComponents,
-        grapesStyles,
-        homeModules,
-        seoTitle,
-        seoDescription,
-        seoKeywords,
-        ogImage,
-        customCSS,
-        customJS,
-        viewport,
-        lastModified,
-        editHistory
+    try {
+      // 驗證參數
+      if (!id || id.trim() === '') {
+        console.warn('getPageById: ID 參數為空')
+        return null
       }
-    `
-    
-    return await readClient.fetch(query, { id })
+
+      const query = `
+        *[_type == "grapesJSPageV2" && _id == $id][0] {
+          _id,
+          _type,
+          title,
+          slug,
+          description,
+          status,
+          publishedAt,
+          version,
+          grapesHtml,
+          grapesCss,
+          grapesComponents,
+          grapesStyles,
+          homeModules,
+          seoTitle,
+          seoDescription,
+          seoKeywords,
+          ogImage,
+          customCSS,
+          customJS,
+          viewport,
+          lastModified,
+          editHistory
+        }
+      `
+      
+      return await readClient.fetch(query, { id })
+    } catch (error) {
+      console.error('獲取頁面失敗:', error)
+      throw error
+    }
   }
 
   /**
    * 根據 slug 獲取特定頁面
    */
   async getPageBySlug(slug: string): Promise<GrapesJSPageData | null> {
-    const query = `
-      *[_type == "grapesJSPageV2" && slug.current == $slug][0] {
-        _id,
-        _type,
-        title,
-        slug,
-        description,
-        status,
-        publishedAt,
-        version,
-        grapesHtml,
-        grapesCss,
-        grapesComponents,
-        grapesStyles,
-        homeModules,
-        seoTitle,
-        seoDescription,
-        seoKeywords,
-        ogImage,
-        customCSS,
-        customJS,
-        viewport,
-        lastModified,
-        editHistory
+    try {
+      // 驗證參數
+      if (!slug || slug.trim() === '') {
+        console.warn('getPageBySlug: slug 參數為空')
+        return null
       }
-    `
-    
-    return await readClient.fetch(query, { slug })
+
+      const query = `
+        *[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+          _id,
+          _type,
+          title,
+          slug,
+          description,
+          status,
+          publishedAt,
+          version,
+          grapesHtml,
+          grapesCss,
+          grapesComponents,
+          grapesStyles,
+          homeModules,
+          seoTitle,
+          seoDescription,
+          seoKeywords,
+          ogImage,
+          customCSS,
+          customJS,
+          viewport,
+          lastModified,
+          editHistory
+        }
+      `
+      
+      return await readClient.fetch(query, { slug })
+    } catch (error) {
+      console.error('根據slug獲取頁面失敗:', error)
+      throw error
+    }
   }
 
   /**
@@ -172,6 +210,7 @@ class GrapesJSPageService {
    */
   async createPage(params: SavePageParams): Promise<GrapesJSPageData> {
     try {
+      const writeClient = getWriteClient()
       const now = new Date().toISOString()
       
       const pageData = {
@@ -185,8 +224,8 @@ class GrapesJSPageService {
         version: 1,
         grapesHtml: params.grapesHtml,
         grapesCss: params.grapesCss,
-        grapesComponents: params.grapesComponents,
-        grapesStyles: params.grapesStyles,
+        grapesComponents: typeof params.grapesComponents === 'string' ? params.grapesComponents : JSON.stringify(params.grapesComponents || []),
+        grapesStyles: typeof params.grapesStyles === 'string' ? params.grapesStyles : JSON.stringify(params.grapesStyles || []),
         homeModules: params.homeModules || [],
         seoTitle: params.seoTitle,
         seoDescription: params.seoDescription,
@@ -195,30 +234,32 @@ class GrapesJSPageService {
         customJS: params.customJS,
         viewport: params.viewport || 'responsive',
         createdAt: now,
-        updatedAt: now
+        lastModified: now,
+        editHistory: [{
+          timestamp: now,
+          action: 'created',
+          editor: 'GrapesJS Editor',
+          changes: 'Page created'
+        }]
       }
 
-      const response = await fetch('/api/pages/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pageId: params.slug,
-          pageData
-        })
-      })
-
-      const result = await response.json()
+      const result = await writeClient.create(pageData)
+      console.log('頁面創建成功:', result._id)
+      return result as unknown as GrapesJSPageData
       
-      if (!result.success) {
-        throw new Error(result.error || '創建頁面失敗')
-      }
-      
-      return result.data
     } catch (error: any) {
       console.error('創建頁面失敗:', error)
-      throw error
+      
+      if (error.message?.includes('Insufficient permissions') || error.message?.includes('Unauthorized')) {
+        throw new Error('❌ Sanity 寫入權限不足。請確認您的 token 設定或在 Sanity Studio 中操作。')
+      }
+      
+      if (error.details?.length > 0) {
+        const detailMessages = error.details.map((d: any) => d.message).join(', ')
+        throw new Error('創建頁面失敗: ' + detailMessages)
+      }
+      
+      throw new Error('創建頁面失敗: ' + error.message)
     }
   }
 
@@ -227,14 +268,25 @@ class GrapesJSPageService {
    */
   async updatePage(params: UpdatePageParams): Promise<GrapesJSPageData> {
     try {
+      console.log('🔄 updatePage 開始執行:', {
+        pageId: params._id,
+        title: params.title,
+        status: params.status,
+        hasHtml: !!params.grapesHtml,
+        hasCss: !!params.grapesCss
+      })
+      
       const writeClient = getWriteClient()
       const now = new Date().toISOString()
       
       // 取得當前頁面以比較變更
+      console.log('🔍 正在檢查頁面是否存在:', params._id)
       const currentPage = await this.getPageById(params._id)
       if (!currentPage) {
+        console.error('❌ 頁面不存在:', params._id)
         throw new Error('Page not found')
       }
+      console.log('✅ 頁面存在，當前狀態:', currentPage.status)
 
       // 準備更新數據
       const updateData: any = {
@@ -247,10 +299,18 @@ class GrapesJSPageService {
       if (params.slug) updateData.slug = { current: params.slug }
       if (params.description !== undefined) updateData.description = params.description
       if (params.status) updateData.status = params.status
-      if (params.grapesHtml) updateData.grapesHtml = params.grapesHtml
-      if (params.grapesCss) updateData.grapesCss = params.grapesCss
-      if (params.grapesComponents) updateData.grapesComponents = JSON.stringify(params.grapesComponents)
-      if (params.grapesStyles) updateData.grapesStyles = JSON.stringify(params.grapesStyles)
+      if (params.grapesHtml !== undefined) updateData.grapesHtml = params.grapesHtml
+      if (params.grapesCss !== undefined) updateData.grapesCss = params.grapesCss
+      if (params.grapesComponents !== undefined) {
+        updateData.grapesComponents = typeof params.grapesComponents === 'string' 
+          ? params.grapesComponents 
+          : JSON.stringify(params.grapesComponents)
+      }
+      if (params.grapesStyles !== undefined) {
+        updateData.grapesStyles = typeof params.grapesStyles === 'string' 
+          ? params.grapesStyles 
+          : JSON.stringify(params.grapesStyles)
+      }
       if (params.homeModules) updateData.homeModules = params.homeModules
       if (params.seoTitle !== undefined) updateData.seoTitle = params.seoTitle
       if (params.seoDescription !== undefined) updateData.seoDescription = params.seoDescription
@@ -281,6 +341,12 @@ class GrapesJSPageService {
         .patch(params._id)
         .set(updateData)
         .commit()
+
+      console.log('✅ Sanity 更新成功:', {
+        pageId: params._id,
+        newStatus: updateData.status,
+        version: updateData.version
+      })
 
       return result as unknown as GrapesJSPageData
     } catch (error: any) {

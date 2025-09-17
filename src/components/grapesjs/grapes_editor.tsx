@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { grapesJSPageService, type GrapesJSPageData, type SavePageParams } from '@/lib/services/grapesjs-page-service'
 import { registerCustomComponents } from './custom-components'
-import { compressImagesInHtml, compressImage } from '@/lib/image-compression'
+import { compressImage } from '@/lib/image-compression'
 import { buildSanityImageUrl, getSanityImages, type SanityImage } from '@/lib/services/sanity-media-service'
-import { applyAllPluginCustomizations, getThirdPartyBlocks, modifyPluginBlock } from './plugins/third-party-customization'
+import { applyAllPluginCustomizations, getThirdPartyBlocks } from './plugins/third-party-customization'
 import { getPluginsOptions } from './config/plugins-config'
+import BlockPreviewEnhancer, { defaultPreviewConfig } from './plugins/block-preview-enhancer'
 // import { addCarouselConverter } from './utils/carousel-fullwidth-converter'
 import { applyZhTW } from './i18n/zh-TW'
 import 'grapesjs/dist/css/grapes.min.css'
@@ -558,6 +559,25 @@ const showSaveError = (message: string) => {
   }, 6000)
 }
 
+// 更新發布按鈕顯示
+const updatePublishButton = (status: 'draft' | 'published' | 'preview' | 'archived') => {
+  const publishButton = document.querySelector('#publish-toggle-btn')
+  if (publishButton) {
+    const isPublished = status === 'published'
+    const icon = isPublished ? 'fa-eye' : 'fa-eye-slash'
+    const text = isPublished ? '已發布' : '草稿'
+    const color = isPublished ? '#28a745' : '#6c757d'
+    
+    publishButton.innerHTML = `<i class="fa ${icon}"></i> ${text}`
+    ;(publishButton as HTMLElement).style.color = color
+    ;(publishButton as HTMLElement).setAttribute('title', `當前狀態：${text}，點擊切換`)
+    
+    console.log('🔄 發布按鈕已更新:', text, status)
+  } else {
+    console.warn('未找到發布按鈕元素')
+  }
+}
+
 interface GrapesEditorProps {
   onSave?: (content: string) => void
 }
@@ -747,7 +767,7 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
     }
   }
 
-  // 保存當前頁面 - 改進版，支持工作區和載入提示
+  // 保存當前頁面 - 簡化版，直接使用 grapesJSPageService
   const saveCurrentPage = async (editor: any) => {
     // 顯示載入提示
     const loadingModal = showSaveLoading()
@@ -761,29 +781,24 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
       // 獲取當前編輯器中的內容
       const html = editor.getHtml()
       const css = editor.getCss() 
-      const components = editor.getComponents()
       
-      // 更新狀態：處理樣式
-      updateSaveStatus('正在處理樣式和組件...')
+      // 使用 getProjectData 獲取完整的專案資料，包含元件容器內的所有資料
+      const projectData = editor.getProjectData()
+      console.log('📊 完整專案資料:', JSON.stringify(projectData, null, 2))
       
-      // 使用正確的 GrapesJS API 獲取樣式
-      const styleManager = editor.StyleManager
-      const styles = styleManager ? styleManager.getAll().map((style: any) => style.toJSON()) : []
+      // 從專案資料中提取元件和樣式
+      const components = projectData.pages[0]?.frames[0]?.component || editor.getComponents()
+      const styles = projectData.styles || []
       
-      // 更新狀態：優化數據
-      updateSaveStatus('正在優化和壓縮數據...')
-      
-      // 清理和優化數據 - 異步處理以不阻塞 UI
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
+      // 清理和優化數據
       const cleanedComponents = JSON.stringify(components, null, 0) // 移除格式化空格
       const cleanedStyles = JSON.stringify(styles, null, 0)
       
-      // 移除 HTML 中的多餘空格和換行 - 優化版本
+      // 移除 HTML 中的多餘空格和換行
       let cleanedHtml = html.replace(/\s+/g, ' ').trim()
       const cleanedCss = css.replace(/\s+/g, ' ').trim()
       
-      // 檢測是否含有 base64 內嵌圖片，若有則阻止保存並提示使用者改用資產管理器
+      // 檢測是否含有 base64 內嵌圖片
       const hasEmbeddedImages = /<img[^>]+src=["']data:/i.test(cleanedHtml)
       if (hasEmbeddedImages) {
         hideSaveLoading()
@@ -791,20 +806,10 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         return false
       }
       
-      // 更新狀態：驗證頁面
-      updateSaveStatus('正在驗證頁面狀態...')
-      
-      console.log('準備保存的數據:', {
-        html: `${cleanedHtml.length} 字符 (原: ${html.length})`,
-        css: `${cleanedCss.length} 字符 (原: ${css.length})`, 
-        components: `${cleanedComponents.length} 字符`,
-        styles: `${cleanedStyles.length} 字符`
-      })
-
       // 檢查是否有當前頁面狀態
       let targetPageId = currentPageId
       
-      // 如果沒有當前頁面狀態，從工作區獲取選中的頁面（包括全域變數）
+      // 如果沒有當前頁面狀態，從工作區獲取選中的頁面
       if (!targetPageId) {
         const workspacePageId = (window as any).currentWorkspacePageId || currentWorkspacePageId
         if (workspacePageId) {
@@ -815,7 +820,6 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
       }
       
       if (!targetPageId) {
-        // 如果仍然沒有目標頁面，提示用戶先選擇頁面
         console.error('❌ 沒有找到要保存的頁面 ID')
         hideSaveLoading()
         showSaveError('請先在工作區選擇要保存的頁面')
@@ -827,126 +831,84 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
       if (currentPage?.slug?.current) {
         pageSlug = currentPage.slug.current
       } else {
-        const workspacePageName = (window as any).currentWorkspacePageName || currentWorkspacePageName
-        if (workspacePageName) {
-          // 如果有工作區頁面名稱，將其轉換為 slug 格式
-          pageSlug = workspacePageName.toLowerCase()
+        const workspagePageName = (window as any).currentWorkspacePageName || currentWorkspacePageName
+        if (workspagePageName) {
+          pageSlug = workspagePageName.toLowerCase()
             .replace(/\s+/g, '-')
             .replace(/[^a-z0-9-]/g, '')
         }
       }
 
-      // 更新狀態：檢查數據大小
-      updateSaveStatus('正在檢查數據大小...')
+      // 更新狀態：保存到 Sanity
+      updateSaveStatus('正在保存到 Sanity CMS...')
 
-      // 使用 API 正確的參數格式保存
-      const savePayload = {
-        pageId: targetPageId,
-        pageData: {
-          _type: 'grapesJSPageV2',
-          title: currentPage?.title || (window as any).currentWorkspacePageName || currentWorkspacePageName || '未命名頁面',
-          slug: {
-            current: pageSlug,
-            _type: 'slug'
-          },
-          status: 'draft',
-          grapesHtml: cleanedHtml,
-          grapesCss: cleanedCss,
-          grapesComponents: cleanedComponents,
-          grapesStyles: cleanedStyles
+      // 獲取 grapesJSPageService
+      const { grapesJSPageService } = await import('@/lib/services/grapesjs-page-service')
+
+      // 獲取當前頁面狀態，如果沒有則默認為草稿
+      let currentStatus: 'draft' | 'published' | 'preview' | 'archived' = 'draft'
+      
+      // 優先從 currentPage 獲取狀態
+      if (currentPage?.status) {
+        currentStatus = currentPage.status
+      } else {
+        // 如果沒有當前頁面狀態，嘗試從 Sanity 獲取
+        const existingPage = await grapesJSPageService.getPageById(targetPageId)
+        if (existingPage?.status) {
+          currentStatus = existingPage.status
         }
       }
+
+      const pageData = {
+        _type: 'grapesJSPageV2' as const,
+        title: currentPage?.title || (window as any).currentWorkspacePageName || currentWorkspacePageName || '未命名頁面',
+        slug: {
+          current: pageSlug,
+          _type: 'slug' as const
+        },
+        status: currentStatus,
+        grapesHtml: cleanedHtml,
+        grapesCss: cleanedCss,
+        grapesComponents: cleanedComponents,
+        grapesStyles: cleanedStyles
+      }
       
-      // 檢查數據大小，防止超過 Sanity 限制（4MB）
-      const jsonString = JSON.stringify(savePayload)
-      const dataSizeInBytes = new Blob([jsonString]).size
-      const dataSizeInMB = dataSizeInBytes / (1024 * 1024)
+      console.log('正在使用 grapesJSPageService 保存...', {
+        pageId: targetPageId,
+        slug: pageSlug,
+        status: currentStatus,
+        htmlLength: html.length,
+        cssLength: css.length
+      })
       
-      console.log(`📊 數據大小: ${dataSizeInMB.toFixed(2)} MB`)
-      
-      if (dataSizeInMB > 3.8) { // 留點緩衝空間
-        const error = `數據太大無法保存 (${dataSizeInMB.toFixed(2)} MB)，Sanity 限制為 4MB`
-        console.error('❌', error)
-        
+      // 先檢查頁面是否存在
+      console.log('🔍 檢查頁面是否存在:', targetPageId)
+      const existingPage = await grapesJSPageService.getPageById(targetPageId)
+      if (!existingPage) {
+        console.error('❌ 頁面不存在，無法更新:', targetPageId)
         hideSaveLoading()
-        
-        // 提供用戶友好的建議
-        const suggestions = [
-          '• 刪除一些不必要的圖片',
-          '• 減少頁面內容的複雜度', 
-          '• 刪除未使用的組件或樣式',
-          '• 將大圖片分離到外部存儲'
-        ].join('\\n')
-        
-        showSaveError(`頁面數據過大，無法保存！\\n\\n當前大小: ${dataSizeInMB.toFixed(2)} MB\\nSanity 限制: 4 MB\\n\\n建議解決方案:\\n${suggestions}`)
+        showSaveError(`頁面 ID ${targetPageId} 在 Sanity 中不存在，請刷新頁面重試`)
         return false
       }
       
-      // 更新狀態：上傳到服務器
-      updateSaveStatus('正在上傳到 Sanity CMS...')
-      
-      console.log('正在保存到 API...', {
-        pageId: targetPageId,
+      console.log('✅ 頁面存在，開始更新:', existingPage.title)
+      const result = await grapesJSPageService.updatePage({
+        _id: targetPageId,
+        title: currentPage?.title || (window as any).currentWorkspacePageName || currentWorkspacePageName || '未命名頁面',
         slug: pageSlug,
-        htmlLength: html.length,
-        cssLength: css.length,
-        dataSizeMB: dataSizeInMB.toFixed(2)
+        status: currentStatus,
+        grapesHtml: cleanedHtml,
+        grapesCss: cleanedCss,
+        grapesComponents: cleanedComponents,
+        grapesStyles: cleanedStyles
       })
-
-      // 添加更詳細的錯誤處理和重試邏輯
-      let response: Response | undefined
-      let result: any
-      let retryCount = 0
-      const maxRetries = 2
       
-      while (retryCount <= maxRetries) {
-        try {
-          // 添加超時控制
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 30000) // 30秒超時
-          
-          response = await fetch('/api/pages/save', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(savePayload),
-            signal: controller.signal
-          })
-          
-          clearTimeout(timeoutId)
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-          }
-          
-          result = await response.json()
-          break // 成功則跳出重試循環
-          
-        } catch (fetchError: any) {
-          retryCount++
-          console.warn(`⚠️ 保存嘗試 ${retryCount} 失敗:`, fetchError)
-          
-          if (retryCount <= maxRetries) {
-            updateSaveStatus(`保存失敗，正在重試 (${retryCount}/${maxRetries})...`)
-            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // 漸進式延遲
-          } else {
-            throw fetchError
-          }
-        }
-      }
+      console.log('✅ 頁面保存成功!', result)
       
-      // 更新狀態：處理響應
-      updateSaveStatus('正在處理服務器響應...')
-      
-      console.log('✅ API 響應成功:', result)
-      
-      if (response && response.ok && result.success) {
-        console.log('✅ 頁面保存成功!', result.message || '')
-        
-        // 隱藏載入提示並顯示成功消息
-        hideSaveLoading()
-        showSaveSuccess(`頁面「${currentPage?.title || currentWorkspacePageName || '未命名頁面'}」保存成功！`)
+      // 隱藏載入提示並顯示成功消息
+      hideSaveLoading()
+      const statusText = currentStatus === 'published' ? '已發布' : '草稿'
+      showSaveSuccess(`頁面「${currentPage?.title || currentWorkspacePageName || '未命名頁面'}」保存成功！（狀態：${statusText}）`)
         
         // 不要重新載入頁面列表，避免重置編輯器內容
         // await loadPages()
@@ -963,11 +925,8 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           onSave(html)
         }
         
-        return true
-      } else {
-        const errorMsg = result?.error || (response ? `HTTP ${response.status}: ${response.statusText}` : '未知響應錯誤')
-        throw new Error(errorMsg)
-      }
+      
+      return true
       
     } catch (error: any) {
       console.error('❌ 保存頁面失敗:', error)
@@ -1007,7 +966,13 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
       if (foundPage) {
         setCurrentPage(foundPage)
         setCurrentPageId(foundPage._id!)
-        console.log('📄 更新當前頁面狀態:', foundPage.title)
+        
+        // 更新發布按鈕狀態
+        setTimeout(() => {
+          updatePublishButton(foundPage.status)
+        }, 100)
+        
+        console.log('📄 更新當前頁面狀態:', foundPage.title, '狀態:', foundPage.status)
       }
       
     }
@@ -1022,8 +987,20 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
   useEffect(() => {
     if (!editorRef.current || editorInstance.current || isLoading) return
 
+    let isInitializing = false
+    const abortController = new AbortController()
+
     const initEditor = async () => {
+      if (isInitializing || abortController.signal.aborted) return
+      isInitializing = true
+
       try {
+        // 在開始異步操作前再次確認容器存在
+        if (!editorRef.current || abortController.signal.aborted) {
+          console.warn('編輯器容器在初始化開始時不存在或操作已被中止')
+          return
+        }
+
         const grapesjs = (await import('grapesjs')).default
         const pluginWebpage = (await import('grapesjs-preset-webpage')).default
         const pluginBlocksBasic = (await import('grapesjs-blocks-basic')).default
@@ -1034,22 +1011,39 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         const pluginTooltip = (await import('grapesjs-tooltip')).default
         const pluginTyped = (await import('grapesjs-typed')).default
 
-        console.log('基本插件載入完成')
+        // 🆕 添加未註冊的插件導入
+        const pluginBootstrap4 = (await import('grapesjs-blocks-bootstrap4')).default
+        const pluginPostCSS = (await import('grapesjs-parser-postcss')).default
+        const pluginGradient = (await import('grapesjs-style-gradient')).default
+        // 暫時註釋掉有類型問題的插件
+        // const pluginTailwind = (await import('grapesjs-tailwind')).default
+        const pluginImageEditor = (await import('grapesjs-tui-image-editor')).default
 
-        // 添加 carousel 插件
-        let pluginCarousel
-        try {
-          pluginCarousel = (await import('grapesjs-carousel-component')).default
-          console.log('✅ grapesjs-carousel-component 載入成功')
-        } catch (e) {
-          console.warn('❌ 無法載入 grapesjs-carousel-component:', e)
-        }
+        // 🎠 保留現有的輪播組件插件 (grapesjs-carousel-component)
+        // 原生 grapesjs-carousel 插件暫時移除（相容性問題）
+
+        console.log('✅ 所有插件載入完成（包含新增的插件）')
+
+
+
+
+        
+        // 導入進階 UI 組件
+        const { registerAdvancedUIComponents } = await import('./custom-components/advanced-ui-components')
+        
+        // 導入額外 UI 組件
+        const { registerAdditionalUIComponents } = await import('./custom-components/additional-ui-components')
+
+        
+        console.log('🎨 進階 UI 組件準備就緒')
+        console.log('🔧 額外 UI 組件準備就緒')
 
         // 暫時移除其他可能有問題的插件
         // 我們稍後會重新添加它們
 
-        if (!editorRef.current) {
-          console.error('編輯器容器不存在')
+        // 在異步操作後再次檢查 editorRef 是否仍然存在
+        if (!editorRef.current || abortController.signal.aborted) {
+          console.warn('編輯器容器在插件載入過程中已不存在，可能是組件已被卸載')
           return
         }
 
@@ -1062,6 +1056,12 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         } catch (error) {
           console.warn('清理容器時出現錯誤:', error)
           container.innerHTML = ''
+        }
+
+        // 在初始化編輯器前的最終檢查
+        if (!editorRef.current || abortController.signal.aborted) {
+          console.warn('編輯器容器在 grapesjs.init 前不可用或操作已被中止')
+          return
         }
 
         const editor = grapesjs.init({
@@ -1316,8 +1316,17 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             pluginCustomCode,
             pluginTooltip,
             pluginTyped,
-            // 添加 Carousel 插件（如果載入成功）
-            ...(pluginCarousel ? [pluginCarousel] : [])
+
+            
+            // 🆕 新增的未註冊插件
+            pluginBootstrap4,
+            pluginPostCSS,
+            pluginGradient,
+            // pluginTailwind, // 暫時註釋掉，類型問題
+            pluginImageEditor
+
+            // 🎠 輪播功能由現有的 grapesjs-carousel-component 配置提供
+            // 原生 grapesjs-carousel 插件暫時移除（相容性問題）
           ],
 
           // 使用外部配置文件管理插件選項
@@ -1368,9 +1377,18 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           // 增強輪播組件 - 不再添加全寬工具欄按鈕
           setTimeout(() => {
             try {
-              console.log('✅ 輪播組件已準備就緒（已移除全寬功能）')
+              console.log('✅ UI 組件準備就緒')
+              
+              // 註冊進階 UI 組件
+              registerAdvancedUIComponents(editor)
+              console.log('🎨 進階 UI 組件已註冊到編輯器')
+              
+              // 註冊額外 UI 組件
+              registerAdditionalUIComponents(editor)
+              console.log('🔧 額外 UI 組件已註冊到編輯器')
+              
             } catch (error) {
-              console.warn('⚠️ 輪播組件配置警告:', error)
+              console.warn('⚠️ UI 組件配置警告:', error)
             }
           }, 1000)
           
@@ -2072,6 +2090,16 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             attributes: { 
               title: '保存頁面 (Ctrl+S)',
               'data-tooltip': '保存當前頁面到 Sanity CMS'
+            }
+          },
+          {
+            id: 'publish-toggle-btn',
+            className: 'btn-publish-toggle gjs-pn-btn',
+            label: '<i class="fa fa-eye-slash"></i> 草稿',
+            command: 'toggle-publish-status',
+            attributes: { 
+              title: '切換發布狀態',
+              'data-tooltip': '切換頁面的發布/草稿狀態'
             }
           },
           {
@@ -2891,67 +2919,83 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             console.log('API 響應:', data)
             
             if (data.success && data.page) {
-              // 從 page 對象中提取 GrapesJS 組件數據
-              let grapesComponents = data.page.grapesComponents || data.page.grapesHtml || ''
+              // 從 page 對象中提取 GrapesJS 數據
+              const pageData = data.page
+              let grapesComponents = pageData.grapesComponents || pageData.grapesHtml || ''
+              let grapesStyles = pageData.grapesStyles || '[]'
+              
               console.log('工作區頁面內容已載入:', String(grapesComponents).length, '字符')
               console.log('原始組件數據:', grapesComponents)
+              console.log('樣式數據:', grapesStyles)
               
-              // 使用 GrapesJS API 設置內容
-              if (grapesComponents) {
-                try {
-                  // 如果是字符串，嘗試解析為 JSON
+              // 使用完整的專案數據格式載入
+              try {
+                let projectData: any = {
+                  assets: [],
+                  styles: [],
+                  pages: [{
+                    frames: [{
+                      component: null
+                    }]
+                  }]
+                }
+                
+                // 處理組件數據
+                if (grapesComponents) {
                   if (typeof grapesComponents === 'string') {
                     try {
                       const parsedComponents = JSON.parse(grapesComponents)
-                      console.log('解析後的組件數據:', parsedComponents)
-                      
-                      // 檢查是否是數組格式
-                      if (Array.isArray(parsedComponents)) {
-                        editor.setComponents(parsedComponents)
-                      } else {
-                        // 如果不是數組，直接使用字符串
-                        editor.setComponents(grapesComponents)
-                      }
+                      projectData.pages[0].frames[0].component = parsedComponents
                     } catch (parseError) {
-                      console.log('JSON 解析失敗，作為 HTML 處理:', parseError)
-                      // 如果 JSON 解析失敗，作為 HTML 字符串處理
+                      console.log('組件 JSON 解析失敗，使用 HTML:', parseError)
+                      // 如果無法解析為 JSON，直接用 HTML
                       editor.setComponents(grapesComponents)
+                      // 設置當前工作區頁面信息
+                      currentWorkspacePageId = pageId
+                      currentWorkspacePageName = pageName
+                      setTimeout(() => reapplyGlobalStyles(editor), 100)
+                      console.log('✅ 工作區已切換至頁面 (HTML):', pageName)
+                      return // 提前返回，避免執行下面的 setProjectData
                     }
-                  } else if (Array.isArray(grapesComponents)) {
-                    // 如果已經是數組，直接使用
-                    console.log('直接使用數組格式')
-                    editor.setComponents(grapesComponents)
                   } else {
-                    // 其他情況，使用 loadProjectData
-                    console.log('使用 loadProjectData 格式')
-                    editor.loadProjectData({
-                      assets: [],
-                      styles: data.page.grapesStyles || [],
-                      pages: [{
-                        frames: [{
-                          component: grapesComponents
-                        }]
-                      }]
-                    })
+                    projectData.pages[0].frames[0].component = grapesComponents
                   }
-                  
-                  // 設置當前工作區頁面信息，供保存功能使用
-                  currentWorkspacePageId = pageId
-                  currentWorkspacePageName = pageName
-                  
-                  // 重新應用全局樣式（在頁面載入後）
-                  setTimeout(() => {
-                    reapplyGlobalStyles(editor)
-                  }, 100)
-                  
-                  console.log('✅ 工作區已切換至頁面:', pageName)
-                } catch (loadError) {
-                  console.error('載入組件數據失敗:', loadError)
-                  // 如果所有方法都失敗，設置一個簡單的默認內容
-                  editor.setComponents('<div>載入內容時出現問題，請檢查頁面數據</div>')
                 }
-              } else {
-                editor.setComponents('<div>此頁面沒有內容</div>')
+                
+                // 處理樣式數據
+                if (grapesStyles && grapesStyles !== '[]') {
+                  try {
+                    if (typeof grapesStyles === 'string') {
+                      projectData.styles = JSON.parse(grapesStyles)
+                    } else {
+                      projectData.styles = grapesStyles
+                    }
+                  } catch (styleParseError) {
+                    console.log('樣式 JSON 解析失敗:', styleParseError)
+                    projectData.styles = []
+                  }
+                }
+                
+                console.log('載入完整專案數據:', projectData)
+                
+                // 使用 setProjectData 載入完整數據
+                editor.setProjectData(projectData)
+                
+                // 設置當前工作區頁面信息，供保存功能使用
+                currentWorkspacePageId = pageId
+                currentWorkspacePageName = pageName
+                
+                // 重新應用全局樣式（在頁面載入後）
+                setTimeout(() => {
+                  reapplyGlobalStyles(editor)
+                }, 100)
+                
+                console.log('✅ 工作區已切換至頁面 (完整數據):', pageName)
+                
+              } catch (loadError) {
+                console.error('載入專案數據失敗:', loadError)
+                // 回退到簡單模式
+                editor.setComponents('<div>載入內容時出現問題，請檢查頁面數據</div>')
               }
             } else {
               throw new Error(data.error || data.message || '載入頁面失敗')
@@ -2995,6 +3039,65 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             } catch (error) {
               console.error('保存過程中出現錯誤:', error)
               showSaveError(`保存失敗：${error instanceof Error ? error.message : '未知錯誤'}`)
+            }
+          }
+        })
+        
+        // 添加發布狀態切換命令
+        editor.Commands.add('toggle-publish-status', {
+          run: async (editor: any) => {
+            console.log('🔄 發布狀態切換命令被觸發')
+            
+            // 檢查是否有選中的頁面
+            let targetPageId = currentPageId
+            if (!targetPageId) {
+              const workspacePageId = (window as any).currentWorkspacePageId || currentWorkspacePageId
+              if (workspacePageId) {
+                targetPageId = workspacePageId
+              }
+            }
+            
+            if (!targetPageId) {
+              showSaveError('請先選擇要切換狀態的頁面')
+              return
+            }
+            
+            try {
+              // 獲取當前頁面狀態
+              const { grapesJSPageService } = await import('@/lib/services/grapesjs-page-service')
+              const page = await grapesJSPageService.getPageById(targetPageId)
+              
+              if (!page) {
+                showSaveError('無法找到頁面')
+                return
+              }
+              
+              // 切換狀態
+              const newStatus = page.status === 'published' ? 'draft' : 'published'
+              
+              // 更新頁面狀態
+              await grapesJSPageService.updatePage({
+                _id: targetPageId,
+                status: newStatus
+              })
+              
+              // 更新按鈕顯示
+              updatePublishButton(newStatus)
+              
+              // 更新當前頁面狀態
+              if (currentPage) {
+                currentPage.status = newStatus
+              }
+              
+              // 顯示成功訊息
+              const statusText = newStatus === 'published' ? '已發布' : '草稿'
+              showSaveSuccess(`頁面狀態已切換為: ${statusText}`)
+              
+              console.log('✅ 頁面狀態切換成功:', newStatus)
+              
+            } catch (error) {
+              console.error('❌ 切換發布狀態失敗:', error)
+              showSaveError(`切換狀態失敗：${error instanceof Error ? error.message : '未知錯誤'}`)
             }
           }
         })
@@ -3363,16 +3466,49 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         ;(window as any).grapesEditor = editor
         editorInstance.current = editor
 
+        // 🔍 啟用元件庫懸停預覽功能
+        try {
+          const previewEnhancer = new BlockPreviewEnhancer(editor, {
+            ...defaultPreviewConfig,
+            enabled: true,
+            delay: 400, // 稍微短一點的延遲
+            scale: 1.2, // 適中的放大倍數
+            maxWidth: 380, // 適合的預覽寬度
+            maxHeight: 280, // 適合的預覽高度
+            offsetX: 15,
+            offsetY: 5
+          });
+          
+          console.log('✅ 元件庫懸停預覽功能已啟用');
+          
+          // 將預覽增強器保存到編輯器實例，以便後續清理
+          (editor as any).__previewEnhancer = previewEnhancer;
+        } catch (error) {
+          console.warn('⚠️ 元件庫預覽功能初始化失敗:', error);
+        }
+
       } catch (error) {
-        console.error('初始化編輯器時出現錯誤:', error)
+        if (!abortController.signal.aborted) {
+          console.error('初始化編輯器時出現錯誤:', error)
+        }
+      } finally {
+        isInitializing = false
       }
     }
 
     initEditor()
 
     return () => {
+      abortController.abort()
       if (editorInstance.current) {
         try {
+          // 🗑️ 清理預覽功能
+          const previewEnhancer = (editorInstance.current as any).__previewEnhancer;
+          if (previewEnhancer) {
+            previewEnhancer.destroy();
+            delete (editorInstance.current as any).__previewEnhancer;
+          }
+          
           editorInstance.current.off()
           
           const container = editorRef.current
