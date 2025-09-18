@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高級 Carousel 組件演示</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+        }
+        
+        .demo-section {
+            margin: 40px 0;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .demo-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .demo-description {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        /* 基本 Swiper 樣式覆蓋 */
+        .hero-carousel-container,
+        .product-carousel-container,
+        .gallery-carousel-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hero Carousel 全寬樣式 */
+        .hero-carousel-container {
+            width: 100vw !important;
+            margin-left: -50vw !important;
+            margin-right: -50vw !important;
+            left: 50% !important;
+            right: 50% !important;
+            position: relative !important;
+            height: 500px;
+        }
+
+        .hero-carousel-wrapper {
+            width: 100% !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+
+        .hero-swiper {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .hero-swiper .swiper-slide {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 自定義導航按鈕樣式 */
+        .hero-swiper .swiper-button-next,
+        .hero-swiper .swiper-button-prev {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.3);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-top: -25px;
+            transition: all 0.3s ease;
+        }
+
+        .hero-swiper .swiper-button-next:hover,
+        .hero-swiper .swiper-button-prev:hover {
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            transform: scale(1.1);
+        }
+
+        /* 產品卡片樣式 */
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .product-card button:hover {
+            background: #2980b9 !important;
+            transform: scale(1.05);
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .hero-carousel-container {
+                height: 400px !important;
+            }
+            
+            .hero-swiper .slide-content h1 {
+                font-size: 2rem !important;
+            }
+            
+            .hero-swiper .slide-content p {
+                font-size: 1rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-section">
+        <h1 class="demo-title">🎠 高級 Carousel 組件演示</h1>
+        <p class="demo-description">這裡展示了三種不同類型的 Carousel 組件，每種都具有獨特的功能和用途。</p>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">🏞️ Hero Carousel - 全寬大圖輪播</h2>
+        <p class="demo-description">適用於網站首頁的大型橫幅輪播，支援全寬顯示和多種切換效果</p>
+        
+        <div class="hero-carousel-container">
+            <div class="hero-carousel-wrapper">
+                <div class="swiper hero-swiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide" style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                            <div class="slide-content" style="text-align: center; padding: 40px;">
+                                <h1 style="font-size: 3rem; margin-bottom: 20px; font-weight: bold;">歡迎來到我們的網站</h1>
+                                <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9;">探索我們提供的優質產品與服務</p>
+                                <button style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 12px 30px; border-radius: 25px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">了解更多</button>
+                            </div>
+                        </div>
+                        <div class="swiper-slide" style="background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                            <div class="slide-content" style="text-align: center; padding: 40px;">
+                                <h1 style="font-size: 3rem; margin-bottom: 20px; font-weight: bold;">創新科技</h1>
+                                <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9;">使用最新技術打造的現代化解決方案</p>
+                                <button style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 12px 30px; border-radius: 25px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">立即體驗</button>
+                            </div>
+                        </div>
+                        <div class="swiper-slide" style="background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                            <div class="slide-content" style="text-align: center; padding: 40px;">
+                                <h1 style="font-size: 3rem; margin-bottom: 20px; font-weight: bold;">專業服務</h1>
+                                <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9;">提供全方位的專業諮詢與技術支援</p>
+                                <button style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 12px 30px; border-radius: 25px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">聯繫我們</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">🛍️ Product Carousel - 產品展示輪播</h2>
+        <p class="demo-description">專為產品展示設計，支援多項目橫向滾動和響應式布局</p>
+        
+        <div class="product-carousel-container">
+            <div class="product-carousel-wrapper" style="width: 100%; position: relative;">
+                <div class="swiper product-swiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="product-card">
+                                <div class="product-image" style="
+                                    width: 100%;
+                                    height: 200px;
+                                    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 14px;
+                                    color: white;
+                                    font-weight: bold;
+                                ">
+                                    智慧手錶
+                                </div>
+                                <div class="product-info" style="padding: 16px;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #333;">Apple Watch Series 9</h3>
+                                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #666; line-height: 1.4;">全新智慧手錶，健康監測功能升級</p>
+                                    <div class="product-price" style="
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                    ">
+                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c;">$12,900</span>
+                                        <button style="
+                                            background: #3498db;
+                                            color: white;
+                                            border: none;
+                                            padding: 8px 16px;
+                                            border-radius: 6px;
+                                            font-size: 12px;
+                                            cursor: pointer;
+                                            transition: all 0.3s;
+                                        ">購買</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="product-card">
+                                <div class="product-image" style="
+                                    width: 100%;
+                                    height: 200px;
+                                    background: linear-gradient(45deg, #4ecdc4, #44d3c7);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 14px;
+                                    color: white;
+                                    font-weight: bold;
+                                ">
+                                    無線耳機
+                                </div>
+                                <div class="product-info" style="padding: 16px;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #333;">AirPods Pro 2</h3>
+                                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #666; line-height: 1.4;">主動式降噪，高品質音效體驗</p>
+                                    <div class="product-price" style="
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                    ">
+                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c;">$7,490</span>
+                                        <button style="
+                                            background: #3498db;
+                                            color: white;
+                                            border: none;
+                                            padding: 8px 16px;
+                                            border-radius: 6px;
+                                            font-size: 12px;
+                                            cursor: pointer;
+                                            transition: all 0.3s;
+                                        ">購買</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="product-card">
+                                <div class="product-image" style="
+                                    width: 100%;
+                                    height: 200px;
+                                    background: linear-gradient(45deg, #a8e6cf, #88cc8c);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 14px;
+                                    color: white;
+                                    font-weight: bold;
+                                ">
+                                    平板電腦
+                                </div>
+                                <div class="product-info" style="padding: 16px;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #333;">iPad Air 5</h3>
+                                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #666; line-height: 1.4;">輕薄設計，強大效能，適合工作娛樂</p>
+                                    <div class="product-price" style="
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                    ">
+                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c;">$18,900</span>
+                                        <button style="
+                                            background: #3498db;
+                                            color: white;
+                                            border: none;
+                                            padding: 8px 16px;
+                                            border-radius: 6px;
+                                            font-size: 12px;
+                                            cursor: pointer;
+                                            transition: all 0.3s;
+                                        ">購買</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="product-card">
+                                <div class="product-image" style="
+                                    width: 100%;
+                                    height: 200px;
+                                    background: linear-gradient(45deg, #ffd93d, #ffcd3c);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 14px;
+                                    color: white;
+                                    font-weight: bold;
+                                ">
+                                    智慧型手機
+                                </div>
+                                <div class="product-info" style="padding: 16px;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #333;">iPhone 15 Pro</h3>
+                                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #666; line-height: 1.4;">搭載最新 A17 Pro 晶片，攝影功能全面升級</p>
+                                    <div class="product-price" style="
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                    ">
+                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c;">$36,900</span>
+                                        <button style="
+                                            background: #3498db;
+                                            color: white;
+                                            border: none;
+                                            padding: 8px 16px;
+                                            border-radius: 6px;
+                                            font-size: 12px;
+                                            cursor: pointer;
+                                            transition: all 0.3s;
+                                        ">購買</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">🖼️ Gallery Carousel - 圖片畫廊</h2>
+        <p class="demo-description">專業的圖片展示組件，支援縮圖預覽和縮放功能</p>
+        
+        <div class="gallery-carousel-container" style="width: 100%; max-width: 800px; margin: 0 auto; position: relative;">
+            <div class="gallery-carousel-wrapper" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="gallery-main" style="width: 100%;">
+                    <div class="swiper gallery-main-swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <img src="https://picsum.photos/800/600?random=1" alt="圖片 1" style="
+                                    width: 100%;
+                                    height: 400px;
+                                    object-fit: cover;
+                                    border-radius: 8px;
+                                " />
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="https://picsum.photos/800/600?random=2" alt="圖片 2" style="
+                                    width: 100%;
+                                    height: 400px;
+                                    object-fit: cover;
+                                    border-radius: 8px;
+                                " />
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="https://picsum.photos/800/600?random=3" alt="圖片 3" style="
+                                    width: 100%;
+                                    height: 400px;
+                                    object-fit: cover;
+                                    border-radius: 8px;
+                                " />
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="https://picsum.photos/800/600?random=4" alt="圖片 4" style="
+                                    width: 100%;
+                                    height: 400px;
+                                    object-fit: cover;
+                                    border-radius: 8px;
+                                " />
+                            </div>
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                </div>
+                
+                <div class="gallery-thumbs" style="width: 100%; height: 80px;">
+                    <div class="swiper gallery-thumbs-swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide" style="width: 80px; height: 80px; cursor: pointer; border-radius: 4px; overflow: hidden; opacity: 0.6; transition: opacity 0.3s;">
+                                <img src="https://picsum.photos/800/600?random=1" alt="縮圖 1" style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                            <div class="swiper-slide" style="width: 80px; height: 80px; cursor: pointer; border-radius: 4px; overflow: hidden; opacity: 0.6; transition: opacity 0.3s;">
+                                <img src="https://picsum.photos/800/600?random=2" alt="縮圖 2" style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                            <div class="swiper-slide" style="width: 80px; height: 80px; cursor: pointer; border-radius: 4px; overflow: hidden; opacity: 0.6; transition: opacity 0.3s;">
+                                <img src="https://picsum.photos/800/600?random=3" alt="縮圖 3" style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                            <div class="swiper-slide" style="width: 80px; height: 80px; cursor: pointer; border-radius: 4px; overflow: hidden; opacity: 0.6; transition: opacity 0.3s;">
+                                <img src="https://picsum.photos/800/600?random=4" alt="縮圖 4" style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        // Hero Carousel
+        new Swiper('.hero-swiper', {
+            effect: 'slide',
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: { 
+                el: ".swiper-pagination", 
+                clickable: true 
+            },
+            navigation: { 
+                nextEl: ".swiper-button-next", 
+                prevEl: ".swiper-button-prev" 
+            },
+            keyboard: { enabled: true },
+            mousewheel: { forceToAxis: true },
+        });
+
+        // Product Carousel
+        new Swiper('.product-swiper', {
+            slidesPerView: 3,
+            spaceBetween: 20,
+            autoplay: { 
+                delay: 3000, 
+                disableOnInteraction: false 
+            },
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+            breakpoints: {
+                320: { slidesPerView: 1, spaceBetween: 10 },
+                768: { slidesPerView: 2, spaceBetween: 15 },
+                1024: { slidesPerView: 3, spaceBetween: 20 }
+            }
+        });
+
+        // Gallery Carousel
+        const galleryThumbs = new Swiper('.gallery-thumbs-swiper', {
+            spaceBetween: 10,
+            slidesPerView: 6,
+            freeMode: true,
+            watchSlidesProgress: true,
+        });
+
+        new Swiper('.gallery-main-swiper', {
+            spaceBetween: 10,
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+            thumbs: { 
+                swiper: galleryThumbs 
+            },
+        });
+    </script>
+</body>
+</html>

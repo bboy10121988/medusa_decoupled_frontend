@@ -5,6 +5,7 @@ import { grapesJSPageService, type GrapesJSPageData, type SavePageParams } from 
 import { registerCustomComponents } from './custom-components'
 import { compressImage } from '@/lib/image-compression'
 import { buildSanityImageUrl, getSanityImages, type SanityImage } from '@/lib/services/sanity-media-service'
+import enhancedHomeModulesPlugin from './plugins/enhanced-home-modules'
 import { applyAllPluginCustomizations, getThirdPartyBlocks } from './plugins/third-party-customization'
 import { getPluginsOptions } from './config/plugins-config'
 import BlockPreviewEnhancer, { defaultPreviewConfig } from './plugins/block-preview-enhancer'
@@ -15,7 +16,6 @@ import './grapes-editor.flat.css'
 import './third-party-plugins-custom.css'
 import './upload-error-modal.css'
 import './material-ui-styles.css'
-import { PluginControlPanel } from './PluginControlPanel'
 
 // 全域變數來追蹤工作區選中的頁面
 let currentWorkspacePageId: string | null = null
@@ -559,30 +559,12 @@ const showSaveError = (message: string) => {
   }, 6000)
 }
 
-// 更新發布按鈕顯示
-const updatePublishButton = (status: 'draft' | 'published' | 'preview' | 'archived') => {
-  const publishButton = document.querySelector('#publish-toggle-btn')
-  if (publishButton) {
-    const isPublished = status === 'published'
-    const icon = isPublished ? 'fa-eye' : 'fa-eye-slash'
-    const text = isPublished ? '已發布' : '草稿'
-    const color = isPublished ? '#28a745' : '#6c757d'
-    
-    publishButton.innerHTML = `<i class="fa ${icon}"></i> ${text}`
-    ;(publishButton as HTMLElement).style.color = color
-    ;(publishButton as HTMLElement).setAttribute('title', `當前狀態：${text}，點擊切換`)
-    
-    console.log('🔄 發布按鈕已更新:', text, status)
-  } else {
-    console.warn('未找到發布按鈕元素')
-  }
-}
-
 interface GrapesEditorProps {
   onSave?: (content: string) => void
+  initialPageId?: string
 }
 
-export default function GrapesEditor({ onSave }: Readonly<GrapesEditorProps>) {
+export default function GrapesEditor({ onSave, initialPageId }: Readonly<GrapesEditorProps>) {
   const editorRef = useRef<HTMLDivElement>(null)
   const editorInstance = useRef<any>(null)
   const isPageLoadedRef = useRef<boolean>(false)
@@ -590,85 +572,128 @@ export default function GrapesEditor({ onSave }: Readonly<GrapesEditorProps>) {
   const [currentPageId, setCurrentPageId] = useState<string>('')
   const [currentPage, setCurrentPage] = useState<GrapesJSPageData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [showPluginPanel, setShowPluginPanel] = useState(false)
+  const preferredPageIdRef = useRef<string | null>(initialPageId ?? null)
+
+  useEffect(() => {
+    preferredPageIdRef.current = initialPageId ?? null
+  }, [initialPageId])
 
   // 載入頁面列表
-const loadPages = async () => {
-  setIsLoading(true)
-  try {
-    console.log('🔍 開始載入 Sanity 頁面...')
-    const loadedPages = await grapesJSPageService.getAllPages()
-    console.log('📄 載入的頁面數量:', loadedPages.length)
-    setPages(loadedPages)
+  const loadPages = async (preferredPageId?: string) => {
+    setIsLoading(true)
+    try {
+      console.log('🔍 開始載入 Sanity 頁面...')
+      const loadedPages = await grapesJSPageService.getAllPages()
+      console.log('📄 載入的頁面數量:', loadedPages.length)
 
-    if (loadedPages.length === 0) {
-      console.log('沒有找到頁面，嘗試創建默認首頁...')
-      const defaultPageParams: SavePageParams = {
-        title: '首頁',
-        slug: 'home',
-        description: '使用 GrapesJS 編輯器創建的首頁',
-        status: 'draft',
-        grapesHtml: '<div><h1>歡迎來到首頁</h1><p>這是使用 GrapesJS 編輯器創建的頁面。</p></div>',
-        grapesCss: '',
-        grapesComponents: {},
-        grapesStyles: {},
-        homeModules: []
-      }
-      try {
-        const newPage = await grapesJSPageService.createPage(defaultPageParams)
-        if (newPage) {
-          setPages([newPage])
-          setCurrentPage(newPage)
-          setCurrentPageId(newPage._id!)
-          
-          // 設置全域變數以支援儲存功能
-          currentWorkspacePageId = newPage._id!
-          currentWorkspacePageName = newPage.title
-          
-          // 延遲更新工作區頁面列表選中狀態
-          setTimeout(() => {
-            updateWorkspacePageSelection(newPage._id!, newPage.title)
-          }, 100)
+      const resolvedPreferredId = (preferredPageId ?? preferredPageIdRef.current ?? undefined)?.trim()
+      const normalizedPreferredId = resolvedPreferredId?.replace(/^drafts\./, '')
+      const candidateIds = Array.from(new Set([resolvedPreferredId, normalizedPreferredId].filter(Boolean))) as string[]
+
+      let targetPage: GrapesJSPageData | null = null
+      let pagesToUse = loadedPages
+
+      if (candidateIds.length > 0) {
+        targetPage = loadedPages.find(page => page._id && candidateIds.includes(page._id)) || null
+
+        if (!targetPage) {
+          for (const id of candidateIds) {
+            try {
+              const fetched = await grapesJSPageService.getPageById(id)
+              if (fetched) {
+                targetPage = fetched
+                break
+              }
+            } catch (fetchError) {
+              console.warn('直接載入指定頁面失敗:', fetchError)
+            }
+          }
         }
-      } catch (e: any) {
-        console.error('創建默認頁面失敗:', e)
-        alert('創建默認頁面失敗: ' + (e.message || e))
+
+        if (targetPage && !loadedPages.some(page => page._id === targetPage!._id)) {
+          pagesToUse = [targetPage, ...loadedPages]
+        }
       }
-    } else {
-      // 優先查找標題為"首頁"的頁面
-      let homePage = loadedPages.find(page => 
-        page.title === '首頁' || 
-        page.slug.current === 'home' || 
-        page.title?.toLowerCase().includes('home') ||
-        page.title?.includes('首頁')
-      )
-      
-      // 如果沒有找到首頁，則使用第一個頁面
-      if (!homePage) {
-        homePage = loadedPages[0]
-        console.log('未找到首頁，使用第一個頁面:', homePage.title)
+
+      setPages(pagesToUse)
+
+      if (targetPage) {
+        console.log('🎯 載入指定頁面:', targetPage.title, targetPage._id)
+        setCurrentPage(targetPage)
+        setCurrentPageId(targetPage._id!)
+        currentWorkspacePageId = targetPage._id!
+        currentWorkspacePageName = targetPage.title
+        ;(window as any).currentWorkspacePageId = targetPage._id!
+        ;(window as any).currentWorkspacePageName = targetPage.title
+
+        setTimeout(() => {
+          updateWorkspacePageSelection(targetPage!._id!, targetPage!.title)
+        }, 100)
+      } else if (pagesToUse.length === 0) {
+        console.log('沒有找到頁面，嘗試創建默認首頁...')
+        const defaultPageParams: SavePageParams = {
+          title: '首頁',
+          slug: 'home',
+          description: '使用 GrapesJS 編輯器創建的首頁',
+          status: 'draft',
+          grapesHtml: '<div><h1>歡迎來到首頁</h1><p>這是使用 GrapesJS 編輯器創建的頁面。</p></div>',
+          grapesCss: '',
+          grapesComponents: {},
+          grapesStyles: {},
+          homeModules: []
+        }
+
+        try {
+          const newPage = await grapesJSPageService.createPage(defaultPageParams)
+          if (newPage) {
+            setPages([newPage])
+            setCurrentPage(newPage)
+            setCurrentPageId(newPage._id!)
+            currentWorkspacePageId = newPage._id!
+            currentWorkspacePageName = newPage.title
+            ;(window as any).currentWorkspacePageId = newPage._id!
+            ;(window as any).currentWorkspacePageName = newPage.title
+
+            setTimeout(() => {
+              updateWorkspacePageSelection(newPage._id!, newPage.title)
+            }, 100)
+          }
+        } catch (e: any) {
+          console.error('創建默認頁面失敗:', e)
+          alert('創建默認頁面失敗: ' + (e.message || e))
+        }
       } else {
-        console.log('找到首頁，載入頁面:', homePage.title)
+        let homePage = pagesToUse.find(page => 
+          page.title === '首頁' || 
+          page.slug.current === 'home' || 
+          page.title?.toLowerCase().includes('home') ||
+          page.title?.includes('首頁')
+        )
+
+        if (!homePage) {
+          homePage = pagesToUse[0]
+          console.log('未找到首頁，使用第一個頁面:', homePage.title)
+        } else {
+          console.log('找到首頁，載入頁面:', homePage.title)
+        }
+
+        setCurrentPage(homePage)
+        setCurrentPageId(homePage._id!)
+        currentWorkspacePageId = homePage._id!
+        currentWorkspacePageName = homePage.title
+        ;(window as any).currentWorkspacePageId = homePage._id!
+        ;(window as any).currentWorkspacePageName = homePage.title
+
+        setTimeout(() => {
+          updateWorkspacePageSelection(homePage!._id!, homePage!.title)
+        }, 100)
       }
-      
-      setCurrentPage(homePage)
-      setCurrentPageId(homePage._id!)
-      
-      // 設置全域變數以支援儲存功能
-      currentWorkspacePageId = homePage._id!
-      currentWorkspacePageName = homePage.title
-      
-      // 延遲更新工作區頁面列表選中狀態
-      setTimeout(() => {
-        updateWorkspacePageSelection(homePage._id!, homePage.title)
-      }, 100)
+    } catch (error) {
+      console.error('載入頁面失敗:', error)
+    } finally {
+      setIsLoading(false)
     }
-  } catch (error) {
-    console.error('載入頁面失敗:', error)
-  } finally {
-    setIsLoading(false)
   }
-}
 
 // 更新工作區頁面列表選中狀態的函數
 const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
@@ -696,6 +721,251 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
 }
 
   // 載入頁面內容到編輯器
+  const extractImageUrl = (image: any): string => {
+    if (!image) return ''
+    if (typeof image === 'string') return image
+    if (typeof image === 'object') {
+      if (typeof image.url === 'string') return image.url
+      if (image.asset) {
+        if (typeof image.asset.url === 'string') return image.asset.url
+        if (typeof image.asset._ref === 'string') {
+          const parts = image.asset._ref.split('-')
+          if (parts.length >= 3) {
+            const [/*prefix*/, id, dimension, formatWithExt] = parts
+            const format = formatWithExt?.split('.')[0]
+            const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+            const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+            if (projectId && dataset && id && format) {
+              return `https://cdn.sanity.io/images/${projectId}/${dataset}/${id}.${format}`
+            }
+          }
+        }
+      }
+    }
+    return ''
+  }
+
+  const extractImageAlt = (image: any, fallback = ''): string => {
+    if (!image) return fallback
+    if (typeof image === 'object') {
+      if (typeof image.alt === 'string') return image.alt
+      if (image.asset && typeof image.asset.alt === 'string') return image.asset.alt
+    }
+    return fallback
+  }
+
+  const normalizeBooleanValue = (value: any, defaultValue: boolean) => {
+    if (value === undefined || value === null || value === '') return defaultValue
+    if (typeof value === 'boolean') return value
+    if (typeof value === 'number') return value !== 0
+    if (typeof value === 'string') {
+      const lowered = value.toLowerCase()
+      return lowered === 'true' || lowered === '1' || lowered === 'yes' || lowered === 'on'
+    }
+    return defaultValue
+  }
+
+  const normalizeNumberValue = (value: any, defaultValue: number) => {
+    if (value === undefined || value === null || value === '') return defaultValue
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : defaultValue
+  }
+
+  const sanitizeEditorHtml = (html: string): string => {
+    if (!html) return html
+    try {
+      const cleaned = html
+        .replace(/<div[^>]*class=["'][^"']*module-preview[^"']*["'][^>]*>[\s\S]*?<\/div>/gi, '')
+        .replace(/<div[^>]*class=["'][^"']*module-config-hint[^"']*["'][^>]*>[\s\S]*?<\/div>/gi, '')
+        .replace(/<body[^>]*>/gi, '')
+        .replace(/<\/body>/gi, '')
+        .replace(/<html[^>]*>/gi, '')
+        .replace(/<\/html>/gi, '')
+      if (typeof window === 'undefined') {
+        return cleaned
+      }
+      const temp = document.createElement('div')
+      temp.innerHTML = cleaned
+      const placeholders = temp.querySelectorAll('.module-preview, .module-config-hint')
+      placeholders.forEach((node) => node.remove())
+      return temp.innerHTML
+    } catch (error) {
+      console.warn('⚠️ 清理 GrapesJS HTML 失敗，回退為原始內容。', error)
+      return html
+    }
+  }
+
+  const prepareHomeModulesForEditor = (modules: any): any[] => {
+    if (!Array.isArray(modules)) return []
+    return modules
+      .map((module, index) => {
+        if (!module || typeof module !== 'object') return null
+        const moduleType: string | undefined = module.moduleType || module.settings?.moduleType || (() => {
+          if (typeof module._type === 'string' && module._type.endsWith('Module')) {
+            return module._type.replace(/Module$/, '')
+          }
+          return undefined
+        })()
+        if (!moduleType) return null
+
+        const order = normalizeNumberValue(module.order, index)
+        const isActive = normalizeBooleanValue(module.isActive ?? module.settings?.isActive, true)
+        const rawSettings = module.settings || {}
+
+        switch (moduleType) {
+          case 'mainBanner': {
+            const autoplaySettings = rawSettings.settings || rawSettings
+            const slides = Array.isArray(rawSettings.slides) ? rawSettings.slides : []
+            const normalizedSlides = slides.map((slide: any) => ({
+              heading: slide?.heading || '',
+              subheading: slide?.subheading || '',
+              backgroundImage: extractImageUrl(slide?.backgroundImage || slide?.image),
+              backgroundImageAlt: extractImageAlt(slide?.backgroundImage || slide?.image, slide?.backgroundImageAlt || ''),
+              buttonText: slide?.buttonText || '',
+              buttonLink: slide?.buttonLink || '',
+            }))
+
+            return {
+              _type: module._type || 'mainBannerModule',
+              moduleType,
+              isActive,
+              order,
+              settings: {
+                autoplay: normalizeBooleanValue(autoplaySettings?.autoplay, true),
+                autoplaySpeed: normalizeNumberValue(autoplaySettings?.autoplaySpeed, 5),
+                showArrows: normalizeBooleanValue(autoplaySettings?.showArrows, true),
+                showDots: normalizeBooleanValue(autoplaySettings?.showDots, true),
+                slides: normalizedSlides,
+              },
+            }
+          }
+          case 'serviceCardSection': {
+            const cards = Array.isArray(rawSettings.cards) ? rawSettings.cards : []
+            const normalizedCards = cards.map((card: any) => {
+              const stylists = Array.isArray(card?.stylists)
+                ? card.stylists.map((stylist: any) => ({
+                    stylistName: stylist?.stylistName || stylist?.name || '',
+                    levelName: stylist?.levelName || stylist?.level || '',
+                    price: normalizeNumberValue(stylist?.price, 0),
+                    priceType: stylist?.priceType || 'up',
+                    stylistInstagramUrl: stylist?.stylistInstagramUrl || stylist?.instagramUrl || '',
+                    isDefault: normalizeBooleanValue(stylist?.isDefault, false),
+                    cardImage: stylist?.cardImage ? {
+                      url: extractImageUrl(stylist.cardImage),
+                      alt: extractImageAlt(stylist.cardImage, stylist?.cardImageAlt || ''),
+                    } : undefined,
+                  }))
+                : []
+
+              return {
+                title: card?.title || '',
+                englishTitle: card?.englishTitle || '',
+                stylists,
+              }
+            })
+
+            return {
+              _type: module._type || 'serviceCardsModule',
+              moduleType,
+              isActive,
+              order,
+              settings: {
+                heading: rawSettings.heading || '',
+                cardsPerRow: normalizeNumberValue(rawSettings.cardsPerRow, 3),
+                cards: normalizedCards,
+              },
+            }
+          }
+          case 'imageTextBlock': {
+            return {
+              _type: module._type || 'imageTextModule',
+              moduleType,
+              isActive,
+              order,
+              settings: {
+                heading: rawSettings.heading || '',
+                layout: rawSettings.layout || 'imageLeft',
+                content: rawSettings.content || '',
+                hideTitle: normalizeBooleanValue(rawSettings.hideTitle, false),
+                image: rawSettings.image ? {
+                  url: extractImageUrl(rawSettings.image),
+                  alt: extractImageAlt(rawSettings.image, rawSettings.image?.alt || ''),
+                } : undefined,
+                leftImage: rawSettings.leftImage ? {
+                  url: extractImageUrl(rawSettings.leftImage),
+                  alt: extractImageAlt(rawSettings.leftImage, rawSettings.leftImage?.alt || ''),
+                } : undefined,
+                rightImage: rawSettings.rightImage ? {
+                  url: extractImageUrl(rawSettings.rightImage),
+                  alt: extractImageAlt(rawSettings.rightImage, rawSettings.rightImage?.alt || ''),
+                } : undefined,
+                leftContent: rawSettings.leftContent || '',
+                rightContent: rawSettings.rightContent || '',
+              },
+            }
+          }
+          case 'featuredProducts': {
+            return {
+              _type: module._type || 'featuredProductsModule',
+              moduleType,
+              isActive,
+              order,
+              settings: {
+                heading: rawSettings.heading || '',
+                collection_id: rawSettings.collection_id || rawSettings.collectionId || '',
+                showHeading: normalizeBooleanValue(rawSettings.showHeading, true),
+                showSubheading: normalizeBooleanValue(rawSettings.showSubheading, true),
+              },
+            }
+          }
+          case 'blogSection': {
+            return {
+              _type: module._type || 'blogSectionModule',
+              moduleType,
+              isActive,
+              order,
+              settings: {
+                title: rawSettings.title || '',
+                category: rawSettings.category || '',
+                limit: normalizeNumberValue(rawSettings.limit, 6),
+                postsPerRow: normalizeNumberValue(rawSettings.postsPerRow, 3),
+              },
+            }
+          }
+          case 'youtubeSection': {
+            return {
+              _type: module._type || 'youtubeSectionModule',
+              moduleType,
+              isActive,
+              order,
+              settings: {
+                heading: rawSettings.heading || '',
+                description: rawSettings.description || '',
+                videoUrl: rawSettings.videoUrl || '',
+                fullWidth: normalizeBooleanValue(rawSettings.fullWidth, true),
+              },
+            }
+          }
+          case 'contentSection': {
+            return {
+              _type: module._type || 'contentSectionModule',
+              moduleType,
+              isActive,
+              order,
+              settings: {
+                heading: rawSettings.heading || rawSettings.title || '',
+                hideTitle: normalizeBooleanValue(rawSettings.hideTitle, false),
+                content: rawSettings.content || '',
+              },
+            }
+          }
+          default:
+            return null
+        }
+      })
+      .filter(Boolean)
+  }
+
   const loadPageToEditor = async (pageId: string, editor: any) => {
     try {
       const pageData = await grapesJSPageService.getPageById(pageId)
@@ -708,53 +978,95 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           hasStyles: !!pageData.grapesStyles
         })
         
-        // 清空編輯器內容防止累積
+        const parseJSONSafely = (value: any) => {
+          if (!value) return null
+          if (typeof value === 'string') {
+            const trimmed = value.trim()
+            if (!trimmed || trimmed === '[]' || trimmed === '{}' || trimmed === 'null') {
+              return null
+            }
+            try {
+              return JSON.parse(trimmed)
+            } catch (error) {
+              console.warn('Failed to parse JSON data:', error)
+              return null
+            }
+          }
+          if (Array.isArray(value) && value.length === 0) return null
+          if (typeof value === 'object' && Object.keys(value).length === 0) return null
+          return value
+        }
+
+        const parsedComponents = parseJSONSafely(pageData.grapesComponents)
+        const parsedStyles = parseJSONSafely(pageData.grapesStyles)
+        const hasStructuredComponents = Boolean(parsedComponents)
+        const hasStructuredStyles = Boolean(parsedStyles)
+        const preparedHomeModules = prepareHomeModulesForEditor(pageData.homeModules)
+        const importHomeModulesFn = (editor as any).importHomeModules
+
         editor.setComponents('')
         editor.setStyle('')
-        
-        // 如果有結構化的組件和樣式數據，優先使用
-        if (pageData.grapesComponents || pageData.grapesStyles) {
-          const projectData: any = {
-            assets: [],
-            styles: [],
-            pages: [{
-              frames: [{
-                component: []
-              }]
-            }]
-          }
 
-          // 載入樣式
-          if (pageData.grapesStyles) {
-            try {
-              projectData.styles = typeof pageData.grapesStyles === 'string' 
-                ? JSON.parse(pageData.grapesStyles) 
-                : pageData.grapesStyles
-            } catch (e) {
-              console.warn('Failed to parse grapesStyles:', e)
-            }
+        let modulesImported = false
+        if (preparedHomeModules.length > 0 && typeof importHomeModulesFn === 'function') {
+          try {
+            importHomeModulesFn(preparedHomeModules)
+            modulesImported = true
+            console.log('🧩 已從 homeModules 匯入模組:', preparedHomeModules.length)
+          } catch (error) {
+            console.warn('⚠️ 匯入 homeModules 失敗，將回退至 HTML/Components。', error)
           }
-
-          // 載入組件
-          if (pageData.grapesComponents) {
-            try {
-              const components = typeof pageData.grapesComponents === 'string'
-                ? JSON.parse(pageData.grapesComponents)
-                : pageData.grapesComponents
-              
-              projectData.pages[0].frames[0].component = components
-            } catch (e) {
-              console.warn('Failed to parse grapesComponents:', e)
-            }
-          }
-
-          editor.loadProjectData(projectData)
-        } else {
-          // 如果沒有結構化數據，使用 HTML/CSS
-          editor.setComponents(pageData.grapesHtml || '')
-          editor.setStyle(pageData.grapesCss || '')
         }
-        
+
+        if (!modulesImported) {
+          if (hasStructuredComponents || hasStructuredStyles) {
+            const projectData: any = {
+              assets: [],
+              styles: [],
+              pages: [{
+                frames: [{
+                  component: []
+                }]
+              }]
+            }
+
+            if (hasStructuredStyles) {
+              if (Array.isArray(parsedStyles)) {
+                projectData.styles = parsedStyles
+              } else if (parsedStyles?.styles) {
+                projectData.styles = parsedStyles.styles
+              } else {
+                projectData.styles = parsedStyles
+              }
+            }
+
+            if (hasStructuredComponents) {
+              if (Array.isArray(parsedComponents)) {
+                projectData.pages[0].frames[0].component = parsedComponents
+              } else if (parsedComponents?.pages?.[0]?.frames?.[0]?.component) {
+                projectData.pages = parsedComponents.pages
+              } else {
+                projectData.pages[0].frames[0].component = parsedComponents
+              }
+            }
+
+            editor.loadProjectData(projectData)
+            if (pageData.grapesHtml) {
+              editor.setComponents(pageData.grapesHtml)
+            }
+          } else {
+            if (pageData.grapesHtml) {
+              editor.setComponents(pageData.grapesHtml)
+            } else {
+              editor.setComponents('<div>此頁面沒有內容</div>')
+            }
+          }
+        }
+
+        if (pageData.grapesCss) {
+          editor.setStyle(pageData.grapesCss)
+        }
+
         // 重要：重新應用全局樣式（在頁面載入後）
         setTimeout(() => {
           reapplyGlobalStyles(editor)
@@ -789,13 +1101,25 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
       // 從專案資料中提取元件和樣式
       const components = projectData.pages[0]?.frames[0]?.component || editor.getComponents()
       const styles = projectData.styles || []
-      
+
+      let homeModulesData: any[] = []
+      const collectHomeModulesFn = (editor as any).collectHomeModules
+      if (typeof collectHomeModulesFn === 'function') {
+        try {
+          homeModulesData = collectHomeModulesFn()
+          console.log('🧩 收集到的首頁模組:', homeModulesData.length)
+        } catch (error) {
+          console.warn('⚠️ 收集首頁模組失敗，將跳過 homeModules 更新。', error)
+        }
+      }
+
       // 清理和優化數據
       const cleanedComponents = JSON.stringify(components, null, 0) // 移除格式化空格
       const cleanedStyles = JSON.stringify(styles, null, 0)
       
       // 移除 HTML 中的多餘空格和換行
       let cleanedHtml = html.replace(/\s+/g, ' ').trim()
+      cleanedHtml = sanitizeEditorHtml(cleanedHtml)
       const cleanedCss = css.replace(/\s+/g, ' ').trim()
       
       // 檢測是否含有 base64 內嵌圖片
@@ -870,7 +1194,8 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         grapesHtml: cleanedHtml,
         grapesCss: cleanedCss,
         grapesComponents: cleanedComponents,
-        grapesStyles: cleanedStyles
+        grapesStyles: cleanedStyles,
+        homeModules: homeModulesData
       }
       
       console.log('正在使用 grapesJSPageService 保存...', {
@@ -900,7 +1225,8 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         grapesHtml: cleanedHtml,
         grapesCss: cleanedCss,
         grapesComponents: cleanedComponents,
-        grapesStyles: cleanedStyles
+        grapesStyles: cleanedStyles,
+        homeModules: homeModulesData
       })
       
       console.log('✅ 頁面保存成功!', result)
@@ -940,8 +1266,9 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
   }
 
   useEffect(() => {
-    loadPages()
-  }, [])
+    isPageLoadedRef.current = false
+    loadPages(initialPageId)
+  }, [initialPageId])
 
   // 監聽工作區頁面變更事件
   useEffect(() => {
@@ -966,12 +1293,6 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
       if (foundPage) {
         setCurrentPage(foundPage)
         setCurrentPageId(foundPage._id!)
-        
-        // 更新發布按鈕狀態
-        setTimeout(() => {
-          updatePublishButton(foundPage.status)
-        }, 100)
-        
         console.log('📄 更新當前頁面狀態:', foundPage.title, '狀態:', foundPage.status)
       }
       
@@ -1004,20 +1325,31 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         const grapesjs = (await import('grapesjs')).default
         const pluginWebpage = (await import('grapesjs-preset-webpage')).default
         const pluginBlocksBasic = (await import('grapesjs-blocks-basic')).default
-        const pluginForms = (await import('grapesjs-plugin-forms')).default
-        const pluginCountdown = (await import('grapesjs-component-countdown')).default
-        const pluginTabs = (await import('grapesjs-tabs')).default
-        const pluginCustomCode = (await import('grapesjs-custom-code')).default
-        const pluginTooltip = (await import('grapesjs-tooltip')).default
-        const pluginTyped = (await import('grapesjs-typed')).default
 
-        // 🆕 添加未註冊的插件導入
-        const pluginBootstrap4 = (await import('grapesjs-blocks-bootstrap4')).default
-        const pluginPostCSS = (await import('grapesjs-parser-postcss')).default
-        const pluginGradient = (await import('grapesjs-style-gradient')).default
-        // 暫時註釋掉有類型問題的插件
-        // const pluginTailwind = (await import('grapesjs-tailwind')).default
-        const pluginImageEditor = (await import('grapesjs-tui-image-editor')).default
+        // 非必須插件以可選導入，缺少時不影響初始化
+        const opt = async <T = any>(specifier: string): Promise<T | null> => {
+          try {
+            const m: any = await import(/* @vite-ignore */ specifier)
+            return (m && (m.default ?? m)) as T
+          } catch (e) {
+            console.warn(`可選插件未安裝或載入失敗: ${specifier}`, e)
+            return null
+          }
+        }
+
+        const pluginForms = await opt('grapesjs-plugin-forms')
+        const pluginCountdown = await opt('grapesjs-component-countdown')
+        const pluginTabs = await opt('grapesjs-tabs')
+        const pluginCustomCode = await opt('grapesjs-custom-code')
+        const pluginTooltip = await opt('grapesjs-tooltip')
+        const pluginTyped = await opt('grapesjs-typed')
+
+        // 🆕 額外插件（可選）
+        const pluginBootstrap4 = await opt('grapesjs-blocks-bootstrap4')
+        const pluginPostCSS = await opt('grapesjs-parser-postcss')
+        const pluginGradient = await opt('grapesjs-style-gradient')
+        // const pluginTailwind = await opt('grapesjs-tailwind') // 暫時保留為可選
+        const pluginImageEditor = await opt('grapesjs-tui-image-editor')
 
         // 🎠 保留現有的輪播組件插件 (grapesjs-carousel-component)
         // 原生 grapesjs-carousel 插件暫時移除（相容性問題）
@@ -1316,18 +1648,13 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             pluginCustomCode,
             pluginTooltip,
             pluginTyped,
-
-            
-            // 🆕 新增的未註冊插件
+            // 🆕 額外插件
             pluginBootstrap4,
             pluginPostCSS,
             pluginGradient,
-            // pluginTailwind, // 暫時註釋掉，類型問題
+            // pluginTailwind,
             pluginImageEditor
-
-            // 🎠 輪播功能由現有的 grapesjs-carousel-component 配置提供
-            // 原生 grapesjs-carousel 插件暫時移除（相容性問題）
-          ],
+          ].filter(Boolean) as any,
 
           // 使用外部配置文件管理插件選項
           pluginsOpts: getPluginsOptions()
@@ -1343,6 +1670,14 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
 
         // 註冊自定義組件
         registerCustomComponents(editor)
+
+        // 註冊首頁模組增強插件，用於同步 homeModules
+        try {
+          enhancedHomeModulesPlugin(editor)
+          console.log('🧩 enhancedHomeModules 插件已載入')
+        } catch (error) {
+          console.warn('⚠️ 載入 enhancedHomeModules 插件失敗:', error)
+        }
 
         // 🎯 應用第三方插件客製化並監控效能
         try {
@@ -2093,16 +2428,6 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             }
           },
           {
-            id: 'publish-toggle-btn',
-            className: 'btn-publish-toggle gjs-pn-btn',
-            label: '<i class="fa fa-eye-slash"></i> 草稿',
-            command: 'toggle-publish-status',
-            attributes: { 
-              title: '切換發布狀態',
-              'data-tooltip': '切換頁面的發布/草稿狀態'
-            }
-          },
-          {
             id: 'undo-btn',
             className: 'btn-undo gjs-pn-btn',
             label: '<i class="fa fa-undo"></i>',
@@ -2115,7 +2440,7 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
           {
             id: 'redo-btn', 
             className: 'btn-redo gjs-pn-btn',
-            label: '<i class="fa fa-redo"></i>',
+            label: '<i class="fa fa-repeat"></i>',
             command: 'core:redo',
             attributes: {
               title: '重做 (Ctrl+Y)',
@@ -2138,40 +2463,6 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             attributes: {
               title: '清空頁面',
               'data-tooltip': '清除頁面所有內容'
-            }
-          },
-          {
-            id: 'third-party-panel',
-            className: 'btn-third-party gjs-pn-btn',
-            label: '<i class="fa fa-puzzle-piece"></i>',
-            command: () => setShowPluginPanel(true),
-            attributes: { 
-              title: '第三方插件控制面板',
-              'data-tooltip': '管理和配置第三方插件'
-            }
-          }
-        ])
-        
-        // 優化 views 面板按鈕
-        editor.Panels.addButton('views', [
-          {
-            id: 'show-workspace',
-            className: 'gjs-pn-btn',
-            label: '<i class="fa fa-th-large"></i>',
-            command: 'show-workspace',
-            attributes: { 
-              title: '工作區管理',
-              'data-tooltip': '切換和管理工作區'
-            }
-          },
-          {
-            id: 'show-assets-enhanced',
-            className: 'gjs-pn-btn',
-            label: '<i class="fa fa-image"></i>',
-            command: 'show-assets-enhanced',
-            attributes: {
-              title: 'Sanity 圖片庫',
-              'data-tooltip': '瀏覽和插入 Sanity 圖片資源'
             }
           }
         ])
@@ -3042,66 +3333,6 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
             }
           }
         })
-        
-        // 添加發布狀態切換命令
-        editor.Commands.add('toggle-publish-status', {
-          run: async (editor: any) => {
-            console.log('🔄 發布狀態切換命令被觸發')
-            
-            // 檢查是否有選中的頁面
-            let targetPageId = currentPageId
-            if (!targetPageId) {
-              const workspacePageId = (window as any).currentWorkspacePageId || currentWorkspacePageId
-              if (workspacePageId) {
-                targetPageId = workspacePageId
-              }
-            }
-            
-            if (!targetPageId) {
-              showSaveError('請先選擇要切換狀態的頁面')
-              return
-            }
-            
-            try {
-              // 獲取當前頁面狀態
-              const { grapesJSPageService } = await import('@/lib/services/grapesjs-page-service')
-              const page = await grapesJSPageService.getPageById(targetPageId)
-              
-              if (!page) {
-                showSaveError('無法找到頁面')
-                return
-              }
-              
-              // 切換狀態
-              const newStatus = page.status === 'published' ? 'draft' : 'published'
-              
-              // 更新頁面狀態
-              await grapesJSPageService.updatePage({
-                _id: targetPageId,
-                status: newStatus
-              })
-              
-              // 更新按鈕顯示
-              updatePublishButton(newStatus)
-              
-              // 更新當前頁面狀態
-              if (currentPage) {
-                currentPage.status = newStatus
-              }
-              
-              // 顯示成功訊息
-              const statusText = newStatus === 'published' ? '已發布' : '草稿'
-              showSaveSuccess(`頁面狀態已切換為: ${statusText}`)
-              
-              console.log('✅ 頁面狀態切換成功:', newStatus)
-              
-            } catch (error) {
-              console.error('❌ 切換發布狀態失敗:', error)
-              showSaveError(`切換狀態失敗：${error instanceof Error ? error.message : '未知錯誤'}`)
-            }
-          }
-        })
-
         // 添加工作區面板切換命令
         editor.Commands.add('toggle-customer-panel', {
           run: (editor: any) => {
@@ -3570,13 +3801,6 @@ const updateWorkspacePageSelection = (pageId: string, pageTitle: string) => {
         key="grapesjs-editor-container"
         style={{ height: '100%' }}
       />
-      {editorInstance.current && (
-        <PluginControlPanel
-          editor={editorInstance.current}
-          isVisible={showPluginPanel}
-          onClose={() => setShowPluginPanel(false)}
-        />
-      )}
     </div>
   )
 }

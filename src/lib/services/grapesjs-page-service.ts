@@ -311,7 +311,7 @@ class GrapesJSPageService {
           ? params.grapesStyles 
           : JSON.stringify(params.grapesStyles)
       }
-      if (params.homeModules) updateData.homeModules = params.homeModules
+      if (params.homeModules !== undefined) updateData.homeModules = params.homeModules
       if (params.seoTitle !== undefined) updateData.seoTitle = params.seoTitle
       if (params.seoDescription !== undefined) updateData.seoDescription = params.seoDescription
       if (params.seoKeywords) updateData.seoKeywords = params.seoKeywords

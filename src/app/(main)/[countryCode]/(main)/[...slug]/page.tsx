@@ -1,6 +1,8 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 import { notFound } from 'next/navigation'
+import Nav from '@modules/layout/templates/nav'
+import Footer from '@modules/layout/templates/footer'
 
 // 頁面資料類型
 interface GrapesJSPage {
@@ -158,7 +160,15 @@ export default async function CatchAllPage({
     return <NotFoundPage message={`找不到 ID 為 "${pageId}" 的頁面`} />
   }
   
-  return <PageViewer page={page} />
+  return (
+    <>
+      <Nav />
+      <main>
+        <PageViewer page={page} />
+      </main>
+      <Footer />
+    </>
+  )
 }
 
 // 生成 metadata

@@ -1,0 +1,333 @@
+/**
+ * 高級 Carousel 組件的專用樣式
+ * 確保在編輯器和預覽模式下都能正確顯示
+ */
+
+/* 基本 Swiper 樣式覆蓋 */
+.hero-carousel-container,
+.product-carousel-container,
+.gallery-carousel-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hero Carousel 全寬樣式 */
+.hero-carousel-container {
+  width: 100vw !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+  left: 50% !important;
+  right: 50% !important;
+  position: relative !important;
+}
+
+.hero-carousel-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+.hero-swiper {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.hero-swiper .swiper-slide {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* 自定義導航按鈕樣式 */
+.hero-swiper .swiper-button-next,
+.hero-swiper .swiper-button-prev {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.3);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-top: -25px;
+  transition: all 0.3s ease;
+}
+
+.hero-swiper .swiper-button-next:hover,
+.hero-swiper .swiper-button-prev:hover {
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  transform: scale(1.1);
+}
+
+.hero-swiper .swiper-button-next::after,
+.hero-swiper .swiper-button-prev::after {
+  font-size: 20px;
+}
+
+/* 自定義分頁器樣式 */
+.hero-swiper .swiper-pagination {
+  bottom: 20px !important;
+}
+
+.hero-swiper .swiper-pagination-bullet {
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  margin: 0 6px;
+}
+
+.hero-swiper .swiper-pagination-bullet-active {
+  background: white;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.2);
+}
+
+/* Product Carousel 樣式 */
+.product-carousel-wrapper {
+  padding: 20px 0;
+  position: relative;
+}
+
+.product-swiper .swiper-button-next,
+.product-swiper .swiper-button-prev {
+  color: #3498db;
+  background: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: -22px;
+  transition: all 0.3s ease;
+}
+
+.product-swiper .swiper-button-next:hover,
+.product-swiper .swiper-button-prev:hover {
+  background: #3498db;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(52, 152, 219, 0.3);
+}
+
+.product-swiper .swiper-button-next::after,
+.product-swiper .swiper-button-prev::after {
+  font-size: 16px;
+}
+
+/* 產品卡片懸停效果 */
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.product-card button:hover {
+  background: #2980b9 !important;
+  transform: scale(1.05);
+}
+
+/* Gallery Carousel 樣式 */
+.gallery-carousel-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.gallery-main-swiper .swiper-button-next,
+.gallery-main-swiper .swiper-button-prev {
+  color: #2c3e50;
+  background: rgba(255, 255, 255, 0.9);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: -20px;
+  transition: all 0.3s ease;
+}
+
+.gallery-main-swiper .swiper-button-next:hover,
+.gallery-main-swiper .swiper-button-prev:hover {
+  background: white;
+  color: #34495e;
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-main-swiper .swiper-button-next::after,
+.gallery-main-swiper .swiper-button-prev::after {
+  font-size: 14px;
+}
+
+/* 縮圖樣式 */
+.gallery-thumbs-swiper .swiper-slide {
+  opacity: 0.6;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.gallery-thumbs-swiper .swiper-slide:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.gallery-thumbs-swiper .swiper-slide-thumb-active {
+  opacity: 1 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 0 3px #3498db;
+  border-radius: 4px;
+}
+
+/* 主圖片樣式 */
+.gallery-main-swiper .swiper-slide img {
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.gallery-main-swiper .swiper-slide img:hover {
+  transform: scale(1.02);
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .hero-carousel-container {
+    height: 400px !important;
+  }
+  
+  .hero-swiper .slide-content h1 {
+    font-size: 2rem !important;
+  }
+  
+  .hero-swiper .slide-content p {
+    font-size: 1rem !important;
+  }
+  
+  .hero-swiper .swiper-button-next,
+  .hero-swiper .swiper-button-prev {
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+  }
+  
+  .hero-swiper .swiper-button-next::after,
+  .hero-swiper .swiper-button-prev::after {
+    font-size: 16px;
+  }
+  
+  .product-swiper .swiper-button-next,
+  .product-swiper .swiper-button-prev {
+    display: none; /* 隱藏手機版導航按鈕 */
+  }
+  
+  .gallery-carousel-wrapper {
+    padding: 0 15px;
+  }
+}
+
+/* 編輯器模式下的特殊樣式 */
+.gjs-editor .hero-carousel-container {
+  outline: 2px dashed #3498db;
+  outline-offset: 4px;
+}
+
+.gjs-editor .hero-carousel-container:hover {
+  outline-color: #e74c3c;
+}
+
+.gjs-editor .product-carousel-container {
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+}
+
+.gjs-editor .product-carousel-container:hover {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.gjs-editor .gallery-carousel-container {
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.gjs-editor .gallery-carousel-container:hover {
+  border-color: #95a5a6;
+  background: rgba(52, 152, 219, 0.02);
+}
+
+/* Swiper 效果增強 */
+.swiper-slide {
+  transition-property: transform, opacity;
+  backface-visibility: hidden;
+  will-change: transform;
+  max-width: 100%;
+}
+
+.swiper-fade .swiper-slide {
+  pointer-events: none;
+}
+
+.swiper-fade .swiper-slide-active {
+  pointer-events: auto;
+}
+
+/* 3D 效果樣式 */
+.swiper-cube .swiper-slide {
+  visibility: hidden;
+}
+
+.swiper-cube .swiper-slide-active,
+.swiper-cube .swiper-slide-next,
+.swiper-cube .swiper-slide-prev {
+  visibility: visible;
+}
+
+/* Coverflow 效果樣式 */
+.swiper-coverflow .swiper-slide {
+  transition-property: transform;
+}
+
+/* 載入狀態樣式 */
+.carousel-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.carousel-loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #dee2e6;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: carousel-spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+@keyframes carousel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 無障礙支援 */
+.swiper-button-next:focus,
+.swiper-button-prev:focus,
+.swiper-pagination-bullet:focus {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+.swiper-slide img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 效能優化：減少重繪 */
+.swiper-wrapper {
+  transform-style: preserve-3d;
+}

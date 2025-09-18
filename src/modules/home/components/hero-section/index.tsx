@@ -18,6 +18,7 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
         <Hero
           slides={banner.slides.map((slide: BannerSlide) => ({
             heading: slide.heading,
+            subheading: (slide as any).subheading,
             backgroundImage: slide.backgroundImage,
             backgroundImageAlt: slide.backgroundImageAlt,
             buttonText: slide.buttonText || "",

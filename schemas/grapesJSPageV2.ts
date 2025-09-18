@@ -9,9 +9,65 @@ export default defineType({
     { name: 'design', title: '設計數據' },
     { name: 'modules', title: '模組設定' },
     { name: 'seo', title: 'SEO 設定' },
-    { name: 'settings', title: '頁面設定' }
+    { name: 'settings', title: '頁面設定' },
+    { name: 'editor', title: 'GrapesJS 編輯器' }
   ],
   fields: [
+    // 一鍵開啟 GrapesJS 編輯器（按鈕）
+    defineField({
+      name: 'openGrapesEditor',
+      title: '開啟 GrapesJS 編輯器',
+      type: 'string',
+      group: 'editor',
+      readOnly: true,
+      components: {
+        input: function OpenGrapesEditorButton() {
+          const React = require('react')
+          const { useFormValue } = require('sanity')
+
+          const id = useFormValue(['_id']) as string | undefined
+          const publishedId = (id || '').replace(/^drafts\./, '')
+          const isReady = Boolean(publishedId)
+
+          const handleClick = () => {
+            if (!isReady) return
+            const url = `/studio?docId=${encodeURIComponent(publishedId)}&type=grapesJSPageV2`
+            if (typeof window !== 'undefined' && window.open) {
+              window.open(url, '_blank', 'noopener,noreferrer')
+            }
+          }
+
+          return React.createElement(
+            'div',
+            { style: { padding: '12px 0' } },
+            React.createElement(
+              'button',
+              {
+                type: 'button',
+                onClick: handleClick,
+                disabled: !isReady,
+                style: {
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  cursor: isReady ? 'pointer' : 'not-allowed',
+                  opacity: isReady ? 1 : 0.6
+                }
+              },
+              'GrapesJS 編輯器'
+            ),
+            React.createElement(
+              'div',
+              { style: { marginTop: '8px', fontSize: '12px', opacity: 0.8 } },
+              isReady ? '於新視窗開啟 GrapesJS 編輯器' : '請先儲存或發布文件以取得 ID'
+            )
+          )
+        }
+      },
+      description: '點擊按鈕將在新視窗中開啟 GrapesJS 編輯器'
+    }),
     // 基本頁面資訊
     defineField({
       name: 'title',
@@ -319,10 +375,13 @@ export default defineType({
         'archived': '已封存'
       }
 
+      const emoji = statusEmoji[status] || '📄'
+
       return {
         title,
         subtitle: `/${subtitle} • ${statusLabel[status] || '未知'} • v${version}`,
-        media: statusEmoji[status] || '📄'
+        // Sanity 需要一個可渲染的 React 節點或函數，直接傳字串會被當作標籤名造成錯誤
+        media: () => emoji
       }
     }
   },

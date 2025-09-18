@@ -7,6 +7,7 @@ import Link from "next/link"
 
 type Slide = {
   heading: string
+  subheading?: string
   backgroundImage: string
   backgroundImageAlt?: string
   buttonText: string
@@ -96,6 +97,14 @@ const Hero = ({ slides, settings }: HeroProps) => {
           >
             {slide.heading}
           </Heading>
+          {slide.subheading && (
+            <p
+              className="text-white/95 text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-6 max-w-3xl mx-auto"
+              style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
+            >
+              {slide.subheading}
+            </p>
+          )}
           {slide.buttonText && slide.buttonLink && (
             <Button asChild variant="secondary" 
               className="btn bg-white hover:bg-white/90 text-gray-900 px-4 sm:px-8 py-2 sm:py-3 text-sm sm:text-base md:text-lg font-medium rounded-lg 

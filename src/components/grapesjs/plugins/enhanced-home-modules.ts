@@ -11,29 +11,30 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
     editor.CssComposer.add(`
     .homepage-module {
       background: #f8f9fa;
-      border: 2px dashed #dee2e6;
-      padding: 30px;
+      border: 1px solid #edeff2;
+      padding: 24px;
       text-align: center;
-      min-height: 250px;
+      min-height: 220px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       position: relative;
       transition: all 0.3s ease;
-      border-radius: 8px;
-      margin: 10px 0;
+      border-radius: 12px;
+      margin: 12px 0;
+      box-shadow: 0 12px 24px -12px rgba(32, 42, 53, 0.25);
+      overflow: hidden;
     }
     
     .homepage-module:hover {
-      border-color: #007bff;
-      background: #e8f4fd;
+      border-color: #c6d4ff;
+      box-shadow: 0 18px 40px -16px rgba(32, 42, 53, 0.35);
     }
     
     .homepage-module.selected {
-      border-color: #007bff;
-      background: #e8f4fd;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      border-color: #4c6ef5;
+      box-shadow: 0 18px 40px -16px rgba(76, 110, 245, 0.35);
     }
     
     .module-preview {
@@ -126,8 +127,548 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
       aspect-ratio: 1;
       border-radius: 4px;
     }
+
+    .gjs-home-hero {
+      position: relative;
+      width: 100%;
+      min-height: 420px;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 18px;
+      color: white;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+    }
+
+    .gjs-home-hero .module-status {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 3;
+      background: rgba(0,0,0,0.35);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .gjs-hero-background {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #3b5bdb 0%, #4263eb 50%, #7048e8 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.85) saturate(1.05);
+      transform: scale(1.01);
+      transition: background-image 0.3s ease;
+    }
+
+    .gjs-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(15,23,42,0.20), rgba(15,23,42,0.45));
+      z-index: 1;
+    }
+
+    .gjs-hero-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 920px;
+      padding: 64px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .gjs-hero-eyebrow {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      opacity: 0.72;
+    }
+
+    .gjs-hero-title {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      text-shadow: 0 18px 42px rgba(15, 23, 42, 0.35);
+      margin: 0;
+    }
+
+    .gjs-hero-subtitle {
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      max-width: 640px;
+      opacity: 0.92;
+      margin: 0;
+    }
+
+    .gjs-hero-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 32px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffd43b, #f76707);
+      color: #1f2a44;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 0 12px 22px rgba(247, 103, 7, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .gjs-hero-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(247, 103, 7, 0.45);
+    }
+
+    .gjs-hero-dots {
+      display: flex;
+      gap: 8px;
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .gjs-hero-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.35);
+    }
+
+    .gjs-hero-dot:nth-child(1) {
+      background: rgba(255,255,255,0.85);
+    }
+
+    .gjs-hero-dot:nth-child(2) {
+      background: rgba(255,255,255,0.55);
+    }
+
+    .gjs-hero-dot:nth-child(3) {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .module-config-hint {
+      display: none;
+    }
     `)
     anyEditor[styleKey] = true
+  }
+
+  const MODULE_BLOCK_ID_MAP: Record<string, string> = {
+    mainBanner: 'home-hero-section',
+    serviceCardSection: 'home-service-cards',
+    imageTextBlock: 'home-image-text',
+    featuredProducts: 'home-featured-products',
+    blogSection: 'home-blog-section',
+    youtubeSection: 'home-youtube-section',
+    contentSection: 'home-content-section',
+  }
+
+  const MODULE_SCHEMA_TYPE_MAP: Record<string, string> = {
+    mainBanner: 'mainBannerModule',
+    serviceCardSection: 'serviceCardsModule',
+    imageTextBlock: 'imageTextModule',
+    featuredProducts: 'featuredProductsModule',
+    blogSection: 'blogSectionModule',
+    youtubeSection: 'youtubeSectionModule',
+    contentSection: 'contentSectionModule',
+  }
+
+  const MAX_SLIDES = 3
+  const MAX_SERVICE_CARDS = 3
+
+  const normalizeBoolean = (value: any) => {
+    if (typeof value === 'boolean') return value
+    if (typeof value === 'number') return value !== 0
+    if (typeof value === 'string') {
+      const lowered = value.toLowerCase()
+      return lowered === 'true' || lowered === '1' || lowered === 'on'
+    }
+    return Boolean(value)
+  }
+
+  const normalizeNumber = (value: any, fallback = 0) => {
+    if (value === undefined || value === null || value === '') return fallback
+    const num = Number(value)
+    return Number.isFinite(num) ? num : fallback
+  }
+
+  const getTraitValues = (component: any) => {
+    const traits = component?.get('traits')
+    const values: Record<string, any> = {}
+    if (traits && traits.length) {
+      traits.each((trait: any) => {
+        const name = trait.get('name')
+        if (!name) return
+        let value = trait.get('value')
+        const type = trait.get('type')
+        if (type === 'number') {
+          value = normalizeNumber(value, undefined)
+        } else if (type === 'checkbox') {
+          value = normalizeBoolean(value)
+        }
+        values[name] = value
+      })
+    }
+    return values
+  }
+
+  const createSlidesFromTraits = (traits: Record<string, any>) => {
+    const slides: any[] = []
+    for (let i = 1; i <= MAX_SLIDES; i++) {
+      const heading = traits[`slide${i}_heading`]
+      const subheading = traits[`slide${i}_subheading`]
+      const backgroundImage = traits[`slide${i}_backgroundImage`]
+      const backgroundImageAlt = traits[`slide${i}_backgroundImageAlt`]
+      const buttonText = traits[`slide${i}_buttonText`]
+      const buttonLink = traits[`slide${i}_buttonLink`]
+      if (heading || backgroundImage || buttonText || buttonLink) {
+        slides.push({
+          heading: heading || '',
+          subheading: subheading || '',
+          backgroundImage: backgroundImage || '',
+          backgroundImageAlt: backgroundImageAlt || '',
+          buttonText: buttonText || '',
+          buttonLink: buttonLink || '',
+        })
+      }
+    }
+    return slides
+  }
+
+  const createServiceCardsFromTraits = (traits: Record<string, any>) => {
+    const cards: any[] = []
+    for (let i = 1; i <= MAX_SERVICE_CARDS; i++) {
+      const title = traits[`card${i}_title`]
+      const englishTitle = traits[`card${i}_englishTitle`]
+      if (!title && !englishTitle) continue
+
+      const stylists: any[] = []
+      const stylistName = traits[`card${i}_stylist1_name`]
+      if (stylistName) {
+        const price = normalizeNumber(traits[`card${i}_stylist1_price`], 0)
+        const level = traits[`card${i}_stylist1_level`] || ''
+        const priceType = traits[`card${i}_stylist1_priceType`] || 'up'
+        const isDefault = traits[`card${i}_stylist1_isDefault`] === undefined
+          ? true
+          : normalizeBoolean(traits[`card${i}_stylist1_isDefault`])
+        const cardImageUrl = traits[`card${i}_stylist1_cardImage`]
+        const cardImageAlt = traits[`card${i}_stylist1_cardImageAlt`]
+        const instagramUrl = traits[`card${i}_stylist1_instagramUrl`]
+
+        const stylist: any = {
+          stylistName,
+          levelName: level,
+          price,
+          priceType,
+          isDefault,
+        }
+
+        if (cardImageUrl) {
+          stylist.cardImage = {
+            url: cardImageUrl,
+            alt: cardImageAlt || `${stylistName} - ${title}`,
+          }
+        }
+
+        if (instagramUrl) stylist.stylistInstagramUrl = instagramUrl
+
+        stylists.push(stylist)
+      }
+
+      cards.push({
+        title: title || '',
+        englishTitle: englishTitle || '',
+        stylists,
+      })
+    }
+    return cards
+  }
+
+  const componentToHomeModule = (component: any, index: number) => {
+    const attrs = component?.get('attributes') || {}
+    const moduleType = attrs['data-module-type']
+    if (!moduleType) return null
+
+    const traits = getTraitValues(component)
+    const order = normalizeNumber(traits.order, index)
+    const isActive = traits.isActive === undefined ? true : normalizeBoolean(traits.isActive)
+
+    switch (moduleType) {
+      case 'mainBanner': {
+        const slides = createSlidesFromTraits(traits)
+        if (slides.length === 0) {
+          slides.push({
+            heading: traits.slide1_heading || '',
+            subheading: traits.slide1_subheading || '',
+            backgroundImage: traits.slide1_backgroundImage || '',
+            backgroundImageAlt: traits.slide1_backgroundImageAlt || '',
+            buttonText: traits.slide1_buttonText || '',
+            buttonLink: traits.slide1_buttonLink || '',
+          })
+        }
+
+        return {
+          _type: MODULE_SCHEMA_TYPE_MAP[moduleType] || moduleType,
+          moduleType,
+          isActive,
+          order,
+          settings: {
+            autoplay: traits.autoplay === undefined ? true : normalizeBoolean(traits.autoplay),
+            autoplaySpeed: normalizeNumber(traits.autoplaySpeed, 5),
+            showArrows: traits.showArrows === undefined ? true : normalizeBoolean(traits.showArrows),
+            showDots: traits.showDots === undefined ? true : normalizeBoolean(traits.showDots),
+            slides,
+          },
+        }
+      }
+      case 'serviceCardSection': {
+        const cards = createServiceCardsFromTraits(traits)
+        return {
+          _type: MODULE_SCHEMA_TYPE_MAP[moduleType] || moduleType,
+          moduleType,
+          isActive,
+          order,
+          settings: {
+            heading: traits.heading || '',
+            cardsPerRow: normalizeNumber(traits.cardsPerRow, 3),
+            cards,
+          },
+        }
+      }
+      case 'imageTextBlock': {
+        return {
+          _type: MODULE_SCHEMA_TYPE_MAP[moduleType] || moduleType,
+          moduleType,
+          isActive,
+          order,
+          settings: {
+            heading: traits.heading || '',
+            layout: traits.layout || 'imageLeft',
+            content: traits.content || '',
+            hideTitle: traits.hideTitle === undefined ? false : normalizeBoolean(traits.hideTitle),
+            image: traits.imageUrl ? { url: traits.imageUrl, alt: traits.imageAlt || '' } : undefined,
+            leftImage: traits.leftImageUrl ? { url: traits.leftImageUrl, alt: traits.leftImageAlt || '' } : undefined,
+            rightImage: traits.rightImageUrl ? { url: traits.rightImageUrl, alt: traits.rightImageAlt || '' } : undefined,
+            leftContent: traits.leftContent || '',
+            rightContent: traits.rightContent || '',
+          },
+        }
+      }
+      case 'featuredProducts': {
+        return {
+          _type: MODULE_SCHEMA_TYPE_MAP[moduleType] || moduleType,
+          moduleType,
+          isActive,
+          order,
+          settings: {
+            heading: traits.heading || '',
+            collection_id: traits.collection_id || '',
+            showHeading: traits.showHeading === undefined ? true : normalizeBoolean(traits.showHeading),
+            showSubheading: traits.showSubheading === undefined ? true : normalizeBoolean(traits.showSubheading),
+          },
+        }
+      }
+      case 'blogSection': {
+        return {
+          _type: MODULE_SCHEMA_TYPE_MAP[moduleType] || moduleType,
+          moduleType,
+          isActive,
+          order,
+          settings: {
+            title: traits.title || '',
+            category: traits.category || '',
+            limit: normalizeNumber(traits.limit, 6),
+            postsPerRow: normalizeNumber(traits.postsPerRow, 3),
+          },
+        }
+      }
+      case 'youtubeSection': {
+        return {
+          _type: MODULE_SCHEMA_TYPE_MAP[moduleType] || moduleType,
+          moduleType,
+          isActive,
+          order,
+          settings: {
+            heading: traits.heading || '',
+            description: traits.description || '',
+            videoUrl: traits.videoUrl || '',
+            fullWidth: traits.fullWidth === undefined ? true : normalizeBoolean(traits.fullWidth),
+          },
+        }
+      }
+      case 'contentSection': {
+        return {
+          _type: MODULE_SCHEMA_TYPE_MAP[moduleType] || moduleType,
+          moduleType,
+          isActive,
+          order,
+          settings: {
+            heading: traits.title || traits.heading || '',
+            hideTitle: traits.hideTitle === undefined ? false : normalizeBoolean(traits.hideTitle),
+            content: traits.content || '',
+          },
+        }
+      }
+      default:
+        return null
+    }
+  }
+
+  const collectHomeModules = (editor: Editor) => {
+    const wrapper = editor.DomComponents.getWrapper()
+    if (!wrapper) return []
+    const components = wrapper.find('[data-module-type]')
+    return components.map((component: any, index: number) => componentToHomeModule(component, index)).filter(Boolean)
+  }
+
+  const applyModuleToComponent = (component: any, module: any) => {
+    if (!component || !module) return
+    const traits = component.get('traits')
+    if (!traits) return
+
+    const setTraitValue = (name: string, value: any) => {
+      const trait = component.getTrait(name)
+      if (trait) {
+        trait.set('value', value)
+      }
+    }
+
+    const settings = module.settings || {}
+    switch (module.moduleType) {
+      case 'mainBanner': {
+        setTraitValue('isActive', module.isActive)
+        setTraitValue('autoplay', settings.autoplay)
+        setTraitValue('autoplaySpeed', settings.autoplaySpeed)
+        setTraitValue('showArrows', settings.showArrows)
+        setTraitValue('showDots', settings.showDots)
+        const slides = settings.slides || []
+        slides.slice(0, MAX_SLIDES).forEach((slide: any, idx: number) => {
+          const i = idx + 1
+          setTraitValue(`slide${i}_heading`, slide.heading)
+          setTraitValue(`slide${i}_backgroundImage`, slide.backgroundImage)
+          setTraitValue(`slide${i}_backgroundImageAlt`, slide.backgroundImageAlt)
+          setTraitValue(`slide${i}_buttonText`, slide.buttonText)
+          setTraitValue(`slide${i}_buttonLink`, slide.buttonLink)
+        })
+        break
+      }
+      case 'serviceCardSection': {
+        setTraitValue('isActive', module.isActive)
+        setTraitValue('heading', settings.heading)
+        setTraitValue('cardsPerRow', String(settings.cardsPerRow || '3'))
+        const cards = settings.cards || []
+        cards.slice(0, MAX_SERVICE_CARDS).forEach((card: any, idx: number) => {
+          const i = idx + 1
+          setTraitValue(`card${i}_title`, card.title)
+          setTraitValue(`card${i}_englishTitle`, card.englishTitle)
+          const stylist = Array.isArray(card.stylists) ? card.stylists[0] : undefined
+          if (stylist) {
+            setTraitValue(`card${i}_stylist1_name`, stylist.stylistName)
+            setTraitValue(`card${i}_stylist1_level`, stylist.levelName)
+            setTraitValue(`card${i}_stylist1_price`, stylist.price)
+            setTraitValue(`card${i}_stylist1_priceType`, stylist.priceType)
+            setTraitValue(`card${i}_stylist1_isDefault`, stylist.isDefault)
+            setTraitValue(`card${i}_stylist1_instagramUrl`, stylist.stylistInstagramUrl)
+            if (stylist.cardImage) {
+              setTraitValue(`card${i}_stylist1_cardImage`, stylist.cardImage.url)
+              setTraitValue(`card${i}_stylist1_cardImageAlt`, stylist.cardImage.alt)
+            }
+          }
+        })
+        break
+      }
+      case 'imageTextBlock': {
+        setTraitValue('isActive', module.isActive)
+        setTraitValue('heading', settings.heading)
+        setTraitValue('layout', settings.layout)
+        setTraitValue('content', settings.content)
+        setTraitValue('leftContent', settings.leftContent)
+        setTraitValue('rightContent', settings.rightContent)
+        setTraitValue('hideTitle', settings.hideTitle)
+        if (settings.image) {
+          setTraitValue('imageUrl', settings.image.url)
+          setTraitValue('imageAlt', settings.image.alt)
+        }
+        if (settings.leftImage) {
+          setTraitValue('leftImageUrl', settings.leftImage.url)
+          setTraitValue('leftImageAlt', settings.leftImage.alt)
+        }
+        if (settings.rightImage) {
+          setTraitValue('rightImageUrl', settings.rightImage.url)
+          setTraitValue('rightImageAlt', settings.rightImage.alt)
+        }
+        break
+      }
+      case 'featuredProducts': {
+        setTraitValue('isActive', module.isActive)
+        setTraitValue('heading', settings.heading)
+        setTraitValue('collection_id', settings.collection_id)
+        setTraitValue('showHeading', settings.showHeading)
+        setTraitValue('showSubheading', settings.showSubheading)
+        break
+      }
+      case 'blogSection': {
+        setTraitValue('isActive', module.isActive)
+        setTraitValue('title', settings.title)
+        setTraitValue('category', settings.category)
+        setTraitValue('limit', settings.limit)
+        setTraitValue('postsPerRow', String(settings.postsPerRow || '3'))
+        break
+      }
+      case 'youtubeSection': {
+        setTraitValue('isActive', module.isActive)
+        setTraitValue('heading', settings.heading)
+        setTraitValue('description', settings.description)
+        setTraitValue('videoUrl', settings.videoUrl)
+        setTraitValue('fullWidth', settings.fullWidth)
+        break
+      }
+      case 'contentSection': {
+        setTraitValue('isActive', module.isActive)
+        setTraitValue('title', settings.heading)
+        setTraitValue('hideTitle', settings.hideTitle)
+        setTraitValue('content', settings.content)
+        break
+      }
+    }
+  }
+
+  const importHomeModules = (editor: Editor, modules: any[]) => {
+    if (!Array.isArray(modules) || modules.length === 0) return
+    const dom = editor.DomComponents
+    dom.clear()
+    modules
+      .filter((module) => module && module.moduleType)
+      .sort((a, b) => normalizeNumber(a.order, 0) - normalizeNumber(b.order, 0))
+      .forEach((module) => {
+        const blockId = MODULE_BLOCK_ID_MAP[module.moduleType]
+        if (!blockId) return
+        const block = editor.BlockManager.get(blockId)
+        if (!block) return
+        const content = block.get('content')
+        if (!content) return
+        const component = dom.addComponent(content)
+        if (Array.isArray(component)) {
+          component.forEach((child: any) => applyModuleToComponent(child, module))
+        } else if (component) {
+          applyModuleToComponent(component, module)
+        }
+      })
   }
 
   // 1. 主橫幅模組
@@ -137,17 +678,20 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
     content: {
       type: 'hero-section-component',
       content: `
-        <div class="homepage-module hero-section" data-module-type="mainBanner">
+        <div class="homepage-module gjs-home-hero" data-module-type="mainBanner">
           <div class="module-status">啟用</div>
-          <div class="module-preview">
-            <span class="module-icon">主</span>
-            <div class="module-title">主橫幅區塊</div>
-            <div class="module-description">輪播圖片橫幅，支援自動播放、多張幻燈片、導航控制</div>
-            <div class="hero-section-preview">
-              <h3 style="margin: 0 0 10px 0; font-size: 16px;">歡迎來到 Tim's Fantasy World</h3>
-              <p style="margin: 0; font-size: 12px; opacity: 0.9;">專業美髮沙龍服務</p>
-            </div>
-            <div class="module-config-hint">點擊右側面板配置橫幅內容</div>
+          <div class="gjs-hero-background"></div>
+          <div class="gjs-hero-overlay"></div>
+          <div class="gjs-hero-content">
+            <span class="gjs-hero-eyebrow">主橫幅</span>
+            <h2 class="gjs-hero-title">歡迎來到 Tim's Fantasy World</h2>
+            <p class="gjs-hero-subtitle">專業美髮沙龍服務</p>
+            <a class="gjs-hero-button" href="https://page.line.me/timsfantasyworld" target="_blank">立即預約</a>
+          </div>
+          <div class="gjs-hero-dots">
+            <span class="gjs-hero-dot"></span>
+            <span class="gjs-hero-dot"></span>
+            <span class="gjs-hero-dot"></span>
           </div>
         </div>
       `
@@ -371,6 +915,13 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
             value: '歡迎來到 Tim\'s Fantasy World'
           },
           {
+            type: 'text',
+            name: 'slide1_subheading',
+            label: '幻燈片 1 - 副標題',
+            placeholder: '例如：專業美髮沙龍服務',
+            value: '專業美髮沙龍服務'
+          },
+          {
             type: 'image-url',
             name: 'slide1_backgroundImage',
             label: '幻燈片 1 - 背景圖片',
@@ -464,6 +1015,8 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
     view: {
       onRender() {
         this.updateStatus()
+        this.updatePreview()
+        this.model.on('change', this.updatePreview, this)
       },
       updateStatus() {
         const isActive = this.model.get('isActive')
@@ -473,6 +1026,56 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
         if (statusEl) {
           statusEl.textContent = isActive ? '啟用' : '停用'
           el.classList.toggle('module-inactive', !isActive)
+        }
+      },
+      updatePreview() {
+        const el = this.el
+
+        // 從 traits 讀取值
+        const getTraitVal = (name: string, fallback?: any) => {
+          const trait = this.model.getTrait && this.model.getTrait(name)
+          const val = trait ? trait.get('value') : undefined
+          return val !== undefined && val !== '' ? val : fallback
+        }
+
+        // 準備 payload，盡量還原 slides/settings
+        const payload = {
+          slides: [
+            {
+              heading: getTraitVal('slide1_heading', ''),
+              subheading: getTraitVal('slide1_subheading', ''),
+              backgroundImage: getTraitVal('slide1_backgroundImage', ''),
+              backgroundImageAlt: getTraitVal('slide1_backgroundImageAlt', ''),
+              buttonText: getTraitVal('slide1_buttonText', ''),
+              buttonLink: getTraitVal('slide1_buttonLink', ''),
+            },
+          ],
+          settings: {
+            autoplay: !!getTraitVal('autoplay', true),
+            autoplaySpeed: Number(getTraitVal('autoplaySpeed', 5)) || 5,
+            showArrows: !!getTraitVal('showArrows', true),
+            showDots: !!getTraitVal('showDots', true),
+          },
+        }
+
+        // 呼叫轉譯 API 取得 HTML 預覽
+        try {
+          fetch('/api/render-fragment/mainBanner', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+            .then((res) => res.text())
+            .then((html) => {
+              // 用 API 回傳的 HTML 取代原本的預覽區塊
+              // el 本身是 block 的 wrapper，直接覆寫其內文即可
+              el.innerHTML = html
+            })
+            .catch(() => {
+              // 若 API 失敗，不讓編輯器掛掉，維持靜態預設
+            })
+        } catch (e) {
+          // 忽略錯誤，避免干擾編輯
         }
       }
     }
@@ -1135,17 +1738,47 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
                 const content = block.get('content')
                 if (content) {
                   const component = editor.DomComponents.addComponent(content)
-                  
+
                   // 設置 traits 值 (如果是單個組件)
                   if (!Array.isArray(component)) {
+                    // 先處理一般一對一映射的欄位
                     Object.keys(section).forEach(key => {
-                      if (key !== '_type') {
+                      if (key !== '_type' && key !== 'slides' && key !== 'settings') {
                         const trait = component.getTrait(key)
-                        if (trait) {
-                          trait.set('value', section[key])
-                        }
+                        if (trait) trait.set('value', section[key])
                       }
                     })
+
+                    // 特例處理：mainBanner 將 Sanity 的 slides/settings 映射到 traits
+                    if (section._type === 'mainBanner') {
+                      const settings = section.settings || {}
+                      const slides = Array.isArray(section.slides) ? section.slides : []
+
+                      // 全域設定
+                      const autoplay = component.getTrait('autoplay')
+                      if (autoplay) autoplay.set('value', settings.autoplay !== false)
+                      const autoplaySpeed = component.getTrait('autoplaySpeed')
+                      if (autoplaySpeed) autoplaySpeed.set('value', settings.autoplaySpeed ?? 5)
+                      const showArrows = component.getTrait('showArrows')
+                      if (showArrows) showArrows.set('value', settings.showArrows !== false)
+                      const showDots = component.getTrait('showDots')
+                      if (showDots) showDots.set('value', settings.showDots !== false)
+
+                      // 幻燈片 1-3
+                      for (let i = 1; i <= 3; i++) {
+                        const s = slides[i - 1] || {}
+                        const set = (name: string, val: any) => {
+                          const t = component.getTrait(name)
+                          if (t && val !== undefined) t.set('value', val)
+                        }
+                        set(`slide${i}_heading`, s.heading || '')
+                        set(`slide${i}_subheading`, s.subheading || '')
+                        set(`slide${i}_backgroundImage`, s.backgroundImage || s.image || '')
+                        set(`slide${i}_backgroundImageAlt`, s.backgroundImageAlt || s.image?.alt || '')
+                        set(`slide${i}_buttonText`, s.buttonText || '')
+                        set(`slide${i}_buttonLink`, s.buttonLink || '')
+                      }
+                    }
                   }
                 }
               }
@@ -1354,6 +1987,22 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
     }
   })
 
+  // 暴露公用方法給外部調用
+  ;(editor as any).collectHomeModules = () => collectHomeModules(editor)
+  ;(editor as any).importHomeModules = (modules: any[]) => importHomeModules(editor, modules)
+
+  editor.Commands.add('collect-home-modules', {
+    run: (ed) => collectHomeModules(ed as Editor)
+  })
+
+  editor.Commands.add('load-home-modules', {
+    run: (ed, sender, options: any = {}) => {
+      if (Array.isArray(options.modules)) {
+        importHomeModules(ed as Editor, options.modules)
+      }
+    }
+  })
+
   // 添加工具列按鈕
   editor.Panels.addButton('options', [
     {
@@ -1372,3 +2021,125 @@ export default function enhancedHomeModulesPlugin(editor: Editor) {
     }
   ])
 }
+/*
+    .gjs-home-hero {
+      position: relative;
+      width: 100%;
+      min-height: 420px;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 18px;
+      color: white;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+    }
+
+    .gjs-home-hero .module-status {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 3;
+      background: rgba(0,0,0,0.35);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .gjs-hero-background {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #3b5bdb 0%, #4263eb 50%, #7048e8 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.85) saturate(1.05);
+      transform: scale(1.01);
+      transition: background-image 0.3s ease;
+    }
+
+    .gjs-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(15,23,42,0.20), rgba(15,23,42,0.45));
+      z-index: 1;
+    }
+
+    .gjs-hero-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 920px;
+      padding: 64px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .gjs-hero-eyebrow {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      opacity: 0.72;
+    }
+
+    .gjs-hero-title {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      text-shadow: 0 18px 42px rgba(15, 23, 42, 0.35);
+      margin: 0;
+    }
+
+    .gjs-hero-subtitle {
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      max-width: 640px;
+      opacity: 0.92;
+      margin: 0;
+    }
+
+    .gjs-hero-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 32px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffd43b, #f76707);
+      color: #1f2a44;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 0 12px 22px rgba(247, 103, 7, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .gjs-hero-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(247, 103, 7, 0.45);
+    }
+
+    .gjs-hero-dots {
+      display: flex;
+      gap: 8px;
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .gjs-hero-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.35);
+    }
+*/

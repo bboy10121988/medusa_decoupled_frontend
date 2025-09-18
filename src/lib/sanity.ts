@@ -168,6 +168,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
             isActive,
             "slides": slides[] {
               heading,
+              subheading,
               "backgroundImage": backgroundImage.asset->url,
               "backgroundImageAlt": backgroundImage.alt,
               buttonText,
@@ -401,6 +402,7 @@ export async function getAllPages(): Promise<PageData[]> {
             isActive,
             "slides": slides[] {
               heading,
+              subheading,
               "backgroundImage": backgroundImage.asset->url,
               "backgroundImageAlt": backgroundImage.alt,
               buttonText,

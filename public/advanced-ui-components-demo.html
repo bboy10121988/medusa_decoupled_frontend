@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>進階 UI 組件展示 - GrapesJS 完整組件庫</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+            padding: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .section p {
+            color: #6c757d;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+        
+        .component-demo {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+        }
+        
+        .demo-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 40px;
+        }
+        
+        .hero h1 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cta {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-top: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn-cta:hover {
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                gap: 20px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🎨 進階 UI 組件庫</h1>
+            <p class="subtitle">專為 GrapesJS 設計的完整組件生態系統</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-number">8+</span>
+                <span class="stat-label">UI 組件</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">15+</span>
+                <span class="stat-label">外掛整合</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">100%</span>
+                <span class="stat-label">響應式設計</span>
+            </div>
+        </div>
+
+        <!-- 1. Modal 組件展示 -->
+        <section class="section">
+            <h2>🪟 Modal 模態對話框</h2>
+            <p>互動式對話框組件，支持多種尺寸和自定義樣式。完美適用於表單、圖片展示、確認訊息等場景。</p>
+            
+            <div class="component-demo">
+                <div class="demo-title">範例：多尺寸 Modal 對話框</div>
+                
+                <!-- 小尺寸 Modal -->
+                <div class="modal-demo-container" style="display: inline-block; margin: 10px;">
+                    <button type="button" class="btn-modal-trigger" data-modal-target="modal-small" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+                        小尺寸對話框
+                    </button>
+                </div>
+
+                <!-- 中尺寸 Modal -->
+                <div class="modal-demo-container" style="display: inline-block; margin: 10px;">
+                    <button type="button" class="btn-modal-trigger" data-modal-target="modal-medium" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+                        中尺寸對話框
+                    </button>
+                </div>
+
+                <!-- 大尺寸 Modal -->
+                <div class="modal-demo-container" style="display: inline-block; margin: 10px;">
+                    <button type="button" class="btn-modal-trigger" data-modal-target="modal-large" style="background: #dc3545; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">
+                        大尺寸對話框
+                    </button>
+                </div>
+            </div>
+
+            <ul class="feature-list">
+                <li>支持 sm、md、lg、xl 四種預設尺寸</li>
+                <li>可自定義標題、內容和主色調</li>
+                <li>背景模糊效果和動畫過渡</li>
+                <li>點擊遮罩或按鈕關閉</li>
+            </ul>
+        </section>
+
+        <!-- 2. Tooltip 組件展示 -->
+        <section class="section">
+            <h2>💬 Tooltip 提示工具</h2>
+            <p>優雅的懸停提示組件，支持四個方向定位。適用於按鈕說明、功能介紹等場景。</p>
+            
+            <div class="component-demo">
+                <div class="demo-title">範例：四方向 Tooltip</div>
+                
+                <div style="text-align: center; padding: 40px;">
+                    <!-- 上方提示 -->
+                    <div class="tooltip-wrapper" style="position: relative; display: inline-block; margin: 20px;">
+                        <span class="tooltip-trigger" style="background: #667eea; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                            上方提示
+                        </span>
+                        <div class="tooltip-content" style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 8px; background: #333; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.3s ease;">
+                            這是上方的提示信息
+                        </div>
+                    </div>
+
+                    <!-- 右方提示 -->
+                    <div class="tooltip-wrapper" style="position: relative; display: inline-block; margin: 20px;">
+                        <span class="tooltip-trigger" style="background: #28a745; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                            右方提示
+                        </span>
+                        <div class="tooltip-content" style="position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 8px; background: #333; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.3s ease;">
+                            這是右方的提示信息
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <!-- 下方提示 -->
+                    <div class="tooltip-wrapper" style="position: relative; display: inline-block; margin: 20px;">
+                        <span class="tooltip-trigger" style="background: #ffc107; color: #333; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                            下方提示
+                        </span>
+                        <div class="tooltip-content" style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px; background: #333; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.3s ease;">
+                            這是下方的提示信息
+                        </div>
+                    </div>
+
+                    <!-- 左方提示 -->
+                    <div class="tooltip-wrapper" style="position: relative; display: inline-block; margin: 20px;">
+                        <span class="tooltip-trigger" style="background: #dc3545; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                            左方提示
+                        </span>
+                        <div class="tooltip-content" style="position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 8px; background: #333; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.3s ease;">
+                            這是左方的提示信息
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="feature-list">
+                <li>支持上、下、左、右四個方向</li>
+                <li>自動計算最佳顯示位置</li>
+                <li>平滑的淡入淡出動畫</li>
+                <li>可自定義觸發文字和提示內容</li>
+            </ul>
+        </section>
+
+        <!-- 3. Progress Bar 組件展示 -->
+        <section class="section">
+            <h2>📊 Progress Bar 進度條</h2>
+            <p>動態進度顯示組件，支持動畫效果和百分比顯示。適用於加載狀態、任務進度等場景。</p>
+            
+            <div class="component-demo">
+                <div class="demo-title">範例：多樣式進度條</div>
+                
+                <!-- 基本進度條 -->
+                <div style="margin: 20px 0;">
+                    <div class="progress-label" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500;">
+                        <span>網站建設進度</span>
+                        <span>75%</span>
+                    </div>
+                    <div class="progress-track" style="width: 100%; height: 12px; background: #e9ecef; border-radius: 6px; overflow: hidden;">
+                        <div class="progress-fill" style="width: 75%; height: 100%; background: #007bff; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- 成功進度條 -->
+                <div style="margin: 20px 0;">
+                    <div class="progress-label" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500;">
+                        <span>部署狀態</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="progress-track" style="width: 100%; height: 12px; background: #e9ecef; border-radius: 6px; overflow: hidden;">
+                        <div class="progress-fill" style="width: 100%; height: 100%; background: #28a745; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- 警告進度條 -->
+                <div style="margin: 20px 0;">
+                    <div class="progress-label" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500;">
+                        <span>儲存空間使用</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="progress-track" style="width: 100%; height: 12px; background: #e9ecef; border-radius: 6px; overflow: hidden;">
+                        <div class="progress-fill" style="width: 85%; height: 100%; background: #ffc107; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- 危險進度條 -->
+                <div style="margin: 20px 0;">
+                    <div class="progress-label" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500;">
+                        <span>CPU 使用率</span>
+                        <span>95%</span>
+                    </div>
+                    <div class="progress-track" style="width: 100%; height: 12px; background: #e9ecef; border-radius: 6px; overflow: hidden;">
+                        <div class="progress-fill" style="width: 95%; height: 100%; background: #dc3545; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="feature-list">
+                <li>支持0-100%任意進度值</li>
+                <li>可選擇顯示/隱藏百分比</li>
+                <li>內建動畫效果和過渡</li>
+                <li>可自定義顏色和標籤</li>
+            </ul>
+        </section>
+
+        <!-- 4. Accordion 組件展示 -->
+        <section class="section">
+            <h2>📁 Accordion 摺疊面板</h2>
+            <p>節省空間的內容展示組件，支持展開/收起動畫。適用於FAQ、產品規格、功能列表等場景。</p>
+            
+            <div class="component-demo">
+                <div class="demo-title">範例：常見問題摺疊面板</div>
+                
+                <!-- FAQ Accordion 1 -->
+                <div class="accordion-container" style="border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 10px; overflow: hidden;">
+                    <div class="accordion-header" style="background: #f8f9fa; padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6;">
+                        <h6 style="margin: 0; font-size: 16px; font-weight: 500;">如何開始使用 GrapesJS 組件庫？</h6>
+                        <span class="accordion-icon" style="font-size: 12px; transition: transform 0.3s ease;">▼</span>
+                    </div>
+                    <div class="accordion-content" style="padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s ease;">
+                        <div style="padding: 20px 0;">
+                            首先安裝必要的依賴包，然後在您的專案中引入我們的組件庫。我們提供了完整的文檔和範例代碼，讓您能快速上手。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Accordion 2 -->
+                <div class="accordion-container" style="border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 10px; overflow: hidden;">
+                    <div class="accordion-header" style="background: #f8f9fa; padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6;">
+                        <h6 style="margin: 0; font-size: 16px; font-weight: 500;">支援哪些瀏覽器？</h6>
+                        <span class="accordion-icon" style="font-size: 12px; transition: transform 0.3s ease;">▼</span>
+                    </div>
+                    <div class="accordion-content" style="padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s ease;">
+                        <div style="padding: 20px 0;">
+                            我們的組件庫支援所有現代瀏覽器，包括 Chrome、Firefox、Safari、Edge 等。對於舊版本的 IE，我們建議使用 polyfills。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Accordion 3 -->
+                <div class="accordion-container" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                    <div class="accordion-header" style="background: #f8f9fa; padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6;">
+                        <h6 style="margin: 0; font-size: 16px; font-weight: 500;">如何自定義組件樣式？</h6>
+                        <span class="accordion-icon" style="font-size: 12px; transition: transform 0.3s ease;">▼</span>
+                    </div>
+                    <div class="accordion-content" style="padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s ease;">
+                        <div style="padding: 20px 0;">
+                            每個組件都提供了豐富的 traits 屬性設定，您可以透過 GrapesJS 的屬性面板進行即時調整，包括顏色、尺寸、文字內容等。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="feature-list">
+                <li>平滑的展開/收起動畫</li>
+                <li>可自定義標頭和邊框顏色</li>
+                <li>支持預設展開狀態</li>
+                <li>可選擇顯示/隱藏箭頭圖標</li>
+            </ul>
+        </section>
+
+        <!-- 5. Tabs 組件展示 -->
+        <section class="section">
+            <h2>📂 Tabs 頁籤組件</h2>
+            <p>多頁面內容展示組件，支持多個頁籤切換。適用於產品介紹、服務說明、內容分類等場景。</p>
+            
+            <div class="component-demo">
+                <div class="demo-title">範例：產品功能頁籤</div>
+                
+                <div class="tabs-container" style="width: 100%;">
+                    <!-- Tab 導航 -->
+                    <div class="tab-nav" style="display: flex; border-bottom: 2px solid #e9ecef; margin-bottom: 20px;">
+                        <button class="tab-button active" data-tab="features" style="background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 500; color: #007bff; border-bottom: 2px solid #007bff;">
+                            核心功能
+                        </button>
+                        <button class="tab-button" data-tab="pricing" style="background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 500; color: #6c757d; border-bottom: 2px solid transparent;">
+                            價格方案
+                        </button>
+                        <button class="tab-button" data-tab="support" style="background: none; border: none; padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 500; color: #6c757d; border-bottom: 2px solid transparent;">
+                            技術支援
+                        </button>
+                    </div>
+
+                    <!-- Tab 內容 -->
+                    <div class="tab-content active" data-tab-content="features" style="padding: 20px 0; line-height: 1.6;">
+                        <h4>🚀 核心功能特色</h4>
+                        <p>我們的組件庫提供了豐富的 UI 組件，包括 Modal、Tooltip、Progress Bar 等，每個組件都經過精心設計和優化。</p>
+                        <ul>
+                            <li>響應式設計，適配各種螢幕尺寸</li>
+                            <li>豐富的自定義選項</li>
+                            <li>流暢的動畫效果</li>
+                            <li>易於整合和使用</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" data-tab-content="pricing" style="display: none; padding: 20px 0; line-height: 1.6;">
+                        <h4>💰 價格方案</h4>
+                        <p>我們提供靈活的價格方案，適合不同規模的團隊和專案需求。</p>
+                        <ul>
+                            <li><strong>免費版：</strong>基礎組件，適合個人專案</li>
+                            <li><strong>專業版：</strong>完整功能，適合小型團隊</li>
+                            <li><strong>企業版：</strong>客製化支援，適合大型企業</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" data-tab-content="support" style="display: none; padding: 20px 0; line-height: 1.6;">
+                        <h4>🛠️ 技術支援</h4>
+                        <p>我們提供全方位的技術支援服務，確保您的專案順利進行。</p>
+                        <ul>
+                            <li>24/7 線上客服支援</li>
+                            <li>完整的文檔和教學</li>
+                            <li>社群論壇交流</li>
+                            <li>一對一技術諮詢</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="feature-list">
+                <li>支持多個頁籤同時展示</li>
+                <li>可自定義啟用和非啟用顏色</li>
+                <li>支持預設頁籤設定</li>
+                <li>流暢的切換動畫效果</li>
+            </ul>
+        </section>
+
+        <!-- Carousel 組件回顧 -->
+        <section class="section">
+            <h2>🎠 Carousel 輪播組件</h2>
+            <p>之前已實現的專業輪播組件，支持三種模式：Hero 全寬輪播、Product 產品輪播、Gallery 圖庫輪播。</p>
+            
+            <div class="component-demo">
+                <div class="demo-title">已完成的 Carousel 功能</div>
+                <ul class="feature-list">
+                    <li><strong>Hero Carousel:</strong> 全寬背景輪播，適合首頁橫幅</li>
+                    <li><strong>Product Carousel:</strong> 多項目展示，支持響應式佈局</li>
+                    <li><strong>Gallery Carousel:</strong> 縮圖預覽模式</li>
+                    <li>整合 Swiper.js 提供專業級功能</li>
+                    <li>支持自動播放、導航按鈕、指示器</li>
+                    <li>完全響應式設計</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 總結與 CTA -->
+        <div class="cta">
+            <h2>🎯 完整的 GrapesJS 組件生態系統</h2>
+            <p>現在您擁有了一套完整的 UI 組件庫，包含 Modal、Tooltip、Progress Bar、Accordion、Tabs 以及專業的 Carousel 組件。這些組件都已整合到您的 GrapesJS 編輯器中，可以直接使用！</p>
+            
+            <div class="grid" style="margin-top: 30px;">
+                <div class="feature-card">
+                    <h3>🎨 8+ 專業組件</h3>
+                    <p>涵蓋常用的 UI 模式，從基礎到進階，滿足各種設計需求。</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔧 高度可配置</h3>
+                    <p>每個組件都提供豐富的屬性設定，輕鬆客製化外觀和行為。</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📱 響應式設計</h3>
+                    <p>所有組件都經過響應式優化，在各種設備上都能完美顯示。</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🚀 即插即用</h3>
+                    <p>已完全整合到 GrapesJS 編輯器，拖拉即可使用，無需額外設定。</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px;">
+                <strong>立即開始使用這些強大的組件，打造令人驚豔的網頁設計！</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Small Modal -->
+    <div class="modal-overlay" id="modal-small" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 9999;">
+        <div class="modal-dialog" style="background: white; border-radius: 12px; max-width: 400px; width: 90%;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e9ecef;">
+                <h5 class="modal-title">小尺寸對話框</h5>
+                <button type="button" class="modal-close" data-modal-close="modal-small" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                這是一個小尺寸的對話框示例，適合簡單的提示訊息或確認操作。
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #e9ecef;">
+                <button type="button" data-modal-close="modal-small" style="background: #6c757d; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">取消</button>
+                <button type="button" style="background: #28a745; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medium Modal -->
+    <div class="modal-overlay" id="modal-medium" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 9999;">
+        <div class="modal-dialog" style="background: white; border-radius: 12px; max-width: 600px; width: 90%;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e9ecef;">
+                <h5 class="modal-title">中尺寸對話框</h5>
+                <button type="button" class="modal-close" data-modal-close="modal-medium" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                這是一個中尺寸的對話框示例，適合表單填寫、詳細信息展示等場景。內容可以更加豐富，支持更複雜的佈局和交互。
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #e9ecef;">
+                <button type="button" data-modal-close="modal-medium" style="background: #6c757d; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">取消</button>
+                <button type="button" style="background: #007bff; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Large Modal -->
+    <div class="modal-overlay" id="modal-large" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 9999;">
+        <div class="modal-dialog" style="background: white; border-radius: 12px; max-width: 800px; width: 90%;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e9ecef;">
+                <h5 class="modal-title">大尺寸對話框</h5>
+                <button type="button" class="modal-close" data-modal-close="modal-large" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <h4>大尺寸對話框功能介紹</h4>
+                <p>這是一個大尺寸的對話框示例，適合複雜內容的展示，如：</p>
+                <ul>
+                    <li>多步驟表單向導</li>
+                    <li>圖片或影片展示</li>
+                    <li>數據報表展示</li>
+                    <li>複雜的設定面板</li>
+                </ul>
+                <p>大尺寸對話框提供了更多的空間，讓您能夠創建更豐富的用戶體驗。</p>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #e9ecef;">
+                <button type="button" data-modal-close="modal-large" style="background: #6c757d; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">取消</button>
+                <button type="button" style="background: #dc3545; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal 功能
+        document.querySelectorAll('[data-modal-target]').forEach(trigger => {
+            trigger.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal-target');
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-modal-close]').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal-close');
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Tooltip 功能
+        document.querySelectorAll('.tooltip-wrapper').forEach(wrapper => {
+            const tooltip = wrapper.querySelector('.tooltip-content');
+            
+            wrapper.addEventListener('mouseenter', function() {
+                if (tooltip) {
+                    tooltip.style.opacity = '1';
+                    tooltip.style.visibility = 'visible';
+                }
+            });
+            
+            wrapper.addEventListener('mouseleave', function() {
+                if (tooltip) {
+                    tooltip.style.opacity = '0';
+                    tooltip.style.visibility = 'hidden';
+                }
+            });
+        });
+
+        // Accordion 功能
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('.accordion-icon');
+                
+                if (content.style.maxHeight === '0px' || !content.style.maxHeight) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    content.style.padding = '20px';
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                } else {
+                    content.style.maxHeight = '0px';
+                    content.style.padding = '0 20px';
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // Tabs 功能
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // 更新按鈕狀態
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.style.color = '#6c757d';
+                    btn.style.borderBottomColor = 'transparent';
+                    btn.classList.remove('active');
+                });
+                
+                this.style.color = '#007bff';
+                this.style.borderBottomColor = '#007bff';
+                this.classList.add('active');
+                
+                // 更新內容顯示
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                    content.classList.remove('active');
+                });
+                
+                const targetContent = document.querySelector(`[data-tab-content="${targetTab}"]`);
+                if (targetContent) {
+                    targetContent.style.display = 'block';
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 
 export type BannerSlide = {
   heading: string
+  subheading?: string
   backgroundImage: string
   backgroundImageAlt?: string
   buttonText?: string
