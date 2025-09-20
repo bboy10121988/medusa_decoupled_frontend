@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { client as sanityClient } from '@/sanity-client';
-import GrapesJSPageRenderer from '@/components/grapesjs/GrapesJSPageRenderer';
+import SimplePageRenderer from '@/components/grapesjs/SimplePageRenderer';
 
 interface PageData {
   _id: string;
@@ -153,7 +153,10 @@ export default function GrapesJSPagesPage() {
               </div>
               
               {selectedPage.grapesContent ? (
-                <GrapesJSPageRenderer content={selectedPage.grapesContent} />
+                <SimplePageRenderer 
+                  htmlContent={selectedPage.grapesContent.html || '<p>頁面內容為空</p>'} 
+                  cssContent={selectedPage.grapesContent.css}
+                />
               ) : (
                 <div className="p-12 text-center">
                   <div className="text-gray-400 text-4xl mb-4">📄</div>

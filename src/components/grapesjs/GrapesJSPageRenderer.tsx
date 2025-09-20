@@ -24,7 +24,15 @@ export default function GrapesJSPageRenderer({ slug, preview = false }: Props) {
     
     const cleanContent = content.replace(scriptRegex, (match, scriptContent) => {
       if (scriptContent && scriptContent.trim()) {
-        scripts.push(scriptContent.trim())
+        // 清理腳本內容，移除可能的特殊字符
+        const cleanScript = scriptContent.trim()
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&amp;/g, '&')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+        
+        scripts.push(cleanScript)
       }
       return '' // 移除 script 標籤，避免重複執行
     })
@@ -35,13 +43,73 @@ export default function GrapesJSPageRenderer({ slug, preview = false }: Props) {
         try {
           console.log(`🔧 執行內聯腳本 ${index + 1}:`, scriptContent.substring(0, 100) + '...')
           
-          // 創建函數來執行腳本，提供更好的作用域隔離
-          const executeScript = new Function(scriptContent)
-          executeScript()
+          // 驗證腳本內容是否有效
+          if (!scriptContent || scriptContent.trim().length === 0) {
+            console.warn(`⚠️ 腳本 ${index + 1} 為空，跳過執行`)
+            return
+          }
           
-          console.log(`✅ 腳本 ${index + 1} 執行成功`)
+          // 檢查是否包含可能有問題的內容
+          if (scriptContent.includes('<') || scriptContent.includes('>')) {
+            console.warn(`⚠️ 腳本 ${index + 1} 包含 HTML 標籤，可能有問題:`, scriptContent)
+          }
+          
+          // 使用更安全的執行方式
+          if (typeof window !== 'undefined') {
+            try {
+              // 驗證 JavaScript 語法
+              console.log(`🔍 驗證腳本語法...`)
+              console.log(`腳本內容類型: ${typeof scriptContent}`)
+              console.log(`腳本長度: ${scriptContent.length}`)
+              console.log(`腳本前100字符:`, scriptContent.substring(0, 100))
+              console.log(`腳本是否包含特殊字符:`, {
+                hasLt: scriptContent.includes('<'),
+                hasGt: scriptContent.includes('>'),
+                hasAmp: scriptContent.includes('&'),
+                hasNewlines: scriptContent.includes('\n'),
+                hasTabs: scriptContent.includes('\t')
+              })
+              
+              // 清理和格式化腳本內容
+              let cleanedScript = scriptContent
+                // 修復缺少分號的問題 
+                .replace(/(\w)\s+(const|let|var)\s/g, '$1; $2 ')
+                .replace(/(\})\s*(const|let|var|document|window)/g, '$1; $2')
+                .replace(/(\w)\s+(document|window)/g, '$1; $2')
+                // 確保語句正確分隔
+                .replace(/([;}])\s*([a-zA-Z_$])/g, '$1\n$2')
+                .trim()
+              
+              console.log(`🧹 清理後的腳本:`, cleanedScript.substring(0, 200) + '...')
+              
+              // 直接使用 eval 執行，不再使用 Function 構造函數驗證
+              console.log(`✅ 跳過語法驗證，直接執行腳本`)
+              eval(cleanedScript)
+              console.log(`✅ 腳本 ${index + 1} 執行成功`)
+              
+            } catch (mainError) {
+              console.error(`❌ 腳本 ${index + 1} 執行失敗:`, mainError)
+              console.error(`原始腳本內容:`, JSON.stringify(scriptContent))
+              
+              // 嘗試最基本的執行方式
+              try {
+                console.log(`🔄 嘗試執行原始腳本...`)
+                eval(scriptContent)
+                console.log(`✅ 原始腳本執行成功`)
+              } catch (fallbackError) {
+                console.error(`❌ 所有執行方式都失敗:`, fallbackError)
+              }
+            }
+          } else {
+            // 在服務器端環境中，使用 eval
+            eval(scriptContent)
+          }
+          
         } catch (error) {
           console.error(`❌ 腳本 ${index + 1} 執行失敗:`, error)
+          console.error('腳本內容:', scriptContent)
+          console.error('腳本長度:', scriptContent.length)
+          console.error('腳本前50字符:', scriptContent.substring(0, 50))
         }
       })
     }, 100)
@@ -82,7 +150,7 @@ export default function GrapesJSPageRenderer({ slug, preview = false }: Props) {
 
   // 當頁面內容載入後，執行內聯腳本
   useEffect(() => {
-    if (page && page.grapesHtml && contentRef.current) {
+    if (page?.grapesHtml && contentRef.current) {
       console.log('🎬 開始處理頁面內容和腳本...')
       
       // 執行內聯腳本

@@ -1,35 +1,7 @@
-import { promises as fs } from 'fs'
-import path from 'path'
 import { notFound } from 'next/navigation'
-import Nav from '@modules/layout/templates/nav'
-import Footer from '@modules/layout/templates/footer'
-
-// 頁面資料類型
-interface GrapesJSPage {
-  id: string
-  name: string
-  html: string
-  css: string
-  components: any
-  styles: any
-  createdAt: string
-  updatedAt: string
-}
-
-// 儲存設定
-const STORAGE_DIR = path.join(process.cwd(), 'data', 'grapesjs-pages')
-const PAGES_FILE = path.join(STORAGE_DIR, 'pages.json')
-
-// 從檔案讀取頁面
-async function loadPageFromFile(pageId: string): Promise<GrapesJSPage | null> {
-  try {
-    const data = await fs.readFile(PAGES_FILE, 'utf-8')
-    const pages = JSON.parse(data)
-    return pages[pageId] || null
-  } catch (error) {
-    return null
-  }
-}
+import { client } from '@/sanity-client'
+import { Metadata } from 'next'
+import SimplePageRenderer from '@/components/grapesjs/SimplePageRenderer'
 
 // 已知的系統路由，這些路由不應該被 GrapesJS 頁面處理
 const SYSTEM_ROUTES = [
@@ -43,154 +15,140 @@ const SYSTEM_ROUTES = [
   'login-affiliate',
   'order',
   'products',
-  'regitster-affiliate', // 保留原有的拼寫錯誤以保持一致性
+  'regitster-affiliate',
   'store',
   'test-footer',
   // 管理相關路由
   'studio',
   'grapesjs-pages',
   'pages-manager',
+  'cms',
   // 其他系統路由
   'checkout',
   'admin',
   'api'
 ]
 
-// 生成頁面組件
-function PageViewer({ page }: { page: GrapesJSPage }) {
-  // 移除 HTML 中的 body 標籤，避免 hydration 錯誤
-  const cleanHtml = page.html
-    .replace(/<body[^>]*>/gi, '') // 移除開始的 body 標籤（含屬性）
-    .replace(/<\/body>/gi, '')    // 移除結束的 body 標籤
+interface PageProps {
+  params: Promise<{
+    countryCode: string
+    slug: string[]
+  }>
+}
+
+// 動態生成頁面元數據
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
   
-  return (
-    <div>
-      <style dangerouslySetInnerHTML={{ __html: `
-        body {
-          margin: 0;
-          padding: 0;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-        }
-        ${page.css}
-      ` }} />
-      <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />
-    </div>
-  )
-}
-
-function NotFoundPage({ message }: { message: string }) {
-  return (
-    <div style={{
-      padding: '40px',
-      textAlign: 'center',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      <h1 style={{ color: '#dc3545' }}>頁面不存在</h1>
-      <p style={{ color: '#6c757d' }}>{message}</p>
-      <a 
-        href="/pages-manager" 
-        style={{
-          display: 'inline-block',
-          padding: '12px 24px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '6px',
-          fontWeight: '500'
-        }}
-      >
-        返回頁面管理
-      </a>
-    </div>
-  )
-}
-
-// 生成靜態參數，只為已存在的 GrapesJS 頁面生成路由
-export async function generateStaticParams() {
-  // 在開發模式下，返回空陣列以允許動態路由
-  if (process.env.NODE_ENV === 'development') {
-    return []
-  }
+  // 將 slug 數組轉換為字符串，處理多層路由
+  const slugString = slug.join('/')
   
   try {
-    const data = await fs.readFile(PAGES_FILE, 'utf-8')
-    const pages = JSON.parse(data)
-    
-    // 只為已存在的頁面生成路由，並排除系統路由
-    const validPages = Object.keys(pages).filter(pageId => !SYSTEM_ROUTES.includes(pageId))
-    
-    // 為所有支援的國家代碼生成路由
-    const countryCodes = ['tw', 'us', 'de', 'fr', 'dk']
-    
-    return countryCodes.flatMap(countryCode => 
-      validPages.map(pageId => ({
-        countryCode,
-        slug: [pageId]
-      }))
+    const page = await client.fetch(
+      `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+        title,
+        seoTitle,
+        seoDescription,
+        seoKeywords
+      }`,
+      { slug: slugString }
     )
+
+    if (!page) {
+      return {
+        title: '頁面未找到',
+        description: '請求的頁面不存在'
+      }
+    }
+
+    return {
+      title: page.seoTitle || page.title || '頁面',
+      description: page.seoDescription || '使用 GrapesJS 編輯器創建的頁面',
+      keywords: page.seoKeywords ? page.seoKeywords.join(', ') : undefined,
+    }
   } catch (error) {
-    console.error('Error generating static params:', error)
-    return []
+    console.error('生成頁面元數據失敗:', error)
+    return {
+      title: '頁面',
+      description: '頁面內容'
+    }
   }
 }
 
-export default async function CatchAllPage({
-  params,
-}: {
-  params: Promise<{ countryCode: string; slug: string[] }>
-}) {
+// 主頁面組件
+export default async function CountryCodeCatchAllPage({ params }: PageProps) {
   const { countryCode, slug } = await params
   
-  // 如果沒有 slug 或 slug 長度不是 1，則顯示 404
-  if (!slug || slug.length !== 1) {
-    return <NotFoundPage message="無效的頁面路徑" />
-  }
+  // 將 slug 數組轉換為字符串
+  const slugString = slug.join('/')
   
-  const pageId = slug[0]
-  
-  // 如果是系統路由，則調用 notFound() 讓其他路由處理
-  if (SYSTEM_ROUTES.includes(pageId)) {
+  // 檢查第一個路由段是否為系統路由
+  const firstSegment = slug[0]
+  if (SYSTEM_ROUTES.includes(firstSegment)) {
     notFound()
   }
   
-  // 嘗試載入 GrapesJS 頁面
-  const page = await loadPageFromFile(pageId)
-  
-  if (!page) {
-    return <NotFoundPage message={`找不到 ID 為 "${pageId}" 的頁面`} />
+  try {
+    // 從 Sanity 獲取頁面數據
+    const page = await client.fetch(
+      `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+        _id,
+        title,
+        slug,
+        status,
+        grapesHtml,
+        grapesCss,
+        grapesComponents,
+        grapesStyles,
+        createdAt,
+        updatedAt
+      }`,
+      { slug: slugString }
+    )
+
+    if (!page) {
+      console.log(`頁面未找到: /${countryCode}/${slugString}`)
+      notFound()
+    }
+
+    console.log(`載入頁面: /${countryCode}/${slugString}`, { 
+      pageId: page._id, 
+      title: page.title,
+      status: page.status 
+    })
+
+    // 使用簡單頁面渲染器
+    return (
+      <SimplePageRenderer 
+        htmlContent={page.grapesHtml || '<p>頁面內容為空</p>'} 
+        cssContent={page.grapesCss}
+      />
+    )
+  } catch (error) {
+    console.error('載入頁面失敗:', error)
+    notFound()
   }
-  
-  return (
-    <>
-      <Nav />
-      <main>
-        <PageViewer page={page} />
-      </main>
-      <Footer />
-    </>
-  )
 }
 
-// 生成 metadata
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ countryCode: string; slug: string[] }>
-}) {
-  const { slug } = await params
-  
-  if (!slug || slug.length !== 1) {
-    return {
-      title: '頁面不存在',
-      description: '找不到指定的頁面',
-    }
-  }
-  
-  const pageId = slug[0]
-  const page = await loadPageFromFile(pageId)
-  
-  return {
-    title: page?.name || '頁面不存在',
-    description: `使用 GrapesJS 編輯器創建的頁面：${page?.name}`,
+// 生成靜態路徑（可選，用於預渲染）
+export async function generateStaticParams() {
+  try {
+    const pages = await client.fetch(
+      `*[_type == "grapesJSPageV2" && status == "published"] {
+        slug
+      }`
+    )
+
+    return pages.map((page: any) => {
+      const slugPath = page.slug?.current || page._id
+      // 將路徑拆分為段
+      return {
+        countryCode: 'tw', // 預設為 tw
+        slug: slugPath.split('/'),
+      }
+    })
+  } catch (error) {
+    console.error('生成靜態路徑失敗:', error)
+    return []
   }
 }

@@ -8561,25 +8561,10 @@ grapesjs-blocks-basic@^1.0.2:
   resolved "https://registry.npmjs.org/grapesjs-blocks-basic/-/grapesjs-blocks-basic-1.0.2.tgz"
   integrity sha512-SsPKf/CvQkZ+kABOsN01auAPHXh/2J20g0AWYF7fHR3Gw3TZLtdIxT1mk90Qzi76u/7sUYi3CTI+i3ZaTtXHRA==
 
-grapesjs-carousel-component@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/grapesjs-carousel-component/-/grapesjs-carousel-component-1.0.1.tgz"
-  integrity sha512-n0wKy4+gc0KjYScgMQQsAMu3X5jknn18VDAe7NOTjVU6w5B6AQMHZeoOu4HpLrjMgc3LrdrOV3RGBckHgZALDA==
-
-grapesjs-carousel@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/grapesjs-carousel/-/grapesjs-carousel-1.0.0.tgz"
-  integrity sha512-H2CnKHlvcrYDxp0R5sohVWZgg0lOnzEOE8VTcz4HA4S7AFeGJkcWWZmoBwbR14yyoafR80I3MSnGV0gmw3j6Ig==
-
 grapesjs-component-countdown@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/grapesjs-component-countdown/-/grapesjs-component-countdown-1.0.2.tgz"
   integrity sha512-YEDlDY8AxUvNNHojDgOFv76jqDwo49LyFf9ES/Yrda1ou0ohQfoouxRXS+3RzDDN5NEBKkM1PggZlcbiIQfr8Q==
-
-grapesjs-custom-code@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/grapesjs-custom-code/-/grapesjs-custom-code-1.0.2.tgz"
-  integrity sha512-B8IZQyB+HjLb9HkHzQ+RVHE5Q6zqX7Ry8b+kYk8Jh7vjmPawe+/kL0pXYxYQ2bSmdaUEuq8mLngiNY+l6EFEVQ==
 
 grapesjs-plugin-forms@^2.0.6:
   version "2.0.6"
@@ -8590,6 +8575,11 @@ grapesjs-preset-webpage@^1.0.3:
   version "1.0.3"
   resolved "https://registry.npmjs.org/grapesjs-preset-webpage/-/grapesjs-preset-webpage-1.0.3.tgz"
   integrity sha512-C0VOKLAdhv0j1f81c6F2uk3JpJvxgXl5DeHUtDa5qGf/HZzaCmQxsvd8Re3Oh5Cah4uUCqoi9uB5FYx3hLND2w==
+
+grapesjs-script-editor@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/grapesjs-script-editor/-/grapesjs-script-editor-1.0.3.tgz"
+  integrity sha512-CL4BGKIavCqAoFINqo8sYvht2A1Y10henA2w8tnyqqadigHPNm73684AqxF9gEgfK+4vS+2MqzoMwHmQHvmYdg==
 
 grapesjs-tabs@^1.0.6:
   version "1.0.6"

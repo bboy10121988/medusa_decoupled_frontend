@@ -31,7 +31,7 @@ export default defineType({
 
           const handleClick = () => {
             if (!isReady) return
-            const url = `/studio?docId=${encodeURIComponent(publishedId)}&type=grapesJSPageV2`
+            const url = `/cms/grapes-editor?docId=${encodeURIComponent(publishedId)}&type=grapesJSPageV2`
             if (typeof window !== 'undefined' && window.open) {
               window.open(url, '_blank', 'noopener,noreferrer')
             }
