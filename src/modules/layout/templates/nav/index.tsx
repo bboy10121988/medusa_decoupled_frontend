@@ -13,6 +13,7 @@ import { getHeader } from "../../../../lib/sanity"
 import { SanityHeader } from "../../../../types/global"
 import MobileMenu from "../../components/mobile-menu"
 import SearchBarClient from "../../components/search-bar-client"
+import HeaderHeightSetter from "../../components/header-height-setter"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
@@ -61,11 +62,22 @@ export default async function Nav() {
   // 計算主導覽列高度
   const logoHeight = headerData?.logoSize?.desktop || headerData?.logoHeight || 36
   const mainNavHeight = Math.max(48, logoHeight + 24)
+  
+  // 計算總 header 高度
+  const marqueeHeight = 36 // h-9 = 36px
+  const totalHeaderHeight = (headerData?.marquee?.enabled && textCount > 0) 
+    ? marqueeHeight + mainNavHeight 
+    : mainNavHeight
 
   return (
     <>
+      {/* 動態設置 header 高度 CSS 變數 */}
+      <HeaderHeightSetter totalHeight={totalHeaderHeight} />
+      
       {/* 整合的導航容器：跑馬燈 + 主選單 + 分類列 */}
-      <div className="sticky top-0 inset-x-0 z-[100] group transition-all duration-300">
+      <div 
+        className="sticky top-0 inset-x-0 z-[100] group transition-all duration-300"
+      >
         {/* 1. 跑馬燈部分 */}
         {(headerData?.marquee?.enabled && textCount > 0) ? (
           <div className="bg-gray-900 text-white overflow-hidden h-9">

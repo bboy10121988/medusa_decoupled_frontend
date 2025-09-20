@@ -42,6 +42,12 @@ const Hero = ({ slides, settings }: HeroProps) => {
   if (!slides || !slides.length) return null
 
   const slide = slides[currentSlide]
+  
+  // 根據是否顯示指示點決定手機版高度行為
+  const shouldUseFixedHeight = settings?.showDots && slides.length > 1
+  const mobileHeightClass = shouldUseFixedHeight 
+    ? "min-h-hero-mobile" // 固定高度（扣掉 header）
+    : "min-h-fit" // 自適應內容高度
 
   const goToNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
@@ -56,9 +62,9 @@ const Hero = ({ slides, settings }: HeroProps) => {
   }
 
   return (
-    <div className="relative w-full">
-      {/* 輪播圖片容器 - 全寬顯示，不強制高度 */}
-      <div className="relative w-full overflow-hidden">
+    <div className={`relative w-full ${mobileHeightClass} md:min-h-0`}>
+      {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
+      <div className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}>
         {slides.map((slideItem, index) => (
           <div
             key={index}
@@ -72,7 +78,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                 alt={slideItem.backgroundImageAlt || slideItem.heading || `輪播圖片 ${index + 1}`}
                 width={1920}
                 height={1080}
-                className="w-full h-auto object-cover"
+                className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} md:h-auto object-cover`}
                 sizes="100vw"
                 priority={index === 0}
               />
@@ -81,8 +87,8 @@ const Hero = ({ slides, settings }: HeroProps) => {
         ))}
       </div>
       
-      {/* 內容覆蓋層 - 適應動態高度 */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-end sm:justify-center items-center text-center p-4 pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
+      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
         <div 
           key={`slide-${currentSlide}`}
           className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"

@@ -1,6 +1,9 @@
 import { retrieveCustomer } from "@lib/data/customer"
 import { redirect } from "next/navigation"
 
+// 強制動態渲染，避免預渲染問題
+export const dynamic = 'force-dynamic'
+
 export default async function AccountPage({
   params,
 }: {

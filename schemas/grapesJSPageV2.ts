@@ -25,17 +25,25 @@ export default defineType({
           const React = require('react')
           const { useFormValue } = require('sanity')
 
+          // 確保 Hooks 總是在同樣的順序被調用
           const id = useFormValue(['_id']) as string | undefined
-          const publishedId = (id || '').replace(/^drafts\./, '')
-          const isReady = Boolean(publishedId)
+          
+          // 計算衍生狀態
+          const publishedId = React.useMemo(() => {
+            return (id || '').replace(/^drafts\./, '')
+          }, [id])
+          
+          const isReady = React.useMemo(() => {
+            return Boolean(publishedId)
+          }, [publishedId])
 
-          const handleClick = () => {
+          const handleClick = React.useCallback(() => {
             if (!isReady) return
             const url = `/cms/grapes-editor?docId=${encodeURIComponent(publishedId)}&type=grapesJSPageV2`
             if (typeof window !== 'undefined' && window.open) {
               window.open(url, '_blank', 'noopener,noreferrer')
             }
-          }
+          }, [isReady, publishedId])
 
           return React.createElement(
             'div',

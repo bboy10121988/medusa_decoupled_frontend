@@ -5,6 +5,7 @@
  */
 const nextConfig = {
   reactStrictMode: false, // 暫時關閉嚴格模式以避免 React 19 警告
+  trailingSlash: false,
   logging: {
     fetches: {
       fullUrl: true,

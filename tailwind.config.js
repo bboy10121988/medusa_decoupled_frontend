@@ -16,6 +16,12 @@ module.exports = {
       maxWidth: {
         '8xl': '90rem',
       },
+      height: {
+        'hero-mobile': 'var(--hero-mobile-height)',
+      },
+      minHeight: {
+        'hero-mobile': 'var(--hero-mobile-height)',
+      },
       colors: {
         'gray-0': '#FAFAFA',
         'gray-50': '#F9F9F9',

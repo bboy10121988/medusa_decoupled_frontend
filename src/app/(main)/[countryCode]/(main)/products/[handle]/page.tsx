@@ -6,22 +6,14 @@ import { generateProductKeywords } from "@lib/seo"
 import ProductTemplate from "@modules/products/templates"
 import { getStoreName } from "@lib/store-name"
 
+// 強制動態渲染，避免預渲染問題
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
 }
 
-export async function generateStaticParams() {
-  // 返回一個簡單的靜態路徑陣列，讓頁面在訪問時按需生成
-  try {
-    return [
-      { countryCode: "tw", handle: "product-1" },
-      { countryCode: "tw", handle: "product-2" }
-    ]
-  } catch (error) {
-    console.error(`產生靜態路徑時發生錯誤: ${error instanceof Error ? error.message : "未知錯誤"}.`)
-    return []
-  }
-}
+// 移除 generateStaticParams，使用完全動態渲染
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {

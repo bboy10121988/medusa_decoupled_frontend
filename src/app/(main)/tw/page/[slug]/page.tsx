@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation'
 import { client } from '@/sanity-client'
 import { Metadata } from 'next'
-import GrapesJSPageRenderer from '@/components/grapesjs/GrapesJSPageRenderer'
+// import GrapesJSPageRenderer from '@/components/grapesjs/GrapesJSPageRenderer'
+
+// 強制動態渲染，避免預渲染問題
+export const dynamic = 'force-dynamic'
 
 // 已知的系統路由，這些路由不應該被 GrapesJS 頁面處理
 const SYSTEM_ROUTES = [
@@ -101,8 +104,23 @@ export default async function DynamicPageV2({ params }: PageProps) {
       notFound()
     }
 
-    // 使用 GrapesJS 頁面渲染器
-    return <GrapesJSPageRenderer slug={slug} preview={page.status !== 'published'} />
+    // 暫時顯示基本頁面信息，GrapesJS 渲染器暫時停用
+    return (
+      <div className="min-h-screen p-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-4">{page.title}</h1>
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
+            <strong>注意：</strong> GrapesJS 頁面渲染功能暫時停用
+          </div>
+          <div className="bg-gray-100 p-4 rounded">
+            <h2 className="font-semibold mb-2">頁面資訊：</h2>
+            <p><strong>Slug:</strong> {slug}</p>
+            <p><strong>狀態:</strong> {page.status}</p>
+            <p><strong>更新時間:</strong> {page.updatedAt}</p>
+          </div>
+        </div>
+      </div>
+    )
   } catch (error) {
     console.error('載入頁面失敗:', error)
     notFound()
@@ -110,19 +128,4 @@ export default async function DynamicPageV2({ params }: PageProps) {
 }
 
 // 生成靜態路徑（可選，用於預渲染）
-export async function generateStaticParams() {
-  try {
-    const pages = await client.fetch(
-      `*[_type == "grapesJSPageV2" && status == "published"] {
-        slug
-      }`
-    )
-
-    return pages.map((page: any) => ({
-      slug: page.slug?.current || page._id,
-    }))
-  } catch (error) {
-    console.error('生成靜態路徑失敗:', error)
-    return []
-  }
-}
+// export async function generateStaticParams() { /* removed */ }

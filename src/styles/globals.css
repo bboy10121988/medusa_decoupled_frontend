@@ -53,6 +53,12 @@
   --state-error: #ef4444;
   --state-info: #3b82f6;
 
+  /* 布局變數 */
+  --header-marquee-height: 2.25rem; /* 36px (h-9) */
+  --header-nav-height: 4.5rem; /* 約 72px (動態計算的導航高度) */
+  --header-total-height: calc(var(--header-marquee-height) + var(--header-nav-height)); /* 總 header 高度 */
+  --hero-mobile-height: calc(100vh - var(--header-total-height)); /* 手機版 hero 高度 */
+
   /* 主要字體堆疊 - 系統優先 */
   --font-base: 
     /* 現代系統字體 */

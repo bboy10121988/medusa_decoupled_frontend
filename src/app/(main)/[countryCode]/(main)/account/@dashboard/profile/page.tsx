@@ -10,6 +10,9 @@ import { notFound } from "next/navigation"
 import { listRegions } from "@lib/data/regions"
 import { retrieveCustomer } from "@lib/data/customer"
 
+// 強制動態渲染，避免預渲染問題
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: "Profile",
   description: "View and edit your Medusa Store profile.",
@@ -51,4 +54,3 @@ export default async function Profile() {
 const Divider = () => {
   return <div className="w-full h-px bg-gray-200" />
 }
-;``

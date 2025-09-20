@@ -49,6 +49,12 @@ export default {
           title: '替代文字',
           type: 'string',
           description: '圖片的替代文字，用於無障礙和 SEO 優化'
+        },
+        {
+          name: 'linkUrl',
+          title: '圖片連結網址',
+          type: 'string',
+          description: '點擊圖片時跳轉的網址 (可選)'
         }
       ],
       hidden: ({parent}: any) => parent?.layout === 'textLeftTextRight' || parent?.layout === 'centerText' || parent?.layout === 'imageLeftImageRight'
@@ -66,6 +72,12 @@ export default {
           title: '替代文字',
           type: 'string',
           description: '左側圖片的替代文字，用於無障礙和 SEO 優化'
+        },
+        {
+          name: 'linkUrl',
+          title: '圖片連結網址',
+          type: 'string',
+          description: '點擊左側圖片時跳轉的網址 (可選)'
         }
       ],
       hidden: ({parent}: any) => parent?.layout !== 'imageLeftImageRight'
@@ -83,6 +95,12 @@ export default {
           title: '替代文字',
           type: 'string',
           description: '右側圖片的替代文字，用於無障礙和 SEO 優化'
+        },
+        {
+          name: 'linkUrl',
+          title: '圖片連結網址',
+          type: 'string',
+          description: '點擊右側圖片時跳轉的網址 (可選)'
         }
       ],
       hidden: ({parent}: any) => parent?.layout !== 'imageLeftImageRight'

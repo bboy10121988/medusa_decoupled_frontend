@@ -3,6 +3,9 @@ import OrderDetailsTemplate from "@modules/order/templates/order-details-templat
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+// 強制動態渲染，避免預渲染問題
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{ id: string }>
 }

@@ -15,9 +15,9 @@ export interface ImagePickerOptions {
 export class SanityImagePicker {
   private modal: HTMLElement | null = null
   private images: SanityImage[] = []
-  private options: ImagePickerOptions
+  private readonly options: ImagePickerOptions
   private page = 1
-  private pageSize = 24
+  private readonly pageSize = 24
   private q = ''
   private sort: 'newest' | 'oldest' | 'largest' | 'smallest' = 'newest'
   private nextPage?: number
@@ -183,8 +183,8 @@ export class SanityImagePicker {
     }
 
     // 搜尋與排序
-    const searchInput = this.modal.querySelector('.sanity-image-search') as HTMLInputElement | null
-    const sortSelect = this.modal.querySelector('.sanity-image-sort') as HTMLSelectElement | null
+    const searchInput = this.modal.querySelector('.sanity-image-search') as HTMLInputElement
+    const sortSelect = this.modal.querySelector('.sanity-image-sort') as HTMLSelectElement
     if (searchInput) {
       let t: any
       searchInput.addEventListener('input', async () => {
@@ -205,8 +205,8 @@ export class SanityImagePicker {
     }
 
     // 分頁
-    const prevBtn = this.modal.querySelector('.btn-prev') as HTMLButtonElement | null
-    const nextBtn = this.modal.querySelector('.btn-next') as HTMLButtonElement | null
+    const prevBtn = this.modal.querySelector('.btn-prev') as HTMLButtonElement
+    const nextBtn = this.modal.querySelector('.btn-next') as HTMLButtonElement
     prevBtn?.addEventListener('click', async () => {
       if (this.page > 1) {
         this.page -= 1
@@ -320,15 +320,16 @@ export class SanityImagePicker {
       })
       // 更新分頁狀態
       if (pag) {
-        const prevBtn = pag.querySelector('.btn-prev') as HTMLButtonElement | null
-        const nextBtn = pag.querySelector('.btn-next') as HTMLButtonElement | null
-        const indicator = pag.querySelector('.page-indicator') as HTMLElement | null
+        const prevBtn = pag.querySelector('.btn-prev') as HTMLButtonElement
+        const nextBtn = pag.querySelector('.btn-next') as HTMLButtonElement
+        const indicator = pag.querySelector('.page-indicator') as HTMLElement
         if (indicator) indicator.textContent = `第 ${this.page} 頁`
         if (prevBtn) prevBtn.disabled = this.page <= 1
         if (nextBtn) nextBtn.disabled = !this.nextPage
       }
-    } catch (e) {
-      const grid = this.modal?.querySelector('.sanity-image-picker-grid') as HTMLElement | null
+    } catch (error) {
+      console.error('Failed to refresh image list:', error)
+      const grid = this.modal?.querySelector('.sanity-image-picker-grid') as HTMLElement
       if (grid) grid.innerHTML = '<div style="padding:16px;color:#b91c1c;">載入失敗，請重試</div>'
     }
   }

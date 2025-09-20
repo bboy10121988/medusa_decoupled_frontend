@@ -428,19 +428,5 @@ export default async function DynamicPageV2({ params }: PageProps) {
 }
 
 // 生成靜態路徑（可選，用於預渲染）
-export async function generateStaticParams() {
-  try {
-    const pages = await client.fetch(
-      `*[_type == "grapesJSPageV2" && status == "published"] {
-        slug
-      }`
-    )
+// export async function generateStaticParams() { /* removed */ }
 
-    return pages.map((page: any) => ({
-      slug: page.slug?.current || page._id,
-    }))
-  } catch (error) {
-    console.error('生成靜態路徑失敗:', error)
-    return []
-  }
-}

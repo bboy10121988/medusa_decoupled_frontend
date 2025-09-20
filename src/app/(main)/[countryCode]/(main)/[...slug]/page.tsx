@@ -131,24 +131,5 @@ export default async function CountryCodeCatchAllPage({ params }: PageProps) {
 }
 
 // 生成靜態路徑（可選，用於預渲染）
-export async function generateStaticParams() {
-  try {
-    const pages = await client.fetch(
-      `*[_type == "grapesJSPageV2" && status == "published"] {
-        slug
-      }`
-    )
-
-    return pages.map((page: any) => {
-      const slugPath = page.slug?.current || page._id
-      // 將路徑拆分為段
-      return {
-        countryCode: 'tw', // 預設為 tw
-        slug: slugPath.split('/'),
-      }
-    })
-  } catch (error) {
-    console.error('生成靜態路徑失敗:', error)
-    return []
-  }
-}
+// 移除預產生的靜態參數，避免影響其他動態路由的建置
+// export async function generateStaticParams() { /* removed to force dynamic */ }

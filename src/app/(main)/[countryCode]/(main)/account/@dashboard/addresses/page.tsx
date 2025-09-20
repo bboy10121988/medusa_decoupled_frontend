@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: "View your addresses",
 }
 
+// 強制動態渲染，避免預渲染問題
+export const dynamic = 'force-dynamic'
+
 export default async function Addresses(props: {
   params: Promise<{ countryCode: string }>
 }) {

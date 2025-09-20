@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: "Overview of your account activity.",
 }
 
+// 強制動態渲染，避免預渲染問題
+export const dynamic = 'force-dynamic'
+
 export default async function OverviewTemplate() {
   const customer = await retrieveCustomer().catch(() => null)
   const orders = (await listOrders().catch(() => null)) || null

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { grapesJSPageService, type GrapesJSPageData } from '@/lib/services/grapesjs-page-service'
+import { showSanityImagePicker } from './sanity-image-picker'
 import loadCustomPlugins from './plugins'
 import 'grapesjs/dist/css/grapes.min.css'
 
@@ -28,6 +29,12 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
 
     try {
       console.log('🔄 開始保存頁面:', currentPage.title)
+      
+      // 顯示保存中狀態
+      const saveButton = editor.Panels?.getButton?.('options', 'save-page')
+      if (saveButton) {
+        saveButton.set('attributes', { ...saveButton.get('attributes'), className: 'fa fa-spinner fa-spin', title: '保存中...' })
+      }
       
       // 獲取基本編輯器內容
       const html = editor.getHtml()
@@ -67,14 +74,38 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         hasStyles: styles.length > 0
       })
 
-      // 更新頁面數據 - 使用增強的內容
-      const updatedPage = await grapesJSPageService.updatePage({
-        _id: currentPage._id!,
-        grapesHtml: finalHtml,
-        grapesCss: finalCss,
-        grapesComponents: componentsJson,
-        grapesStyles: stylesJson
-      })
+      // 更新頁面數據 - 使用增強的內容並添加網路錯誤處理
+      let updatedPage
+      try {
+        updatedPage = await grapesJSPageService.updatePage({
+          _id: currentPage._id!,
+          grapesHtml: finalHtml,
+          grapesCss: finalCss,
+          grapesComponents: componentsJson,
+          grapesStyles: stylesJson
+        })
+      } catch (networkError) {
+        // 處理網路錯誤
+        console.error('🌐 網路請求錯誤詳情:', {
+          error: networkError,
+          message: networkError instanceof Error ? networkError.message : 'Unknown error',
+          name: networkError instanceof Error ? networkError.name : 'Unknown',
+          type: typeof networkError,
+          stack: networkError instanceof Error ? networkError.stack : undefined
+        })
+        
+        if (networkError instanceof TypeError && networkError.message.includes('network')) {
+          throw new Error('網路連接失敗，請檢查網路連接後重試')
+        } else if (networkError instanceof Error && networkError.message.includes('fetch')) {
+          throw new Error('保存請求失敗，請重試')
+        } else if (networkError instanceof Error && networkError.message.toLowerCase().includes('timeout')) {
+          throw new Error('請求超時，請重試')
+        } else if (networkError instanceof Error && networkError.message.toLowerCase().includes('cors')) {
+          throw new Error('跨域請求錯誤，請聯繫開發者')
+        } else {
+          throw networkError
+        }
+      }
 
       console.log('✅ 頁面保存成功:', updatedPage._id)
       
@@ -85,14 +116,13 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       onSave?.(updatedPage)
       
       // 在編輯器中顯示成功提示
-      const saveButton = editor.Panels?.getButton?.('options', 'save-page')
       if (saveButton) {
         const originalIcon = saveButton.get('attributes')?.className || 'fa fa-save'
-        saveButton.set('attributes', { ...saveButton.get('attributes'), className: 'fa fa-check', title: '已保存' })
+        saveButton.set('attributes', { ...saveButton.get('attributes'), className: 'fa fa-check', title: '已保存 ✅' })
         
         // 3秒後恢復原圖標
         setTimeout(() => {
-          saveButton.set('attributes', { ...saveButton.get('attributes'), className: originalIcon, title: '保存頁面' })
+          saveButton.set('attributes', { ...saveButton.get('attributes'), className: originalIcon, title: '保存頁面 (Ctrl+S)' })
         }, 3000)
       }
       
@@ -103,18 +133,59 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       const saveButton = editor.Panels?.getButton?.('options', 'save-page')
       if (saveButton) {
         const originalIcon = saveButton.get('attributes')?.className || 'fa fa-save'
-        saveButton.set('attributes', { ...saveButton.get('attributes'), className: 'fa fa-times', title: '保存失敗' })
+        const errorMessage = error instanceof Error ? error.message : '保存失敗'
+        saveButton.set('attributes', { ...saveButton.get('attributes'), className: 'fa fa-times', title: `❌ ${errorMessage}` })
         
         // 5秒後恢復原圖標
         setTimeout(() => {
-          saveButton.set('attributes', { ...saveButton.get('attributes'), className: originalIcon, title: '保存頁面' })
+          saveButton.set('attributes', { ...saveButton.get('attributes'), className: originalIcon, title: '保存頁面 (Ctrl+S)' })
         }, 5000)
+      }
+      
+      // 顯示用戶友好的錯誤提示
+      if (typeof window !== 'undefined') {
+        const errorMessage = error instanceof Error ? error.message : '保存失敗，請重試'
+        // 使用原生提示或自定義通知
+        alert(`保存失敗: ${errorMessage}`)
       }
       
       // 拋出錯誤以便外部處理
       throw error
     }
   }, [editor, currentPage, onSave])
+
+  // 全域 Ctrl+S 防護機制 - 在組件載入時就設置，確保完全阻止瀏覽器儲存行為
+  useEffect(() => {
+    const preventBrowserSave = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        console.log('🚫 全域攔截器：阻止瀏覽器儲存網頁行為')
+        e.preventDefault()
+        e.stopPropagation()
+        
+        // 如果編輯器和當前頁面都已準備好，直接觸發保存
+        if (editor && currentPage && handleSave) {
+          console.log('💾 全域攔截器：觸發編輯器保存')
+          handleSave().catch(error => {
+            console.error('全域攔截器保存失敗:', error)
+          })
+        } else {
+          console.log('⏳ 全域攔截器：編輯器或頁面尚未準備好', { 
+            hasEditor: !!editor, 
+            hasCurrentPage: !!currentPage,
+            hasHandleSave: !!handleSave
+          })
+        }
+        return false
+      }
+    }
+
+    // 在捕獲階段攔截，確保早於其他事件處理器
+    document.addEventListener('keydown', preventBrowserSave, { capture: true, passive: false })
+    
+    return () => {
+      document.removeEventListener('keydown', preventBrowserSave, { capture: true })
+    }
+  }, [editor, currentPage, handleSave])
 
   // 當編輯器和保存函數都準備好後，註冊命令和快捷鍵
   useEffect(() => {
@@ -125,9 +196,27 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       run: handleSave
     })
 
-    // 添加快捷鍵 Ctrl+S 或 Cmd+S
+    // 添加快捷鍵 Ctrl+S 或 Cmd+S (修復快捷鍵)
     editor.Keymaps.add('save-page', 'ctrl+s, cmd+s', 'save-page')
+    
+    // 添加額外的全域鍵盤事件處理，確保快捷鍵在所有情況下都能工作
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        // 強制阻止瀏覽器的預設儲存行為
+        e.preventDefault()
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+        console.log('🔑 偵測到快捷鍵 Ctrl+S/Cmd+S，觸發保存')
+        handleSave().catch(error => {
+          console.error('快捷鍵保存失敗:', error)
+        })
+        return false
+      }
+    }
 
+    // 綁定到 document 以確保全域捕獲，使用捕獲模式和非被動模式
+    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true, passive: false })
+    
     // 添加工具欄按鈕（如果還沒有的話）
     const existingButton = editor.Panels.getButton('options', 'save-page')
     if (!existingButton) {
@@ -139,6 +228,11 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
           attributes: { title: '保存頁面 (Ctrl+S)' }
         }
       ])
+    }
+    
+    // 清理函數
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown, { capture: true })
     }
 
     // 添加測試按鈕來查看完整輸出
@@ -250,28 +344,38 @@ ${allJs ? `<script>${allJs}</script>` : ''}
 
       // 使用更強健的容器檢查
       const checkContainer = () => {
-        if (!editorRef.current) {
-          console.log('⏳ 編輯器 ref 尚未設置')
-          return false
-        }
-
-        if (!editorRef.current.isConnected) {
-          console.log('⏳ 編輯器容器尚未連接到 DOM')
+        if (!editorRef || !editorRef.current) {
+          console.log('⏳ 編輯器 ref 尚未設置或為 null')
           return false
         }
 
         // 檢查容器是否真的在頁面上
-        const containerInDOM = document.contains(editorRef.current)
-        if (!containerInDOM) {
-          console.log('⏳ 編輯器容器不在 DOM 中')
+        try {
+          if (!document.contains(editorRef.current)) {
+            console.log('⏳ 編輯器容器不在 DOM 中')
+            return false
+          }
+        } catch (error) {
+          console.log('⏳ 檢查容器 DOM 狀態時出錯:', error)
           return false
         }
 
-        // 檢查容器尺寸
-        const rect = editorRef.current.getBoundingClientRect()
-        if (rect.width === 0 || rect.height === 0) {
-          console.log('⏳ 編輯器容器尺寸為 0，等待布局完成...', { width: rect.width, height: rect.height })
+        // 檢查容器是否已連接（如果支援此屬性）
+        if ('isConnected' in editorRef.current && !editorRef.current.isConnected) {
+          console.log('⏳ 編輯器容器尚未連接到 DOM')
           return false
+        }
+
+        // 檢查容器尺寸（但允許一些彈性）
+        try {
+          const rect = editorRef.current.getBoundingClientRect()
+          if (rect.width === 0 && rect.height === 0) {
+            console.log('⏳ 編輯器容器尺寸為 0，等待布局完成...', { width: rect.width, height: rect.height })
+            return false
+          }
+        } catch (error) {
+          console.log('⏳ 獲取容器尺寸時出錯，但繼續初始化:', error)
+          // 繼續，不阻止初始化
         }
 
         return true
@@ -285,18 +389,16 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         if (retryCount < 30) { // 增加重試次數到 30 次
           ;(initEditor as any).retryCount = retryCount + 1
           setTimeout(initEditor, 200) // 增加等待時間到 200ms
+          return
         } else {
           console.error('❌ 編輯器初始化失敗：容器在 30 次嘗試後仍未準備好')
-          // 嘗試強制初始化
-          if (editorRef.current) {
-            console.warn('⚠️ 嘗試強制初始化編輯器...')
-          } else {
+          // 如果容器完全沒有，則直接返回，不再嘗試
+          if (!editorRef.current) {
+            console.error('❌ 編輯器容器為 null，無法繼續')
             return
           }
-        }
-        
-        if (retryCount < 30) {
-          return
+          // 如果容器存在但檢查失敗，嘗試強制初始化
+          console.warn('⚠️ 嘗試強制初始化編輯器...')
         }
       }
 
@@ -305,13 +407,19 @@ ${allJs ? `<script>${allJs}</script>` : ''}
 
       try {
         console.log('🚀 開始初始化 GrapesJS 編輯器...')
+        
+        // 網路連接測試
+        if (typeof window !== 'undefined' && !navigator.onLine) {
+          console.warn('⚠️ 檢測到離線狀態，某些功能可能無法正常工作')
+        }
+        
         console.log('✅ 編輯器容器已準備好:', {
           container: editorRef.current,
           isConnected: editorRef.current?.isConnected,
           rect: editorRef.current?.getBoundingClientRect(),
           id: editorRef.current?.id
         })
-        
+
         const grapesjs = (await import('grapesjs')).default
         const pluginWebpage = (await import('grapesjs-preset-webpage')).default
         
@@ -330,20 +438,42 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         // 導入 Carousel 插件
         const pluginCarousel = (await import('grapesjs-carousel-component')).default
         
-        // 導入修復 carousel slide 的插件
-        const fixCarouselSlide = (await import('./plugins/fix-carousel-slide')).default
-        
-        // 導入修復 HTML 代碼組件的插件
-        const fixHtmlCodeComponent = (await import('./plugins/fix-html-code-component')).default
-        
+ 
         console.log('📦 所有插件模組載入完成，包含代碼編輯器和 Carousel 插件')
         
         // 獲取自定義插件
         const customPlugins = loadCustomPlugins()
         console.log('🎯 已載入自定義插件:', customPlugins)
 
+        // 最終的容器安全檢查，但提供更好的錯誤恢復
+        let containerElement = editorRef.current
+        
+        if (!containerElement) {
+          console.error('❌ 編輯器容器在最終檢查時為 null')
+          console.error('📊 調試信息:', {
+            hasRef: !!editorRef,
+            currentValue: editorRef.current,
+            typeOfRef: typeof editorRef.current,
+            domElement: document.getElementById('grapesjs-editor-container')
+          })
+          
+          // 嘗試通過 ID 找到容器作為備用方案
+          const fallbackContainer = document.getElementById('grapesjs-editor-container')
+          if (fallbackContainer) {
+            console.warn('⚠️ 使用備用容器方法初始化編輯器')
+            containerElement = fallbackContainer as HTMLDivElement
+          } else {
+            console.error('❌ 無法找到編輯器容器，延遲重試')
+            // 延遲重試而不是拋出錯誤
+            setTimeout(initEditor, 500)
+            return
+          }
+        }
+
+        console.log('✅ 確認容器可用，開始初始化 GrapesJS...')
+
         const editorInstance = grapesjs.init({
-          container: editorRef.current!,
+          container: containerElement,
           height: '100vh',
           width: 'auto',
           // 加載插件 - 移除內聯的自定義組件定義
@@ -358,8 +488,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
             pluginScriptEditor,
             pluginCodeEditor,
             pluginCarousel,
-            fixCarouselSlide, // 修復插件
-            fixHtmlCodeComponent, // 修復 HTML 代碼組件
+ 
             (await import('./plugins/safe-tailwind-components')).default, // 安全 Tailwind 組件
             // 添加自定義插件
             ...customPlugins.map(p => p.plugin)
@@ -503,11 +632,126 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         },
         // 存儲管理器配置
         storageManager: false, // 我們使用自己的保存邏輯
+        
+        // 資產管理器配置 - 整合 Sanity 媒體庫
+        assetManager: {
+          uploadFile: async (e: any) => {
+            const files = e.dataTransfer ? e.dataTransfer.files : e.target.files
+            const file = files[0]
+            if (!file) return
+
+            try {
+              const formData = new FormData()
+              formData.append('file', file)
+              
+              const response = await fetch('/api/sanity/upload', {
+                method: 'POST',
+                body: formData
+              })
+              
+              if (!response.ok) {
+                throw new Error(`Upload failed: ${response.status}`)
+              }
+              
+              const data = await response.json()
+              if (!data.success) {
+                throw new Error(data.error || 'Upload failed')
+              }
+              
+              return {
+                src: data.image.url,
+                name: data.image.originalFilename,
+                size: data.image.size
+              }
+            } catch (error) {
+              console.error('Asset upload error:', error)
+              throw error
+            }
+          },
+          
+          // 自定義上傳按鈕點擊處理
+          upload: false, // 禁用默認上傳，使用我們的自定義處理
+        },
       })
 
         console.log('✅ 編輯器初始化完成')
         
+        // 設置自定義資產管理器行為
+        const assetManager = editorInstance.AssetManager
+        
+        // 添加自定義命令來打開 Sanity 圖片選擇器
+        editorInstance.Commands.add('open-sanity-assets', {
+          run: () => {
+            showSanityImagePicker({
+              onSelect: (imageUrl: string) => {
+                // 將選擇的圖片添加到資產管理器
+                assetManager.add({
+                  type: 'image',
+                  src: imageUrl,
+                  name: 'Sanity Image',
+                })
+                
+                // 如果有選中的組件，並且是圖片組件，直接設置 src
+                const selected = editorInstance.getSelected()
+                if (selected && selected.is('image')) {
+                  selected.set('src', imageUrl)
+                }
+                
+                console.log('✅ 已選擇 Sanity 圖片:', imageUrl)
+              },
+              onClose: () => {
+                console.log('📂 Sanity 圖片選擇器已關閉')
+              },
+              allowUpload: true
+            })
+          }
+        })
+        
+        // 重寫資產管理器的打開行為
+        const originalShowAssets = editorInstance.Commands.get('open-assets')
+        if (originalShowAssets) {
+          editorInstance.Commands.add('open-assets', {
+            run: () => {
+              // 打開我們的 Sanity 圖片選擇器而不是默認的資產管理器
+              editorInstance.Commands.run('open-sanity-assets')
+            }
+          })
+        }
+        
+        // 監聽圖片組件的雙擊事件，打開 Sanity 圖片選擇器
+        editorInstance.on('component:selected', (component: any) => {
+          if (component.is('image')) {
+            // 為圖片組件添加雙擊監聽器
+            const view = component.getView()
+            if (view && view.el) {
+              view.el.ondblclick = () => {
+                editorInstance.Commands.run('open-sanity-assets')
+              }
+            }
+          }
+        })
+        
         setEditor(editorInstance)
+
+        // 添加全域網路錯誤監聽器
+        if (typeof window !== 'undefined') {
+          const handleNetworkError = (event: Event) => {
+            console.error('🌐 網路錯誤事件:', event)
+            // 可以在這裡添加用戶提示
+          }
+          
+          const handleOnlineStatusChange = () => {
+            if (navigator.onLine) {
+              console.log('✅ 網路連接已恢復')
+            } else {
+              console.warn('❌ 網路連接已斷開')
+            }
+          }
+          
+          window.addEventListener('error', handleNetworkError)
+          window.addEventListener('online', handleOnlineStatusChange)
+          window.addEventListener('offline', handleOnlineStatusChange)
+        }
 
         // 確保面板正確顯示
         console.log('📋 設置面板可見性...')
@@ -573,11 +817,22 @@ ${allJs ? `<script>${allJs}</script>` : ''}
       }
     }
 
-    // 使用 setTimeout 確保組件掛載完成後再初始化
-    const timer = setTimeout(initEditor, 0)
+    // 使用更穩健的方式確保 DOM 元素準備就緒
+    const waitForContainer = () => {
+      if (editorRef.current) {
+        initEditor()
+      } else {
+        // 如果容器還沒準備好，使用 requestAnimationFrame 等待下一個渲染週期
+        requestAnimationFrame(() => {
+          setTimeout(waitForContainer, 10) // 給額外的時間確保 DOM 完全準備好
+        })
+      }
+    }
+
+    // 立即開始檢查容器可用性
+    waitForContainer()
     
     return () => {
-      clearTimeout(timer)
       // 清理編輯器實例
       if (editor) {
         editor.destroy?.()
