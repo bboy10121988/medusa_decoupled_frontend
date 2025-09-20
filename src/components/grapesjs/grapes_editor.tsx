@@ -236,19 +236,81 @@ ${allJs ? `<script>${allJs}</script>` : ''}
   useEffect(() => {
     // 確保 DOM 已準備好
     const initEditor = async () => {
-      // 等待下一個 tick，確保 DOM 完全準備好
-      await new Promise(resolve => setTimeout(resolve, 0))
-      
-      // 再次檢查容器元素
-      if (!editorRef.current) {
-        console.error('編輯器容器仍未準備好，稍後重試...')
-        // 重試機制
-        setTimeout(initEditor, 100)
+      // 首先檢查是否已經初始化過
+      if (editor) {
+        console.log('📋 編輯器已存在，跳過初始化')
         return
       }
 
+      // 等待 DOM 完全準備好
+      if (typeof window === 'undefined') {
+        console.log('⏳ 服務器端渲染環境，等待客戶端...')
+        return
+      }
+
+      // 使用更強健的容器檢查
+      const checkContainer = () => {
+        if (!editorRef.current) {
+          console.log('⏳ 編輯器 ref 尚未設置')
+          return false
+        }
+
+        if (!editorRef.current.isConnected) {
+          console.log('⏳ 編輯器容器尚未連接到 DOM')
+          return false
+        }
+
+        // 檢查容器是否真的在頁面上
+        const containerInDOM = document.contains(editorRef.current)
+        if (!containerInDOM) {
+          console.log('⏳ 編輯器容器不在 DOM 中')
+          return false
+        }
+
+        // 檢查容器尺寸
+        const rect = editorRef.current.getBoundingClientRect()
+        if (rect.width === 0 || rect.height === 0) {
+          console.log('⏳ 編輯器容器尺寸為 0，等待布局完成...', { width: rect.width, height: rect.height })
+          return false
+        }
+
+        return true
+      }
+
+      // 容器檢查和重試邏輯
+      const retryCount = (initEditor as any).retryCount || 0
+      if (!checkContainer()) {
+        console.log(`⏳ 編輯器容器尚未準備好，等待中... (嘗試 ${retryCount + 1}/30)`)
+        
+        if (retryCount < 30) { // 增加重試次數到 30 次
+          ;(initEditor as any).retryCount = retryCount + 1
+          setTimeout(initEditor, 200) // 增加等待時間到 200ms
+        } else {
+          console.error('❌ 編輯器初始化失敗：容器在 30 次嘗試後仍未準備好')
+          // 嘗試強制初始化
+          if (editorRef.current) {
+            console.warn('⚠️ 嘗試強制初始化編輯器...')
+          } else {
+            return
+          }
+        }
+        
+        if (retryCount < 30) {
+          return
+        }
+      }
+
+      // 重置重試計數器
+      ;(initEditor as any).retryCount = 0
+
       try {
         console.log('🚀 開始初始化 GrapesJS 編輯器...')
+        console.log('✅ 編輯器容器已準備好:', {
+          container: editorRef.current,
+          isConnected: editorRef.current?.isConnected,
+          rect: editorRef.current?.getBoundingClientRect(),
+          id: editorRef.current?.id
+        })
         
         const grapesjs = (await import('grapesjs')).default
         const pluginWebpage = (await import('grapesjs-preset-webpage')).default
@@ -260,15 +322,28 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         const pluginTyped = (await import('grapesjs-typed')).default
         const pluginCountdown = (await import('grapesjs-component-countdown')).default
         const pluginTooltip = (await import('grapesjs-tooltip')).default
-
-        console.log('� 所有插件模組載入完成')
+        const pluginScriptEditor = (await import('grapesjs-script-editor')).default
+        
+        // 導入代碼編輯器插件
+        const pluginCodeEditor = (await import('grapesjs-component-code-editor')).default
+        
+        // 導入 Carousel 插件
+        const pluginCarousel = (await import('grapesjs-carousel-component')).default
+        
+        // 導入修復 carousel slide 的插件
+        const fixCarouselSlide = (await import('./plugins/fix-carousel-slide')).default
+        
+        // 導入修復 HTML 代碼組件的插件
+        const fixHtmlCodeComponent = (await import('./plugins/fix-html-code-component')).default
+        
+        console.log('📦 所有插件模組載入完成，包含代碼編輯器和 Carousel 插件')
         
         // 獲取自定義插件
         const customPlugins = loadCustomPlugins()
         console.log('🎯 已載入自定義插件:', customPlugins)
-        
+
         const editorInstance = grapesjs.init({
-          container: editorRef.current,
+          container: editorRef.current!,
           height: '100vh',
           width: 'auto',
           // 加載插件 - 移除內聯的自定義組件定義
@@ -280,6 +355,12 @@ ${allJs ? `<script>${allJs}</script>` : ''}
             pluginTyped,
             pluginCountdown,
             pluginTooltip,
+            pluginScriptEditor,
+            pluginCodeEditor,
+            pluginCarousel,
+            fixCarouselSlide, // 修復插件
+            fixHtmlCodeComponent, // 修復 HTML 代碼組件
+            (await import('./plugins/safe-tailwind-components')).default, // 安全 Tailwind 組件
             // 添加自定義插件
             ...customPlugins.map(p => p.plugin)
           ],
@@ -339,6 +420,53 @@ ${allJs ? `<script>${allJs}</script>` : ''}
             attrTooltip: 'data-tooltip',
             classTooltip: 'tooltip-component'
           },
+          'grapesjs-script-editor': {
+            // 腳本編輯器插件配置 - 為組件添加 JavaScript 腳本
+            starter: 'let el = this; // 選中的元素\n// 在此編寫您的 JavaScript 代碼',
+            toolbarIcon: '<i class="fa fa-code"></i>',
+            modalTitle: '編輯組件腳本',
+            buttonLabel: '保存腳本',
+            onRun: () => console.log('✅ 腳本語法正確'),
+            onError: (err: any) => console.error('❌ 腳本錯誤:', err),
+            codeViewOptions: {
+              theme: 'hopscotch',
+              lineNumbers: true,
+              styleActiveLine: true,
+              autoCloseBrackets: true
+            }
+          },
+          'gjs-component-code-editor': {
+            // 代碼編輯器插件配置
+            modalTitle: '程式碼編輯器',
+            codeViewOptions: {
+              theme: 'hopscotch',
+              lineNumbers: true,
+              styleActiveLine: true,
+              autoCloseBrackets: true,
+              matchBrackets: true,
+              mode: 'htmlmixed'  // 支持 HTML、CSS、JS 混合模式
+            },
+            // 編輯器面板配置
+            panelTitle: '程式碼',
+            commandName: 'open-code-editor',
+            // 組件選擇器，決定哪些組件可以使用代碼編輯器
+            editJs: true,    // 允許編輯 JavaScript
+            editCss: true,   // 允許編輯 CSS  
+            editHtml: true   // 允許編輯 HTML
+          },
+          'grapesjs-carousel-component': {
+            // Carousel 插件配置
+            blockName: 'carousel',
+            blockCategory: 'Media',
+            blockLabel: '輪播組件',
+            // Splide.js 預設配置
+            splideOptions: {
+              type: 'loop',
+              perPage: 1,
+              autoplay: true,
+              interval: 3000
+            }
+          },
           // 為自定義插件添加配置
           ...customPlugins.reduce((opts: any, plugin) => {
             opts[plugin.name] = plugin.options || {}
@@ -363,6 +491,15 @@ ${allJs ? `<script>${allJs}</script>` : ''}
               widthMedia: '768px',
             },
           ],
+        },
+        // Canvas 配置 - 載入 Carousel 相關資源到編輯器畫布
+        canvas: {
+          styles: [
+            'https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css'
+          ],
+          scripts: [
+            'https://cdn.jsdelivr.net/npm/@redoc_a2k/splide@4.1.4/dist/js/splide.min.js'
+          ]
         },
         // 存儲管理器配置
         storageManager: false, // 我們使用自己的保存邏輯
@@ -392,7 +529,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
             console.log('✅ 圖層面板已打開')
           }
           
-          // 確保組件庫面板可見
+                    // 確保組件庫面板可見
           const blockManager = editorInstance.BlockManager
           if (blockManager) {
             console.log('✅ 組件庫已載入，共', blockManager.getAll().length, '個組件')
@@ -402,6 +539,20 @@ ${allJs ? `<script>${allJs}</script>` : ''}
           const layerManager = editorInstance.LayerManager
           if (layerManager) {
             console.log('✅ 圖層管理器已載入')
+          }
+          
+          // 添加 script-editor 工具欄按鈕
+          if (editorInstance.Commands.has('edit-script')) {
+            const panelManager = editorInstance.Panels
+            panelManager.addButton('options', [
+              {
+                id: 'edit-script',
+                className: 'fa fa-code',
+                command: 'edit-script',
+                attributes: { title: '編輯組件腳本' }
+              }
+            ])
+            console.log('✅ 腳本編輯器按鈕已添加')
           }
           
           // 強制重新渲染面板
@@ -427,8 +578,12 @@ ${allJs ? `<script>${allJs}</script>` : ''}
     
     return () => {
       clearTimeout(timer)
+      // 清理編輯器實例
+      if (editor) {
+        editor.destroy?.()
+      }
     }
-  }, [pageId]) // 添加 pageId 作為依賴項
+  }, []) // 移除 pageId 依賴項，避免重複初始化
 
   // 載入頁面的輔助函數
   const loadPageWithEditor = async (editorInstance: any, pageIdToLoad: string) => {
@@ -503,5 +658,16 @@ ${allJs ? `<script>${allJs}</script>` : ''}
     }
   }, [pageId, editor])
 
-  return <div ref={editorRef} style={{ height: '100vh' }} />
+  return (
+    <div 
+      ref={editorRef} 
+      id="grapesjs-editor-container"
+      style={{ 
+        height: '100vh', 
+        width: '100%',
+        minHeight: '500px',
+        position: 'relative'
+      }} 
+    />
+  )
 }

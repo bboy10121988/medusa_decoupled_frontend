@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import GrapesViewer from '@/components/grapesjs/GrapesViewer'
+import GrapesEditor from '@/components/grapesjs/grapes_editor'
 import { grapesJSPageService, type GrapesJSPageData } from '@/lib/services/grapesjs-page-service'
 
 function EditorContent() {
@@ -54,7 +54,39 @@ function EditorContent() {
     }
   }
 
-  // 渲染模式不提供保存
+  const handleSave = (updatedPage: GrapesJSPageData) => {
+    console.log('頁面已保存:', updatedPage.title)
+    setPage(updatedPage)
+    
+    // 顯示保存成功的通知
+    if (typeof window !== 'undefined') {
+      const notification = document.createElement('div')
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+      `
+      notification.innerHTML = '✅ 頁面已成功保存到 Sanity'
+      
+      document.body.appendChild(notification)
+      
+      // 3秒後移除通知
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-in'
+        setTimeout(() => {
+          notification.remove()
+        }, 300)
+      }, 3000)
+    }
+  }
 
   if (loading) {
     return (
@@ -138,9 +170,9 @@ function EditorContent() {
     <div style={{ height: '100vh', overflow: 'hidden' }}>
       {page && (
         <>
-          {/* 頁面信息欄（預覽） */}
+          {/* 頁面信息欄 */}
           <div style={{
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
             padding: '0.75rem 1.5rem',
             display: 'flex',
@@ -150,7 +182,7 @@ function EditorContent() {
             fontWeight: '500'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <span>👀 預覽: <strong>{page.title}</strong></span>
+              <span>📝 正在編輯: <strong>{page.title}</strong></span>
               <span style={{ 
                 background: 'rgba(255,255,255,0.2)', 
                 padding: '0.25rem 0.5rem', 
@@ -161,13 +193,16 @@ function EditorContent() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span>🔗 路由: /tw/page/{page.slug.current}</span>
-              <span style={{ opacity: 0.9 }}>Sanity 管控 · 僅渲染</span>
+              <span style={{ opacity: 0.8 }}>Ctrl+S 快速保存</span>
             </div>
           </div>
           
-          {/* 渲染器 */}
+          {/* 編輯器 */}
           <div style={{ height: 'calc(100vh - 50px)' }}>
-            <GrapesViewer pageId={pageId!} preview />
+            <GrapesEditor 
+              pageId={pageId!}
+              onSave={handleSave}
+            />
           </div>
         </>
       )}
