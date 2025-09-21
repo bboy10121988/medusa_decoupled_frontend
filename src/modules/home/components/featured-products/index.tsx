@@ -54,7 +54,7 @@ export default function FeaturedProducts({
           className={settings?.showHeading ? "py-8 md:py-12" : "py-0"}
         >
           <div className="w-full">
-            <div className="container mx-auto">
+            <div className="px-6 md:px-12 xl:px-16 2xl:px-20">
               {renderTitle(settings)}
             </div>
             <Suspense fallback={<SkeletonProductGrid />}>
@@ -69,12 +69,14 @@ export default function FeaturedProducts({
 
 const SkeletonProductGrid = () => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full bg-neutral-200">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="w-full bg-white">
-          <SkeletonProductPreview />
-        </div>
-      ))}
+    <div className="px-6 md:px-12 xl:px-16 2xl:px-20">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full bg-neutral-200">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="w-full bg-white">
+            <SkeletonProductPreview />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

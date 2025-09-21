@@ -49,8 +49,8 @@ export default {
           type: 'object',
           fields: [
             {
-              name: 'backgroundImage',
-              title: '背景圖片',
+              name: 'desktopImage',
+              title: '桌面版背景圖片',
               type: 'image',
               options: {
                 hotspot: true
@@ -60,7 +60,23 @@ export default {
                   name: 'alt',
                   title: '替代文字',
                   type: 'string',
-                  description: '背景圖片的替代文字，用於無障礙和 SEO 優化'
+                  description: '桌面版背景圖片的替代文字，用於無障礙和 SEO 優化'
+                }
+              ]
+            },
+            {
+              name: 'mobileImage',
+              title: '手機版背景圖片',
+              type: 'image',
+              options: {
+                hotspot: true
+              },
+              fields: [
+                {
+                  name: 'alt',
+                  title: '替代文字',
+                  type: 'string',
+                  description: '手機版背景圖片的替代文字，用於無障礙和 SEO 優化'
                 }
               ]
             },
@@ -69,7 +85,11 @@ export default {
               title: '標題',
               type: 'string'
             },
-
+            {
+              name: 'subheading',
+              title: '副標題',
+              type: 'string'
+            },
             {
               name: 'buttonText',
               title: '按鈕文字',

@@ -198,7 +198,7 @@ export default async function BlogListPage({
           <div className="grid grid-cols-12">
             {/* 左側分類側邊欄 */}
             <aside className="col-span-12 md:col-span-3">
-              <nav className="bg-white p-6 sticky top-[96px]">
+              <nav className="bg-white pl-6 md:pl-12 xl:pl-16 2xl:pl-20 pr-6 py-6 sticky top-[96px]">
                 <h2 className="text-xl font-semibold border-b pb-2">文章分類</h2>
                 <ul className="space-y-3 mt-4">
                   <li>
@@ -275,7 +275,7 @@ export default async function BlogListPage({
             </aside>
 
             {/* 右側主要內容區 */}
-            <main className="col-span-12 md:col-span-9">
+            <main className="col-span-12 md:col-span-9 pr-6 md:pr-12 xl:pr-16 2xl:pr-20">
               {/* 隱藏頁面標題和副標題
               <header className="bg-white p-8">
                 <h1 className="text-3xl font-bold">

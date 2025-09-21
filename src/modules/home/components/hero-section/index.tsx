@@ -18,6 +18,19 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
     ? "min-h-hero-mobile" // 固定高度（扣掉 header）
     : "min-h-fit" // 自適應內容高度
   
+  const processedSlides = banner.slides.map((slide: BannerSlide, index: number) => {
+    return {
+      heading: slide.heading,
+      subheading: (slide as any).subheading,
+      desktopImage: slide.desktopImage,
+      desktopImageAlt: slide.desktopImageAlt,
+      mobileImage: slide.mobileImage,
+      mobileImageAlt: slide.mobileImageAlt,
+      buttonText: slide.buttonText || "",
+      buttonLink: slide.buttonLink || ""
+    }
+  });
+  
   return (
     <section className={`w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}>
       <div className={`w-full mb-4 last:mb-0 h-auto ${mobileHeightClass} md:min-h-0`}>
@@ -25,8 +38,10 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
           slides={banner.slides.map((slide: BannerSlide) => ({
             heading: slide.heading,
             subheading: (slide as any).subheading,
-            backgroundImage: slide.backgroundImage,
-            backgroundImageAlt: slide.backgroundImageAlt,
+            desktopImage: slide.desktopImage,
+            desktopImageAlt: slide.desktopImageAlt,
+            mobileImage: slide.mobileImage,
+            mobileImageAlt: slide.mobileImageAlt,
             buttonText: slide.buttonText || "",
             buttonLink: slide.buttonLink || ""
           }))}

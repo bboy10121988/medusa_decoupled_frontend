@@ -160,12 +160,12 @@ const ImageTextBlock = ({
               </h2>
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 w-full m-0 p-0 gap-0 md:gap-0">
+          <div className="grid grid-cols-2 w-full m-0 p-0 gap-0">
             {leftImage?.url && (
               <div className="relative w-full overflow-hidden m-0 p-0">
                 <ImageWrapper 
                   imageConfig={leftImage} 
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 50vw, 50vw"
                 />
               </div>
             )}
@@ -173,7 +173,7 @@ const ImageTextBlock = ({
               <div className="relative w-full overflow-hidden m-0 p-0">
                 <ImageWrapper 
                   imageConfig={rightImage} 
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 50vw, 50vw"
                 />
               </div>
             )}
@@ -205,7 +205,6 @@ const ImageTextBlock = ({
           </div>
         </div>
       )}
-
     </div>
   )
 }

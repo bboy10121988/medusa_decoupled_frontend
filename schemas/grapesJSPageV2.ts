@@ -25,25 +25,18 @@ export default defineType({
           const React = require('react')
           const { useFormValue } = require('sanity')
 
-          // 確保 Hooks 總是在同樣的順序被調用
           const id = useFormValue(['_id']) as string | undefined
-          
-          // 計算衍生狀態
-          const publishedId = React.useMemo(() => {
-            return (id || '').replace(/^drafts\./, '')
-          }, [id])
-          
-          const isReady = React.useMemo(() => {
-            return Boolean(publishedId)
-          }, [publishedId])
+          const publishedId = (id || '').replace(/^drafts\./, '')
+          const isReady = Boolean(publishedId)
 
-          const handleClick = React.useCallback(() => {
+          const handleClick = () => {
             if (!isReady) return
-            const url = `/cms/grapes-editor?docId=${encodeURIComponent(publishedId)}&type=grapesJSPageV2`
-            if (typeof window !== 'undefined' && window.open) {
-              window.open(url, '_blank', 'noopener,noreferrer')
+            const url = `/cms/editor?docId=${encodeURIComponent(publishedId)}&type=grapesJSPageV2`
+            if (typeof window !== 'undefined') {
+              // 在同一個視窗中導航，保留 Sanity 頁首
+              window.location.href = url
             }
-          }, [isReady, publishedId])
+          }
 
           return React.createElement(
             'div',

@@ -3,8 +3,10 @@ import { NextResponse } from 'next/server'
 type Slide = {
   heading: string
   subheading?: string
-  backgroundImage?: string
-  backgroundImageAlt?: string
+  desktopImage?: string
+  desktopImageAlt?: string
+  mobileImage?: string
+  mobileImageAlt?: string
   buttonText?: string
   buttonLink?: string
 }
@@ -27,7 +29,7 @@ export async function POST(req: Request) {
     const slides = Array.isArray(body.slides) ? body.slides : []
     const settings = body.settings || {}
 
-    const current = slides[0] || ({ heading: '', subheading: '', backgroundImage: '' } as Slide)
+    const current = slides[0] || ({ heading: '', subheading: '', desktopImage: '', mobileImage: '' } as Slide)
 
     const escapeHtml = (str: string = '') =>
       String(str)
@@ -37,8 +39,9 @@ export async function POST(req: Request) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;')
 
-    const bgStyle = current.backgroundImage
-      ? `background-image:url(${escapeHtml(current.backgroundImage)});`
+    // 優先使用桌面版圖片，如果沒有則使用預設背景
+    const bgStyle = current.desktopImage
+      ? `background-image:url(${escapeHtml(current.desktopImage)});`
       : 'background:linear-gradient(135deg,#3b5bdb 0%,#4263eb 50%,#7048e8 100%);'
 
     const styles = `

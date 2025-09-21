@@ -36,6 +36,8 @@ import { client as readClient } from '@/lib/sanity'
 export interface GrapesJSPageData {
   _id?: string
   _type: 'grapesJSPageV2'
+  _createdAt?: string
+  _updatedAt?: string
   title: string
   slug: {
     current: string
@@ -93,18 +95,29 @@ class GrapesJSPageService {
       const pages = await readClient.fetch(`
         *[_type == "grapesJSPageV2"] | order(_createdAt desc) {
           _id,
+          _type,
           _createdAt,
           _updatedAt,
           title,
           slug,
+          description,
           status,
-          content,
-          styles,
-          metadata,
+          publishedAt,
           version,
+          grapesHtml,
+          grapesCss,
+          grapesComponents,
+          grapesStyles,
+          homeModules,
+          seoTitle,
+          seoDescription,
+          seoKeywords,
+          ogImage,
+          customCSS,
+          customJS,
+          viewport,
           lastModified,
-          countryCode,
-          htmlContent
+          editHistory
         }
       `)
       

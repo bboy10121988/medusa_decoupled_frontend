@@ -229,11 +229,6 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         }
       ])
     }
-    
-    // 清理函數
-    return () => {
-      document.removeEventListener('keydown', handleGlobalKeyDown, { capture: true })
-    }
 
     // 添加測試按鈕來查看完整輸出
     editor.Panels.addButton('options', [
@@ -325,6 +320,11 @@ ${allJs ? `<script>${allJs}</script>` : ''}
     })
 
     console.log('✅ 保存命令、快捷鍵和測試功能已註冊')
+    
+    // 清理函數
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown, { capture: true })
+    }
   }, [editor, handleSave])
 
   useEffect(() => {
@@ -798,6 +798,303 @@ ${allJs ? `<script>${allJs}</script>` : ''}
             ])
             console.log('✅ 腳本編輯器按鈕已添加')
           }
+
+          // 使用 GrapesJS API 添加頁面切換器到 options 面板
+          const addPageSwitcher = async () => {
+            if (pageId) {
+              
+              // 檢查是否已經添加過
+              const existingButton = editorInstance.Panels.getButton('options', 'page-switcher')
+              
+              if (existingButton) {
+                console.log('頁面切換器已存在，跳過添加')
+                return
+              }
+              
+              // 獲取所有可用頁面列表
+              let allPages: GrapesJSPageData[] = []
+              try {
+                console.log('🔍 開始獲取頁面清單...')
+                allPages = await grapesJSPageService.getAllPages()
+                
+                // 詳細記錄每個頁面狀態
+                console.log('✅ 成功獲取頁面清單:', {
+                  總數: allPages.length,
+                  頁面列表: allPages.map(p => ({ 
+                    id: p._id, 
+                    title: p.title,
+                    slug: p.slug,
+                    status: p.status,
+                    hasHtml: !!p.grapesHtml,
+                    hasCss: !!p.grapesCss,
+                    _createdAt: p._createdAt,
+                    _updatedAt: p._updatedAt
+                  }))
+                })
+                
+                // 統計各種狀態的頁面數量
+                const statusCounts = allPages.reduce((counts, page) => {
+                  const status = page.status || 'undefined'
+                  counts[status] = (counts[status] || 0) + 1
+                  return counts
+                }, {} as Record<string, number>)
+                
+                console.log('📊 頁面狀態統計:', statusCounts)
+                console.log('🔍 原始查詢返回數據:', allPages)
+              } catch (error) {
+                console.error('❌ 載入頁面列表失敗:', error)
+                // 如果獲取失敗，至少包含當前頁面
+                allPages = [{
+                  _id: pageId,
+                  _type: 'grapesJSPageV2',
+                  title: '當前頁面',
+                  slug: { current: 'current-page' },
+                  status: 'draft' as const,
+                  version: 1,
+                  viewport: 'responsive' as const,
+                  grapesHtml: '',
+                  grapesCss: '',
+                  grapesComponents: '',
+                  grapesStyles: ''
+                }]
+                console.log('⚠️ 使用備用頁面列表:', allPages)
+              }
+
+              // 找到當前頁面資料以用於按鈕標題
+              const currentPageForButton = allPages.find(page => page._id === pageId)
+              const currentSlugForButton = currentPageForButton?.slug?.current || pageId.slice(-8)
+              
+              // 使用 GrapesJS Panels API 添加頁面切換器按鈕到 options 面板
+              editorInstance.Panels.addButton('options', {
+                id: 'page-switcher',
+                className: 'fa fa-list',
+                command: 'page-switcher',
+                attributes: { title: `切換頁面 (當前: ${currentSlugForButton})` },
+                active: false
+              })
+
+              // 添加自定義命令處理頁面切換
+              editorInstance.Commands.add('page-switcher', {
+                run: () => {
+                  const currentPageId = pageId
+                  
+                  // 找到當前頁面的資料
+                  const currentPage = allPages.find(page => page._id === currentPageId)
+                  const currentSlug = currentPage?.slug?.current || '未知頁面'
+                  const currentTitle = currentPage?.title || '未命名頁面'
+                  
+                  // 生成所有頁面選項，包括當前頁面
+                  const pageOptions = allPages
+                    .filter(page => page._id) // 只過濾掉沒有 _id 的頁面
+                    .map(page => {
+                      const isCurrentPage = page._id === currentPageId
+                      const statusEmoji = {
+                        'draft': '📝',
+                        'preview': '👁️',
+                        'published': '✅',
+                        'archived': '🗄️'
+                      }[page.status] || '❓'
+                      const pageSlug = page.slug?.current || page._id?.slice(-8) || '未知'
+                      const displayName = `${page.title || '未命名頁面'} (${pageSlug})`
+                      const statusText = `${statusEmoji} ${displayName}`
+                      const selectedAttr = isCurrentPage ? ' selected' : ''
+                      const currentMark = isCurrentPage ? ' (當前)' : ''
+                      const option = `<option value="${page._id}"${selectedAttr}>${statusText}${currentMark}</option>`
+                      console.log('📄 生成頁面選項:', { 
+                        pageId: page._id?.slice(-8), 
+                        title: page.title, 
+                        status: page.status,
+                        isCurrentPage, 
+                        option: option.substring(0, 120) 
+                      })
+                      return option
+                    })
+                    .join('')
+                    
+                  console.log(`📋 頁面選項生成完成: 當前頁面ID=${currentPageId?.slice(-8)}, 總選項數=${allPages.length}`)
+                  console.log('🔧 生成的HTML選項:', pageOptions)
+                    
+                  console.log(`📋 顯示頁面清單: 共 ${allPages.length} 個頁面`)
+                  
+                  const modal = editorInstance.Modal
+                  modal.setTitle('<span style="color: white;">🔄 切換編輯頁面</span>')
+                  modal.setContent(`
+                    <div style="padding: 25px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #2c3e50;">
+                      <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; font-size: 16px; color: white;">當前頁面</h4>
+                        <p style="margin: 0; font-family: Monaco, 'Courier New', monospace; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 4px; font-size: 14px; color: white;">
+                          <strong>代稱:</strong> ${currentSlug}<br>
+                          <strong>標題:</strong> ${currentTitle}
+                        </p>
+                      </div>
+                      
+                      <div style="margin-bottom: 20px;">
+                        <label for="page-select" style="display: block; margin-bottom: 8px; font-weight: 600; color: white;">選擇要切換的頁面:</label>
+                        <select id="page-select" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 6px; font-size: 14px; background: white; color: #2c3e50;">
+                          ${pageOptions}
+                        </select>
+                      </div>
+                      
+                      <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center;">
+                        <button id="create-new-page-btn" style="padding: 10px 20px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                          <i class="fas fa-plus" style="margin-right: 5px;"></i>新增頁面
+                        </button>
+                        <div style="display: flex; gap: 10px;">
+                          <button id="cancel-switch-btn" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500;">取消</button>
+                          <button id="switch-page-btn" style="padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500;">切換頁面</button>
+                        </div>
+                      </div>
+                    </div>
+                  `)
+                  modal.open()
+                  
+                  // 綁定事件
+                  setTimeout(() => {
+                    const switchBtn = document.getElementById('switch-page-btn')
+                    const cancelBtn = document.getElementById('cancel-switch-btn')
+                    const createBtn = document.getElementById('create-new-page-btn')
+                    const selectEl = document.getElementById('page-select') as HTMLSelectElement
+                    
+                    if (cancelBtn) {
+                      cancelBtn.onclick = () => modal.close()
+                    }
+                    
+                    // 新增頁面按鈕事件
+                    if (createBtn) {
+                      createBtn.onclick = async () => {
+                        modal.close()
+                        
+                        // 重新使用同一個 modal 來顯示新增頁面表單
+                        modal.setTitle('新增頁面')
+                        modal.setContent(`
+                          <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; font-family: Arial, sans-serif;">
+                            <div style="margin-bottom: 20px;">
+                              <label for="new-page-title" style="display: block; margin-bottom: 8px; font-weight: 600; color: white;">頁面標題:</label>
+                              <input type="text" id="new-page-title" placeholder="請輸入頁面標題" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 6px; font-size: 14px; background: white; color: #2c3e50; box-sizing: border-box;">
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                              <label for="new-page-slug" style="display: block; margin-bottom: 8px; font-weight: 600; color: white;">頁面路徑 (slug):</label>
+                              <input type="text" id="new-page-slug" placeholder="例如: about-us" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 6px; font-size: 14px; background: white; color: #2c3e50; box-sizing: border-box;">
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                              <button id="cancel-create-btn" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500;">取消</button>
+                              <button id="confirm-create-btn" style="padding: 10px 20px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500;">建立頁面</button>
+                            </div>
+                          </div>
+                        `)
+                        modal.open()
+                        
+                        // 綁定新增頁面的事件
+                        setTimeout(() => {
+                          const confirmBtn = document.getElementById('confirm-create-btn')
+                          const cancelCreateBtn = document.getElementById('cancel-create-btn')
+                          const titleInput = document.getElementById('new-page-title') as HTMLInputElement
+                          const slugInput = document.getElementById('new-page-slug') as HTMLInputElement
+                          
+                          if (cancelCreateBtn) {
+                            cancelCreateBtn.onclick = () => modal.close()
+                          }
+                          
+                          if (confirmBtn && titleInput && slugInput) {
+                            confirmBtn.onclick = async () => {
+                              const title = titleInput.value.trim()
+                              const slug = slugInput.value.trim()
+                              
+                              if (!title) {
+                                alert('請輸入頁面標題')
+                                return
+                              }
+                              
+                              if (!slug) {
+                                alert('請輸入頁面路徑')
+                                return
+                              }
+                              
+                              // 驗證slug格式 (只允許字母、數字、連字符)
+                              const slugPattern = /^[a-z0-9-]+$/
+                              if (!slugPattern.test(slug)) {
+                                alert('頁面路徑只能包含小寫字母、數字和連字符')
+                                return
+                              }
+                              
+                              try {
+                                // 設置loading狀態
+                                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 5px;"></i>建立中...'
+                                ;(confirmBtn as HTMLButtonElement).disabled = true
+                                
+                                // 呼叫API建立新頁面
+                                const response = await fetch('/api/sanity/pages', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify({
+                                    title: title,
+                                    slug: slug,
+                                    status: 'draft'
+                                  }),
+                                })
+                                
+                                if (!response.ok) {
+                                  const error = await response.text()
+                                  throw new Error(error || '建立頁面失敗')
+                                }
+                                
+                                const newPage = await response.json()
+                                modal.close()
+                                
+                                // 跳轉到新頁面編輯器
+                                if (confirm('頁面建立成功！是否立即編輯新頁面？')) {
+                                  window.location.href = `/cms/editor?docId=${encodeURIComponent(newPage._id)}&type=grapesJSPageV2`
+                                }
+                                
+                              } catch (err) {
+                                console.error('Error creating page:', err)
+                                const errorMessage = err instanceof Error ? err.message : '未知錯誤'
+                                alert(`建立頁面失敗: ${errorMessage}`)
+                                
+                                // 恢復按鈕狀態
+                                confirmBtn.innerHTML = '建立頁面'
+                                ;(confirmBtn as HTMLButtonElement).disabled = false
+                              }
+                            }
+                          }
+                        }, 100)
+                      }
+                    }
+                    
+                    if (switchBtn && selectEl) {
+                      switchBtn.onclick = () => {
+                        const selectedPageId = selectEl.value
+                        if (!selectedPageId) {
+                          alert('請先選擇頁面')
+                          return
+                        }
+                        
+                        if (selectedPageId === currentPageId) {
+                          alert('您已經在編輯這個頁面了')
+                          modal.close()
+                          return
+                        }
+                        
+                        if (confirm('⚠️ 確定要切換頁面嗎？\n\n未保存的更改將會丟失。')) {
+                          window.location.href = `/cms/editor?docId=${encodeURIComponent(selectedPageId)}&type=grapesJSPageV2`
+                        }
+                        modal.close()
+                      }
+                    }
+                  }, 100)
+                }
+              })
+
+              console.log('✅ 頁面切換器已添加到 options 面板，共', allPages.length + 1, '個頁面')
+            }
+          }
+          
+          // 稍微延遲添加頁面切換器，確保面板完全載入
+          setTimeout(addPageSwitcher, 500)
           
           // 強制重新渲染面板
           editorInstance.trigger('change:canvasOffset')

@@ -5,7 +5,10 @@ export const mainBannerFragment = `
     "slides": slides[] {
       heading,
       subheading,
-      "backgroundImage": backgroundImage.asset->url,
+      "desktopImage": desktopImage.asset->url,
+      "desktopImageAlt": desktopImage.alt,
+      "mobileImage": mobileImage.asset->url,
+      "mobileImageAlt": mobileImage.alt,
       buttonText,
       buttonLink
     },

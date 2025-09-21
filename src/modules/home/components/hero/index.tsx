@@ -1,15 +1,16 @@
 "use client"
 
 import { Button, Heading } from "@medusajs/ui"
-import { useState, useEffect } from "react"
-import Image from "next/image"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 
 type Slide = {
   heading: string
   subheading?: string
-  backgroundImage: string
-  backgroundImageAlt?: string
+  desktopImage: string
+  desktopImageAlt?: string
+  mobileImage: string
+  mobileImageAlt?: string
   buttonText: string
   buttonLink: string
 }
@@ -28,6 +29,9 @@ type HeroProps = {
 
 const Hero = ({ slides, settings }: HeroProps) => {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const touchStartXRef = useRef<number | null>(null)
+  const touchStartTimeRef = useRef<number>(0)
+  const isSwipingRef = useRef<boolean>(false)
 
   useEffect(() => {
     if (!slides || slides.length <= 1 || !settings?.autoplay) return
@@ -61,30 +65,106 @@ const Hero = ({ slides, settings }: HeroProps) => {
     setCurrentSlide(index)
   }
 
+  // 觸摸手勢處理
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX
+    touchStartTimeRef.current = Date.now()
+    isSwipingRef.current = false
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return
+    
+    const touchCurrentX = e.touches[0].clientX
+    const diffX = touchStartXRef.current - touchCurrentX
+
+    
+    // 如果滑動距離超過 10px，則認為是在滑動
+    if (Math.abs(diffX) > 10) {
+      isSwipingRef.current = true
+    }
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null || !isSwipingRef.current) return
+    
+    const touchEndX = e.changedTouches[0].clientX
+    const diffX = touchStartXRef.current - touchEndX
+    const diffTime = Date.now() - touchStartTimeRef.current
+    const minSwipeDistance = 50 // 最小滑動距離
+    const maxSwipeTime = 500 // 最大滑動時間（毫秒）
+    
+    // 檢查是否為有效滑動：距離夠長且時間不太長
+    if (Math.abs(diffX) > minSwipeDistance && diffTime < maxSwipeTime) {
+      if (diffX > 0) {
+        // 向左滑動 - 下一張
+        goToNextSlide()
+      } else {
+        // 向右滑動 - 上一張
+        goToPrevSlide()
+      }
+    }
+    
+    // 重置
+    touchStartXRef.current = null
+    isSwipingRef.current = false
+  }
+
   return (
     <div className={`relative w-full ${mobileHeightClass} md:min-h-0`}>
       {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
-      <div className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}>
-        {slides.map((slideItem, index) => (
-          <div
-            key={index}
-            className={`transition-opacity duration-1000 ease-in-out ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
-            } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
-          >
-            {slideItem.backgroundImage && (
-              <Image
-                src={slideItem.backgroundImage}
-                alt={slideItem.backgroundImageAlt || slideItem.heading || `輪播圖片 ${index + 1}`}
-                width={1920}
-                height={1080}
-                className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} md:h-auto object-cover`}
-                sizes="100vw"
-                priority={index === 0}
-              />
-            )}
-          </div>
-        ))}
+      <div 
+        className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {slides.map((slideItem, index) => {
+          return (
+            <div
+              key={index}
+              className={`transition-opacity duration-1000 ease-in-out ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
+            >
+              {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
+              
+              {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
+              <div className="hidden md:block w-full">
+                {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
+                  <img
+                    key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
+                    src={slideItem.desktopImage}
+                    alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                    className="w-full h-auto object-cover"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                ) : (
+                  <div className="w-full bg-gray-300 flex items-center justify-center h-64">
+                    <span className="text-gray-500">桌面版圖片未設定</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* 手機版圖片容器 - 只在 md 以下顯示 */}
+              <div className="block md:hidden w-full">
+                {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
+                  <img
+                    key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
+                    src={slideItem.mobileImage}
+                    alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                    className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                ) : (
+                  <div className="w-full bg-gray-300 flex items-center justify-center h-32">
+                    <span className="text-gray-500 text-sm">手機版圖片未設定</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
       </div>
       
       {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}

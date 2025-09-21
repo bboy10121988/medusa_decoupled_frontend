@@ -32,7 +32,6 @@ export default function MobileMenu({ regions, navigation, categories, headerData
         const totalOffset = stickyNavRect.top + stickyNavRect.height
         
         setMenuTopOffset(totalOffset)
-        console.log(`📱 選單位置計算: sticky導覽頂部=${stickyNavRect.top}px, 高度=${stickyNavRect.height}px, 選單位置=${totalOffset}px`)
       }
     }
 

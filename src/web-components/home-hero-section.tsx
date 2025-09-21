@@ -12,8 +12,10 @@ type Props = {
   // 也允許以個別屬性快速帶入第一張幻燈片的重要欄位
   title?: string
   subheading?: string
-  backgroundImage?: string
-  backgroundImageAlt?: string
+  desktopImage?: string
+  desktopImageAlt?: string
+  mobileImage?: string
+  mobileImageAlt?: string
   buttonText?: string
   buttonLink?: string
 }
@@ -26,8 +28,10 @@ const WCInner: React.FC<Props> = (props) => {
     : [{
         heading: props.title || '',
         subheading: props.subheading || '',
-        backgroundImage: props.backgroundImage || '',
-        backgroundImageAlt: props.backgroundImageAlt || '',
+        desktopImage: props.desktopImage || '',
+        desktopImageAlt: props.desktopImageAlt || '',
+        mobileImage: props.mobileImage || '',
+        mobileImageAlt: props.mobileImageAlt || '',
         buttonText: props.buttonText || '',
         buttonLink: props.buttonLink || '',
       }]

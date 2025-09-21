@@ -169,8 +169,10 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
             "slides": slides[] {
               heading,
               subheading,
-              "backgroundImage": backgroundImage.asset->url,
-              "backgroundImageAlt": backgroundImage.alt,
+              "desktopImage": desktopImage.asset->url,
+              "desktopImageAlt": desktopImage.alt,
+              "mobileImage": mobileImage.asset->url,
+              "mobileImageAlt": mobileImage.alt,
               buttonText,
               buttonLink
             },
@@ -403,8 +405,10 @@ export async function getAllPages(): Promise<PageData[]> {
             "slides": slides[] {
               heading,
               subheading,
-              "backgroundImage": backgroundImage.asset->url,
-              "backgroundImageAlt": backgroundImage.alt,
+              "desktopImage": desktopImage.asset->url,
+              "desktopImageAlt": desktopImage.alt,
+              "mobileImage": mobileImage.asset->url,
+              "mobileImageAlt": mobileImage.alt,
               buttonText,
               buttonLink
             },
@@ -537,8 +541,11 @@ export async function getHomepage(): Promise<{ title: string; mainSections: Main
           isActive,
           "slides": slides[] {
             heading,
-            "backgroundImage": backgroundImage.asset->url,
-            "backgroundImageAlt": backgroundImage.alt,
+            subheading,
+            "desktopImage": desktopImage.asset->url,
+            "desktopImageAlt": desktopImage.alt,
+            "mobileImage": mobileImage.asset->url,
+            "mobileImageAlt": mobileImage.alt,
             buttonText,
             buttonLink
           },

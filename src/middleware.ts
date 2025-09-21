@@ -127,7 +127,7 @@ async function getCountryCode(
  * Middleware to handle region selection and onboarding status.
  */
 export async function middleware(request: NextRequest) {
-  // Skip middleware for studio and cms routes
+  // Skip middleware for studio, cms routes
   if (request.nextUrl.pathname.startsWith("/studio") || 
       request.nextUrl.pathname.startsWith("/cms")) {
     return NextResponse.next()
