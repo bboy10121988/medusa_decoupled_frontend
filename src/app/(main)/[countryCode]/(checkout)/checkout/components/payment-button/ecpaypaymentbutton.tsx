@@ -42,21 +42,52 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   // 商品名稱（取購物車商品名稱，限制長度）
   const itemName = cart.items?.map(item => item.product_title).join(',').substring(0, 200) || '購物車商品'
 
-  // 返回網址
-  const returnURL = `${window.location.origin}/api/ecpay/return`
-  const orderResultURL = `${window.location.origin}/order/confirmed`
-  const clientBackURL = `${window.location.origin}/checkout`
+  // ecpay API URL
+  const ecpayAPI = process.env.NEXT_PUBLIC_ECPAY_ACTION_URL || "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5"
+
+  // ecpay在完成付款後callback的網址，這裡要指向medusa ecpay 轉換器
+  const returnURL = process.env.NEXT_PUBLIC_ECPAY_RETURN_URL || ""
+
+  // 特店代號
+  const merchantID = process.env.NEXT_PUBLIC_ECPAY_MERCHANT_ID || ""
+
+  // hash key
+  const hashKey = process.env.NEXT_PUBLIC_ECPAY_HASH_KEY || ""
+
+  // hash iv
+  const hashIV = process.env.NEXT_PUBLIC_ECPAY_HASH_IV || ""
+
+  if (returnURL === ""){
+    setErrorMessage("missing ECPay return URL")
+  }
+
+  if (merchantID === ""){
+    setErrorMessage("missing ECPay merchant ID")
+  }
+
+  if (hashKey === ""){
+    setErrorMessage("missing ECPay hash key")
+  }
+
+  if (hashIV === ""){
+    setErrorMessage("missing ECPay hash iv")
+  }
+
+
+
+
+  // "使用者"付款完成後返回的網址
+  const clientBackURL = `${window.location.origin}/order/confirmed`
 
   const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
 
-
   let data: PaymentData = new PaymentData();
 
-  data.setHashKey("pwFHCqoQZGmho4w6")
+  data.setHashKey(hashKey)
 
-  data.setHashIV("EkRm7iFT261dpevs")
+  data.setHashIV(hashIV)
 
-  data.setMerchantID("3002607");
+  data.setMerchantID(merchantID);
 
   data.setMerchantTradeNo(tradeNo.toString())
 
@@ -85,7 +116,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   
   data.setEncryptType("1")
 
-  data.setCustomField3("payment_session_id")
+  data.setCustomField3("cart_id")
 
   data.setCustomField4(cart.id)
 
@@ -93,27 +124,26 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   
   
 
+  // const handleSubmit = async(e:React.FormEvent) => {
 
-  const handleSubmit = async(e:React.FormEvent) => {
-
-     e.preventDefault() // 阻止預設提交行為
+  //    e.preventDefault() // 阻止預設提交行為
 
 
-    try{
+  //   try{
 
-      // const data = await placeOrder(cart.id)
+  //     // const data = await placeOrder(cart.id)
 
-      // console.log("place order:",data)
+  //     // console.log("place order:",data)
 
-      const form = e.target as HTMLFormElement
+  //     const form = e.target as HTMLFormElement
 
-      form.submit()
+  //     form.submit()
 
-    }catch(err:any){
-      setErrorMessage(err.message || err)
-    }
+  //   }catch(err:any){
+  //     setErrorMessage(err.message || err)
+  //   }
 
-  }
+  // }
 
 
 
@@ -121,10 +151,9 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     <>
       <form 
         method="POST" 
-        action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5" 
+        action={ecpayAPI}
         target="_blank"
         encType="application/x-www-form-urlencoded"
-        onSubmit={handleSubmit}
       >
         
         {Array.from(params.entries()).map(([key, value]) => (
