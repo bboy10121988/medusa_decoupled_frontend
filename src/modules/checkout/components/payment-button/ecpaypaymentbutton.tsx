@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useMemo } from "react"
 import { Button } from "@medusajs/ui"
 import ErrorMessage from "../error-message"
@@ -15,7 +13,7 @@ type Props = {
 }
 
 const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": dataTestId }) => {
-
+    
   const action:string = "ECPayPaymentButton"
 
   let defaultError:string | null = null
@@ -33,7 +31,8 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   console.log(action,"payment session id",paymentSessionID)
 
   const [submitting, setSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(defaultError)
+  let errorMessage: string|null = defaultError
+  // const [errorMessage, setErrorMessage] = useState<string | null>(defaultError)
 
 
   // 計算總金額（轉換為整數，ECPay 不接受小數）
@@ -47,6 +46,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   // ecpay在完成付款後callback的網址，這裡要指向medusa ecpay 轉換器
   const returnURL = process.env.NEXT_PUBLIC_ECPAY_RETURN_URL || ""
+  // const returnURL = ""
 
   // 特店代號
   const merchantID = process.env.NEXT_PUBLIC_ECPAY_MERCHANT_ID || ""
@@ -58,23 +58,21 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   const hashIV = process.env.NEXT_PUBLIC_ECPAY_HASH_IV || ""
 
   if (returnURL === ""){
-    setErrorMessage("missing ECPay return URL")
+    errorMessage = "missing ECPay return URL"
+    // setErrorMessage("missing ECPay return URL")
   }
 
   if (merchantID === ""){
-    setErrorMessage("missing ECPay merchant ID")
+    errorMessage = "missing ECPay merchant ID"
   }
 
   if (hashKey === ""){
-    setErrorMessage("missing ECPay hash key")
+    errorMessage = "missing ECPay hash key"
   }
 
   if (hashIV === ""){
-    setErrorMessage("missing ECPay hash iv")
+    errorMessage = "missing ECPay hash iv"
   }
-
-
-
 
   // "使用者"付款完成後返回的網址
   const clientBackURL = `${window.location.origin}/order/confirmed`
@@ -112,6 +110,8 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   data.setReturnURL(returnURL)
 
+  data.setClientBackURL(clientBackURL)
+
   data.setChoosePayment("ALL")
   
   data.setEncryptType("1")
@@ -121,31 +121,10 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   data.setCustomField4(cart.id)
 
   const params:URLSearchParams = data.getDataParams();
-  
-  
 
-  // const handleSubmit = async(e:React.FormEvent) => {
-
-  //    e.preventDefault() // 阻止預設提交行為
-
-
-  //   try{
-
-  //     // const data = await placeOrder(cart.id)
-
-  //     // console.log("place order:",data)
-
-  //     const form = e.target as HTMLFormElement
-
-  //     form.submit()
-
-  //   }catch(err:any){
-  //     setErrorMessage(err.message || err)
-  //   }
-
-  // }
-
-
+  if (errorMessage){
+    console.log(action,"error:",errorMessage)
+  }
 
   return !errorMessage ? (
     <>
@@ -173,9 +152,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
       
       
     </>
-  ):(
-    <ErrorMessage error={errorMessage} data-testid="ecpay-payment-error-message" />
-  );
+  ):null;
 }
 
 export default ECPayPaymentButton
