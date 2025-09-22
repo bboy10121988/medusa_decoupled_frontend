@@ -31,7 +31,6 @@ const Hero = ({ slides, settings }: HeroProps) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const touchStartXRef = useRef<number | null>(null)
   const touchStartTimeRef = useRef<number>(0)
-  const isSwipingRef = useRef<boolean>(false)
 
   useEffect(() => {
     if (!slides || slides.length <= 1 || !settings?.autoplay) return
@@ -65,42 +64,36 @@ const Hero = ({ slides, settings }: HeroProps) => {
     setCurrentSlide(index)
   }
 
-  // 觸摸手勢處理
+  // 手勢滑動處理 - 改進版本
   const handleTouchStart = (e: React.TouchEvent) => {
     if (slides.length <= 1) return
     touchStartXRef.current = e.touches[0].clientX
     touchStartTimeRef.current = Date.now()
-    isSwipingRef.current = false
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null || slides.length <= 1) return
-    
-    const touchCurrentX = e.touches[0].clientX
-    const diffX = touchStartXRef.current - touchCurrentX
-
-    // 如果滑動距離超過 15px，則認為是在滑動
-    if (Math.abs(diffX) > 15) {
-      isSwipingRef.current = true
-      // 防止頁面滾動
-      e.preventDefault()
+    // 只阻止水平滾動，允許垂直滾動
+    if (touchStartXRef.current !== null && slides.length > 1) {
+      const currentX = e.touches[0].clientX
+      const diffX = Math.abs(touchStartXRef.current - currentX)
+      
+      // 如果水平滑動距離大於垂直滑動距離，阻止默認行為
+      if (diffX > 20) {
+        e.preventDefault()
+      }
     }
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null || !isSwipingRef.current || slides.length <= 1) {
-      touchStartXRef.current = null
-      isSwipingRef.current = false
-      return
-    }
+    if (touchStartXRef.current === null || slides.length <= 1) return
     
     const touchEndX = e.changedTouches[0].clientX
     const diffX = touchStartXRef.current - touchEndX
     const diffTime = Date.now() - touchStartTimeRef.current
-    const minSwipeDistance = 40 // 最小滑動距離
-    const maxSwipeTime = 800 // 最大滑動時間（毫秒）
+    const minSwipeDistance = 30 // 降低最小滑動距離
+    const maxSwipeTime = 1000
     
-    // 檢查是否為有效滑動：距離夠長且時間不太長
+    // 檢查是否為有效滑動
     if (Math.abs(diffX) > minSwipeDistance && diffTime < maxSwipeTime) {
       if (diffX > 0) {
         // 向左滑動 - 下一張
@@ -113,18 +106,53 @@ const Hero = ({ slides, settings }: HeroProps) => {
     
     // 重置
     touchStartXRef.current = null
-    isSwipingRef.current = false
   }
 
   return (
     <div className={`relative w-full ${mobileHeightClass} md:min-h-0`}>
       {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
       <div 
-        className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}
+        className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0 select-none`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        style={{ touchAction: 'pan-y' }}
       >
+        {/* 左側滑動觸摸區域 */}
+        <div 
+          className="absolute left-0 top-0 w-1/3 h-full z-30 md:hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={(e) => {
+            handleTouchEnd(e)
+            // 如果是點擊而非滑動，觸發上一張
+            if (touchStartXRef.current !== null) {
+              const touchEndX = e.changedTouches[0].clientX
+              const diffX = Math.abs(touchStartXRef.current - touchEndX)
+              if (diffX < 10) {
+                goToPrevSlide()
+              }
+            }
+          }}
+        />
+        
+        {/* 右側滑動觸摸區域 */}
+        <div 
+          className="absolute right-0 top-0 w-1/3 h-full z-30 md:hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={(e) => {
+            handleTouchEnd(e)
+            // 如果是點擊而非滑動，觸發下一張
+            if (touchStartXRef.current !== null) {
+              const touchEndX = e.changedTouches[0].clientX
+              const diffX = Math.abs(touchStartXRef.current - touchEndX)
+              if (diffX < 10) {
+                goToNextSlide()
+              }
+            }
+          }}
+        />
         {slides.map((slideItem, index) => {
           return (
             <div

@@ -4,6 +4,7 @@ import { getFooter } from "@lib/sanity"
 import Image from "next/image"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import CopyrightYear from "@modules/layout/components/copyright-year"
 
 export default async function Footer() {
   const { collections } = await listCollections({
@@ -11,11 +12,6 @@ export default async function Footer() {
   })
   const productCategories = await listCategories()
   const footer = await getFooter()
-
-  // 處理版權資訊中的年份變數
-  const copyright = footer?.copyright
-    ? footer.copyright.replace(/{year}/g, new Date().getFullYear().toString())
-    : `© ${new Date().getFullYear()} SALON. All rights reserved.`
 
   return (
     <footer className="border-t border-gray-200">
@@ -73,13 +69,13 @@ export default async function Footer() {
             </div>
 
             {/* 自定義區域 - 從Sanity獲取 */}
-            {footer?.sections?.map((section, index) => (
-              <div key={index} className="space-y-6">
+            {footer?.sections?.map((section, sectionIndex) => (
+              <div key={section.title || `section-${sectionIndex}`} className="space-y-6">
                 <h3 className="text-xs font-semibold">{section.title}</h3>
                 {section.links && section.links.length > 0 && (
                   <ul className="space-y-4">
                     {section.links.map((link, linkIndex) => (
-                      <li key={linkIndex}>
+                      <li key={link.url || link.text || `link-${sectionIndex}-${linkIndex}`}>
                         <a 
                           href={link.url}
                           className="text-xs hover:text-black transition-colors"
@@ -94,7 +90,7 @@ export default async function Footer() {
                 )}
                 
                 {/* 如果是最後一個區塊，在內容下方顯示社群媒體圖標 */}
-                {index === (footer?.sections?.length ?? 0) - 1 && (
+                {sectionIndex === (footer?.sections?.length ?? 0) - 1 && (
                   <div className="mt-6">
                     {/* 社群媒體圖標 */}
                     <div className="flex space-x-4">
@@ -142,7 +138,7 @@ export default async function Footer() {
                   </div>
                 )}
                 {/* 如果是第三個區塊（index 2），且該 section 有 customInfo，顯示聯絡資訊或自訂文字 */}
-                {index === 2 && section.customInfo && (
+                {sectionIndex === 2 && section.customInfo && (
                   <div className="mt-6">
                     {section.customInfo.phone && (
                       <p className="text-xs mb-2">電話：<br />{section.customInfo.phone}</p>
@@ -163,7 +159,9 @@ export default async function Footer() {
         {/* Copyright */}
         <div className="border-t border-gray-200 py-8">
           <div className="text-xs">
-            {copyright}
+            <CopyrightYear 
+              template={footer?.copyright || "© {year} SALON. All rights reserved."}
+            />
           </div>
         </div>
       </div>
