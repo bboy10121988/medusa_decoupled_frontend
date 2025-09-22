@@ -169,7 +169,9 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     src={slideItem.desktopImage}
                     alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
                     className="w-full h-auto object-cover"
-                    loading={index === 0 ? 'eager' : 'lazy'}
+                    loading="eager"
+                    style={{ imageRendering: 'auto' }}
+                    decoding="async"
                   />
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-64">
@@ -186,7 +188,9 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     src={slideItem.mobileImage}
                     alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
                     className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
-                    loading={index === 0 ? 'eager' : 'lazy'}
+                    loading="eager"
+                    style={{ imageRendering: 'auto' }}
+                    decoding="async"
                   />
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-32">
