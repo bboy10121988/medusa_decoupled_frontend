@@ -244,7 +244,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
           {/* 左箭頭 */}
           <button
             onClick={goToPrevSlide}
-            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
+            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-40 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
             aria-label="上一張圖片"
           >
             <svg 
@@ -260,7 +260,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
           {/* 右箭頭 */}
           <button
             onClick={goToNextSlide}
-            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
+            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-40 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
             aria-label="下一張圖片"
           >
             <svg 
