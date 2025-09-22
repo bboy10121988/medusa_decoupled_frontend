@@ -204,7 +204,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
       </div>
       
       {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
+      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/0 via-black/0 to-black/0">
         <div 
           key={`slide-${currentSlide}`}
           className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"
