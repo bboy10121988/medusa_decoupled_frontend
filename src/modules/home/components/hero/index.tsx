@@ -43,7 +43,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
     return () => clearInterval(interval)
   }, [slides?.length, settings?.autoplay, settings?.autoplaySpeed])
 
-  if (!slides || !slides.length) return null
+  if (!slides?.length) return null
 
   const slide = slides[currentSlide]
   
@@ -67,32 +67,38 @@ const Hero = ({ slides, settings }: HeroProps) => {
 
   // 觸摸手勢處理
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (slides.length <= 1) return
     touchStartXRef.current = e.touches[0].clientX
     touchStartTimeRef.current = Date.now()
     isSwipingRef.current = false
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return
+    if (touchStartXRef.current === null || slides.length <= 1) return
     
     const touchCurrentX = e.touches[0].clientX
     const diffX = touchStartXRef.current - touchCurrentX
 
-    
-    // 如果滑動距離超過 10px，則認為是在滑動
-    if (Math.abs(diffX) > 10) {
+    // 如果滑動距離超過 15px，則認為是在滑動
+    if (Math.abs(diffX) > 15) {
       isSwipingRef.current = true
+      // 防止頁面滾動
+      e.preventDefault()
     }
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null || !isSwipingRef.current) return
+    if (touchStartXRef.current === null || !isSwipingRef.current || slides.length <= 1) {
+      touchStartXRef.current = null
+      isSwipingRef.current = false
+      return
+    }
     
     const touchEndX = e.changedTouches[0].clientX
     const diffX = touchStartXRef.current - touchEndX
     const diffTime = Date.now() - touchStartTimeRef.current
-    const minSwipeDistance = 50 // 最小滑動距離
-    const maxSwipeTime = 500 // 最大滑動時間（毫秒）
+    const minSwipeDistance = 40 // 最小滑動距離
+    const maxSwipeTime = 800 // 最大滑動時間（毫秒）
     
     // 檢查是否為有效滑動：距離夠長且時間不太長
     if (Math.abs(diffX) > minSwipeDistance && diffTime < maxSwipeTime) {
@@ -122,18 +128,16 @@ const Hero = ({ slides, settings }: HeroProps) => {
         {slides.map((slideItem, index) => {
           return (
             <div
-              key={index}
+              key={`slide-${slideItem.heading}-${index}`}
               className={`transition-opacity duration-1000 ease-in-out ${
                 index === currentSlide ? 'opacity-100' : 'opacity-0'
               } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
             >
-              {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
-              
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
               <div className="hidden md:block w-full">
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
                   <img
-                    key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
+                    key={`desktop-${currentSlide}-${index}`}
                     src={slideItem.desktopImage}
                     alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
                     className="w-full h-auto object-cover"
@@ -150,7 +154,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
               <div className="block md:hidden w-full">
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
                   <img
-                    key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
+                    key={`mobile-${currentSlide}-${index}`}
                     src={slideItem.mobileImage}
                     alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
                     className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
@@ -206,12 +210,49 @@ const Hero = ({ slides, settings }: HeroProps) => {
         </div>
       </div>
 
+      {/* 左右箭頭 */}
+      {settings?.showArrows && slides.length > 1 && (
+        <>
+          {/* 左箭頭 */}
+          <button
+            onClick={goToPrevSlide}
+            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
+            aria-label="上一張圖片"
+          >
+            <svg 
+              className="w-4 h-4 sm:w-6 sm:h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          {/* 右箭頭 */}
+          <button
+            onClick={goToNextSlide}
+            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
+            aria-label="下一張圖片"
+          >
+            <svg 
+              className="w-4 h-4 sm:w-6 sm:h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
       {/* 點點導航 - 適應動態高度 */}
       {settings?.showDots && slides.length > 1 && (
         <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 sm:gap-3">
-          {slides.map((_, index) => (
+          {slides.map((slideItem, index) => (
             <button
-              key={`dot-${index}`}
+              key={`dot-${slideItem.heading}-${index}`}
               onClick={() => goToSlide(index)}
               className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide 
