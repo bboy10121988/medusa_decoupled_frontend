@@ -54,11 +54,8 @@ const Hero = ({ slides, settings }: HeroProps) => {
     hasMobileImage: !!s.mobileImage
   })))
   
-  // 根據是否顯示指示點決定手機版高度行為
-  const shouldUseFixedHeight = settings?.showDots && slides.length > 1
-  const mobileHeightClass = shouldUseFixedHeight 
-    ? "min-h-hero-mobile" // 固定高度（扣掉 header）
-    : "min-h-fit" // 自適應內容高度
+  // 讓所有圖片使用原始尺寸，不限高也不限寬
+  const mobileHeightClass = "min-h-fit" // 始終使用自適應內容高度
 
   const goToNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
@@ -118,9 +115,9 @@ const Hero = ({ slides, settings }: HeroProps) => {
 
   return (
     <div className={`relative w-full ${mobileHeightClass} md:min-h-0`}>
-      {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
+      {/* 輪播圖片容器 - 讓圖片使用原始尺寸 */}
       <div 
-        className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0 select-none`}
+        className={`relative w-full ${mobileHeightClass} md:min-h-0 select-none`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -178,7 +175,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                         key={`desktop-${currentSlide}-${index}`}
                         src={slideItem.desktopImage}
                         alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                        className="w-full h-auto object-cover cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                        className="w-full h-auto object-contain cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
                         loading="eager"
                         style={{ imageRendering: 'auto' }}
                         decoding="async"
@@ -189,7 +186,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                       key={`desktop-${currentSlide}-${index}`}
                       src={slideItem.desktopImage}
                       alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                      className="w-full h-auto object-cover"
+                      className="w-full h-auto object-contain"
                       loading="eager"
                       style={{ imageRendering: 'auto' }}
                       decoding="async"
@@ -211,7 +208,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                         key={`mobile-${currentSlide}-${index}`}
                         src={slideItem.mobileImage}
                         alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                        className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover cursor-pointer transition-transform duration-300 hover:scale-[1.02]`}
+                        className="w-full h-auto object-contain cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
                         loading="eager"
                         style={{ imageRendering: 'auto' }}
                         decoding="async"
@@ -222,7 +219,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                       key={`mobile-${currentSlide}-${index}`}
                       src={slideItem.mobileImage}
                       alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                      className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
+                      className="w-full h-auto object-contain"
                       loading="eager"
                       style={{ imageRendering: 'auto' }}
                       decoding="async"

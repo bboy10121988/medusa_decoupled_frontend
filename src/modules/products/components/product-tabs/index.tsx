@@ -11,7 +11,7 @@ type ProductTabsProps = {
 const ProductTabs = ({ product }: ProductTabsProps) => {
   return (
     <div className="w-full">
-      <CollapsibleSection title="Product Information" defaultOpen={false}>
+      <CollapsibleSection title="商品資訊" defaultOpen={false}>
         <ProductInfoTab product={product} />
       </CollapsibleSection>
       
@@ -19,7 +19,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
         <CategoriesAndTagsTab product={product} />
       </CollapsibleSection>
       
-      <CollapsibleSection title="Shipping & Returns" defaultOpen={false}>
+      <CollapsibleSection title="退換貨規則" defaultOpen={false}>
         <ShippingInfoTab product={product} />
       </CollapsibleSection>
     </div>

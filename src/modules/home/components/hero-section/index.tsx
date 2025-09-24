@@ -19,11 +19,8 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
     settings: banner.settings
   })
   
-  // 根據是否顯示指示點決定手機版高度行為
-  const shouldUseFixedHeight = banner.settings?.showDots && banner.slides.length > 1
-  const mobileHeightClass = shouldUseFixedHeight 
-    ? "min-h-hero-mobile" // 固定高度（扣掉 header）
-    : "min-h-fit" // 自適應內容高度
+  // 讓所有圖片使用原始尺寸，不限高也不限寬
+  const mobileHeightClass = "min-h-fit" // 始終使用自適應內容高度
   
   const processedSlides = banner.slides.map((slide: BannerSlide, index: number) => {
     // 輸出 imageLink 是否存在及其值
@@ -46,7 +43,7 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
   });
   
   return (
-    <section className={`w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}>
+    <section className={`w-full ${mobileHeightClass} md:min-h-0`}>
       <div className={`w-full mb-4 last:mb-0 h-auto ${mobileHeightClass} md:min-h-0`}>
         <Hero
           slides={banner.slides.map((slide: BannerSlide) => ({
