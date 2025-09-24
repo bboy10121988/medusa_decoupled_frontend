@@ -24,14 +24,34 @@ const client = createClient({
 const isDev = process.env.NODE_ENV === 'development'
 async function safeFetch<T = any>(query: string, params: any = {}, options: any = {}, fallback: T | null = null): Promise<any> {
   try {
-    return await client.fetch(query, params, options)
-  } catch (error: any) {
-    const msg = String(error?.message || error)
-    if (error?.name === 'AbortError' || msg.includes('The user aborted a request') || msg.includes('signal is aborted')) {
-      if (isDev) console.warn('Sanity fetch aborted (handled):', msg)
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+      console.error("Missing Sanity Project ID in environment variables")
       return fallback
     }
-    throw error
+    
+    // 增加超時設定
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超時
+    
+    const mergedOptions = {
+      ...options,
+      signal: controller.signal,
+    }
+    
+    const result = await client.fetch(query, params, mergedOptions)
+    clearTimeout(timeoutId)
+    return result
+  } catch (error: any) {
+    const msg = String(error?.message || error)
+    console.error("Sanity fetch error:", msg, "\nQuery:", query)
+    
+    if (error?.name === 'AbortError' || msg.includes('abort') || msg.includes('timeout')) {
+      if (isDev) console.warn('Sanity fetch aborted/timed out:', msg)
+      return fallback
+    }
+    
+    if (isDev) console.error('Sanity fetch error details:', error)
+    return fallback // 在生產環境中總是返回備用值，避免應用崩潰
   }
 }
 
@@ -190,12 +210,14 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
             content,
             "image": image {
               "url": asset->url,
-              "alt": alt
+              "alt": alt,
+              "linkUrl": linkUrl
             },
             layout,
             "leftImage": leftImage {
               "url": asset->url,
-              "alt": alt
+              "alt": alt,
+              "linkUrl": linkUrl
             },
             "rightImage": rightImage {
               "url": asset->url,
@@ -409,8 +431,7 @@ export async function getAllPages(): Promise<PageData[]> {
               "desktopImageAlt": desktopImage.alt,
               "mobileImage": mobileImage.asset->url,
               "mobileImageAlt": mobileImage.alt,
-              buttonText,
-              buttonLink
+              imageLink
             },
             "settings": settings {
               autoplay,
@@ -424,19 +445,21 @@ export async function getAllPages(): Promise<PageData[]> {
             heading,
             hideTitle,
             content,
-            content,
             "image": image {
               "url": asset->url,
-              "alt": alt
+              "alt": alt,
+              "linkUrl": linkUrl
             },
             layout,
             "leftImage": leftImage {
               "url": asset->url,
-              "alt": alt
+              "alt": alt,
+              "linkUrl": linkUrl
             },
             "rightImage": rightImage {
               "url": asset->url,
-              "alt": alt
+              "alt": alt,
+              "linkUrl": linkUrl
             },
             leftContent,
             rightContent
@@ -546,8 +569,7 @@ export async function getHomepage(): Promise<{ title: string; mainSections: Main
             "desktopImageAlt": desktopImage.alt,
             "mobileImage": mobileImage.asset->url,
             "mobileImageAlt": mobileImage.alt,
-            buttonText,
-            buttonLink
+            imageLink
           },
           "settings": settings {
             autoplay,
@@ -564,16 +586,19 @@ export async function getHomepage(): Promise<{ title: string; mainSections: Main
           content,
           "image": image {
             "url": asset->url,
-            "alt": alt
+            "alt": alt,
+            "linkUrl": linkUrl
           },
           layout,
           "leftImage": leftImage {
             "url": asset->url,
-            "alt": alt
+            "alt": alt,
+            "linkUrl": linkUrl
           },
           "rightImage": rightImage {
             "url": asset->url,
-            "alt": alt
+            "alt": alt,
+            "linkUrl": linkUrl
           },
           leftContent,
           rightContent
@@ -637,6 +662,14 @@ export async function getHomepage(): Promise<{ title: string; mainSections: Main
               }
             }
           }
+        },
+        _type == "googleMapsSection" => {
+          _type,
+          isActive,
+          heading,
+          description,
+          googleMapsUrl,
+          mapHeight
         },
         // Default case - 包含 _type 以便識別未處理的 section 類型
         {
