@@ -30,7 +30,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   console.log(action,"payment session id",paymentSessionID)
 
-  const [submitting] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   let errorMessage: string|null = defaultError
   // const [errorMessage, setErrorMessage] = useState<string | null>(defaultError)
 
@@ -127,27 +127,31 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   }
 
   return !errorMessage ? (
-    <form 
-      method="POST" 
-      action={ecpayAPI}
-      target="_blank"
-      encType="application/x-www-form-urlencoded"
-    >
-      
-      {Array.from(params.entries()).map(([key, value]) => (
-        <input key={key} type="hidden" name={key} value={value} />
-      ))}
-      
-      <Button
-        type="submit"
-        disabled={notReady || submitting}
-        size="large"
-        isLoading={submitting}
-        data-testid={dataTestId}
+    <>
+      <form 
+        method="POST" 
+        action={ecpayAPI}
+        target="_blank"
+        encType="application/x-www-form-urlencoded"
       >
-        {submitting ? "處理中..." : "前往 ECPay 付款"}
-      </Button>
-    </form>
+        
+        {Array.from(params.entries()).map(([key, value]) => (
+          <input key={key} type="hidden" name={key} value={value} />
+        ))}
+        
+        <Button
+          type="submit"
+          disabled={notReady || submitting}
+          size="large"
+          isLoading={submitting}
+          data-testid={dataTestId}
+        >
+          {submitting ? "處理中..." : "前往 ECPay 付款"}
+        </Button>
+      </form>
+      
+      
+    </>
   ):null;
 }
 
