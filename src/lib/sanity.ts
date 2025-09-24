@@ -759,21 +759,27 @@ export async function getFooter(): Promise<Footer | null> {
       alt
     },
     logoWidth,
-    contactInfo {
-      phone,
-      email,
-      address
-    },
     sections[] {
       title,
       links[] {
         text,
-        url
-      },
-      customInfo {
-        phone,
-        email,
-        text
+        linkType,
+        internalLink,
+        externalUrl,
+        // 處理各種可能的 URL 形式
+        // 1. 如果有指定 linkType，根據類型使用對應的 URL
+        // 2. 如果沒有指定類型，但有 url 字段，使用該字段
+        // 3. 為了向後兼容，最後檢查是否有 href 字段
+        // 4. 現在支援 tel: 和 mailto: 等協議
+        "url": coalesce(
+          select(
+            linkType == "internal" => internalLink,
+            linkType == "external" => externalUrl,
+            url
+          ),
+          url,
+          href
+        )
       }
     },
     socialMedia {

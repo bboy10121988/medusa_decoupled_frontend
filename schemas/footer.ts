@@ -14,10 +14,6 @@ export default defineType({
       title: '內容區塊',
     },
     {
-      name: 'contact',
-      title: '聯絡資訊',
-    },
-    {
       name: 'social',
       title: '社群媒體',
     },
@@ -87,10 +83,40 @@ export default defineType({
                       validation: rule => rule.required()
                     }),
                     defineField({
-                      name: 'url',
-                      title: '連結網址',
+                      name: 'linkType',
+                      title: '連結類型',
                       type: 'string',
+                      options: {
+                        list: [
+                          { title: '內部連結', value: 'internal' },
+                          { title: '外部連結', value: 'external' },
+                        ],
+                        layout: 'radio',
+                      },
+                      initialValue: 'external',
                       validation: rule => rule.required()
+                    }),
+                    defineField({
+                      name: 'internalLink',
+                      title: '內部頁面路徑',
+                      type: 'string',
+                      description: '輸入內部頁面路徑，例如: /about 或 /products 或 /return',
+                      hidden: ({ parent }) => parent?.linkType !== 'internal',
+                      validation: rule => rule.custom((value, context) => {
+                        // 如果有值，且值不是以 / 開頭，則顯示錯誤
+                        if (value && !value.startsWith('/')) {
+                          return '內部連結必須以 / 開頭'
+                        }
+                        return true
+                      })
+                    }),
+                    defineField({
+                      name: 'externalUrl',
+                      title: '外部連結網址',
+                      type: 'string',
+                      description: '輸入完整網址，例如: https://example.com，電話: tel:0912345678，電子郵件: mailto:example@example.com',
+                      hidden: ({ parent }) => parent?.linkType !== 'external',
+                      // 字串類型沒有 URL 驗證，允許任何格式
                     })
                   ]
                 }
@@ -100,24 +126,6 @@ export default defineType({
         }
       ],
       group: 'content'
-    }),
-    defineField({
-      name: 'contactInfo',
-      title: '聯絡資訊',
-      type: 'object',
-      fields: [
-        defineField({
-          name: 'phone',
-          title: '電話',
-          type: 'string'
-        }),
-        defineField({
-          name: 'email',
-          title: 'Email',
-          type: 'string'
-        })
-      ],
-      group: 'contact'
     }),
     defineField({
       name: 'socialMedia',
@@ -138,7 +146,7 @@ export default defineType({
             defineField({
               name: 'url',
               title: '連結網址',
-              type: 'string'
+              type: 'url'
             })
           ]
         }),
@@ -156,7 +164,7 @@ export default defineType({
             defineField({
               name: 'url',
               title: '連結網址',
-              type: 'string'
+              type: 'url'
             })
           ]
         }),
@@ -174,7 +182,7 @@ export default defineType({
             defineField({
               name: 'url',
               title: '連結網址',
-              type: 'string'
+              type: 'url'
             })
           ]
         }),
@@ -192,7 +200,7 @@ export default defineType({
             defineField({
               name: 'url',
               title: '連結網址',
-              type: 'string'
+              type: 'url'
             })
           ]
         }),
@@ -210,7 +218,7 @@ export default defineType({
             defineField({
               name: 'url',
               title: '連結網址',
-              type: 'string'
+              type: 'url'
             })
           ]
         })

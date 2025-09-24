@@ -72,6 +72,17 @@ export interface NavigationItem {
   submenu?: NavigationItem[]
 }
 
+// Footer Link 型別定義
+export interface FooterLink {
+  _key?: string
+  text: string
+  linkType?: 'internal' | 'external'
+  internalLink?: string
+  externalUrl?: string
+  url?: string     // 向後兼容字段
+  href?: string    // 更早的向後兼容字段
+}
+
 // Footer 型別定義
 export interface SanityFooter extends SanityDocument {
   _type: "footer"
@@ -81,12 +92,7 @@ export interface SanityFooter extends SanityDocument {
   logoWidth?: number
   copyright?: string
   
-  // 聯絡資訊
-  contactInfo?: {
-    phone?: string
-    email?: string
-    address?: string
-  }
+  // 聯絡資訊已經移除
   
   // 社群媒體
   socialMedia?: {
@@ -116,18 +122,7 @@ export interface SanityFooter extends SanityDocument {
   sections?: Array<{
     _key: string
     title: string
-    links?: Array<{
-      _key: string
-      name: string
-      href: string
-      text?: string  // 添加 text 屬性支援
-      url?: string   // 添加 url 屬性支援
-    }>
-    customInfo?: {  // 添加自訂資訊支援
-      phone?: string
-      email?: string
-      address?: string
-    }
+    links?: FooterLink[]
   }>
   
   // 簡化連結格式

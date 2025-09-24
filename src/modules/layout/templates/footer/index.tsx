@@ -80,18 +80,65 @@ export default async function Footer() {
                 <h3 className="text-xs font-semibold">{section.title}</h3>
                 {section.links && section.links.length > 0 && (
                   <ul className="space-y-4">
-                    {section.links.map((link, linkIndex) => (
-                      <li key={link.url || link.text || `link-${sectionIndex}-${linkIndex}`}>
-                        <a 
-                          href={link.url}
-                          className="text-xs hover:text-black transition-colors"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {link.text}
-                        </a>
-                      </li>
-                    ))}
+                    {section.links.map((link: any, linkIndex) => {
+                      // 如果沒有連結文字，跳過此連結
+                      if (!link.text) return null;
+                      
+                      // 檢查是否有 url
+                      const hasUrl = !!(link.url || link.internalLink || link.externalUrl);
+                      
+                      // 如果沒有 url，顯示純文本
+                      if (!hasUrl) {
+                        return (
+                          <li key={link.text || `link-${sectionIndex}-${linkIndex}`}>
+                            <span className="text-xs">{link.text}</span>
+                          </li>
+                        );
+                      }
+                      
+                      // 檢查是否為內部連結
+                      const isInternal = 
+                        link.linkType === 'internal' || 
+                        (link.url?.startsWith('/') && !link.url?.startsWith('//'));
+                      
+                      // 取得最終 URL
+                      const finalUrl = 
+                        (isInternal ? (link.internalLink || link.url) : (link.externalUrl || link.url)) || '#';
+                      
+                      return (
+                        <li key={link.url || link.text || `link-${sectionIndex}-${linkIndex}`}>
+                          {isInternal ? (
+                            <LocalizedClientLink 
+                              href={finalUrl}
+                              className="text-xs hover:text-black transition-colors"
+                            >
+                              {link.text}
+                            </LocalizedClientLink>
+                          ) : (
+                            // 處理各種外部連結類型
+                            (() => {
+                              const url = finalUrl || '';
+                              const isTel = url.startsWith('tel:');
+                              const isMailto = url.startsWith('mailto:');
+                              const isSpecialProtocol = isTel || isMailto;
+                              
+                              return (
+                                <a 
+                                  href={url}
+                                  className="text-xs hover:text-black transition-colors"
+                                  // 只有常規外部連結才在新標籤打開
+                                  target={isSpecialProtocol ? undefined : "_blank"}
+                                  // 只有常規外部連結才需要安全屬性
+                                  rel={isSpecialProtocol ? undefined : "noopener noreferrer"}
+                                >
+                                  {link.text}
+                                </a>
+                              );
+                            })()
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
                 
@@ -143,20 +190,7 @@ export default async function Footer() {
                     </div>
                   </div>
                 )}
-                {/* 如果是第三個區塊（index 2），且該 section 有 customInfo，顯示聯絡資訊或自訂文字 */}
-                {sectionIndex === 2 && section.customInfo && (
-                  <div className="mt-6">
-                    {section.customInfo.phone && (
-                      <p className="text-xs mb-2">電話：<br />{section.customInfo.phone}</p>
-                    )}
-                    {section.customInfo.email && (
-                      <p className="text-xs mb-4">Email：<br />{section.customInfo.email}</p>
-                    )}
-                    {section.customInfo.text && (
-                      <p className="text-xs">{section.customInfo.text}</p>
-                    )}
-                  </div>
-                )}
+                {/* 聯絡資訊已移除 */}
               </div>
             ))}
           </div>
