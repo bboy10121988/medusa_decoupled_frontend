@@ -286,19 +286,90 @@ class GrapesJSPageService {
         title: params.title,
         status: params.status,
         hasHtml: !!params.grapesHtml,
-        hasCss: !!params.grapesCss
+        hasCss: !!params.grapesCss,
+        htmlLength: params.grapesHtml?.length || 0,
+        cssLength: params.grapesCss?.length || 0,
+        componentsLength: typeof params.grapesComponents === 'string' 
+          ? params.grapesComponents.length 
+          : params.grapesComponents ? JSON.stringify(params.grapesComponents).length : 0,
+        stylesLength: typeof params.grapesStyles === 'string' 
+          ? params.grapesStyles.length 
+          : params.grapesStyles ? JSON.stringify(params.grapesStyles).length : 0
       })
       
+      // 輸入驗證 - 檢查必要參數
+      if (!params._id || params._id.trim() === '') {
+        throw new Error('必須提供有效的頁面 ID')
+      }
+
+      // 檢查 HTML 和 CSS 內容的有效性（如果有提供）
+      if (params.grapesHtml !== undefined) {
+        if (typeof params.grapesHtml !== 'string') {
+          throw new Error('HTML 內容必須是字符串')
+        }
+      }
+      
+      if (params.grapesCss !== undefined) {
+        if (typeof params.grapesCss !== 'string') {
+          throw new Error('CSS 內容必須是字符串')
+        }
+      }
+
+      // 驗證組件和樣式的 JSON 有效性
+      if (params.grapesComponents !== undefined) {
+        try {
+          if (typeof params.grapesComponents !== 'string') {
+            // 如果不是字符串，嘗試序列化
+            params.grapesComponents = JSON.stringify(params.grapesComponents)
+          } else {
+            // 如果是字符串，確保是有效的 JSON
+            JSON.parse(params.grapesComponents)
+          }
+        } catch (jsonError) {
+          console.error('組件 JSON 無效:', jsonError)
+          throw new Error('組件數據格式無效，無法序列化')
+        }
+      }
+      
+      if (params.grapesStyles !== undefined) {
+        try {
+          if (typeof params.grapesStyles !== 'string') {
+            // 如果不是字符串，嘗試序列化
+            params.grapesStyles = JSON.stringify(params.grapesStyles)
+          } else {
+            // 如果是字符串，確保是有效的 JSON
+            JSON.parse(params.grapesStyles)
+          }
+        } catch (jsonError) {
+          console.error('樣式 JSON 無效:', jsonError)
+          throw new Error('樣式數據格式無效，無法序列化')
+        }
+      }
+      
+      // 獲取並驗證客戶端
       const writeClient = getWriteClient()
+      if (!writeClient) {
+        throw new Error('無法創建 Sanity 寫入客戶端，請檢查配置和權限')
+      }
+      
       const now = new Date().toISOString()
       
-      // 取得當前頁面以比較變更
+      // 取得當前頁面以比較變更，包含錯誤處理
       console.log('🔍 正在檢查頁面是否存在:', params._id)
-      const currentPage = await this.getPageById(params._id)
+      let currentPage: GrapesJSPageData | null = null
+      
+      try {
+        currentPage = await this.getPageById(params._id)
+      } catch (queryError) {
+        console.error('查詢頁面失敗:', queryError)
+        throw new Error(`無法讀取頁面信息: ${queryError instanceof Error ? queryError.message : '未知錯誤'}`)
+      }
+      
       if (!currentPage) {
         console.error('❌ 頁面不存在:', params._id)
-        throw new Error('Page not found')
+        throw new Error(`找不到 ID 為 ${params._id} 的頁面`)
       }
+      
       console.log('✅ 頁面存在，當前狀態:', currentPage.status)
 
       // 準備更新數據
@@ -307,30 +378,57 @@ class GrapesJSPageService {
         version: (currentPage.version || 1) + 1
       }
 
-      // 只更新有提供的欄位
-      if (params.title) updateData.title = params.title
-      if (params.slug) updateData.slug = { current: params.slug }
+      // 只更新有提供的欄位，並進行額外驗證
+      if (params.title) {
+        if (typeof params.title !== 'string' || params.title.trim() === '') {
+          console.warn('忽略無效的標題值')
+        } else {
+          updateData.title = params.title.trim()
+        }
+      }
+      
+      if (params.slug) {
+        if (typeof params.slug !== 'string' || params.slug.trim() === '') {
+          console.warn('忽略無效的 slug 值')
+        } else {
+          updateData.slug = { current: params.slug.trim() }
+        }
+      }
+      
       if (params.description !== undefined) updateData.description = params.description
-      if (params.status) updateData.status = params.status
+      if (params.status) {
+        if (['draft', 'preview', 'published', 'archived'].includes(params.status)) {
+          updateData.status = params.status
+        } else {
+          console.warn(`忽略無效的狀態值: ${params.status}`)
+        }
+      }
+      
       if (params.grapesHtml !== undefined) updateData.grapesHtml = params.grapesHtml
       if (params.grapesCss !== undefined) updateData.grapesCss = params.grapesCss
+      
+      // 組件和樣式已在之前驗證並標準化
       if (params.grapesComponents !== undefined) {
-        updateData.grapesComponents = typeof params.grapesComponents === 'string' 
-          ? params.grapesComponents 
-          : JSON.stringify(params.grapesComponents)
+        updateData.grapesComponents = params.grapesComponents
       }
+      
       if (params.grapesStyles !== undefined) {
-        updateData.grapesStyles = typeof params.grapesStyles === 'string' 
-          ? params.grapesStyles 
-          : JSON.stringify(params.grapesStyles)
+        updateData.grapesStyles = params.grapesStyles
       }
+      
       if (params.homeModules !== undefined) updateData.homeModules = params.homeModules
       if (params.seoTitle !== undefined) updateData.seoTitle = params.seoTitle
       if (params.seoDescription !== undefined) updateData.seoDescription = params.seoDescription
       if (params.seoKeywords) updateData.seoKeywords = params.seoKeywords
       if (params.customCSS !== undefined) updateData.customCSS = params.customCSS
       if (params.customJS !== undefined) updateData.customJS = params.customJS
-      if (params.viewport) updateData.viewport = params.viewport
+      if (params.viewport) {
+        if (['responsive', 'desktop', 'tablet', 'mobile'].includes(params.viewport)) {
+          updateData.viewport = params.viewport
+        } else {
+          console.warn(`忽略無效的視口值: ${params.viewport}`)
+        }
+      }
 
       // 發布狀態變更處理
       if (params.status === 'published' && currentPage.status !== 'published') {
@@ -349,27 +447,87 @@ class GrapesJSPageService {
         ...(currentPage.editHistory || []),
         newHistoryEntry
       ]
+      
+      // 實現重試邏輯
+      const maxRetries = 3
+      let retryCount = 0
+      let lastError = null
+      
+      while (retryCount < maxRetries) {
+        try {
+          console.log(`嘗試提交更新到 Sanity (嘗試 ${retryCount + 1}/${maxRetries})`)
+          
+          // 設定超時
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('操作超時')), 15000)
+          })
+          
+          // 執行 Sanity 更新請求
+          const updatePromise = writeClient
+            .patch(params._id)
+            .set(updateData)
+            .commit()
+          
+          // 使用 Promise.race 實現超時處理
+          const result = await Promise.race([
+            updatePromise,
+            timeoutPromise
+          ])
 
-      const result = await writeClient
-        .patch(params._id)
-        .set(updateData)
-        .commit()
+          console.log('✅ Sanity 更新成功:', {
+            pageId: params._id,
+            newStatus: updateData.status,
+            version: updateData.version
+          })
 
-      console.log('✅ Sanity 更新成功:', {
-        pageId: params._id,
-        newStatus: updateData.status,
-        version: updateData.version
-      })
-
-      return result as unknown as GrapesJSPageData
+          return result as unknown as GrapesJSPageData
+          
+        } catch (error: any) {
+          lastError = error
+          retryCount++
+          
+          console.error(`Sanity 更新失敗 (嘗試 ${retryCount}/${maxRetries}):`, error)
+          console.error('錯誤詳細信息:', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+            details: error.details || 'No details'
+          })
+          
+          // 如果是權限錯誤，立即失敗不重試
+          if (error.message?.includes('permission') || error.message?.includes('Unauthoriz')) {
+            throw new Error('❌ Sanity 寫入權限不足。請確認您的 token 設定或在 Sanity Studio 中操作。')
+          }
+          
+          // 如果不是最後一次重試，等待後重試
+          if (retryCount < maxRetries) {
+            const delay = 1000 * Math.pow(2, retryCount - 1)
+            console.log(`等待 ${delay}ms 後重試...`)
+            await new Promise(resolve => setTimeout(resolve, delay))
+          }
+        }
+      }
+      
+      // 所有重試都失敗
+      console.error('達到最大重試次數，更新失敗')
+      throw lastError || new Error('更新頁面失敗，請稍後重試')
+      
     } catch (error: any) {
       console.error('更新頁面失敗:', error)
       
+      // 提供更詳細的錯誤信息
       if (error.message?.includes('Insufficient permissions') || error.message?.includes('Unauthorized')) {
         throw new Error('❌ Sanity 寫入權限不足。請確認您的 token 設定或在 Sanity Studio 中操作。')
+      } else if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
+        throw new Error('❌ 更新頁面請求超時。請檢查您的網絡連接並稍後重試。')
+      } else if (error.message?.includes('network') || error.message?.includes('Network')) {
+        throw new Error('❌ 網絡連接問題。請檢查您的網絡連接並稍後重試。')
+      } else if (error.details?.length > 0) {
+        const detailMessages = error.details.map((d: any) => d.message).join(', ')
+        throw new Error('更新頁面失敗: ' + detailMessages)
+      } else {
+        throw new Error('更新頁面失敗: ' + error.message)
       }
-      
-      throw new Error('更新頁面失敗: ' + error.message)
     }
   }
 

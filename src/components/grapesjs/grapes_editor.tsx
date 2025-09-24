@@ -41,6 +41,11 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       const css = editor.getCss()
       const components = editor.getComponents()
       
+      // 檢查內容是否為空
+      if (!html || html.trim() === '') {
+        console.warn('警告: HTML 內容為空')
+      }
+      
       // 清理 HTML 內容，移除可能導致 hydration 問題的標籤
       let finalHtml = html
         .replace(/<\/?body[^>]*>/gi, '')
@@ -62,28 +67,78 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       // 獲取樣式 - 使用正確的 API 並處理可能的 undefined
       const stylesManager = editor.StyleManager
       const styles = stylesManager?.getAll()?.models || []
-
-      // 轉換為字符串格式
-      const componentsJson = JSON.stringify(components)
-      const stylesJson = JSON.stringify(styles)
+      
+      // 安全地將組件轉換為 JSON 字符串 (處理可能的循環引用)
+      let componentsJson, stylesJson
+      try {
+        // 克隆組件，避免循環引用問題
+        const componentsClone = JSON.parse(JSON.stringify(components))
+        componentsJson = JSON.stringify(componentsClone)
+      } catch (jsonError) {
+        console.error('組件序列化失敗:', jsonError)
+        // 嘗試使用替代方法
+        componentsJson = JSON.stringify(
+          components.map((comp: any) => ({
+            tagName: comp.get('tagName'),
+            content: comp.get('content'),
+            type: comp.get('type'),
+            attributes: comp.getAttributes()
+          }))
+        )
+      }
+      
+      try {
+        // 克隆樣式，避免循環引用問題
+        const stylesClone = JSON.parse(JSON.stringify(styles))
+        stylesJson = JSON.stringify(stylesClone)
+      } catch (jsonError) {
+        console.error('樣式序列化失敗:', jsonError)
+        // 使用基本樣式資訊
+        stylesJson = JSON.stringify(
+          styles.map((style: any) => ({
+            selectors: style.get('selectors')?.toString() || '',
+            style: style.get('style') || {}
+          }))
+        )
+      }
 
       console.log('📄 頁面內容準備保存:', {
         htmlLength: finalHtml.length,
         cssLength: finalCss.length,
+        componentsJsonLength: componentsJson.length,
+        stylesJsonLength: stylesJson.length,
         hasComponents: components.length > 0,
         hasStyles: styles.length > 0
       })
 
       // 更新頁面數據 - 使用增強的內容並添加網路錯誤處理
       let updatedPage
+      const maxRetries = 3
+      let retryCount = 0
+      
+      const attemptSave = async (): Promise<any> => {
+        try {
+          return await grapesJSPageService.updatePage({
+            _id: currentPage._id!,
+            grapesHtml: finalHtml,
+            grapesCss: finalCss,
+            grapesComponents: componentsJson,
+            grapesStyles: stylesJson
+          })
+        } catch (error) {
+          if (retryCount < maxRetries) {
+            retryCount++
+            console.log(`保存失敗，第 ${retryCount} 次重試...`)
+            // 增加延遲時間，使用指數退避策略
+            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
+            return attemptSave()
+          }
+          throw error
+        }
+      }
+      
       try {
-        updatedPage = await grapesJSPageService.updatePage({
-          _id: currentPage._id!,
-          grapesHtml: finalHtml,
-          grapesCss: finalCss,
-          grapesComponents: componentsJson,
-          grapesStyles: stylesJson
-        })
+        updatedPage = await attemptSave()
       } catch (networkError) {
         // 處理網路錯誤
         console.error('🌐 網路請求錯誤詳情:', {

@@ -11,12 +11,12 @@ import ImageTextBlock from "@modules/home/components/image-text-block"
 import FeaturedProducts from "@modules/home/components/featured-products"
 import BlogPosts from "@modules/blog/components/blog-posts"
 import YoutubeSection from "@modules/home/components/youtube-section"
+import ContentSection from "@modules/home/components/content-section"
 
 // 導入類型
 import type { 
-  MainBanner
-} from '@/types/sanity'
-import type { YoutubeSection as YoutubeSectionType } from '@lib/types/page-sections'
+  MainBanner 
+} from '@lib/types/page-sections'
 import { listCollections } from '@lib/data/collections'
 import { getRegion } from '@lib/data/regions'
 import type { HttpTypes } from '@medusajs/types'
@@ -144,7 +144,18 @@ export default async function CountryCodeCatchAllPage({ params }: PageProps) {
               showDots
             }
           },
-          _type != "mainBannerModule" => {
+          _type == "contentSectionModule" => {
+            _type,
+            moduleType,
+            isActive,
+            order,
+            "settings": {
+              "title": settings.title,
+              "hideTitle": settings.hideTitle,
+              "content": settings.content
+            }
+          },
+          _type != "mainBannerModule" && _type != "contentSectionModule" => {
             settings
           }
         },
@@ -237,7 +248,162 @@ export default async function CountryCodeCatchAllPage({ params }: PageProps) {
   }
 }
 
-// 渲染模組的函數
+// 拆分模組渲染為更小的函數
+// 渲染主橫幅模組
+function renderMainBanner(module: any, index: number) {
+  const slides = module.slides || []
+  const bannerSettings = module.bannerSettings || {}
+  
+  console.log('🎯 MainBanner data:', { 
+    slides, 
+    bannerSettings, 
+    moduleType: module._type,
+  })
+  
+  if (!slides || !Array.isArray(slides) || slides.length === 0) {
+    console.error("Invalid mainBanner module - no slides:", module)
+    return null
+  }
+  
+  // 構建正確的 MainBanner 對象
+  const banner: MainBanner = {
+    _type: "mainBanner",
+    isActive: true,
+    slides: slides.map((slide: any) => ({
+      heading: slide.heading || '',
+      subheading: slide.subheading || '',
+      desktopImage: slide.desktopImage || '',
+      desktopImageAlt: slide.desktopImageAlt || '',
+      mobileImage: slide.mobileImage || '',
+      mobileImageAlt: slide.mobileImageAlt || '',
+      imageLink: slide.imageLink || ''
+    })),
+    settings: {
+      autoplay: bannerSettings.autoplay ?? true,
+      autoplaySpeed: bannerSettings.autoplaySpeed ?? 5,
+      showArrows: bannerSettings.showArrows ?? true,
+      showDots: bannerSettings.showDots ?? true
+    }
+  }
+  
+  return (
+    <HeroSection
+      key={`module-banner-${index}`}
+      banner={banner}
+    />
+  )
+}
+
+// 渲染服務卡片模組
+function renderServiceCardSection(settings: any, index: number) {
+  const processedCards = settings.cards?.map((card: any) => ({
+    ...card,
+    stylists: card.stylists?.map((stylist: any) => ({
+      ...stylist,
+      cardImage: stylist.cardImage ? {
+        url: urlForImage(stylist.cardImage) || '',
+        alt: stylist.cardImage?.alt || ''
+      } : undefined
+    }))
+  })) || []
+  
+  return (
+    <ServiceCardsSection
+      key={`module-service-${index}`}
+      heading={settings.heading || ''}
+      cardsPerRow={settings.cardsPerRow || 3}
+      cards={processedCards}
+    />
+  )
+}
+
+// 渲染圖文區塊模組
+function renderImageTextBlock(settings: any, index: number) {
+  return (
+    <ImageTextBlock
+      key={`module-image-${index}`}
+      heading={settings.heading || ''}
+      content={settings.content || ''}
+      image={settings.image ? {
+        url: urlForImage(settings.image) || '',
+        alt: settings.image?.alt || ''
+      } : undefined}
+      layout={settings.layout || 'left'}
+      leftImage={settings.leftImage ? {
+        url: urlForImage(settings.leftImage) || '',
+        alt: settings.leftImage?.alt || ''
+      } : undefined}
+      rightImage={settings.rightImage ? {
+        url: urlForImage(settings.rightImage) || '',
+        alt: settings.rightImage?.alt || ''
+      } : undefined}
+      leftContent={settings.leftContent || ''}
+      rightContent={settings.rightContent || ''}
+      hideTitle={settings.hideTitle || false}
+    />
+  )
+}
+
+// 渲染精選商品模組
+function renderFeaturedProducts(
+  settings: any, 
+  index: number, 
+  collections: HttpTypes.StoreCollection[] | null,
+  region: HttpTypes.StoreRegion | null
+) {
+  if (!settings.collection_id) {
+    console.error("Invalid featuredProducts module:", settings)
+    return null
+  }
+
+  // 安全檢查 collections
+  if (!collections || !Array.isArray(collections)) {
+    console.warn("Featured products skipped - collections not available")
+    return null
+  }
+
+  try {
+    const featuredCollections = collections.filter((c: any) =>
+      settings.collection_id === c.id
+    )
+
+    if (featuredCollections.length === 0) {
+      console.log("No matching collection found for featured products")
+      return null
+    }
+
+    return (
+      <FeaturedProducts
+        key={`module-featured-${index}`}
+        collections={featuredCollections}
+        region={region!}
+        settings={settings}
+      />
+    )
+  } catch (error) {
+    console.error("Featured products rendering error:", error)
+    return null
+  }
+}
+
+// 渲染內容區塊模組
+function renderContentSection(settings: any, index: number) {
+  // 檢查是否有內容
+  if (!settings.content || !Array.isArray(settings.content)) {
+    console.warn("Invalid contentSection module - missing content array:", settings)
+    return null
+  }
+  
+  return (
+    <ContentSection
+      key={`module-content-${index}`}
+      heading={settings.hideTitle ? undefined : settings.title}
+      content={settings.content}
+    />
+  )
+}
+
+// 主要模組渲染函數
 function renderModule(
   module: any, 
   index: number, 
@@ -253,180 +419,44 @@ function renderModule(
     console.log(`🎯 Rendering module ${index}: ${moduleType}`, { isActive: module.isActive })
     
     switch (moduleType) {
-      case "mainBanner": {
-        // mainBanner 的數據結構：module.slides 和 module.bannerSettings 是平級的
-        const slides = module.slides || []
-        const bannerSettings = module.bannerSettings || {}
-        
-        console.log('🎯 MainBanner data:', { 
-          slides, 
-          bannerSettings, 
-          moduleData: module,
-          moduleType: module._type,
-          rawModuleType: module.moduleType 
-        })
-        
-        if (!slides || !Array.isArray(slides) || slides.length === 0) {
-          console.error("Invalid mainBanner module - no slides:", module)
-          return null
-        }
-        
-        // 構建正確的 MainBanner 對象
-        const banner: MainBanner = {
-          _type: "mainBanner",
-          isActive: true,
-          slides: slides.map((slide: any, slideIndex: number) => {
-            console.log(`🎯 處理 slide ${slideIndex}:`, {
-              heading: slide.heading,
-              desktopImage: slide.desktopImage,
-              mobileImage: slide.mobileImage,
-              desktopImageAlt: slide.desktopImageAlt,
-              mobileImageAlt: slide.mobileImageAlt,
-              hasDesktopImage: !!slide.desktopImage,
-              hasMobileImage: !!slide.mobileImage
-            })
-            
-            return {
-              heading: slide.heading || '',
-              subheading: slide.subheading || '',
-              desktopImage: slide.desktopImage || '',
-              desktopImageAlt: slide.desktopImageAlt || '',
-              mobileImage: slide.mobileImage || '',
-              mobileImageAlt: slide.mobileImageAlt || '',
-              imageLink: slide.imageLink || ''
-            }
-          }),
-          settings: {
-            autoplay: bannerSettings.autoplay ?? true,
-            autoplaySpeed: bannerSettings.autoplaySpeed ?? 5,
-            showArrows: bannerSettings.showArrows ?? true,
-            showDots: bannerSettings.showDots ?? true
-          }
-        }
-        
-        return (
-          <HeroSection
-            key={`module-banner-${index}`}
-            banner={banner}
-          />
-        )
-      }
+      case "mainBanner":
+        return renderMainBanner(module, index)
       
-      case "serviceCardSection": {
-        const serviceSettings = settings as any
-        const processedCards = serviceSettings.cards?.map((card: any) => ({
-          ...card,
-          stylists: card.stylists?.map((stylist: any) => ({
-            ...stylist,
-            cardImage: stylist.cardImage ? {
-              url: urlForImage(stylist.cardImage) || '',
-              alt: stylist.cardImage?.alt || ''
-            } : undefined
-          }))
-        })) || []
-        
-        return (
-          <ServiceCardsSection
-            key={`module-service-${index}`}
-            heading={serviceSettings.heading || ''}
-            cardsPerRow={serviceSettings.cardsPerRow || 3}
-            cards={processedCards}
-          />
-        )
-      }
+      case "serviceCardSection":
+        return renderServiceCardSection(settings, index)
       
-      case "imageTextBlock": {
-        const imageSettings = settings as any
-        return (
-          <ImageTextBlock
-            key={`module-image-${index}`}
-            heading={imageSettings.heading || ''}
-            content={imageSettings.content || ''}
-            image={imageSettings.image ? {
-              url: urlForImage(imageSettings.image) || '',
-              alt: imageSettings.image?.alt || ''
-            } : undefined}
-            layout={imageSettings.layout || 'left'}
-            leftImage={imageSettings.leftImage ? {
-              url: urlForImage(imageSettings.leftImage) || '',
-              alt: imageSettings.leftImage?.alt || ''
-            } : undefined}
-            rightImage={imageSettings.rightImage ? {
-              url: urlForImage(imageSettings.rightImage) || '',
-              alt: imageSettings.rightImage?.alt || ''
-            } : undefined}
-            leftContent={imageSettings.leftContent || ''}
-            rightContent={imageSettings.rightContent || ''}
-            hideTitle={imageSettings.hideTitle || false}
-          />
-        )
-      }
+      case "imageTextBlock":
+        return renderImageTextBlock(settings, index)
       
-      case "featuredProducts": {
-        const featuredSettings = settings as any
-        
-        if (!featuredSettings.collection_id) {
-          console.error("Invalid featuredProducts module:", featuredSettings)
-          return null
-        }
-
-        // 安全檢查 collections
-        if (!collections || !Array.isArray(collections)) {
-          console.warn("Featured products skipped - collections not available")
-          return null
-        }
-
-        try {
-          const featuredCollections = collections.filter((c: any) =>
-            featuredSettings.collection_id === c.id
-          )
-
-          if (featuredCollections.length === 0) {
-            console.log("No matching collection found for featured products")
-            return null
-          }
-
-          return (
-            <FeaturedProducts
-              key={`module-featured-${index}`}
-              collections={featuredCollections}
-              region={region!}
-              settings={featuredSettings}
-            />
-          )
-        } catch (error) {
-          console.error("Featured products rendering error:", error)
-          return null
-        }
-      }
+      case "featuredProducts":
+        return renderFeaturedProducts(settings, index, collections, region)
       
-      case "blogSection": {
-        const blogSettings = settings as any
+      case "blogSection":
         return (
           <BlogPosts 
             key={`module-blog-${index}`}
-            title={blogSettings.title || ''}
-            category={blogSettings.category || ''}
-            limit={blogSettings.limit || 2}
-            postsPerRow={blogSettings.postsPerRow || 3}
+            title={settings.title || ''}
+            category={settings.category || ''}
+            limit={settings.limit || 2}
+            postsPerRow={settings.postsPerRow || 3}
           />
         )
-      }
       
-      case "youtubeSection": {
-        const youtubeSettings = settings as YoutubeSectionType
+      case "youtubeSection":
         return (
           <YoutubeSection
             key={`module-youtube-${index}`}
             _type="youtubeSection"
             isActive={true}
-            heading={youtubeSettings.heading}
-            description={youtubeSettings.description}
-            videoUrl={youtubeSettings.videoUrl}
-            fullWidth={youtubeSettings.fullWidth ?? true}
+            heading={settings.heading}
+            description={settings.description}
+            videoUrl={settings.videoUrl}
+            fullWidth={settings.fullWidth ?? true}
           />
         )
-      }
+      
+      case "contentSection":
+        return renderContentSection(settings, index)
       
       default:
         console.warn(`Unknown module type: ${moduleType}`)
