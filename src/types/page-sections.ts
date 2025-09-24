@@ -6,8 +6,7 @@ export type BannerSlide = {
   desktopImageAlt?: string
   mobileImage: string
   mobileImageAlt?: string
-  buttonText?: string
-  buttonLink?: string
+  imageLink?: string
 }
 
 export type BannerSettings = {
@@ -75,9 +74,11 @@ export type GoogleMapsSection = {
   isActive: boolean
   heading?: string
   description?: string
+  googleMapsUrl?: string
+  mapHeight?: number
 }
 
 import type { ContactSection, ContentSection } from './sections'
 import type { ServiceCards } from './service-cards'
 
-export type MainSection = MainBanner | ImageTextBlock | FeaturedProductsSection | BlogSection | YoutubeSection | ContentSection | ContactSection | ServiceCards
+export type MainSection = MainBanner | ImageTextBlock | FeaturedProductsSection | BlogSection | YoutubeSection | ContentSection | ContactSection | ServiceCards | GoogleMapsSection

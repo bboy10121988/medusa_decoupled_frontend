@@ -293,8 +293,7 @@ function renderModule(
               desktopImageAlt: slide.desktopImageAlt || '',
               mobileImage: slide.mobileImage || '',
               mobileImageAlt: slide.mobileImageAlt || '',
-              buttonText: slide.buttonText || '',
-              buttonLink: slide.buttonLink || ''
+              imageLink: slide.imageLink || ''
             }
           }),
           settings: {

@@ -47,7 +47,7 @@ export default function FeaturedProducts({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-6 md:py-12 xl:py-16 2xl:py-20">
       {collections.map((collection) => (
         <section 
           key={collection.id} 

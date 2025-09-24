@@ -185,6 +185,7 @@ export default {
         {type: 'youtubeSection'},
         {type: 'contentSection'},
         {type: 'serviceCardSection'},
+        {type: 'googleMapsSection'},
       ],
       options: {
         sortable: true

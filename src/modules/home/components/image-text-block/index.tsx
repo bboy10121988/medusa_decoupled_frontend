@@ -28,6 +28,13 @@ const ImageWrapper = ({ imageConfig, className, sizes }: {
   className?: string
   sizes?: string 
 }) => {
+  // 輸出圖片配置，幫助調試連結問題
+  console.log('ImageWrapper 處理圖片:', {
+    url: imageConfig.url,
+    alt: imageConfig.alt,
+    linkUrl: imageConfig.linkUrl
+  });
+
   const imageElement = (
     <Image
       src={imageConfig.url!}
@@ -41,7 +48,7 @@ const ImageWrapper = ({ imageConfig, className, sizes }: {
 
   if (imageConfig.linkUrl) {
     return (
-      <Link href={imageConfig.linkUrl} className="block w-full">
+      <Link href={imageConfig.linkUrl} className="block w-full relative z-20" target="_blank" rel="noopener noreferrer">
         {imageElement}
       </Link>
     )

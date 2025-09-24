@@ -11,7 +11,7 @@ export const DEFAULT_TWITTER_IMAGE = "/default-twitter-image.jpg"
 export const MEDUSA_BACKEND_URL = 
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 
   process.env.MEDUSA_BACKEND_URL || 
-  "http://localhost:9000"
+  "http://35.236.182.29:9000"
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 

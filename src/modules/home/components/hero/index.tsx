@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Heading } from "@medusajs/ui"
+import { Heading } from "@medusajs/ui"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 
@@ -11,8 +11,7 @@ type Slide = {
   desktopImageAlt?: string
   mobileImage: string
   mobileImageAlt?: string
-  buttonText: string
-  buttonLink: string
+  imageLink?: string
 }
 
 type Settings = {
@@ -45,6 +44,15 @@ const Hero = ({ slides, settings }: HeroProps) => {
   if (!slides?.length) return null
 
   const slide = slides[currentSlide]
+  
+  // 輸出每個 slide 的詳細信息以便調試
+  console.log("🎯 Hero component rendering with slides:", slides.map((s, idx) => ({
+    index: idx,
+    heading: s.heading,
+    imageLink: s.imageLink,
+    hasDesktopImage: !!s.desktopImage,
+    hasMobileImage: !!s.mobileImage
+  })))
   
   // 根據是否顯示指示點決定手機版高度行為
   const shouldUseFixedHeight = settings?.showDots && slides.length > 1
@@ -164,15 +172,29 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
               <div className="hidden md:block w-full">
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
-                  <img
-                    key={`desktop-${currentSlide}-${index}`}
-                    src={slideItem.desktopImage}
-                    alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                    className="w-full h-auto object-cover"
-                    loading="eager"
-                    style={{ imageRendering: 'auto' }}
-                    decoding="async"
-                  />
+                  slideItem.imageLink ? (
+                    <Link href={slideItem.imageLink} className="block w-full" target="_blank" rel="noopener noreferrer">
+                      <img
+                        key={`desktop-${currentSlide}-${index}`}
+                        src={slideItem.desktopImage}
+                        alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                        className="w-full h-auto object-cover cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                        loading="eager"
+                        style={{ imageRendering: 'auto' }}
+                        decoding="async"
+                      />
+                    </Link>
+                  ) : (
+                    <img
+                      key={`desktop-${currentSlide}-${index}`}
+                      src={slideItem.desktopImage}
+                      alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                      className="w-full h-auto object-cover"
+                      loading="eager"
+                      style={{ imageRendering: 'auto' }}
+                      decoding="async"
+                    />
+                  )
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-64">
                     <span className="text-gray-500">桌面版圖片未設定</span>
@@ -183,15 +205,29 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 手機版圖片容器 - 只在 md 以下顯示 */}
               <div className="block md:hidden w-full">
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
-                  <img
-                    key={`mobile-${currentSlide}-${index}`}
-                    src={slideItem.mobileImage}
-                    alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                    className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
-                    loading="eager"
-                    style={{ imageRendering: 'auto' }}
-                    decoding="async"
-                  />
+                  slideItem.imageLink ? (
+                    <Link href={slideItem.imageLink} className="block w-full" target="_blank" rel="noopener noreferrer">
+                      <img
+                        key={`mobile-${currentSlide}-${index}`}
+                        src={slideItem.mobileImage}
+                        alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                        className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover cursor-pointer transition-transform duration-300 hover:scale-[1.02]`}
+                        loading="eager"
+                        style={{ imageRendering: 'auto' }}
+                        decoding="async"
+                      />
+                    </Link>
+                  ) : (
+                    <img
+                      key={`mobile-${currentSlide}-${index}`}
+                      src={slideItem.mobileImage}
+                      alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                      className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
+                      loading="eager"
+                      style={{ imageRendering: 'auto' }}
+                      decoding="async"
+                    />
+                  )
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-32">
                     <span className="text-gray-500 text-sm">手機版圖片未設定</span>
@@ -203,11 +239,11 @@ const Hero = ({ slides, settings }: HeroProps) => {
         })}
       </div>
       
-      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/0 via-black/0 to-black/0">
+      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊，加入 pointer-events-none 使點擊可穿透 */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/0 via-black/0 to-black/0 pointer-events-none">
         <div 
           key={`slide-${currentSlide}`}
-          className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"
+          className="animate-fade-in-content max-w-[90%] sm:max-w-4xl pointer-events-none"
         >
           <Heading
             level="h1"
@@ -226,18 +262,6 @@ const Hero = ({ slides, settings }: HeroProps) => {
             >
               {slide.subheading}
             </p>
-          )}
-          {slide.buttonText && slide.buttonLink && (
-            <Button asChild variant="secondary" 
-              className="btn bg-white hover:bg-white/90 text-gray-900 px-4 sm:px-8 py-2 sm:py-3 text-sm sm:text-base md:text-lg font-medium rounded-lg 
-                shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
-              style={{
-                letterSpacing: "var(--letter-spacing-wide)",
-                fontFamily: "var(--font-base)"
-              }}
-            >
-              <Link href={slide.buttonLink}>{slide.buttonText}</Link>
-            </Button>
           )}
         </div>
       </div>

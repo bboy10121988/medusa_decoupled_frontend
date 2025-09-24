@@ -40,12 +40,16 @@ async function getRegionMap(cacheId: string) {
   ) {
     try {
       // Fetch regions from Medusa. Middleware runs on Edge; we can't use JS SDK.
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 秒超時
+      
       const response = await fetch(`${BACKEND_URL}/store/regions`, {
         headers: {
           "x-publishable-api-key": PUBLISHABLE_API_KEY!,
         },
-      })
-
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch regions: ${response.status}`)
       }
@@ -76,8 +80,14 @@ async function getRegionMap(cacheId: string) {
         } as unknown as HttpTypes.StoreRegion)
         regionMapCache.regionMapUpdated = Date.now()
       }
+      
+      // 更有效地處理網絡錯誤
+      const errMsg = String((err as Error)?.message || '未知錯誤');
+      const isNetworkError = errMsg.includes('fetch') || errMsg.includes('network') || 
+                            errMsg.includes('abort') || errMsg.includes('timeout');
+      
       if (process.env.NODE_ENV === "development") {
-        console.warn("Middleware.ts: Failed to fetch regions, using fallback:", (err as Error)?.message)
+        console.warn(`Middleware.ts: ${isNetworkError ? '網絡錯誤' : '失敗'} - 使用預設區域:`, errMsg)
       }
     }
   }

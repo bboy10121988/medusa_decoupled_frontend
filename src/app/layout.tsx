@@ -11,7 +11,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" data-mode="light">
+    <html lang="en" data-mode="light" suppressHydrationWarning>
       <body className="theme-lv">
         <main className="relative">{children}</main>
       </body>

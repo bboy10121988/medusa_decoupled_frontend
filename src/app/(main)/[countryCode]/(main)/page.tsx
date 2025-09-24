@@ -41,15 +41,27 @@ export default async function Home({
 }) {
   const { countryCode } = await params
   
-  // 並行獲取數據以提升性能
+  // 並行獲取數據以提升性能，添加超時控制
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('請求超時')), 5000);
+  });
+  
   const [collectionsData, region] = await Promise.allSettled([
-    listCollections({}),
-    getRegion(countryCode)
+    Promise.race([listCollections({}), timeoutPromise]).catch(err => {
+      console.warn('獲取商品集合時出錯:', err.message);
+      return null;
+    }),
+    Promise.race([getRegion(countryCode), timeoutPromise]).catch(err => {
+      console.warn('獲取地區資訊時出錯:', err.message);
+      return null;
+    })
   ])
 
   // 處理數據獲取結果
-  const collections = collectionsData.status === 'fulfilled' ? collectionsData.value : { collections: [], count: 0 }
-  const regionData = region.status === 'fulfilled' ? region.value : null
+  const collections = collectionsData.status === 'fulfilled' && collectionsData.value ? 
+    collectionsData.value : { collections: [], count: 0 }
+  const regionData = region.status === 'fulfilled' && region.value ? 
+    region.value : null
 
   // 添加調試資訊
   if (process.env.NODE_ENV === 'development') console.log('🔍 Data fetch results:', {
@@ -87,8 +99,8 @@ export default async function Home({
   })
 
   // 如果沒有數據或數據無效，顯示備用內容
-  if (!hasSanityData || !regionData) {
-    console.warn('⚠️ No valid Sanity data or region found, showing fallback content')
+  if (!hasSanityData) {
+    console.warn('⚠️ No valid Sanity data found, showing fallback content')
     
     return (
       <>
@@ -280,6 +292,11 @@ export default async function Home({
                       />
                     )
                   }
+                  case "googleMapsSection": {
+                    // 地圖區塊在 Sanity 中可用但不在前端顯示
+                    console.log("🗺️ GoogleMapsSection found but skipped for frontend display")
+                    return null
+                  }
                   default:
                     console.error("Unknown section type:", sectionType)
                     return null
@@ -291,18 +308,7 @@ export default async function Home({
             })
         ) : null}
 
-        {/* 添加 Google Maps iframe */}
-        <div style={{ marginTop: "0" }}>
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9025.597972804986!2d121.51735723134998!3d25.031793426603716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442a9446e13fa69%3A0x3e9b9e89bc90f145!2zVGlt4oCZcyBmYW50YXN5IFdvcmxkIOeUt-Wjq-eQhumrruW7sw!5e0!3m2!1szh-TW!2stw!4v1749469703866!5m2!1szh-TW!2stw"
-            width="100%"
-            height="450"
-            style={{ border: "0" }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
-        </div>
+        {/* 硬編碼的地圖已移除 - 現在地圖功能通過 Sanity 管理但不在前端顯示 */}
       </>
     )
   }

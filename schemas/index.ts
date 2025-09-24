@@ -18,6 +18,7 @@ import blogSection from './blocks/blogSection'
 import youtubeSection from './blocks/youtubeSection'
 import contentSection from './blocks/contentSection'
 import serviceCardSection from './blocks/serviceCardSection'
+import googleMapsSection from './blocks/googleMapsSection'
 
 
 export const schemaTypes = [
@@ -43,5 +44,6 @@ export const schemaTypes = [
   youtubeSection,
   contentSection,
   serviceCardSection,
+  googleMapsSection,
 
 ]

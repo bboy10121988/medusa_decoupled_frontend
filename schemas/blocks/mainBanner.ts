@@ -91,14 +91,10 @@ export default {
               type: 'string'
             },
             {
-              name: 'buttonText',
-              title: '按鈕文字',
-              type: 'string'
-            },
-            {
-              name: 'buttonLink',
-              title: '按鈕連結',
-              type: 'url'
+              name: 'imageLink',
+              title: '圖片連結',
+              type: 'url',
+              description: '點擊圖片時跳轉的連結'
             }
           ]
         }

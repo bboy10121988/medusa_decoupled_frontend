@@ -16,8 +16,7 @@ export async function GET(request: NextRequest) {
           "desktopImageAlt": desktopImage.alt,
           "mobileImage": mobileImage.asset->url,
           "mobileImageAlt": mobileImage.alt,
-          buttonText,
-          buttonLink
+          imageLink
         },
         "settings": settings {
           autoplay,
