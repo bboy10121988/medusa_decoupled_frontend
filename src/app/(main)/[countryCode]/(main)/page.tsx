@@ -106,7 +106,7 @@ export default async function Home({
       <>
         <div className="mt-16">
           <a 
-            href="https://page.line.me/timsfantasyworld" 
+            href="https://page.line.me/timsfantasyworld?fbclid=PARlRTSAMmHoRleHRuA2FlbQIxMAABp_nJitfDUH8W4pRlcRgKeusvIELFdTvXpbu791GiXgPIOarBh8LO2Hg2YJrV_aem_9pdT5ans7oJyF7F17iQPHw" 
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-block bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"

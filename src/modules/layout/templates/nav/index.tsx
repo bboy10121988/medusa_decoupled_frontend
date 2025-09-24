@@ -426,7 +426,7 @@ export default async function Nav() {
 
       {/* LINE 懸浮按鈕 */}
       <a
-        href="https://line.me/ti/p/~YOUR_LINE_ID"
+        href="https://page.line.me/timsfantasyworld?fbclid=PARlRTSAMmHoRleHRuA2FlbQIxMAABp_nJitfDUH8W4pRlcRgKeusvIELFdTvXpbu791GiXgPIOarBh8LO2Hg2YJrV_aem_9pdT5ans7oJyF7F17iQPHw"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 bg-gray-900 hover:bg-gray-800 text-white border border-white/20 rounded-full px-6 py-3 shadow-lg transition-all duration-200 hover:-translate-y-0.5 z-[9999] flex items-center gap-3"
