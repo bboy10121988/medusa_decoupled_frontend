@@ -33,12 +33,13 @@ export default async function OrderCompletedTemplate({
             level="h1"
             className="flex flex-col gap-y-3 text-ui-fg-base text-3xl mb-4"
           >
-            <span>Thank you!</span>
-            <span>Your order was placed successfully.</span>
+            <span>謝謝您！</span>
+            <span>您的訂單已成功建立。</span>
+            <span className="text-lg text-ui-fg-subtle mt-2">如有任何問題，請點擊「幫助」按鈕可諮詢商店，將有專人為您服務。</span>
           </Heading>
           <OrderDetails order={order} />
           <Heading level="h2" className="flex flex-row text-3xl-regular">
-            Summary
+            訂單摘要
           </Heading>
           <Items order={order} />
           <CartTotals totals={order} />
