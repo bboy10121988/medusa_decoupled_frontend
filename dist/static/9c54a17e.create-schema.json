@@ -1,0 +1,3776 @@
+[
+  {
+    "fields": [
+      {
+        "description": "用於SEO和管理目的的標題",
+        "name": "title",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "description": "搜尋引擎顯示的標題（建議 50-60 字元）- 留空則使用頁面標題",
+        "name": "seoTitle",
+        "type": "string",
+        "title": "SEO 標題"
+      },
+      {
+        "rows": 3,
+        "description": "搜尋引擎顯示的描述（建議 140-160 字元）",
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO 描述"
+      },
+      {
+        "description": "此頁面主要優化的關鍵字（建議 1-3 個詞）",
+        "name": "focusKeyword",
+        "type": "string",
+        "title": "目標關鍵字"
+      },
+      {
+        "options": {
+          "layout": "tags"
+        },
+        "description": "與頁面內容相關的關鍵字",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "seoKeywords",
+        "type": "array",
+        "title": "相關關鍵字"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "指定此頁面的首選網址",
+        "name": "canonicalUrl",
+        "type": "url",
+        "title": "標準網址 (Canonical URL)"
+      },
+      {
+        "initialValue": false,
+        "name": "noIndex",
+        "type": "boolean",
+        "title": "禁止搜尋引擎索引"
+      },
+      {
+        "initialValue": false,
+        "name": "noFollow",
+        "type": "boolean",
+        "title": "禁止跟隨連結"
+      },
+      {
+        "name": "ogTitle",
+        "type": "string",
+        "title": "Facebook/社群標題"
+      },
+      {
+        "rows": 2,
+        "name": "ogDescription",
+        "type": "text",
+        "title": "Facebook/社群描述"
+      },
+      {
+        "options": {
+          "hotspot": true,
+          "metadata": [
+            "blurhash",
+            "exif",
+            "location",
+            "palette"
+          ]
+        },
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "圖片替代文字"
+          }
+        ],
+        "name": "ogImage",
+        "type": "image",
+        "title": "社群分享圖片"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "摘要 (Summary)",
+              "value": "summary"
+            },
+            {
+              "title": "大圖摘要 (Summary Large Image)",
+              "value": "summary_large_image"
+            },
+            {
+              "title": "應用程式 (App)",
+              "value": "app"
+            },
+            {
+              "title": "播放器 (Player)",
+              "value": "player"
+            }
+          ]
+        },
+        "initialValue": "summary_large_image",
+        "name": "twitterCard",
+        "type": "string",
+        "title": "Twitter 卡片類型"
+      },
+      {
+        "initialValue": 0.8,
+        "name": "priority",
+        "type": "number",
+        "title": "頁面優先級"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "每日 (Daily)",
+              "value": "daily"
+            },
+            {
+              "title": "每週 (Weekly)",
+              "value": "weekly"
+            },
+            {
+              "title": "每月 (Monthly)",
+              "value": "monthly"
+            },
+            {
+              "title": "每年 (Yearly)",
+              "value": "yearly"
+            },
+            {
+              "title": "從不 (Never)",
+              "value": "never"
+            }
+          ]
+        },
+        "initialValue": "weekly",
+        "name": "changeFrequency",
+        "type": "string",
+        "title": "更新頻率"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "無",
+              "value": "none"
+            },
+            {
+              "title": "文章 (Article)",
+              "value": "article"
+            },
+            {
+              "title": "產品 (Product)",
+              "value": "product"
+            },
+            {
+              "title": "商店 (LocalBusiness)",
+              "value": "local_business"
+            },
+            {
+              "title": "常見問題 (FAQ)",
+              "value": "faq"
+            },
+            {
+              "title": "麵包屑 (BreadcrumbList)",
+              "value": "breadcrumb"
+            },
+            {
+              "title": "評論 (Review)",
+              "value": "review"
+            }
+          ]
+        },
+        "initialValue": "none",
+        "name": "structuredDataType",
+        "type": "string",
+        "title": "結構化資料類型"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "新聞文章 (NewsArticle)",
+              "value": "news"
+            },
+            {
+              "title": "部落格文章 (BlogPosting)",
+              "value": "blog"
+            },
+            {
+              "title": "技術文章 (TechArticle)",
+              "value": "tech"
+            }
+          ]
+        },
+        "hidden": "conditional",
+        "name": "articleType",
+        "type": "string",
+        "title": "文章類型"
+      },
+      {
+        "rows": 8,
+        "name": "customJsonLd",
+        "type": "text",
+        "title": "自訂 JSON-LD"
+      },
+      {
+        "options": {
+          "sortable": true
+        },
+        "of": [
+          {
+            "type": "mainBanner",
+            "title": "主橫幅區塊"
+          },
+          {
+            "type": "imageTextBlock",
+            "title": "圖文區塊"
+          },
+          {
+            "type": "featuredProducts",
+            "title": "精選商品區塊"
+          },
+          {
+            "type": "blogSection",
+            "title": "部落格文章區塊"
+          },
+          {
+            "type": "youtubeSection",
+            "title": "YouTube 影片區塊"
+          },
+          {
+            "type": "contentSection",
+            "title": "一般內容區塊"
+          },
+          {
+            "type": "serviceCardSection",
+            "title": "服務卡片區塊"
+          },
+          {
+            "type": "googleMapsSection",
+            "title": "地圖區塊"
+          }
+        ],
+        "name": "mainSections",
+        "type": "array",
+        "title": "頁面區塊"
+      }
+    ],
+    "name": "homePage",
+    "type": "document",
+    "title": "首頁"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 1
+              },
+              {
+                "flag": "max",
+                "constraint": 100
+              }
+            ],
+            "level": "error",
+            "message": "標題必填，且限制在 100 字元內"
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "頁面標題"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error",
+            "message": "網址路徑為必填"
+          }
+        ],
+        "name": "slug",
+        "type": "slug",
+        "title": "網址路徑"
+      },
+      {
+        "initialValue": false,
+        "description": "勾選後此頁面才會顯示在網站上",
+        "name": "isActive",
+        "type": "boolean",
+        "title": "啟用頁面"
+      },
+      {
+        "rows": 3,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 160
+              }
+            ],
+            "level": "warning",
+            "message": "建議不超過 160 字元以獲得最佳 SEO 效果"
+          }
+        ],
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO 描述"
+      },
+      {
+        "description": "此頁面要優化的主要關鍵字",
+        "name": "focusKeyword",
+        "type": "string",
+        "title": "主要關鍵字"
+      },
+      {
+        "description": "與此頁面相關的其他關鍵字",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "additionalKeywords",
+        "type": "array",
+        "title": "相關關鍵字"
+      },
+      {
+        "initialValue": false,
+        "description": "勾選後搜尋引擎將不會索引此頁面",
+        "name": "noIndex",
+        "type": "boolean",
+        "title": "不索引此頁面"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "如果此頁面內容重複，請指定標準版本的網址",
+        "name": "canonicalUrl",
+        "type": "url",
+        "title": "標準網址"
+      },
+      {
+        "name": "ogTitle",
+        "type": "string",
+        "title": "Facebook/社群標題"
+      },
+      {
+        "rows": 2,
+        "name": "ogDescription",
+        "type": "text",
+        "title": "Facebook/社群描述"
+      },
+      {
+        "options": {
+          "hotspot": true,
+          "metadata": [
+            "blurhash",
+            "exif",
+            "location",
+            "palette"
+          ]
+        },
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "圖片替代文字"
+          }
+        ],
+        "name": "ogImage",
+        "type": "image",
+        "title": "社群分享圖片"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "摘要 (Summary)",
+              "value": "summary"
+            },
+            {
+              "title": "大圖摘要 (Summary Large Image)",
+              "value": "summary_large_image"
+            },
+            {
+              "title": "應用程式 (App)",
+              "value": "app"
+            },
+            {
+              "title": "播放器 (Player)",
+              "value": "player"
+            }
+          ]
+        },
+        "initialValue": "summary_large_image",
+        "name": "twitterCard",
+        "type": "string",
+        "title": "Twitter 卡片類型"
+      },
+      {
+        "initialValue": 0.8,
+        "name": "priority",
+        "type": "number",
+        "title": "頁面優先級"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "每日 (Daily)",
+              "value": "daily"
+            },
+            {
+              "title": "每週 (Weekly)",
+              "value": "weekly"
+            },
+            {
+              "title": "每月 (Monthly)",
+              "value": "monthly"
+            },
+            {
+              "title": "每年 (Yearly)",
+              "value": "yearly"
+            },
+            {
+              "title": "從不 (Never)",
+              "value": "never"
+            }
+          ]
+        },
+        "initialValue": "weekly",
+        "name": "changeFrequency",
+        "type": "string",
+        "title": "更新頻率"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "無",
+              "value": "none"
+            },
+            {
+              "title": "網頁 (WebPage)",
+              "value": "webpage"
+            },
+            {
+              "title": "常見問題 (FAQ)",
+              "value": "faq"
+            },
+            {
+              "title": "麵包屑 (BreadcrumbList)",
+              "value": "breadcrumb"
+            }
+          ]
+        },
+        "initialValue": "webpage",
+        "name": "structuredDataType",
+        "type": "string",
+        "title": "結構化資料類型"
+      },
+      {
+        "rows": 8,
+        "name": "customJsonLd",
+        "type": "text",
+        "title": "自訂 JSON-LD"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 1
+              }
+            ],
+            "level": "error",
+            "message": "至少需要一個頁面區塊"
+          }
+        ],
+        "of": [
+          {
+            "type": "mainBanner",
+            "title": "主橫幅區塊"
+          },
+          {
+            "type": "imageTextBlock",
+            "title": "圖文區塊"
+          },
+          {
+            "type": "featuredProducts",
+            "title": "精選商品區塊"
+          },
+          {
+            "type": "blogSection",
+            "title": "部落格文章區塊"
+          },
+          {
+            "type": "youtubeSection",
+            "title": "YouTube 影片區塊"
+          },
+          {
+            "type": "contentSection",
+            "title": "一般內容區塊"
+          },
+          {
+            "type": "serviceCardSection",
+            "title": "服務卡片區塊"
+          }
+        ],
+        "name": "mainSections",
+        "type": "array",
+        "title": "頁面區塊"
+      }
+    ],
+    "name": "pages",
+    "type": "document",
+    "title": "動態頁面"
+  },
+  {
+    "fields": [
+      {
+        "description": "點擊按鈕將在新視窗中開啟 GrapesJS 編輯器",
+        "readOnly": true,
+        "name": "openGrapesEditor",
+        "type": "string",
+        "title": "開啟 GrapesJS 編輯器"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "頁面標題"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug",
+        "title": "網址別名"
+      },
+      {
+        "rows": 3,
+        "name": "description",
+        "type": "text",
+        "title": "頁面描述"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "草稿",
+              "value": "draft"
+            },
+            {
+              "title": "預覽",
+              "value": "preview"
+            },
+            {
+              "title": "已發布",
+              "value": "published"
+            },
+            {
+              "title": "已封存",
+              "value": "archived"
+            }
+          ]
+        },
+        "initialValue": "draft",
+        "name": "status",
+        "type": "string",
+        "title": "頁面狀態"
+      },
+      {
+        "name": "publishedAt",
+        "type": "datetime",
+        "title": "發布時間"
+      },
+      {
+        "initialValue": 1,
+        "readOnly": true,
+        "name": "version",
+        "type": "number",
+        "title": "版本號"
+      },
+      {
+        "description": "GrapesJS 生成的最終 HTML 代碼",
+        "name": "grapesHtml",
+        "type": "text",
+        "title": "HTML 內容"
+      },
+      {
+        "description": "GrapesJS 生成的 CSS 代碼",
+        "name": "grapesCss",
+        "type": "text",
+        "title": "CSS 樣式"
+      },
+      {
+        "description": "GrapesJS 組件樹的完整 JSON 數據",
+        "hidden": true,
+        "name": "grapesComponents",
+        "type": "text",
+        "title": "組件結構數據"
+      },
+      {
+        "description": "GrapesJS 樣式管理器的 JSON 數據",
+        "hidden": true,
+        "name": "grapesStyles",
+        "type": "text",
+        "title": "樣式結構數據"
+      },
+      {
+        "options": {
+          "sortable": true
+        },
+        "description": "從 GrapesJS 編輯器提取的首頁模組設定",
+        "of": [
+          {
+            "fields": [
+              {
+                "initialValue": "mainBanner",
+                "hidden": true,
+                "name": "moduleType",
+                "type": "string"
+              },
+              {
+                "initialValue": true,
+                "name": "isActive",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "name": "order",
+                "type": "number",
+                "title": "排序"
+              },
+              {
+                "name": "settings",
+                "type": "mainBanner",
+                "title": "輪播設定"
+              }
+            ],
+            "type": "object",
+            "name": "mainBannerModule",
+            "title": "主橫幅模組"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": "serviceCardSection",
+                "hidden": true,
+                "name": "moduleType",
+                "type": "string"
+              },
+              {
+                "initialValue": true,
+                "name": "isActive",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "name": "order",
+                "type": "number",
+                "title": "排序"
+              },
+              {
+                "name": "settings",
+                "type": "serviceCardSection",
+                "title": "服務設定"
+              }
+            ],
+            "type": "object",
+            "name": "serviceCardsModule",
+            "title": "服務卡片模組"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": "imageTextBlock",
+                "hidden": true,
+                "name": "moduleType",
+                "type": "string"
+              },
+              {
+                "initialValue": true,
+                "name": "isActive",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "name": "order",
+                "type": "number",
+                "title": "排序"
+              },
+              {
+                "name": "settings",
+                "type": "imageTextBlock",
+                "title": "圖文設定"
+              }
+            ],
+            "type": "object",
+            "name": "imageTextModule",
+            "title": "圖文區塊模組"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": "featuredProducts",
+                "hidden": true,
+                "name": "moduleType",
+                "type": "string"
+              },
+              {
+                "initialValue": true,
+                "name": "isActive",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "name": "order",
+                "type": "number",
+                "title": "排序"
+              },
+              {
+                "name": "settings",
+                "type": "featuredProducts",
+                "title": "商品設定"
+              }
+            ],
+            "type": "object",
+            "name": "featuredProductsModule",
+            "title": "精選商品模組"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": "blogSection",
+                "hidden": true,
+                "name": "moduleType",
+                "type": "string"
+              },
+              {
+                "initialValue": true,
+                "name": "isActive",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "name": "order",
+                "type": "number",
+                "title": "排序"
+              },
+              {
+                "name": "settings",
+                "type": "blogSection",
+                "title": "文章設定"
+              }
+            ],
+            "type": "object",
+            "name": "blogSectionModule",
+            "title": "部落格文章模組"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": "youtubeSection",
+                "hidden": true,
+                "name": "moduleType",
+                "type": "string"
+              },
+              {
+                "initialValue": true,
+                "name": "isActive",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "name": "order",
+                "type": "number",
+                "title": "排序"
+              },
+              {
+                "name": "settings",
+                "type": "youtubeSection",
+                "title": "影片設定"
+              }
+            ],
+            "type": "object",
+            "name": "youtubeSectionModule",
+            "title": "YouTube 影片模組"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": "contentSection",
+                "hidden": true,
+                "name": "moduleType",
+                "type": "string"
+              },
+              {
+                "initialValue": true,
+                "name": "isActive",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "name": "order",
+                "type": "number",
+                "title": "排序"
+              },
+              {
+                "name": "settings",
+                "type": "contentSection",
+                "title": "內容設定"
+              }
+            ],
+            "type": "object",
+            "name": "contentSectionModule",
+            "title": "內容區塊模組"
+          }
+        ],
+        "name": "homeModules",
+        "type": "array",
+        "title": "首頁模組配置"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 60
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "建議長度 50-60 字元",
+        "name": "seoTitle",
+        "type": "string",
+        "title": "SEO 標題"
+      },
+      {
+        "rows": 3,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 160
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "建議長度 140-160 字元",
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO 描述"
+      },
+      {
+        "options": {
+          "layout": "tags"
+        },
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "seoKeywords",
+        "type": "array",
+        "title": "SEO 關鍵字"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          }
+        ],
+        "name": "ogImage",
+        "type": "image",
+        "title": "Open Graph 圖片"
+      },
+      {
+        "description": "額外的 CSS 代碼（會加在 GrapesJS 生成的 CSS 之後)",
+        "name": "customCSS",
+        "type": "text",
+        "title": "自訂 CSS"
+      },
+      {
+        "description": "自訂的 JavaScript 代碼",
+        "name": "customJS",
+        "type": "text",
+        "title": "自訂 JavaScript"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "響應式 (預設)",
+              "value": "responsive"
+            },
+            {
+              "title": "桌面版",
+              "value": "desktop"
+            },
+            {
+              "title": "平板",
+              "value": "tablet"
+            },
+            {
+              "title": "手機",
+              "value": "mobile"
+            }
+          ]
+        },
+        "initialValue": "responsive",
+        "name": "viewport",
+        "type": "string",
+        "title": "Viewport 設定"
+      },
+      {
+        "readOnly": true,
+        "name": "lastModified",
+        "type": "datetime",
+        "title": "最後修改時間"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "timestamp",
+                "type": "datetime",
+                "title": "時間"
+              },
+              {
+                "name": "action",
+                "type": "string",
+                "title": "動作"
+              },
+              {
+                "name": "editor",
+                "type": "string",
+                "title": "編輯者"
+              },
+              {
+                "name": "changes",
+                "type": "text",
+                "title": "變更摘要"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "hidden": true,
+        "name": "editHistory",
+        "type": "array",
+        "title": "編輯歷史"
+      }
+    ],
+    "name": "grapesJSPageV2",
+    "type": "document",
+    "title": "GrapesJS 頁面 V2"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "name": "publishedAt",
+        "type": "datetime",
+        "title": "發布日期"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "草稿",
+              "value": "draft"
+            },
+            {
+              "title": "已發布",
+              "value": "published"
+            }
+          ]
+        },
+        "initialValue": "draft",
+        "name": "status",
+        "type": "string",
+        "title": "狀態"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug",
+        "title": "網址代稱"
+      },
+      {
+        "description": "搜尋引擎顯示的標題（建議 50-60 字元）- 留空則使用文章標題",
+        "name": "seoTitle",
+        "type": "string",
+        "title": "SEO 標題"
+      },
+      {
+        "rows": 3,
+        "description": "搜尋引擎顯示的描述（建議 140-160 字元）",
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO 描述"
+      },
+      {
+        "description": "此文章主要優化的關鍵字（建議 1-3 個詞）",
+        "name": "focusKeyword",
+        "type": "string",
+        "title": "目標關鍵字"
+      },
+      {
+        "options": {
+          "layout": "tags"
+        },
+        "description": "與文章內容相關的關鍵字",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "seoKeywords",
+        "type": "array",
+        "title": "相關關鍵字"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "指定此文章的首選網址",
+        "name": "canonicalUrl",
+        "type": "url",
+        "title": "標準網址 (Canonical URL)"
+      },
+      {
+        "initialValue": false,
+        "name": "noIndex",
+        "type": "boolean",
+        "title": "禁止搜尋引擎索引"
+      },
+      {
+        "initialValue": false,
+        "name": "noFollow",
+        "type": "boolean",
+        "title": "禁止跟隨連結"
+      },
+      {
+        "name": "ogTitle",
+        "type": "string",
+        "title": "Facebook/社群標題"
+      },
+      {
+        "rows": 2,
+        "name": "ogDescription",
+        "type": "text",
+        "title": "Facebook/社群描述"
+      },
+      {
+        "options": {
+          "hotspot": true,
+          "metadata": [
+            "blurhash",
+            "exif",
+            "location",
+            "palette"
+          ]
+        },
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "圖片替代文字"
+          }
+        ],
+        "name": "ogImage",
+        "type": "image",
+        "title": "社群分享圖片"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "摘要 (Summary)",
+              "value": "summary"
+            },
+            {
+              "title": "大圖摘要 (Summary Large Image)",
+              "value": "summary_large_image"
+            },
+            {
+              "title": "應用程式 (App)",
+              "value": "app"
+            },
+            {
+              "title": "播放器 (Player)",
+              "value": "player"
+            }
+          ]
+        },
+        "initialValue": "summary_large_image",
+        "name": "twitterCard",
+        "type": "string",
+        "title": "Twitter 卡片類型"
+      },
+      {
+        "initialValue": 0.7,
+        "name": "priority",
+        "type": "number",
+        "title": "頁面優先級"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "每日 (Daily)",
+              "value": "daily"
+            },
+            {
+              "title": "每週 (Weekly)",
+              "value": "weekly"
+            },
+            {
+              "title": "每月 (Monthly)",
+              "value": "monthly"
+            },
+            {
+              "title": "每年 (Yearly)",
+              "value": "yearly"
+            },
+            {
+              "title": "從不 (Never)",
+              "value": "never"
+            }
+          ]
+        },
+        "initialValue": "monthly",
+        "name": "changeFrequency",
+        "type": "string",
+        "title": "更新頻率"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "無",
+              "value": "none"
+            },
+            {
+              "title": "文章 (Article)",
+              "value": "article"
+            },
+            {
+              "title": "部落格文章 (BlogPosting)",
+              "value": "blog"
+            },
+            {
+              "title": "技術文章 (TechArticle)",
+              "value": "tech"
+            }
+          ]
+        },
+        "initialValue": "article",
+        "name": "structuredDataType",
+        "type": "string",
+        "title": "結構化資料類型"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "新聞文章 (NewsArticle)",
+              "value": "news"
+            },
+            {
+              "title": "部落格文章 (BlogPosting)",
+              "value": "blog"
+            },
+            {
+              "title": "技術文章 (TechArticle)",
+              "value": "tech"
+            }
+          ]
+        },
+        "hidden": "conditional",
+        "name": "articleType",
+        "type": "string",
+        "title": "文章類型"
+      },
+      {
+        "rows": 8,
+        "name": "customJsonLd",
+        "type": "text",
+        "title": "自訂 JSON-LD"
+      },
+      {
+        "to": [
+          {
+            "type": "author"
+          }
+        ],
+        "name": "author",
+        "type": "reference",
+        "title": "作者"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "presence",
+                    "constraint": "required"
+                  }
+                ],
+                "level": "error",
+                "message": "封面圖片的替代文字為必填欄位"
+              }
+            ],
+            "description": "封面圖片的替代文字，用於無障礙和 SEO 優化",
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          }
+        ],
+        "name": "mainImage",
+        "type": "image",
+        "title": "封面圖片"
+      },
+      {
+        "of": [
+          {
+            "to": [
+              {
+                "type": "category"
+              }
+            ],
+            "type": "reference",
+            "title": "Reference to 分類"
+          }
+        ],
+        "name": "categories",
+        "type": "array",
+        "title": "分類"
+      },
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "body",
+        "type": "array",
+        "title": "內文"
+      }
+    ],
+    "name": "post",
+    "type": "document",
+    "title": "文章"
+  },
+  {
+    "fields": [
+      {
+        "name": "name",
+        "type": "string",
+        "title": "名稱"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "presence",
+                    "constraint": "required"
+                  }
+                ],
+                "level": "error",
+                "message": "作者大頭照的替代文字為必填欄位"
+              }
+            ],
+            "description": "作者大頭照的替代文字，用於無障礙和 SEO 優化",
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          }
+        ],
+        "name": "image",
+        "type": "image",
+        "title": "大頭照"
+      },
+      {
+        "rows": 3,
+        "name": "bio",
+        "type": "text",
+        "title": "個人簡介"
+      },
+      {
+        "description": "搜尋引擎顯示的標題（建議 50-60 字元）- 留空則使用作者名稱",
+        "name": "seoTitle",
+        "type": "string",
+        "title": "SEO 標題"
+      },
+      {
+        "rows": 3,
+        "description": "搜尋引擎顯示的描述（建議 140-160 字元）",
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO 描述"
+      },
+      {
+        "description": "此作者頁面主要優化的關鍵字（建議 1-3 個詞）",
+        "name": "focusKeyword",
+        "type": "string",
+        "title": "目標關鍵字"
+      },
+      {
+        "options": {
+          "layout": "tags"
+        },
+        "description": "與作者相關的關鍵字",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "seoKeywords",
+        "type": "array",
+        "title": "相關關鍵字"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "指定此作者頁面的首選網址",
+        "name": "canonicalUrl",
+        "type": "url",
+        "title": "標準網址 (Canonical URL)"
+      },
+      {
+        "initialValue": false,
+        "name": "noIndex",
+        "type": "boolean",
+        "title": "禁止搜尋引擎索引"
+      },
+      {
+        "initialValue": false,
+        "name": "noFollow",
+        "type": "boolean",
+        "title": "禁止跟隨連結"
+      },
+      {
+        "name": "ogTitle",
+        "type": "string",
+        "title": "Facebook/社群標題"
+      },
+      {
+        "rows": 2,
+        "name": "ogDescription",
+        "type": "text",
+        "title": "Facebook/社群描述"
+      },
+      {
+        "options": {
+          "hotspot": true,
+          "metadata": [
+            "blurhash",
+            "exif",
+            "location",
+            "palette"
+          ]
+        },
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "圖片替代文字"
+          }
+        ],
+        "name": "ogImage",
+        "type": "image",
+        "title": "社群分享圖片"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "摘要 (Summary)",
+              "value": "summary"
+            },
+            {
+              "title": "大圖摘要 (Summary Large Image)",
+              "value": "summary_large_image"
+            },
+            {
+              "title": "應用程式 (App)",
+              "value": "app"
+            },
+            {
+              "title": "播放器 (Player)",
+              "value": "player"
+            }
+          ]
+        },
+        "initialValue": "summary_large_image",
+        "name": "twitterCard",
+        "type": "string",
+        "title": "Twitter 卡片類型"
+      },
+      {
+        "initialValue": 0.6,
+        "name": "priority",
+        "type": "number",
+        "title": "頁面優先級"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "每日 (Daily)",
+              "value": "daily"
+            },
+            {
+              "title": "每週 (Weekly)",
+              "value": "weekly"
+            },
+            {
+              "title": "每月 (Monthly)",
+              "value": "monthly"
+            },
+            {
+              "title": "每年 (Yearly)",
+              "value": "yearly"
+            },
+            {
+              "title": "從不 (Never)",
+              "value": "never"
+            }
+          ]
+        },
+        "initialValue": "yearly",
+        "name": "changeFrequency",
+        "type": "string",
+        "title": "更新頻率"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "無",
+              "value": "none"
+            },
+            {
+              "title": "人員 (Person)",
+              "value": "person"
+            },
+            {
+              "title": "作者 (Author)",
+              "value": "author"
+            }
+          ]
+        },
+        "initialValue": "person",
+        "name": "structuredDataType",
+        "type": "string",
+        "title": "結構化資料類型"
+      },
+      {
+        "rows": 8,
+        "name": "customJsonLd",
+        "type": "text",
+        "title": "自訂 JSON-LD"
+      }
+    ],
+    "name": "author",
+    "type": "document",
+    "title": "作者"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string",
+        "title": "分類名稱"
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "title": "描述"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug",
+        "title": "網址代稱"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "description": "分類圖片的替代文字，用於無障礙和 SEO 優化",
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          }
+        ],
+        "name": "image",
+        "type": "image",
+        "title": "分類圖片"
+      },
+      {
+        "description": "搜尋引擎顯示的標題（建議 50-60 字元）- 留空則使用分類名稱",
+        "name": "seoTitle",
+        "type": "string",
+        "title": "SEO 標題"
+      },
+      {
+        "rows": 3,
+        "description": "搜尋引擎顯示的描述（建議 140-160 字元）",
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO 描述"
+      },
+      {
+        "description": "此分類頁面主要優化的關鍵字（建議 1-3 個詞）",
+        "name": "focusKeyword",
+        "type": "string",
+        "title": "目標關鍵字"
+      },
+      {
+        "options": {
+          "layout": "tags"
+        },
+        "description": "與分類相關的關鍵字",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "seoKeywords",
+        "type": "array",
+        "title": "相關關鍵字"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "指定此分類頁面的首選網址",
+        "name": "canonicalUrl",
+        "type": "url",
+        "title": "標準網址 (Canonical URL)"
+      },
+      {
+        "initialValue": false,
+        "name": "noIndex",
+        "type": "boolean",
+        "title": "禁止搜尋引擎索引"
+      },
+      {
+        "initialValue": false,
+        "name": "noFollow",
+        "type": "boolean",
+        "title": "禁止跟隨連結"
+      },
+      {
+        "name": "ogTitle",
+        "type": "string",
+        "title": "Facebook/社群標題"
+      },
+      {
+        "rows": 2,
+        "name": "ogDescription",
+        "type": "text",
+        "title": "Facebook/社群描述"
+      },
+      {
+        "options": {
+          "hotspot": true,
+          "metadata": [
+            "blurhash",
+            "exif",
+            "location",
+            "palette"
+          ]
+        },
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "圖片替代文字"
+          }
+        ],
+        "name": "ogImage",
+        "type": "image",
+        "title": "社群分享圖片"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "摘要 (Summary)",
+              "value": "summary"
+            },
+            {
+              "title": "大圖摘要 (Summary Large Image)",
+              "value": "summary_large_image"
+            },
+            {
+              "title": "應用程式 (App)",
+              "value": "app"
+            },
+            {
+              "title": "播放器 (Player)",
+              "value": "player"
+            }
+          ]
+        },
+        "initialValue": "summary_large_image",
+        "name": "twitterCard",
+        "type": "string",
+        "title": "Twitter 卡片類型"
+      },
+      {
+        "initialValue": 0.7,
+        "name": "priority",
+        "type": "number",
+        "title": "頁面優先級"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "每日 (Daily)",
+              "value": "daily"
+            },
+            {
+              "title": "每週 (Weekly)",
+              "value": "weekly"
+            },
+            {
+              "title": "每月 (Monthly)",
+              "value": "monthly"
+            },
+            {
+              "title": "每年 (Yearly)",
+              "value": "yearly"
+            },
+            {
+              "title": "從不 (Never)",
+              "value": "never"
+            }
+          ]
+        },
+        "initialValue": "monthly",
+        "name": "changeFrequency",
+        "type": "string",
+        "title": "更新頻率"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "無",
+              "value": "none"
+            },
+            {
+              "title": "分類 (Category)",
+              "value": "category"
+            },
+            {
+              "title": "麵包屑 (BreadcrumbList)",
+              "value": "breadcrumb"
+            }
+          ]
+        },
+        "initialValue": "none",
+        "name": "structuredDataType",
+        "type": "string",
+        "title": "結構化資料類型"
+      },
+      {
+        "rows": 8,
+        "name": "customJsonLd",
+        "type": "text",
+        "title": "自訂 JSON-LD"
+      }
+    ],
+    "name": "category",
+    "type": "document",
+    "title": "分類"
+  },
+  {
+    "fields": [
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "presence",
+                    "constraint": "required"
+                  }
+                ],
+                "level": "error"
+              }
+            ],
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          }
+        ],
+        "name": "logo",
+        "type": "image",
+        "title": "LOGO"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "storeName",
+        "type": "string",
+        "title": "商店名稱"
+      },
+      {
+        "options": {
+          "collapsible": false
+        },
+        "description": "為桌面與行動裝置設定不同的標誌高度",
+        "fields": [
+          {
+            "initialValue": 36,
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "min",
+                    "constraint": 24
+                  },
+                  {
+                    "flag": "max",
+                    "constraint": 64
+                  }
+                ],
+                "level": "error"
+              }
+            ],
+            "description": "建議 24-64px",
+            "name": "desktop",
+            "type": "number",
+            "title": "桌面標誌高度（px）"
+          },
+          {
+            "initialValue": 28,
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "min",
+                    "constraint": 20
+                  },
+                  {
+                    "flag": "max",
+                    "constraint": 48
+                  }
+                ],
+                "level": "error"
+              }
+            ],
+            "description": "建議 20-48px",
+            "name": "mobile",
+            "type": "number",
+            "title": "行動裝置標誌高度（px）"
+          }
+        ],
+        "name": "logoSize",
+        "type": "object",
+        "title": "標誌大小設定"
+      },
+      {
+        "initialValue": 36,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 24
+              },
+              {
+                "flag": "max",
+                "constraint": 64
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "舊欄位 — 請改用上方「標誌大小設定」進行響應式控制",
+        "hidden": "conditional",
+        "name": "logoHeight",
+        "type": "number",
+        "title": "舊欄位 — 標誌高度（px）"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "name",
+                "type": "string",
+                "title": "名稱"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "href",
+                "type": "string",
+                "title": "連結"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "navigation",
+        "type": "array",
+        "title": "選單"
+      },
+      {
+        "fields": [
+          {
+            "initialValue": false,
+            "name": "enabled",
+            "type": "boolean",
+            "title": "啟用"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": true,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "max",
+                        "constraint": 50
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "content",
+                "type": "string",
+                "title": "內容"
+              }
+            ],
+            "name": "text1",
+            "type": "object",
+            "title": "文字 1"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": false,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "max",
+                        "constraint": 50
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "content",
+                "type": "string",
+                "title": "內容"
+              }
+            ],
+            "name": "text2",
+            "type": "object",
+            "title": "文字 2"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": false,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "max",
+                        "constraint": 50
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "content",
+                "type": "string",
+                "title": "內容"
+              }
+            ],
+            "name": "text3",
+            "type": "object",
+            "title": "文字 3"
+          },
+          {
+            "name": "linkUrl",
+            "type": "string",
+            "title": "連結網址"
+          },
+          {
+            "initialValue": true,
+            "name": "pauseOnHover",
+            "type": "boolean",
+            "title": "滑鼠停留時暫停"
+          }
+        ],
+        "name": "marquee",
+        "type": "object",
+        "title": "跑馬燈"
+      }
+    ],
+    "name": "header",
+    "type": "document",
+    "title": "網站頁首"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "warning",
+            "message": "請為頁尾版本提供一個名稱"
+          }
+        ],
+        "description": "為此頁尾版本命名，方便在有多個版本時進行識別和切換",
+        "name": "title",
+        "type": "string",
+        "title": "頁尾版本名稱"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "name": "logo",
+        "type": "image"
+      },
+      {
+        "initialValue": 160,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 50
+              },
+              {
+                "flag": "max",
+                "constraint": 500
+              }
+            ],
+            "level": "warning",
+            "message": "Logo 寬度建議在 50px-500px 之間"
+          }
+        ],
+        "description": "Logo 的顯示寬度（像素），預設為 160px",
+        "name": "logoWidth",
+        "type": "number",
+        "title": "Logo 寬度"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 3
+              }
+            ],
+            "level": "error",
+            "message": "已達上限：頁尾自訂模塊最多 3 個，無法新增第四個。"
+          }
+        ],
+        "description": "自訂的頁尾模塊區域，從左側第三欄開始（前兩欄為商品系列和商品分類，系統自動生成）。最多允許 3 個自訂模塊，超過會被阻止儲存（不能新增第四個以上）。",
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "title",
+                "type": "string",
+                "title": "模塊標題"
+              },
+              {
+                "of": [
+                  {
+                    "fields": [
+                      {
+                        "name": "text",
+                        "type": "string",
+                        "title": "連結文字"
+                      },
+                      {
+                        "validation": [
+                          {
+                            "rules": [
+                              {
+                                "flag": "uri",
+                                "constraint": {
+                                  "options": {
+                                    "scheme": [
+                                      "/^http$/",
+                                      "/^https$/"
+                                    ],
+                                    "allowRelative": false,
+                                    "relativeOnly": false,
+                                    "allowCredentials": false
+                                  }
+                                }
+                              }
+                            ],
+                            "level": "error"
+                          }
+                        ],
+                        "name": "url",
+                        "type": "url",
+                        "title": "連結網址"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "name": "links",
+                "type": "array",
+                "title": "連結列表"
+              },
+              {
+                "description": "可放置電話 / 電子郵件或自訂文字，預計顯示於第三個頁尾模塊",
+                "fields": [
+                  {
+                    "name": "phone",
+                    "type": "string",
+                    "title": "電話號碼"
+                  },
+                  {
+                    "name": "email",
+                    "type": "string",
+                    "title": "電子郵件"
+                  },
+                  {
+                    "description": "可放一般說明或地址",
+                    "name": "text",
+                    "type": "text",
+                    "title": "自訂文字"
+                  }
+                ],
+                "name": "customInfo",
+                "type": "object",
+                "title": "自訂聯絡資訊 / 內文"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "sections",
+        "type": "array",
+        "title": "頁尾自訂模塊區域"
+      },
+      {
+        "description": "設定社群媒體的連結網址和是否顯示，圖標和平台名稱已預先設定好",
+        "fields": [
+          {
+            "fields": [
+              {
+                "initialValue": true,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "請輸入完整網址，例如：https://www.facebook.com/yourpage",
+                "name": "url",
+                "type": "url",
+                "title": "連結網址"
+              }
+            ],
+            "name": "facebook",
+            "type": "object"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": true,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "請輸入完整網址，例如：https://www.instagram.com/youraccount",
+                "name": "url",
+                "type": "url",
+                "title": "連結網址"
+              }
+            ],
+            "name": "instagram",
+            "type": "object"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": true,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "請輸入完整網址，例如：https://line.me/ti/p/@yourid",
+                "name": "url",
+                "type": "url",
+                "title": "連結網址"
+              }
+            ],
+            "name": "line",
+            "type": "object"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": true,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "請輸入完整網址，例如：https://www.youtube.com/c/yourchannel",
+                "name": "url",
+                "type": "url",
+                "title": "連結網址"
+              }
+            ],
+            "name": "youtube",
+            "type": "object",
+            "title": "YouTube"
+          },
+          {
+            "fields": [
+              {
+                "initialValue": true,
+                "name": "enabled",
+                "type": "boolean",
+                "title": "啟用"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "請輸入完整網址，例如：https://twitter.com/youraccount",
+                "name": "url",
+                "type": "url",
+                "title": "連結網址"
+              }
+            ],
+            "name": "twitter",
+            "type": "object",
+            "title": "Twitter/X"
+          }
+        ],
+        "name": "socialMedia",
+        "type": "object",
+        "title": "社群媒體連結"
+      },
+      {
+        "initialValue": "© {year} 公司名稱. All rights reserved.",
+        "description": "顯示在頁尾底部的版權資訊，可使用 {year} 作為當前年份的變數",
+        "name": "copyright",
+        "type": "string",
+        "title": "版權資訊"
+      }
+    ],
+    "name": "footer",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 3
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "最多可新增3個政策亮點",
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "title",
+                "type": "string",
+                "title": "標題"
+              },
+              {
+                "of": [
+                  {
+                    "marks": {
+                      "annotations": [
+                        {
+                          "i18nTitleKey": "inputs.portable-text.annotation.link",
+                          "options": {
+                            "modal": {
+                              "type": "popover"
+                            }
+                          },
+                          "fields": [
+                            {
+                              "validation": [
+                                {
+                                  "rules": [
+                                    {
+                                      "flag": "uri",
+                                      "constraint": {
+                                        "options": {
+                                          "scheme": [
+                                            "/^http$/",
+                                            "/^https$/",
+                                            "/^tel$/",
+                                            "/^mailto$/"
+                                          ],
+                                          "allowRelative": true,
+                                          "relativeOnly": false,
+                                          "allowCredentials": false
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "level": "error"
+                                }
+                              ],
+                              "description": "A valid web, email, phone, or relative link.",
+                              "name": "href",
+                              "type": "url",
+                              "title": "Link"
+                            }
+                          ],
+                          "name": "link",
+                          "type": "object"
+                        }
+                      ],
+                      "decorators": [
+                        {
+                          "value": "strong",
+                          "title": "Strong"
+                        },
+                        {
+                          "value": "em",
+                          "title": "Italic"
+                        },
+                        {
+                          "value": "code",
+                          "title": "Code"
+                        },
+                        {
+                          "value": "underline",
+                          "title": "Underline"
+                        },
+                        {
+                          "value": "strike-through",
+                          "title": "Strike"
+                        }
+                      ]
+                    },
+                    "lists": [
+                      {
+                        "value": "bullet",
+                        "title": "Bulleted list"
+                      },
+                      {
+                        "value": "number",
+                        "title": "Numbered list"
+                      }
+                    ],
+                    "styles": [
+                      {
+                        "value": "normal",
+                        "title": "Normal"
+                      },
+                      {
+                        "value": "h1",
+                        "title": "Heading 1"
+                      },
+                      {
+                        "value": "h2",
+                        "title": "Heading 2"
+                      },
+                      {
+                        "value": "h3",
+                        "title": "Heading 3"
+                      },
+                      {
+                        "value": "h4",
+                        "title": "Heading 4"
+                      },
+                      {
+                        "value": "h5",
+                        "title": "Heading 5"
+                      },
+                      {
+                        "value": "h6",
+                        "title": "Heading 6"
+                      },
+                      {
+                        "value": "blockquote",
+                        "title": "Quote"
+                      }
+                    ],
+                    "of": [],
+                    "type": "block"
+                  }
+                ],
+                "name": "description",
+                "type": "array",
+                "title": "描述"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "highlights",
+        "type": "array",
+        "title": "政策亮點 (用於產品頁)"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "使用 HTML 編輯器編寫完整的退換貨政策內容",
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "fullPolicy",
+        "type": "array",
+        "title": "完整退換貨政策"
+      }
+    ],
+    "name": "returnPolicy",
+    "type": "document",
+    "title": "退換貨政策"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": true,
+        "name": "isActive",
+        "type": "boolean",
+        "title": "是否啟用"
+      },
+      {
+        "fields": [
+          {
+            "initialValue": true,
+            "name": "autoplay",
+            "type": "boolean",
+            "title": "自動播放"
+          },
+          {
+            "initialValue": 5,
+            "name": "autoplaySpeed",
+            "type": "number",
+            "title": "自動播放間隔(秒)"
+          },
+          {
+            "initialValue": true,
+            "name": "showArrows",
+            "type": "boolean",
+            "title": "顯示箭頭"
+          },
+          {
+            "initialValue": true,
+            "name": "showDots",
+            "type": "boolean",
+            "title": "顯示指示點"
+          }
+        ],
+        "name": "settings",
+        "type": "object",
+        "title": "輪播設定"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "fields": [
+                  {
+                    "description": "桌面版背景圖片的替代文字，用於無障礙和 SEO 優化",
+                    "name": "alt",
+                    "type": "string",
+                    "title": "替代文字"
+                  }
+                ],
+                "name": "desktopImage",
+                "type": "image",
+                "title": "桌面版背景圖片"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "fields": [
+                  {
+                    "description": "手機版背景圖片的替代文字，用於無障礙和 SEO 優化",
+                    "name": "alt",
+                    "type": "string",
+                    "title": "替代文字"
+                  }
+                ],
+                "name": "mobileImage",
+                "type": "image",
+                "title": "手機版背景圖片"
+              },
+              {
+                "name": "heading",
+                "type": "string",
+                "title": "標題"
+              },
+              {
+                "name": "subheading",
+                "type": "string",
+                "title": "副標題"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "description": "點擊圖片時跳轉的連結",
+                "name": "imageLink",
+                "type": "url",
+                "title": "圖片連結"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "slides",
+        "type": "array",
+        "title": "輪播項目"
+      }
+    ],
+    "name": "mainBanner",
+    "type": "object",
+    "title": "主橫幅區塊"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": true,
+        "name": "isActive",
+        "type": "boolean",
+        "title": "是否啟用"
+      },
+      {
+        "name": "heading",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "initialValue": false,
+        "description": "若勾選則隱藏標題，同時調整上下間距",
+        "name": "hideTitle",
+        "type": "boolean",
+        "title": "隱藏標題"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "圖片在左",
+              "value": "imageLeft"
+            },
+            {
+              "title": "圖片在右",
+              "value": "imageRight"
+            },
+            {
+              "title": "左右圖片",
+              "value": "imageLeftImageRight"
+            },
+            {
+              "title": "左右文字",
+              "value": "textLeftTextRight"
+            },
+            {
+              "title": "置中文字",
+              "value": "centerText"
+            }
+          ]
+        },
+        "name": "layout",
+        "type": "string",
+        "title": "版面配置"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "description": "圖片的替代文字，用於無障礙和 SEO 優化",
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          },
+          {
+            "description": "點擊圖片時跳轉的網址 (可選)",
+            "name": "linkUrl",
+            "type": "string",
+            "title": "圖片連結網址"
+          }
+        ],
+        "hidden": "conditional",
+        "name": "image",
+        "type": "image",
+        "title": "圖片"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "description": "左側圖片的替代文字，用於無障礙和 SEO 優化",
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          },
+          {
+            "description": "點擊左側圖片時跳轉的網址 (可選)",
+            "name": "linkUrl",
+            "type": "string",
+            "title": "圖片連結網址"
+          }
+        ],
+        "hidden": "conditional",
+        "name": "leftImage",
+        "type": "image",
+        "title": "左側圖片"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "fields": [
+          {
+            "description": "右側圖片的替代文字，用於無障礙和 SEO 優化",
+            "name": "alt",
+            "type": "string",
+            "title": "替代文字"
+          },
+          {
+            "description": "點擊右側圖片時跳轉的網址 (可選)",
+            "name": "linkUrl",
+            "type": "string",
+            "title": "圖片連結網址"
+          }
+        ],
+        "hidden": "conditional",
+        "name": "rightImage",
+        "type": "image",
+        "title": "右側圖片"
+      }
+    ],
+    "name": "imageTextBlock",
+    "type": "object",
+    "title": "圖文區塊"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": true,
+        "name": "isActive",
+        "type": "boolean",
+        "title": "是否啟用"
+      },
+      {
+        "name": "heading",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "description": "請輸入 Medusa 商品系列的 ID",
+        "name": "collection_id",
+        "type": "string",
+        "title": "商品系列 ID"
+      },
+      {
+        "initialValue": true,
+        "name": "showHeading",
+        "type": "boolean",
+        "title": "顯示標題"
+      },
+      {
+        "initialValue": true,
+        "name": "showSubheading",
+        "type": "boolean",
+        "title": "顯示副標題"
+      }
+    ],
+    "name": "featuredProducts",
+    "type": "object",
+    "title": "精選商品區塊"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": true,
+        "name": "isActive",
+        "type": "boolean",
+        "title": "是否啟用"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "to": [
+          {
+            "type": "category"
+          }
+        ],
+        "name": "category",
+        "type": "reference",
+        "title": "文章分類"
+      },
+      {
+        "initialValue": 6,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 1
+              },
+              {
+                "flag": "max",
+                "constraint": 12
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "設定最多顯示幾篇文章",
+        "name": "limit",
+        "type": "number",
+        "title": "顯示文章數量"
+      },
+      {
+        "initialValue": 3,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 1
+              },
+              {
+                "flag": "max",
+                "constraint": 4
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "設定每行要顯示幾篇文章",
+        "name": "postsPerRow",
+        "type": "number",
+        "title": "每行文章數量"
+      }
+    ],
+    "name": "blogSection",
+    "type": "object",
+    "title": "部落格文章區塊"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": true,
+        "name": "isActive",
+        "type": "boolean",
+        "title": "是否啟用"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error",
+            "message": "影片網址為必填欄位"
+          }
+        ],
+        "description": "請輸入完整的 YouTube 影片網址",
+        "name": "videoUrl",
+        "type": "url",
+        "title": "YouTube 影片網址"
+      },
+      {
+        "name": "heading",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "title": "描述"
+      },
+      {
+        "initialValue": true,
+        "description": "是否以全寬模式顯示影片",
+        "name": "fullWidth",
+        "type": "boolean",
+        "title": "全寬顯示"
+      }
+    ],
+    "name": "youtubeSection",
+    "type": "object",
+    "title": "YouTube 影片區塊"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": true,
+        "name": "isActive",
+        "type": "boolean",
+        "title": "是否啟用"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "initialValue": false,
+        "description": "若勾選則隱藏標題，同時調整上下間距",
+        "name": "hideTitle",
+        "type": "boolean",
+        "title": "隱藏標題"
+      },
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "content",
+        "type": "array",
+        "title": "內容"
+      }
+    ],
+    "name": "contentSection",
+    "type": "object",
+    "title": "一般內容區塊"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": true,
+        "name": "isActive",
+        "type": "boolean",
+        "title": "是否啟用"
+      },
+      {
+        "initialValue": "我們的服務",
+        "name": "heading",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "initialValue": 3,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 1
+              },
+              {
+                "flag": "max",
+                "constraint": 6
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "cardsPerRow",
+        "type": "number",
+        "title": "每行卡片數量"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "title",
+                "type": "string",
+                "title": "服務名稱"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "englishTitle",
+                "type": "string",
+                "title": "英文名稱"
+              },
+              {
+                "of": [
+                  {
+                    "fields": [
+                      {
+                        "validation": [
+                          {
+                            "rules": [
+                              {
+                                "flag": "presence",
+                                "constraint": "required"
+                              }
+                            ],
+                            "level": "error"
+                          }
+                        ],
+                        "name": "levelName",
+                        "type": "string",
+                        "title": "等級名稱"
+                      },
+                      {
+                        "validation": [
+                          {
+                            "rules": [
+                              {
+                                "flag": "presence",
+                                "constraint": "required"
+                              },
+                              {
+                                "flag": "min",
+                                "constraint": 0
+                              }
+                            ],
+                            "level": "error"
+                          }
+                        ],
+                        "name": "price",
+                        "type": "number",
+                        "title": "價格"
+                      },
+                      {
+                        "options": {
+                          "list": [
+                            {
+                              "title": "起價",
+                              "value": "up"
+                            },
+                            {
+                              "title": "固定價格",
+                              "value": "fixed"
+                            }
+                          ]
+                        },
+                        "initialValue": "up",
+                        "description": "選擇顯示「起」或固定金額",
+                        "name": "priceType",
+                        "type": "string",
+                        "title": "價格類型"
+                      },
+                      {
+                        "name": "stylistName",
+                        "type": "string",
+                        "title": "設計師名稱"
+                      },
+                      {
+                        "options": {
+                          "hotspot": true
+                        },
+                        "fields": [
+                          {
+                            "name": "alt",
+                            "type": "string",
+                            "title": "替代文字"
+                          }
+                        ],
+                        "name": "cardImage",
+                        "type": "image",
+                        "title": "設計師專用圖片"
+                      },
+                      {
+                        "initialValue": false,
+                        "description": "勾選後將作為首頁預設顯示的卡片（每個服務只能有一個預設）",
+                        "name": "isDefault",
+                        "type": "boolean",
+                        "title": "標示為預設卡片"
+                      }
+                    ],
+                    "type": "object",
+                    "name": "serviceStyleLevel",
+                    "title": "設計師等級"
+                  }
+                ],
+                "name": "stylists",
+                "type": "array",
+                "title": "設計師等級"
+              }
+            ],
+            "type": "object",
+            "name": "serviceCard",
+            "title": "服務卡片"
+          }
+        ],
+        "name": "cards",
+        "type": "array",
+        "title": "服務卡片"
+      }
+    ],
+    "name": "serviceCardSection",
+    "type": "object",
+    "title": "服務卡片區塊"
+  },
+  {
+    "fields": [
+      {
+        "description": "地圖區塊的標題",
+        "name": "heading",
+        "type": "string",
+        "title": "標題"
+      },
+      {
+        "rows": 2,
+        "description": "地圖區塊的描述文字",
+        "name": "description",
+        "type": "text",
+        "title": "描述"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "從 Google Maps 取得的嵌入式地圖網址",
+        "name": "googleMapsUrl",
+        "type": "url",
+        "title": "Google Maps 嵌入網址"
+      },
+      {
+        "initialValue": 450,
+        "description": "地圖的高度（像素）",
+        "name": "mapHeight",
+        "type": "number",
+        "title": "地圖高度"
+      },
+      {
+        "initialValue": false,
+        "description": "控制此區塊是否在前端顯示",
+        "name": "isActive",
+        "type": "boolean",
+        "title": "啟用此區塊"
+      }
+    ],
+    "name": "googleMapsSection",
+    "type": "object",
+    "title": "地圖區塊"
+  }
+]
