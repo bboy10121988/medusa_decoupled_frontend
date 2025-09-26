@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { handleGoogleCallback } from "@lib/data/google-auth"
 import { useRouter, useSearchParams } from "next/navigation"
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [error, setError] = useState<string | null>(null)
   const searchParams = useSearchParams()
@@ -92,5 +92,19 @@ export default function GoogleCallbackPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <h2 className="text-2xl font-medium mb-2">載入中...</h2>
+        <p className="text-gray-600">正在處理您的請求...</p>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   )
 }
