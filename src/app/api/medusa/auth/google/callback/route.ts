@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { OAuth2Client } from 'google-auth-library'
-
-// 初始化 Google OAuth2 客戶端
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+import { ENV_MODE } from '@lib/env-mode'
 
 export async function POST(request: NextRequest) {
   try {
     if (process.env.NODE_ENV === 'development') console.log('處理 Google 授權回調')
 
+    const googleClientId = ENV_MODE === 'vm'
+      ? process.env.GOOGLE_CLIENT_ID_VM || process.env.GOOGLE_CLIENT_ID
+      : process.env.GOOGLE_CLIENT_ID_LOCAL || process.env.GOOGLE_CLIENT_ID
+
+    const googleClientSecret = ENV_MODE === 'vm'
+      ? process.env.GOOGLE_CLIENT_SECRET_VM || process.env.GOOGLE_CLIENT_SECRET
+      : process.env.GOOGLE_CLIENT_SECRET_LOCAL || process.env.GOOGLE_CLIENT_SECRET
+
     // 檢查必要的環境變數
-    if (!process.env.GOOGLE_CLIENT_ID) {
+    if (!googleClientId) {
       console.error('缺少 GOOGLE_CLIENT_ID 環境變數')
+      return NextResponse.json({ error: '伺服器 Google OAuth 配置錯誤' }, { status: 500 })
+    }
+
+    if (!googleClientSecret) {
+      console.error('缺少 GOOGLE_CLIENT_SECRET 環境變數')
       return NextResponse.json({ error: '伺服器 Google OAuth 配置錯誤' }, { status: 500 })
     }
 
@@ -29,22 +40,20 @@ export async function POST(request: NextRequest) {
     if (process.env.NODE_ENV === 'development') console.log('回調 URI:', redirect_uri)
 
     try {
+      // 創建OAuth2客戶端
+      const oauth2Client = new OAuth2Client(googleClientId, googleClientSecret, redirect_uri)
+
       // 使用授權碼交換令牌
-      const { tokens } = await client.getToken({
-        code,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        redirect_uri: redirect_uri,
-        // 正式環境需要 client_secret，但這裡我們使用的是前端流程所以省略
-      })
+      const { tokens } = await oauth2Client.getToken(code)
 
       if (!tokens || !tokens.id_token) {
         throw new Error('未能獲取有效令牌')
       }
 
       // 驗證 ID 令牌
-      const ticket = await client.verifyIdToken({
+      const ticket = await oauth2Client.verifyIdToken({
         idToken: tokens.id_token,
-        audience: process.env.GOOGLE_CLIENT_ID,
+        audience: googleClientId,
       })
 
       const payload = ticket.getPayload()

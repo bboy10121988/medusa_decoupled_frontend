@@ -1,16 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { OAuth2Client } from 'google-auth-library'
+import { ENV_MODE } from '@lib/env-mode'
 
-// 初始化 Google OAuth2 客戶端
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+const GOOGLE_CLIENT_ID = ENV_MODE === 'vm'
+  ? process.env.GOOGLE_CLIENT_ID_VM || process.env.GOOGLE_CLIENT_ID
+  : process.env.GOOGLE_CLIENT_ID_LOCAL || process.env.GOOGLE_CLIENT_ID
+
+const GOOGLE_CLIENT_SECRET = ENV_MODE === 'vm'
+  ? process.env.GOOGLE_CLIENT_SECRET_VM || process.env.GOOGLE_CLIENT_SECRET
+  : process.env.GOOGLE_CLIENT_SECRET_LOCAL || process.env.GOOGLE_CLIENT_SECRET
 
 export async function GET(request: NextRequest) {
   try {
     if (process.env.NODE_ENV === 'development') console.log('Google 授權 URL 請求')
 
     // 檢查必要的環境變數
-    if (!process.env.GOOGLE_CLIENT_ID) {
+    if (!GOOGLE_CLIENT_ID) {
       console.error('缺少 GOOGLE_CLIENT_ID 環境變數')
+      return NextResponse.json({ error: '伺服器 Google OAuth 配置錯誤' }, { status: 500 })
+    }
+    
+    if (!GOOGLE_CLIENT_SECRET) {
+      console.error('缺少 GOOGLE_CLIENT_SECRET 環境變數')
       return NextResponse.json({ error: '伺服器 Google OAuth 配置錯誤' }, { status: 500 })
     }
 
@@ -23,7 +33,7 @@ export async function GET(request: NextRequest) {
     // 構建 Google OAuth 授權 URL
     // 注意：這裡使用 OAuth2 授權碼流程，需要在 Google Cloud Console 配置相同的重定向 URI
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` + 
-      `client_id=${encodeURIComponent(process.env.GOOGLE_CLIENT_ID)}` + 
+      `client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` + 
       `&redirect_uri=${encodeURIComponent(redirectUri)}` + 
       `&response_type=code` +
       `&scope=${encodeURIComponent('profile email')}` + 

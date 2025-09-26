@@ -2,13 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { OAuth2Client } from 'google-auth-library'
 import { setAuthToken, getCacheTag } from '@lib/data/cookies'
 import { revalidateTag } from 'next/cache'
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+import { ENV_MODE } from '@lib/env-mode'
 
 export async function POST(request: NextRequest) {
   try {
     if (process.env.NODE_ENV === 'development') console.log('Google 登入 API 被呼叫')
-    if (process.env.NODE_ENV === 'development') console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? '已設定' : '未設定')
+
+    const googleClientId = ENV_MODE === 'vm'
+      ? process.env.GOOGLE_CLIENT_ID_VM || process.env.GOOGLE_CLIENT_ID
+      : process.env.GOOGLE_CLIENT_ID_LOCAL || process.env.GOOGLE_CLIENT_ID
+
+    if (process.env.NODE_ENV === 'development') console.log('GOOGLE_CLIENT_ID:', googleClientId ? '已設定' : '未設定')
+
+    if (!googleClientId) {
+      return NextResponse.json({ error: 'Missing Google client configuration' }, { status: 500 })
+    }
     
     const { credential } = await request.json()
     
@@ -20,9 +28,11 @@ export async function POST(request: NextRequest) {
     if (process.env.NODE_ENV === 'development') console.log('收到 credential，準備驗證...')
 
     // 驗證 Google JWT token（啟用 audience 檢查）
+    const client = new OAuth2Client(googleClientId)
+
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: googleClientId,
     })
 
     if (process.env.NODE_ENV === 'development') console.log('Google token 驗證成功')
