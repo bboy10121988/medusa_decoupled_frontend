@@ -37,7 +37,7 @@ export const paymentInfoMap: Record<
     icon: <Bank />,
   },
   // ECPay 付款方式
-  ecpay_credit_card: {
+  "pp_ecpay_credit_card_ecpay_credit_card": {
     title: "線上刷卡",
     icon: <CreditCard />,
   },
