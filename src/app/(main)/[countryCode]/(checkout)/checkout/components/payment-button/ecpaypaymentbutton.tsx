@@ -1,9 +1,44 @@
+/**
+ * 
+ * Note !!! 已棄用
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
 "use client"
 // 目前這份檔案沒有用到
 import React, { useState } from "react"
 import { Button } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
 import { PaymentData } from "@/internal/ecpayments"
+import { sub } from "date-fns"
 
 type Props = {
   cart: HttpTypes.StoreCart
@@ -127,30 +162,69 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     console.log(action,"error:",errorMessage)
   }
 
+  const submitHandler = () => {
+
+    if (errorMessage){  
+      return
+    }
+
+    // 建立隱藏表單
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = ecpayAPI
+    form.target = '_blank' // 開啟新視窗
+    form.encType = 'application/x-www-form-urlencoded'
+
+    // 添加所有參數作為隱藏輸入欄位
+    params.forEach((value, key) => {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = key
+      input.value = value
+      form.appendChild(input)
+    })
+  
+    // 將表單添加到頁面並提交
+    document.body.appendChild(form)
+    form.submit()
+
+    // 移除表單
+    document.body.removeChild(form)
+
+  }
 
 
   return !errorMessage ? (
-    <form 
-      method="POST" 
-      action={ecpayAPI}
-      target="_blank"
-      encType="application/x-www-form-urlencoded"
+    <Button
+      onClick={submitHandler}
+      disabled={notReady || submitting}
+      size="large"
+      isLoading={submitting}
+      data-testid={dataTestId}
     >
+        {submitting ? "處理中..." : "前往 ECPay 付款223"}
+    </Button>
+    // <form 
+    //   method="POST" 
+    //   action={ecpayAPI}
+    //   target="_blank"
+    //   encType="application/x-www-form-urlencoded"
+    // >
       
-      {Array.from(params.entries()).map(([key, value]) => (
-        <input key={key} type="hidden" name={key} value={value} />
-      ))}
+    //   {Array.from(params.entries()).map(([key, value]) => (
+    //     <input key={key} type="hidden" name={key} value={value} />
+    //   ))}
       
-      <Button
-        type="submit"
-        disabled={notReady || submitting}
-        size="large"
-        isLoading={submitting}
-        data-testid={dataTestId}
-      >
-        {submitting ? "處理中..." : "前往 ECPay 付款"}
-      </Button>
-    </form>
+    //   <Button
+    //     type="submit"
+    //     disabled={notReady || submitting}
+    //     size="large"
+    //     isLoading={submitting}
+    //     data-testid={dataTestId}
+    //   >
+    //     {submitting ? "處理中..." : "前往 ECPay 付款"}
+    //   </Button>
+    // </form>
   ):null;
 }
 

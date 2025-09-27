@@ -5,6 +5,7 @@ import { HttpTypes } from "@medusajs/types"
 import { placeOrder } from "@lib/data/cart"
 import { PaymentData } from "../../../../internal/ecpayments"
 import { de, id } from "date-fns/locale"
+import {sdk} from "@lib/config";
 
 type Props = {
   cart: HttpTypes.StoreCart
@@ -74,22 +75,21 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     errorMessage = "missing ECPay hash iv"
   }
 
-  // "使用者"付款完成後返回的網址
-  const clientBackURL = `${window.location.origin}/order/confirmed`
+  
 
   const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
 
-  let data: PaymentData = new PaymentData();
+  let paymentData: PaymentData = new PaymentData();
 
-  data.setHashKey(hashKey)
+  paymentData.setHashKey(hashKey)
 
-  data.setHashIV(hashIV)
+  paymentData.setHashIV(hashIV)
 
-  data.setMerchantID(merchantID);
+  paymentData.setMerchantID(merchantID);
 
-  data.setMerchantTradeNo(tradeNo.toString())
+  paymentData.setMerchantTradeNo(tradeNo.toString())
 
-  data.setMerchantTradeDate(new Date().toLocaleDateString('zh-TW', { 
+  paymentData.setMerchantTradeDate(new Date().toLocaleDateString('zh-TW', { 
     year: 'numeric', 
     month: '2-digit', 
     day: '2-digit', 
@@ -100,58 +100,144 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     timeZone: 'Asia/Taipei'
   }).replace(/\//g, '/').replace(',', ''))
 
-  data.setPaymentType("aio")
+  paymentData.setPaymentType("aio")
 
-  data.setTotalAmount(totalAmount)
+  paymentData.setTotalAmount(totalAmount)
 
-  data.setTradeDesc("商品購買")
+  paymentData.setTradeDesc("商品購買")
 
-  data.setItemName(itemName)
+  paymentData.setItemName(itemName)
 
-  data.setReturnURL(returnURL)
+  paymentData.setReturnURL(returnURL)
 
-  data.setClientBackURL(clientBackURL)
-
-  data.setChoosePayment("ALL")
   
-  data.setEncryptType("1")
 
-  data.setCustomField3("cart_id")
+  paymentData.setChoosePayment("ALL")
+  
+  paymentData.setEncryptType("1")
 
-  data.setCustomField4(cart.id)
+  paymentData.setCustomField3("order_id")
 
-  const params:URLSearchParams = data.getDataParams();
+  // data.setCustomField4(cart.id)
+
+  
 
   if (errorMessage){
     console.log(action,"error:",errorMessage)
   }
 
+
+  const submitHandler = () => {
+
+    if (errorMessage){  
+      return
+    }
+
+
+    try{
+
+      sdk.store.cart.complete(cart.id).then((data) => {
+
+        if (data.type === "cart" && data.cart) {
+          // 發生錯誤
+          console.error(data.error)
+        } else if (data.type === "order" && data.order) {
+
+          console.log("order pleaced : ",data.order)
+
+          console.log("order ID : ",data.order.id)
+
+          const orderID: string = data.order.id
+          // 清除 cart id
+
+          // "使用者"付款完成後返回的網址
+
+          const clientBackURL = `${window.location.origin}/order/${orderID}/confirmed`
+
+          paymentData.setClientBackURL(clientBackURL)
+
+          paymentData.setCustomField4(data.order.id)
+
+          const params:URLSearchParams = paymentData.getDataParams();
+
+          // 建立隱藏表單
+          const form = document.createElement('form')
+          form.method = 'POST'
+          form.action = ecpayAPI
+          form.target = '_blank' // 開啟新視窗
+          form.encType = 'application/x-www-form-urlencoded'
+
+          // 添加所有參數作為隱藏輸入欄位
+          params.forEach((value, key) => {
+            const input = document.createElement('input')
+            input.type = 'hidden'
+            input.name = key
+            input.value = value
+            form.appendChild(input)
+          })
+        
+          // 將表單添加到頁面並提交
+          document.body.appendChild(form)
+          form.submit()
+
+          // 移除表單
+          document.body.removeChild(form)
+          
+        }
+
+
+
+
+        
+      })
+      
+    }catch(error){
+      console.log(action,"error:",error)
+      alert("發生錯誤，請稍後再試")
+    }
+
+
+    
+
+    return
+    
+
+    
+
+  }
+  
+
   return !errorMessage ? (
-    <>
-      <form 
-        method="POST" 
-        action={ecpayAPI}
-        target="_blank"
-        encType="application/x-www-form-urlencoded"
-      >
-        
-        {Array.from(params.entries()).map(([key, value]) => (
-          <input key={key} type="hidden" name={key} value={value} />
-        ))}
-        
-        <Button
-          type="submit"
+    <Button
+          onClick={submitHandler}
           disabled={notReady || submitting}
           size="large"
           isLoading={submitting}
           data-testid={dataTestId}
         >
-          {submitting ? "處理中..." : "前往 ECPay 付款"}
+            {submitting ? "處理中..." : "前往 ECPay 付款223"}
         </Button>
-      </form>
-      
-      
-    </>
+        // <form 
+        //   method="POST" 
+        //   action={ecpayAPI}
+        //   target="_blank"
+        //   encType="application/x-www-form-urlencoded"
+        // >
+          
+        //   {Array.from(params.entries()).map(([key, value]) => (
+        //     <input key={key} type="hidden" name={key} value={value} />
+        //   ))}
+          
+        //   <Button
+        //     type="submit"
+        //     disabled={notReady || submitting}
+        //     size="large"
+        //     isLoading={submitting}
+        //     data-testid={dataTestId}
+        //   >
+        //     {submitting ? "處理中..." : "前往 ECPay 付款"}
+        //   </Button>
+        // </form>
   ):null;
 }
 
