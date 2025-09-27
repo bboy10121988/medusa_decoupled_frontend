@@ -340,7 +340,7 @@ const YouTubeSection = memo(({
         {/* YouTube Shorts 使用垂直全寬樣式，標準 YouTube 使用 16:9 */}
         <div className={`group relative overflow-hidden ${
           isShorts 
-            ? "pb-[177.78%] max-w-sm mx-auto" // 9:16 比例，垂直顯示
+            ? "pb-[177.78%] w-full md:max-w-sm md:mx-auto" // 9:16 比例，手機全寬，桌面居中
             : "pb-[56.25%]" // 16:9 比例，標準 YouTube
         }`}>
           {isUploadMode ? (
@@ -380,42 +380,6 @@ const YouTubeSection = memo(({
               allowFullScreen={false}
             />
           )}
-          
-          {/* 自定義播放控制按鈕 - 只在懸停時顯示 */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <button
-              className="w-20 h-20 bg-black bg-opacity-60 hover:bg-opacity-80 rounded-full flex items-center justify-center transition-all duration-300 pointer-events-auto opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 shadow-lg"
-              onClick={() => {
-                setIsPlaying(!isPlaying)
-                if (isUploadMode && videoRef.current) {
-                  // 上傳模式：控制 HTML5 video 元素
-                  if (isPlaying) {
-                    videoRef.current.pause()
-                  } else {
-                    videoRef.current.play()
-                  }
-                } else if (iframeRef.current) {
-                  // YouTube 模式：使用 postMessage API
-                  const command = isPlaying ? 'pauseVideo' : 'playVideo'
-                  iframeRef.current.contentWindow?.postMessage(
-                    `{"event":"command","func":"${command}","args":""}`,
-                    'https://www.youtube.com'
-                  )
-                }
-              }}
-            >
-              {isPlaying ? (
-                // 暫停圖標
-                <div className="w-6 h-6 flex space-x-1">
-                  <div className="w-2 h-6 bg-white rounded-sm"></div>
-                  <div className="w-2 h-6 bg-white rounded-sm"></div>
-                </div>
-              ) : (
-                // 播放圖標
-                <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
-              )}
-            </button>
-          </div>
         </div>
         {description && (
           <p className="text-body-large text-center mt-4">{description}</p>
