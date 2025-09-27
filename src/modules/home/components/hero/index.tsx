@@ -1,6 +1,6 @@
 "use client"
 
-import { Heading } from "@medusajs/ui"
+import { Button, Heading } from "@medusajs/ui"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 
@@ -11,7 +11,8 @@ type Slide = {
   desktopImageAlt?: string
   mobileImage: string
   mobileImageAlt?: string
-  imageLink?: string
+  buttonText: string
+  buttonLink: string
 }
 
 type Settings = {
@@ -30,6 +31,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const touchStartXRef = useRef<number | null>(null)
   const touchStartTimeRef = useRef<number>(0)
+  const isSwipingRef = useRef<boolean>(false)
 
   useEffect(() => {
     if (!slides || slides.length <= 1 || !settings?.autoplay) return
@@ -41,21 +43,15 @@ const Hero = ({ slides, settings }: HeroProps) => {
     return () => clearInterval(interval)
   }, [slides?.length, settings?.autoplay, settings?.autoplaySpeed])
 
-  if (!slides?.length) return null
+  if (!slides || !slides.length) return null
 
   const slide = slides[currentSlide]
   
-  // 輸出每個 slide 的詳細信息以便調試
-  console.log("🎯 Hero component rendering with slides:", slides.map((s, idx) => ({
-    index: idx,
-    heading: s.heading,
-    imageLink: s.imageLink,
-    hasDesktopImage: !!s.desktopImage,
-    hasMobileImage: !!s.mobileImage
-  })))
-  
-  // 讓所有圖片使用原始尺寸，不限高也不限寬
-  const mobileHeightClass = "min-h-fit" // 始終使用自適應內容高度
+  // 根據是否顯示指示點決定手機版高度行為
+  const shouldUseFixedHeight = settings?.showDots && slides.length > 1
+  const mobileHeightClass = shouldUseFixedHeight 
+    ? "min-h-hero-mobile" // 固定高度（扣掉 header）
+    : "min-h-fit" // 自適應內容高度
 
   const goToNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
@@ -69,36 +65,36 @@ const Hero = ({ slides, settings }: HeroProps) => {
     setCurrentSlide(index)
   }
 
-  // 手勢滑動處理 - 改進版本
+  // 觸摸手勢處理
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (slides.length <= 1) return
     touchStartXRef.current = e.touches[0].clientX
     touchStartTimeRef.current = Date.now()
+    isSwipingRef.current = false
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    // 只阻止水平滾動，允許垂直滾動
-    if (touchStartXRef.current !== null && slides.length > 1) {
-      const currentX = e.touches[0].clientX
-      const diffX = Math.abs(touchStartXRef.current - currentX)
-      
-      // 如果水平滑動距離大於垂直滑動距離，阻止默認行為
-      if (diffX > 20) {
-        e.preventDefault()
-      }
+    if (touchStartXRef.current === null) return
+    
+    const touchCurrentX = e.touches[0].clientX
+    const diffX = touchStartXRef.current - touchCurrentX
+
+    
+    // 如果滑動距離超過 10px，則認為是在滑動
+    if (Math.abs(diffX) > 10) {
+      isSwipingRef.current = true
     }
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null || slides.length <= 1) return
+    if (touchStartXRef.current === null || !isSwipingRef.current) return
     
     const touchEndX = e.changedTouches[0].clientX
     const diffX = touchStartXRef.current - touchEndX
     const diffTime = Date.now() - touchStartTimeRef.current
-    const minSwipeDistance = 30 // 降低最小滑動距離
-    const maxSwipeTime = 1000
+    const minSwipeDistance = 50 // 最小滑動距離
+    const maxSwipeTime = 500 // 最大滑動時間（毫秒）
     
-    // 檢查是否為有效滑動
+    // 檢查是否為有效滑動：距離夠長且時間不太長
     if (Math.abs(diffX) > minSwipeDistance && diffTime < maxSwipeTime) {
       if (diffX > 0) {
         // 向左滑動 - 下一張
@@ -111,87 +107,38 @@ const Hero = ({ slides, settings }: HeroProps) => {
     
     // 重置
     touchStartXRef.current = null
+    isSwipingRef.current = false
   }
 
   return (
     <div className={`relative w-full ${mobileHeightClass} md:min-h-0`}>
-      {/* 輪播圖片容器 - 讓圖片使用原始尺寸 */}
+      {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
       <div 
-        className={`relative w-full ${mobileHeightClass} md:min-h-0 select-none`}
+        className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{ touchAction: 'pan-y' }}
       >
-        {/* 左側滑動觸摸區域 */}
-        <div 
-          className="absolute left-0 top-0 w-1/3 h-full z-30 md:hidden"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={(e) => {
-            handleTouchEnd(e)
-            // 如果是點擊而非滑動，觸發上一張
-            if (touchStartXRef.current !== null) {
-              const touchEndX = e.changedTouches[0].clientX
-              const diffX = Math.abs(touchStartXRef.current - touchEndX)
-              if (diffX < 10) {
-                goToPrevSlide()
-              }
-            }
-          }}
-        />
-        
-        {/* 右側滑動觸摸區域 */}
-        <div 
-          className="absolute right-0 top-0 w-1/3 h-full z-30 md:hidden"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={(e) => {
-            handleTouchEnd(e)
-            // 如果是點擊而非滑動，觸發下一張
-            if (touchStartXRef.current !== null) {
-              const touchEndX = e.changedTouches[0].clientX
-              const diffX = Math.abs(touchStartXRef.current - touchEndX)
-              if (diffX < 10) {
-                goToNextSlide()
-              }
-            }
-          }}
-        />
         {slides.map((slideItem, index) => {
           return (
             <div
-              key={`slide-${slideItem.heading}-${index}`}
+              key={index}
               className={`transition-opacity duration-1000 ease-in-out ${
                 index === currentSlide ? 'opacity-100' : 'opacity-0'
               } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
             >
+              {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
+              
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
               <div className="hidden md:block w-full">
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
-                  slideItem.imageLink ? (
-                    <Link href={slideItem.imageLink} className="block w-full" target="_blank" rel="noopener noreferrer">
-                      <img
-                        key={`desktop-${currentSlide}-${index}`}
-                        src={slideItem.desktopImage}
-                        alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                        className="w-full h-auto object-contain cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-                        loading="eager"
-                        style={{ imageRendering: 'auto' }}
-                        decoding="async"
-                      />
-                    </Link>
-                  ) : (
-                    <img
-                      key={`desktop-${currentSlide}-${index}`}
-                      src={slideItem.desktopImage}
-                      alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                      className="w-full h-auto object-contain"
-                      loading="eager"
-                      style={{ imageRendering: 'auto' }}
-                      decoding="async"
-                    />
-                  )
+                  <img
+                    key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
+                    src={slideItem.desktopImage}
+                    alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                    className="w-full h-auto object-cover"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-64">
                     <span className="text-gray-500">桌面版圖片未設定</span>
@@ -202,29 +149,13 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 手機版圖片容器 - 只在 md 以下顯示 */}
               <div className="block md:hidden w-full">
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
-                  slideItem.imageLink ? (
-                    <Link href={slideItem.imageLink} className="block w-full" target="_blank" rel="noopener noreferrer">
-                      <img
-                        key={`mobile-${currentSlide}-${index}`}
-                        src={slideItem.mobileImage}
-                        alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                        className="w-full h-auto object-contain cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-                        loading="eager"
-                        style={{ imageRendering: 'auto' }}
-                        decoding="async"
-                      />
-                    </Link>
-                  ) : (
-                    <img
-                      key={`mobile-${currentSlide}-${index}`}
-                      src={slideItem.mobileImage}
-                      alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                      className="w-full h-auto object-contain"
-                      loading="eager"
-                      style={{ imageRendering: 'auto' }}
-                      decoding="async"
-                    />
-                  )
+                  <img
+                    key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
+                    src={slideItem.mobileImage}
+                    alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                    className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-32">
                     <span className="text-gray-500 text-sm">手機版圖片未設定</span>
@@ -236,11 +167,11 @@ const Hero = ({ slides, settings }: HeroProps) => {
         })}
       </div>
       
-      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊，加入 pointer-events-none 使點擊可穿透 */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/0 via-black/0 to-black/0 pointer-events-none">
+      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
         <div 
           key={`slide-${currentSlide}`}
-          className="animate-fade-in-content max-w-[90%] sm:max-w-4xl pointer-events-none"
+          className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"
         >
           <Heading
             level="h1"
@@ -260,52 +191,27 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {slide.subheading}
             </p>
           )}
+          {slide.buttonText && slide.buttonLink && (
+            <Button asChild variant="secondary" 
+              className="btn bg-white hover:bg-white/90 text-gray-900 px-4 sm:px-8 py-2 sm:py-3 text-sm sm:text-base md:text-lg font-medium rounded-lg 
+                shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+              style={{
+                letterSpacing: "var(--letter-spacing-wide)",
+                fontFamily: "var(--font-base)"
+              }}
+            >
+              <Link href={slide.buttonLink}>{slide.buttonText}</Link>
+            </Button>
+          )}
         </div>
       </div>
-
-      {/* 左右箭頭 */}
-      {settings?.showArrows && slides.length > 1 && (
-        <>
-          {/* 左箭頭 */}
-          <button
-            onClick={goToPrevSlide}
-            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-40 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
-            aria-label="上一張圖片"
-          >
-            <svg 
-              className="w-4 h-4 sm:w-6 sm:h-6" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          {/* 右箭頭 */}
-          <button
-            onClick={goToNextSlide}
-            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-40 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
-            aria-label="下一張圖片"
-          >
-            <svg 
-              className="w-4 h-4 sm:w-6 sm:h-6" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </>
-      )}
 
       {/* 點點導航 - 適應動態高度 */}
       {settings?.showDots && slides.length > 1 && (
         <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 sm:gap-3">
-          {slides.map((slideItem, index) => (
+          {slides.map((_, index) => (
             <button
-              key={`dot-${slideItem.heading}-${index}`}
+              key={`dot-${index}`}
               onClick={() => goToSlide(index)}
               className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide 

@@ -244,7 +244,47 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
             videoUrl,
             heading,
             description,
-            fullWidth
+            fullWidth,
+            videoMode,
+            "youtubeSettings": youtubeSettings {
+              desktopVideoUrl,
+              mobileVideoUrl,
+              useSameVideo,
+              autoplay,
+              loop,
+              muted,
+              muted,
+              showControls
+            },
+            "uploadSettings": uploadSettings {
+              "desktopVideo": desktopVideo {
+                "asset": asset-> {
+                  _id,
+                  url,
+                  originalFilename,
+                  mimeType
+                }
+              },
+              "mobileVideo": mobileVideo {
+                "asset": asset-> {
+                  _id,
+                  url,
+                  originalFilename,
+                  mimeType
+                }
+              },
+              useSameVideo,
+              autoplay,
+              loop,
+              muted,
+              showControls
+            },
+            // 向後兼容
+            "videoSettings": videoSettings {
+              desktopVideoUrl,
+              mobileVideoUrl,
+              useSameVideo
+            }
           },
           _type == "contentSection" => {
             isActive,
@@ -483,7 +523,47 @@ export async function getAllPages(): Promise<PageData[]> {
             videoUrl,
             heading,
             description,
-            fullWidth
+            fullWidth,
+            videoMode,
+            "youtubeSettings": youtubeSettings {
+              desktopVideoUrl,
+              mobileVideoUrl,
+              useSameVideo,
+              autoplay,
+              loop,
+              muted,
+              muted,
+              showControls
+            },
+            "uploadSettings": uploadSettings {
+              "desktopVideo": desktopVideo {
+                "asset": asset-> {
+                  _id,
+                  url,
+                  originalFilename,
+                  mimeType
+                }
+              },
+              "mobileVideo": mobileVideo {
+                "asset": asset-> {
+                  _id,
+                  url,
+                  originalFilename,
+                  mimeType
+                }
+              },
+              useSameVideo,
+              autoplay,
+              loop,
+              muted,
+              showControls
+            },
+            // 向後兼容
+            "videoSettings": videoSettings {
+              desktopVideoUrl,
+              mobileVideoUrl,
+              useSameVideo
+            }
           },
           _type == "contentSection" => {
             isActive,
@@ -625,7 +705,48 @@ export async function getHomepage(): Promise<{ title: string; mainSections: Main
           heading,
           description,
           videoUrl,
-          fullWidth
+          fullWidth,
+          videoMode,
+          "youtubeSettings": youtubeSettings {
+            desktopVideoUrl,
+            mobileVideoUrl,
+            useSameVideo,
+            autoplay,
+            loop,
+              muted,
+            muted,
+            showControls
+          },
+          "uploadSettings": uploadSettings {
+            "desktopVideo": desktopVideo {
+              "asset": asset-> {
+                _id,
+                url,
+                originalFilename,
+                mimeType
+              }
+            },
+            "mobileVideo": mobileVideo {
+              "asset": asset-> {
+                _id,
+                url,
+                originalFilename,
+                mimeType
+              }
+            },
+            useSameVideo,
+            autoplay,
+            loop,
+              muted,
+            muted,
+            showControls
+          },
+          // 向後兼容
+          "videoSettings": videoSettings {
+            desktopVideoUrl,
+            mobileVideoUrl,
+            useSameVideo
+          }
         },
         _type == "serviceCardSection" => {
           _type,

@@ -66,7 +66,50 @@ export type YoutubeSection = {
   isActive: boolean
   heading?: string
   description?: string
-  videoUrl: string
+  // 保留舊的 videoUrl 以向後兼容
+  videoUrl?: string
+  // 影片模式選擇
+  videoMode?: 'youtube' | 'upload'
+  // YouTube 模式設定
+  youtubeSettings?: {
+    desktopVideoUrl: string
+    mobileVideoUrl: string
+    useSameVideo: boolean
+    autoplay: boolean
+    loop: boolean
+    muted: boolean
+    showControls: boolean
+  }
+  // 上傳影片模式設定
+  uploadSettings?: {
+    desktopVideo?: {
+      asset: {
+        _id: string
+        url: string
+        originalFilename: string
+        mimeType: string
+      }
+    }
+    mobileVideo?: {
+      asset: {
+        _id: string
+        url: string
+        originalFilename: string
+        mimeType: string
+      }
+    }
+    useSameVideo: boolean
+    autoplay: boolean
+    loop: boolean
+    muted: boolean
+    showControls: boolean
+  }
+  // 向後兼容 - 舊的響應式影片設定
+  videoSettings?: {
+    desktopVideoUrl: string
+    mobileVideoUrl: string
+    useSameVideo: boolean
+  }
   fullWidth: boolean
 }
 

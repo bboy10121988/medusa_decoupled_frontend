@@ -7,7 +7,8 @@ type Slide = {
   desktopImageAlt?: string
   mobileImage?: string
   mobileImageAlt?: string
-  imageLink?: string
+  buttonText?: string
+  buttonLink?: string
 }
 
 type Settings = {
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
           <span class="gjs-hero-eyebrow">主橫幅</span>
           <h2 class="gjs-hero-title">${escapeHtml(current.heading || '')}</h2>
           ${current.subheading ? `<p class="gjs-hero-subtitle">${escapeHtml(current.subheading)}</p>` : ''}
-          ${current.imageLink ? `<a class="gjs-hero-image-link" href="${escapeHtml(current.imageLink)}" target="_blank">點擊查看更多</a>` : ''}
+          ${current.buttonText && current.buttonLink ? `<a class="gjs-hero-button" href="${escapeHtml(current.buttonLink)}" target="_blank">${escapeHtml(current.buttonText)}</a>` : ''}
         </div>
         ${settings.showDots !== false ? `
         <div class="gjs-hero-dots">

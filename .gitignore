@@ -56,4 +56,4 @@ dump.rdb
 /playwright/.cache/
 /playwright/.auth
 
-*.workspace.code-workspace
+*.workspace.code-workspace.env.local.*

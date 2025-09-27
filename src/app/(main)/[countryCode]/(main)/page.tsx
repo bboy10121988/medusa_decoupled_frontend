@@ -266,7 +266,21 @@ export default async function Home({
                   }
                   case "youtubeSection": {
                     const youtubeBlock = section as YoutubeSectionType
-                    if (!youtubeBlock.videoUrl) {
+                    // 檢查是否有響應式設定或舊的 videoUrl
+                    const hasVideo = youtubeBlock.videoSettings?.desktopVideoUrl || 
+                                   youtubeBlock.videoSettings?.mobileVideoUrl || 
+                                   youtubeBlock.videoUrl
+                    
+                    console.log('🏠 Homepage YouTube section data:', {
+                      hasVideo,
+                      videoUrl: youtubeBlock.videoUrl,
+                      videoSettings: youtubeBlock.videoSettings,
+                      desktopUrl: youtubeBlock.videoSettings?.desktopVideoUrl,
+                      mobileUrl: youtubeBlock.videoSettings?.mobileVideoUrl,
+                      useSameVideo: youtubeBlock.videoSettings?.useSameVideo
+                    })
+                    
+                    if (!hasVideo) {
                       console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
                       return null
                     }
@@ -278,6 +292,10 @@ export default async function Home({
                         heading={youtubeBlock.heading}
                         description={youtubeBlock.description}
                         videoUrl={youtubeBlock.videoUrl}
+                        videoMode={youtubeBlock.videoMode}
+                        youtubeSettings={youtubeBlock.youtubeSettings}
+                        uploadSettings={youtubeBlock.uploadSettings}
+                        videoSettings={youtubeBlock.videoSettings}
                         fullWidth={youtubeBlock.fullWidth}
                       />
                     )

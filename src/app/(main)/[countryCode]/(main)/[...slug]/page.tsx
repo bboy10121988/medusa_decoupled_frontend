@@ -451,6 +451,10 @@ function renderModule(
             heading={settings.heading}
             description={settings.description}
             videoUrl={settings.videoUrl}
+            videoMode={settings.videoMode}
+            youtubeSettings={settings.youtubeSettings}
+            uploadSettings={settings.uploadSettings}
+            videoSettings={settings.videoSettings}
             fullWidth={settings.fullWidth ?? true}
           />
         )
