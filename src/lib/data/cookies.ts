@@ -72,7 +72,9 @@ export const setAuthToken = async (token: string) => {
   cookies.set("_medusa_jwt", token, {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
-    sameSite: "strict",
+    // Allow sending/setting cookie on top-level navigations coming from external OAuth
+    // providers (Google). Lax is a safe default for auth cookies in this flow.
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   })
 }
