@@ -1,4 +1,5 @@
 import Medusa from "@medusajs/js-sdk"
+import { ENV_MODE } from "@lib/env-mode"
 import { getPublishableKeyForBackend } from "./medusa-publishable-key"
 
 // 網站基本配置
@@ -8,24 +9,31 @@ export const DEFAULT_OG_IMAGE = "/default-og-image.jpg"
 export const DEFAULT_TWITTER_IMAGE = "/default-twitter-image.jpg"
 
 // 確保在服務器端和客戶端都能獲取正確的 URL
-const resolveBackendUrl = () => {
-  const fromEnv = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || process.env.MEDUSA_BACKEND_URL
-  if (fromEnv) return fromEnv
+const resolveEnvValue = (baseKey: string) => {
+  const suffix = ENV_MODE === "vm" ? "_VM" : ENV_MODE === "local" ? "_LOCAL" : ""
+  const specificKey = suffix ? `${baseKey}${suffix}` : undefined
 
-  const fromSite = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL
-  if (fromSite) return fromSite
-
-  const rawMode = (
-    process.env.NEXT_PUBLIC_ENV_MODE ||
-    process.env.ENV_MODE ||
-    (process.env.NODE_ENV === "development" ? "local" : "vm")
-  ).toLowerCase()
-
-  if (rawMode === "vm") {
-    return "https://timsfantasyworld.com"
+  if (specificKey) {
+    const specificValue = process.env[specificKey]
+    if (specificValue) return specificValue
   }
 
-  return "http://localhost:9000"
+  return process.env[baseKey]
+}
+
+const resolveBackendUrl = () => {
+  const priorityOrder = [
+    resolveEnvValue("NEXT_PUBLIC_MEDUSA_BACKEND_URL"),
+    resolveEnvValue("MEDUSA_BACKEND_URL"),
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.NEXTAUTH_URL,
+  ]
+
+  for (const candidate of priorityOrder) {
+    if (candidate) return candidate
+  }
+
+  return ENV_MODE === "vm" ? "https://timsfantasyworld.com" : "http://localhost:9000"
 }
 
 const normalizeBackendUrl = (url: string) => {
