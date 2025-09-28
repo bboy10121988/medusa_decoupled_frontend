@@ -1,81 +1,51 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import GoogleApiManager from "@lib/google-api-manager"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { sdk } from "@lib/config"
 
 interface GoogleLoginButtonProps {
-  onSuccess?: (response: any) => void
+  onSuccess?: () => void
   onError?: (error: string) => void
 }
 
 const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
-  const buttonRef = useRef<HTMLDivElement>(null)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleCredentialResponse = async (response: any) => {
+  const handleGoogleLogin = async () => {
     try {
-      if (!response?.credential) {
-        throw new Error('沒有收到 Google 憑證')
+      setIsLoading(true)
+      setError(null)
+
+      const result = await sdk.auth.login("customer", "google", {})
+
+      if (typeof result !== "string" && result.location) {
+        window.location.href = result.location
+        return
       }
 
-      const result = await fetch('/api/auth/google-signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: response.credential }),
-      })
-
-      if (!result.ok) {
-        let errorData: any
-        try {
-          errorData = await result.json()
-        } catch {
-          errorData = await result.text()
+      if (typeof result === "string") {
+        // 登入流程已完成（不需跳轉）
+        if (onSuccess) {
+          onSuccess()
+          return
         }
-        let errorMessage = errorData?.error || errorData || `HTTP ${result.status}: Google 登入失敗`
-        if (result.status === 400) errorMessage = 'Google 登入配置錯誤，請檢查網域設定或聯繫管理員'
-        else if (result.status === 401) errorMessage = 'Google 登入驗證失敗，請重試'
-        throw new Error(errorMessage)
+
+        router.push("/tw/account")
+        return
       }
 
-      const data = await result.json()
-      if (onSuccess) onSuccess(data)
-      else window.location.href = '/tw/account'
+      throw new Error("Google 登入回傳資料異常")
     } catch (err: any) {
-      const msg = err?.message || 'Google 登入失敗，請稍後再試'
-      setError(msg)
-      if (onError) onError(msg)
+      const message = err?.message || "Google 登入失敗，請稍後再試"
+      setError(message)
+      if (onError) onError(message)
+    } finally {
+      setIsLoading(false)
     }
   }
-
-  useEffect(() => {
-    let mounted = true
-    const manager = GoogleApiManager.getInstance()
-
-    async function setup() {
-      try {
-        await manager.initializeGoogle()
-        if (!mounted) return
-        setIsLoaded(true)
-        if (buttonRef.current) {
-          manager.renderButton(buttonRef.current, handleCredentialResponse, (e) => {
-            const msg = e || 'Google 按鈕渲染失敗'
-            setError(msg)
-            if (onError) onError(msg)
-          })
-        }
-      } catch (err: any) {
-        const msg = err?.message || 'Google 初始化失敗'
-        setError(msg)
-        if (onError) onError(msg)
-      }
-    }
-
-    setup()
-    return () => {
-      mounted = false
-    }
-  }, [])
 
   return (
     <div className="w-full">
@@ -85,14 +55,46 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
         </div>
       )}
 
-      <div ref={buttonRef} className="w-full" style={{ minHeight: '44px' }} />
-
-      {!isLoaded && (
-        <div className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700">
-          <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-          <span className="text-sm font-medium">載入 Google 登入...</span>
-        </div>
-      )}
+      <button
+        type="button"
+        onClick={handleGoogleLogin}
+        disabled={isLoading}
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {isLoading ? (
+          <>
+            <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+            <span className="text-sm font-medium">正在前往 Google 登入...</span>
+          </>
+        ) : (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 48 48"
+              className="w-5 h-5"
+            >
+              <path
+                fill="#EA4335"
+                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.22C12.54 13.42 17.77 9.5 24 9.5z"
+              />
+              <path
+                fill="#4285F4"
+                d="M46.5 24.5c0-1.8-.16-3.53-.46-5.2H24v9.86h12.7c-.55 2.96-2.26 5.47-4.81 7.16l7.39 5.73C43.98 37.19 46.5 31.26 46.5 24.5z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M10.54 28.44c-.48-1.43-.76-2.95-.76-4.44s.28-3.01.76-4.44L2.56 13.22C.91 16.44 0 20.08 0 24s.91 7.56 2.56 10.78l7.98-6.34z"
+              />
+              <path
+                fill="#34A853"
+                d="M24 48c6.48 0 11.94-2.13 15.92-5.81l-7.39-5.73c-2.06 1.38-4.7 2.18-8.53 2.18-6.23 0-11.46-3.92-13.46-9.45l-7.98 6.34C6.51 42.62 14.62 48 24 48z"
+              />
+              <path fill="none" d="M0 0h48v48H0z" />
+            </svg>
+            <span className="text-sm font-medium">使用 Google 登入</span>
+          </>
+        )}
+      </button>
     </div>
   )
 }

@@ -24,7 +24,8 @@ function GoogleCallbackContent() {
 
         // 處理 Google 回調
         console.log("正在處理 Google 授權回調...")
-        const result = await handleGoogleCallback(code)
+        const queryObject = Object.fromEntries(searchParams.entries())
+        const result = await handleGoogleCallback(queryObject)
 
         if (result && !result.success) {
           setError(result.error || "處理授權回調時發生未知錯誤")

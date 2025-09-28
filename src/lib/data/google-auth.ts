@@ -1,94 +1,97 @@
 "use client"
 
-// 客戶端專用的 Google 登入函數
-export async function loginWithGoogle() {
+import { sdk } from "@lib/config"
+
+type CallbackParams = URLSearchParams | Record<string, string | null | undefined>
+
+const parseJwt = (token: string): Record<string, any> | null => {
   try {
-    if (process.env.NODE_ENV === 'development') console.log('開始 Google 登入流程')
-    
-    // 使用前端代理路徑來避免 CORS 問題
-    const apiUrl = '/api/medusa/auth/google'
-    if (process.env.NODE_ENV === 'development') console.log('請求 API URL:', apiUrl)
-    
-    // 從後端獲取 Google OAuth 授權 URL（確保 callback URL 一致）
-    const response = await fetch(apiUrl)
-    
-    if (!response.ok) {
-      if (process.env.NODE_ENV === 'development') console.error('HTTP 錯誤:', response.status, response.statusText)
-      throw new Error(`無法獲取 Google 授權 URL (${response.status})`)
-    }
-    
-    const data = await response.json()
-    if (process.env.NODE_ENV === 'development') console.log('後端回應:', data)
-    
-    if (!data.authUrl) {
-      throw new Error('後端未返回授權 URL')
-    }
-    
-    if (process.env.NODE_ENV === 'development') console.log('重定向到 Google:', data.authUrl)
-    // 重定向到 Google 授權頁面
-    window.location.href = data.authUrl
-  } catch (error: any) {
-    if (process.env.NODE_ENV === 'development') console.error("Google 登入錯誤:", error)
-    throw new Error("Google 登入失敗，請稍後再試")
+    const [, payload] = token.split(".")
+    if (!payload) return null
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/")
+    const decoded = decodeURIComponent(
+      atob(normalized)
+        .split("")
+        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+        .join("")
+    )
+    return JSON.parse(decoded)
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") console.error("解析 JWT 失敗", error)
+    return null
   }
 }
 
+const buildQueryObject = (params: CallbackParams): Record<string, string> => {
+  if (params instanceof URLSearchParams) {
+    return Object.fromEntries(params.entries())
+  }
+
+  return Object.entries(params).reduce<Record<string, string>>((acc, [key, value]) => {
+    if (typeof value === "string" && value.length > 0) {
+      acc[key] = value
+    }
+    return acc
+  }, {})
+}
+
 // 處理 Google 登入回調（客戶端）
-export async function handleGoogleCallback(code: string) {
+export async function handleGoogleCallback(rawParams: CallbackParams) {
   try {
-    if (process.env.NODE_ENV === 'development') console.log('處理 Google 回調')
-    
-    // 驗證授權碼
+    if (process.env.NODE_ENV === "development") console.log("處理 Google 回調")
+
+    const params = buildQueryObject(rawParams)
+    const code = params.code
+
     if (!code) {
-      throw new Error('缺少授權碼')
+      throw new Error("缺少授權碼")
     }
-    
-    // 使用前端代理路徑來避免 CORS 問題
-    const apiUrl = '/api/medusa/auth/google/callback'
-    
-    // 使用動態 callback URL（與部署網域一致）
-    const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || '')
-    const redirectUri = `${origin.replace(/\/$/, '')}/tw/auth/google/callback`
-    
-    if (process.env.NODE_ENV === 'development') console.log('發送回調請求到後端:', { code: code.substring(0, 10) + '...', redirectUri })
-    
-    // 將授權碼和 redirect_uri 發送到後端進行處理
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code, redirect_uri: redirectUri }),
-    })
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      if (process.env.NODE_ENV === 'development') console.error('後端回調錯誤:', response.status, errorText)
-      
-      let errorData
-      try {
-        errorData = JSON.parse(errorText)
-      } catch {
-        errorData = { error: `HTTP ${response.status}: ${errorText}` }
+
+    const token = await sdk.auth.callback("customer", "google", params)
+
+    if (typeof token !== "string") {
+      throw new Error("Google 登入回傳資料異常")
+    }
+
+    let tokenToPersist = token
+    const payload = parseJwt(token)
+
+    if (!payload?.actor_id) {
+      const email = payload?.email || payload?.data?.email
+
+      if (!email) {
+        throw new Error("授權資料缺少 email，無法建立會員")
       }
-      
-      throw new Error(errorData.error || `Google 登入失敗 (${response.status})`)
+
+      const firstName = payload?.given_name || payload?.first_name || ""
+      const lastName = payload?.family_name || payload?.last_name || ""
+
+      await sdk.store.customer.create({
+        email,
+        first_name: firstName,
+        last_name: lastName,
+      })
+
+      const refreshedToken = await sdk.auth.refresh()
+
+      if (typeof refreshedToken !== "string") {
+        throw new Error("刷新登入憑證失敗")
+      }
+
+      tokenToPersist = refreshedToken
     }
-    
-    const { token, customer } = await response.json()
-    if (process.env.NODE_ENV === 'development') console.log('登入成功，客戶:', customer?.email || customer?.id)
-    
-    if (!token) {
-      throw new Error('後端未返回認證令牌')
+
+    // 取得最新的 JWT 並交由後端設置 cookie
+    const authToken = (await sdk.client.getToken()) || tokenToPersist
+
+    if (!authToken) {
+      throw new Error("無法取得登入憑證")
     }
-    
-    // 以前是 fetch('/api/auth/set-token', ...)
-    // 改成 redirect 讓 server action 設 cookie
-    window.location.href = `/api/auth/set-token-redirect?token=${encodeURIComponent(token)}&redirect=/tw/account`
-    // 下面的程式碼不再執行，因為會 redirect
-    // return { success: true, customer }
+
+    window.location.href = `/api/auth/set-token-redirect?token=${encodeURIComponent(authToken)}&redirect=/tw/account`
+    return { success: true }
   } catch (error: any) {
-    if (process.env.NODE_ENV === 'development') console.error("Google 回調處理錯誤:", error)
+    if (process.env.NODE_ENV === "development") console.error("Google 回調處理錯誤:", error)
     return { success: false, error: error.message }
   }
 }
