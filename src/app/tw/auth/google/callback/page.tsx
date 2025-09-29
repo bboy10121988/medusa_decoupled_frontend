@@ -4,71 +4,71 @@ import { useEffect, useState, Suspense } from "react"
 import { handleGoogleCallback } from "@lib/data/google-auth"
 import { useRouter, useSearchParams } from "next/navigation"
 
-function GoogleCallbackContent() {
+function GoogleCallbackPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
-  const [error, setError] = useState<string | null>(null)
-  const searchParams = useSearchParams()
+  const [error, setError] = useState<string>("")
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    async function processCallback() {
+    const processCallback = async () => {
       try {
-        // 檢查是否有 OAuth 錯誤
-        const oauthError = searchParams.get("error")
-        if (oauthError) {
-          const errorDescription = searchParams.get("error_description") || "Google 認證被拒絕"
-          console.error("Google OAuth 錯誤:", oauthError, errorDescription)
-          setError(`Google 登入失敗: ${errorDescription}`)
-          setStatus("error")
-          return
-        }
-
-        // 獲取授權碼
+        console.log("🚀 開始處理 Google 回調...")
+        
+        // 從 URL 參數中獲取授權碼
         const code = searchParams.get("code")
+        const state = searchParams.get("state")
+
         if (!code) {
-          console.error("Google callback 缺少授權碼")
-          setError("Google 登入失敗: 未收到授權碼")
-          setStatus("error")
-          return
+          throw new Error("未收到授權碼")
         }
 
-        // 處理 Google 回調（根據流程圖步驟4）
-        console.log("🔄 正在處理 Google OAuth 回調...")
-        const queryObject = Object.fromEntries(searchParams.entries())
+        console.log("📝 收到的參數:", { 
+          code: code.substring(0, 20) + "...", 
+          state,
+          fullUrl: window.location.href 
+        })
+
+        // 構建查詢物件
+        const queryObject = {
+          code,
+          state,
+          ...(searchParams.get("scope") && { scope: searchParams.get("scope") }),
+          ...(searchParams.get("authuser") && { authuser: searchParams.get("authuser") }),
+          ...(searchParams.get("prompt") && { prompt: searchParams.get("prompt") })
+        }
+
+        console.log("🔄 呼叫後端處理...")
+        
+        // 處理回調
         const result = await handleGoogleCallback(queryObject)
-
-        if (result && !result.success) {
-          console.error("❌ Google OAuth 處理失敗:", result.error)
-          setError(result.error || "處理授權回調時發生未知錯誤")
-          setStatus("error")
-          return
-        }
-
-        // Google OAuth 處理成功，設定成功狀態並重導向
-        console.log("✅ Google OAuth 處理成功")
-        setStatus("success")
         
-        // 立即嘗試重導向，不等待
-        const redirectUrl = result?.redirect || "/tw/account"
-        console.log("🚀 立即重導向到:", redirectUrl)
+        console.log("✅ 後端處理完成:", result)
         
-        // 使用多種方式確保重導向成功
-        try {
-          // 方法1: Next.js 路由器
-          router.push(redirectUrl)
+        if (result.success) {
+          setStatus("success")
+
+          // 立即嘗試重導向
+          const redirectUrl = result?.redirect || "/tw/account"
+          console.log("🚀 準備重導向到:", redirectUrl)
+          console.log("🔍 當前 pathname:", window.location.pathname)
+          console.log("🔍 當前 URL:", window.location.href)
           
-          // 方法2: 備用的原生重導向（延遲執行）
-          setTimeout(() => {
-            console.log("� 備用重導向執行...")
-            if (window.location.pathname.includes('/callback')) {
-              window.location.href = redirectUrl
-            }
-          }, 1000)
-          
-        } catch (routerError) {
-          console.error("❌ 路由器重導向失敗:", routerError)
-          // 方法3: 立即使用原生重導向
+          // 直接使用最可靠的重導向方式
+          console.log("🔄 使用 window.location.href 進行重導向...")
           window.location.href = redirectUrl
+          
+          // 備用檢查：確保重導向執行
+          setTimeout(() => {
+            console.log("🔄 備用重導向檢查...")
+            if (window.location.pathname.includes('/callback')) {
+              console.log("⚠️ 仍在 callback 頁面，使用 replace 強制重導向...")
+              window.location.replace(redirectUrl)
+            }
+          }, 500)
+
+        } else {
+          throw new Error(result.error || "登入失敗")
         }
       } catch (err: any) {
         console.error("❌ Google 回調處理異常:", err)
@@ -91,12 +91,12 @@ function GoogleCallbackContent() {
   }, [status, router])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       {status === "loading" && (
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-2xl font-medium mb-2">處理 Google 登入中</h2>
-          <p className="text-gray-600">請稍候，正在完成您的登入...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-medium mb-2">處理 Google 登入中...</h2>
+          <p className="text-gray-600">請稍候，我們正在驗證您的身份</p>
         </div>
       )}
 
@@ -131,16 +131,14 @@ function GoogleCallbackContent() {
   )
 }
 
-export default function GoogleCallbackPage() {
+export default function GoogleCallbackPageWrapper() {
   return (
     <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <h2 className="text-2xl font-medium mb-2">載入中...</h2>
-        <p className="text-gray-600">正在處理您的請求...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
       </div>
     }>
-      <GoogleCallbackContent />
+      <GoogleCallbackPage />
     </Suspense>
   )
 }
