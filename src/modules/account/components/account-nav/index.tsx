@@ -21,7 +21,13 @@ const AccountNav = ({
   const { countryCode } = useParams() as { countryCode: string }
 
   const handleLogout = async () => {
-    await signout(countryCode)
+    try {
+      console.log('🔄 帳戶導航：開始登出，國家代碼:', countryCode)
+      await signout(countryCode)
+      console.log('✅ 帳戶導航：登出成功')
+    } catch (error) {
+      console.error('❌ 帳戶導航：登出失敗:', error)
+    }
   }
 
   return (
