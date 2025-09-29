@@ -55,10 +55,22 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
 
     // 根據流程圖步驟4: 使用 Medusa SDK 處理 callback
     console.log("🔗 調用 Medusa SDK auth.callback...")
+    console.log("🔍 傳送到 Medusa 的參數:", { 
+      code: code.substring(0, 15) + "...", 
+      state: state?.substring(0, 15) + "...",
+      hasAllParams: !!(code && state)
+    })
+    
     const token = await sdk.auth.callback("customer", "google", params)
 
     if (typeof token !== "string") {
       console.error("❌ Medusa SDK 回傳無效 token:", typeof token, token)
+      
+      // 檢查是否為 session 過期錯誤
+      if (token && typeof token === 'object' && (token as any).type === 'unauthorized') {
+        throw new Error("Google 登入 session 已過期，請重新開始登入流程")
+      }
+      
       throw new Error("Medusa 認證服務回傳無效資料")
     }
 
@@ -142,7 +154,19 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
     return { success: true }
   } catch (error: any) {
     console.error("❌ Google OAuth 處理失敗:", error)
-    return { success: false, error: error.message }
+    
+    // 特殊處理不同類型的錯誤
+    let errorMessage = error.message
+    
+    if (error.message?.includes('unauthorized') || error.message?.includes('session expired')) {
+      errorMessage = "Google 登入 session 已過期，請重新開始登入流程"
+    } else if (error.message?.includes('state')) {
+      errorMessage = "Google 登入驗證失敗，請重新嘗試"
+    } else if (error.message?.includes('code')) {
+      errorMessage = "Google 授權碼無效，請重新登入"
+    }
+    
+    return { success: false, error: errorMessage }
   }
 }
 
