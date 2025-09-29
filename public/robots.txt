@@ -1,0 +1,22 @@
+# robots.txt for Tim's Fantasy World
+
+User-agent: *
+Allow: /
+
+# 主要sitemap
+Sitemap: https://timsfantasyworld.com/sitemap.xml
+
+# 禁止索引管理頁面
+Disallow: /cms/
+Disallow: /sanity-setup/
+Disallow: /api/
+Disallow: /tw/auth/
+
+# 允許重要頁面
+Allow: /tw/
+Allow: /store/
+Allow: /products/
+Allow: /collections/
+
+# 搜尋引擎抓取延遲
+Crawl-delay: 1

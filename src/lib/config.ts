@@ -37,6 +37,12 @@ const resolveBackendUrl = () => {
 }
 
 const normalizeBackendUrl = (url: string) => {
+  if (typeof window !== "undefined") {
+    if (ENV_MODE === "vm") {
+      return window.location.origin
+    }
+  }
+
   try {
     const parsed = new URL(url)
 
@@ -60,6 +66,9 @@ export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
   publishableKey: getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
+  auth: {
+    type: "session"
+  }
 })
 
 // 確保在用於 API 路由和伺服器組件時可以直接使用

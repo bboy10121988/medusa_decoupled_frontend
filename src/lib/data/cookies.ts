@@ -1,6 +1,10 @@
 import "server-only"
 import { cookies as nextCookies } from "next/headers"
 
+// Optional cookie domain (set this to ".timsfantasyworld.com" in production if you
+// need the cookie to be shared across subdomains). If not set, cookies remain host-only.
+const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined
+
 export const getAuthHeaders = async (): Promise<
   { authorization: string; 'x-publishable-api-key'?: string } | { 'x-publishable-api-key'?: string }
 > => {
@@ -76,6 +80,7 @@ export const setAuthToken = async (token: string) => {
     // providers (Google). Lax is a safe default for auth cookies in this flow.
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
+    domain: COOKIE_DOMAIN,
   })
 }
 
@@ -83,6 +88,7 @@ export const removeAuthToken = async () => {
   const cookies = await nextCookies()
   cookies.set("_medusa_jwt", "", {
     maxAge: -1,
+    domain: COOKIE_DOMAIN,
   })
 }
 
@@ -100,6 +106,7 @@ export const setCartId = async (cartId: string) => {
     httpOnly: false, // 前端需要讀取
     sameSite: "lax", // 支援跨請求
     secure: process.env.NODE_ENV === "production",
+    domain: COOKIE_DOMAIN,
   })
   if (process.env.NODE_ENV === 'development') console.log("🍪 設定 Cart ID 到 cookies:", cartId)
 }
@@ -108,5 +115,6 @@ export const removeCartId = async () => {
   const cookies = await nextCookies()
   cookies.set("_medusa_cart_id", "", {
     maxAge: -1,
+    domain: COOKIE_DOMAIN,
   })
 }

@@ -632,11 +632,39 @@ export async function getAllPages(): Promise<PageData[]> {
 }
 
 
-export async function getHomepage(): Promise<{ title: string; mainSections: MainSection[] }> {
+export async function getHomepage(): Promise<{ 
+  title: string; 
+  mainSections: MainSection[];
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  seoKeywords?: string[];
+  canonicalUrl?: string;
+  noIndex?: boolean;
+  noFollow?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: { asset: { url: string }; alt: string };
+  twitterCard?: string;
+}> {
   if (isDev) console.log('🔍 Starting getHomepage request to Sanity...')
   
   const query = `*[_type == "homePage"][0] {
     title,
+    seoTitle,
+    seoDescription,
+    focusKeyword,
+    seoKeywords,
+    canonicalUrl,
+    noIndex,
+    noFollow,
+    ogTitle,
+    ogDescription,
+    "ogImage": ogImage {
+      "asset": asset->{url},
+      alt
+    },
+    twitterCard,
     "mainSections": mainSections[] {
       ...select(
         _type == "mainBanner" => {

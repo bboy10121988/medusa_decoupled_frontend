@@ -11,6 +11,7 @@ import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 import { getHomepage } from "@lib/sanity"; // 使用 getHomepage 並移除 getServiceSection
 import type { MainBanner } from '@lib/types/page-sections'
+import type { HomePageData } from '@lib/types/pages'
 import type { ImageTextBlock as ImageTextBlockType } from '@lib/types/page-sections'
 import type { FeaturedProductsSection } from '@lib/types/page-sections'
 import type { BlogSection } from '@lib/types/page-sections'
@@ -21,15 +22,64 @@ import { getStoreName } from "@lib/store-name"
 
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { title } = await getHomepage() // 使用 getHomepage
-  const storeName = await getStoreName()
-  
-  return {
-    title: title || storeName,
-    description: '專業美髮沙龍與高級美髮產品',
-    openGraph: {
-      title: title || storeName,
-      description: '專業美髮沙龍與高級美髮產品',
+  try {
+    const homepageData = await getHomepage()
+    const storeName = await getStoreName()
+    
+    // 從Sanity獲取SEO資料
+    const pageTitle = homepageData?.seoTitle || homepageData?.title || `${storeName} - 專業美髮沙龍與造型產品`
+    const pageDescription = homepageData?.seoDescription || '專業美髮沙龍服務，提供剪髮、染髮、燙髮等服務。銷售優質美髮產品，包含洗髮精、護髮乳、造型產品等。Tim\'s Fantasy World 為您打造完美髮型。'
+    const ogTitle = homepageData?.ogTitle || pageTitle
+    const ogDescription = homepageData?.ogDescription || pageDescription
+    
+    return {
+      title: pageTitle,
+      description: pageDescription,
+      keywords: [
+        '美髮沙龍', '剪髮', '染髮', '燙髮', '造型', 
+        '洗髮精', '護髮乳', '造型產品', '美髮用品',
+        'Tim\'s Fantasy World', '專業美髮', '髮型設計'
+      ].join(', '),
+      openGraph: {
+        title: ogTitle,
+        description: ogDescription,
+        type: 'website',
+        locale: 'zh_TW',
+        siteName: storeName,
+        images: homepageData?.ogImage?.asset?.url ? [{
+          url: homepageData.ogImage.asset.url,
+          alt: homepageData.ogImage.alt || pageTitle
+        }] : undefined
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: ogTitle,
+        description: ogDescription,
+        images: homepageData?.ogImage?.asset?.url ? [homepageData.ogImage.asset.url] : undefined
+      },
+      robots: {
+        index: !homepageData?.noIndex,
+        follow: !homepageData?.noFollow,
+        googleBot: {
+          index: !homepageData?.noIndex,
+          follow: !homepageData?.noFollow,
+        }
+      },
+      alternates: {
+        canonical: homepageData?.canonicalUrl
+      }
+    }
+  } catch (error) {
+    console.error('生成metadata時發生錯誤:', error)
+    const storeName = await getStoreName()
+    
+    return {
+      title: `${storeName} - 專業美髮沙龍與造型產品`,
+      description: '專業美髮沙龍服務，提供剪髮、染髮、燙髮等服務。銷售優質美髮產品，包含洗髮精、護髮乳、造型產品等。Tim\'s Fantasy World 為您打造完美髮型。',
+      openGraph: {
+        title: `${storeName} - 專業美髮沙龍與造型產品`,
+        description: '專業美髮沙龍服務，提供剪髮、染髮、燙髮等服務。銷售優質美髮產品，包含洗髮精、護髮乳、造型產品等。',
+      }
     }
   }
 }

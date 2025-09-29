@@ -1,0 +1,33 @@
+# ===========================================
+# 後端 Medusa .env 設定範本
+# ===========================================
+# 請將以下內容加到後端的 .env 檔案中
+
+# Google OAuth 設定 (Medusa Google Social Login)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Google Callback URLs
+# 本機環境
+GOOGLE_CALLBACK_URL_LOCAL=http://localhost:3000/auth/google/callback
+# 正式環境
+GOOGLE_CALLBACK_URL=https://timsfantasyworld.com/auth/google/callback
+
+# 根據環境使用對應的 CALLBACK_URL
+# 本機開發時使用: GOOGLE_CALLBACK_URL_LOCAL
+# 正式部署時使用: GOOGLE_CALLBACK_URL
+
+# ===========================================
+# 其他 Medusa 必要設定
+# ===========================================
+# 資料庫連線
+DATABASE_URL=postgres://username:password@localhost:5432/medusa-store
+
+# Redis (如果使用)
+REDIS_URL=redis://localhost:6379
+
+# JWT 密鑰
+JWT_SECRET=some-super-secret
+
+# Cookie 密鑰
+COOKIE_SECRET=some-super-secret

@@ -1,6 +1,7 @@
 "use client"
 
 import { sdk } from "@lib/config"
+import { debugGoogleToken } from "@lib/debug-google-token"
 
 type CallbackParams = URLSearchParams | Record<string, string | null | undefined>
 
@@ -56,15 +57,41 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
     let tokenToPersist = token
     const payload = parseJwt(token)
 
-    if (!payload?.actor_id) {
-      const email = payload?.email || payload?.data?.email
+    // 在開發環境中使用除錯工具
+    if (process.env.NODE_ENV === "development") {
+      debugGoogleToken(token)
+    }
 
-      if (!email) {
-        throw new Error("授權資料缺少 email，無法建立會員")
+    if (!payload?.actor_id) {
+      // 更詳細的 debug 資訊
+      if (process.env.NODE_ENV === "development") {
+        console.log("JWT Payload (for new user):", payload)
       }
 
-      const firstName = payload?.given_name || payload?.first_name || ""
-      const lastName = payload?.family_name || payload?.last_name || ""
+      // 嘗試多種方式提取 email
+      const email = payload?.email || 
+                   payload?.data?.email || 
+                   payload?.user?.email ||
+                   payload?.profile?.email ||
+                   payload?.emailAddress
+
+      if (!email) {
+        console.error("無法從 JWT payload 中找到 email:", payload)
+        throw new Error(`授權資料缺少 email，無法建立會員。請確認 Google 帳戶有提供 email 權限。Debug info: ${JSON.stringify(payload)}`)
+      }
+
+      // 提取姓名資訊，支援多種格式
+      const firstName = payload?.given_name || 
+                       payload?.first_name || 
+                       payload?.data?.given_name ||
+                       payload?.user?.given_name ||
+                       payload?.profile?.given_name || ""
+      
+      const lastName = payload?.family_name || 
+                      payload?.last_name || 
+                      payload?.data?.family_name ||
+                      payload?.user?.family_name ||
+                      payload?.profile?.family_name || ""
 
       await sdk.store.customer.create({
         email,

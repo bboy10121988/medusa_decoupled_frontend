@@ -25,7 +25,8 @@ export async function GET(request: NextRequest) {
     }
 
     // 產生動態 callback URL（與部署網域一致）
-    const origin = process.env.NEXT_PUBLIC_STORE_URL || (process.env.NEXTAUTH_URL || 'http://localhost:8001')
+    const origin = process.env.NEXT_PUBLIC_STORE_URL || process.env.NEXTAUTH_URL || 
+                   (process.env.NODE_ENV === 'production' ? 'https://timsfantasyworld.com' : 'http://localhost:8001')
     const redirectUri = `${origin.replace(/\/$/, '')}/tw/auth/google/callback`
 
     if (process.env.NODE_ENV === 'development') console.log('使用回調 URL:', redirectUri)
