@@ -37,7 +37,7 @@ const buildQueryObject = (params: CallbackParams): Record<string, string> => {
 }
 
 // 處理 Google 登入回調（客戶端）
-export async function handleGoogleCallback(rawParams: CallbackParams) {
+export async function handleGoogleCallback(rawParams: CallbackParams, countryCode: string = 'tw') {
   try {
     console.log("🔄 開始處理 Google OAuth 回調")
 
@@ -235,7 +235,7 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
 
     console.log("🚀 準備重導向到帳戶頁面...")
     // 返回成功狀態，讓調用方處理重導向
-    return { success: true, redirect: "/tw/account" }
+    return { success: true, redirect: `/${countryCode}/account` }
   } catch (error: any) {
     console.error("❌ Google OAuth 處理失敗:", error)
     

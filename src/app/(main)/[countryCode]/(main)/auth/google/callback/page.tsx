@@ -2,13 +2,17 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { handleGoogleCallback } from "@lib/data/google-auth"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, useParams } from "next/navigation"
 
 function GoogleCallbackPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [error, setError] = useState<string>("")
   const router = useRouter()
   const searchParams = useSearchParams()
+  const params = useParams()
+  
+  // 從路由參數中獲取 countryCode
+  const countryCode = params.countryCode as string || 'tw'
 
   useEffect(() => {
     const processCallback = async () => {
@@ -26,6 +30,7 @@ function GoogleCallbackPage() {
         console.log("📝 收到的參數:", { 
           code: code.substring(0, 20) + "...", 
           state,
+          countryCode,
           fullUrl: window.location.href 
         })
 
@@ -41,16 +46,17 @@ function GoogleCallbackPage() {
         console.log("🔄 呼叫後端處理...")
         
         // 處理回調
-        const result = await handleGoogleCallback(queryObject)
+        const result = await handleGoogleCallback(queryObject, countryCode)
         
         console.log("✅ 後端處理完成:", result)
         
         if (result.success) {
           setStatus("success")
-
-          // 立即嘗試重導向
-          const redirectUrl = result?.redirect || "/tw/account"
+          
+          // 使用動態的 countryCode 構建重導向 URL
+          const redirectUrl = result?.redirect || `/${countryCode}/account`
           console.log("🚀 準備重導向到:", redirectUrl)
+          console.log("🔍 使用的 countryCode:", countryCode)
           console.log("🔍 當前 pathname:", window.location.pathname)
           console.log("🔍 當前 URL:", window.location.href)
           
@@ -78,17 +84,17 @@ function GoogleCallbackPage() {
     }
 
     processCallback()
-  }, [searchParams])
+  }, [searchParams, countryCode])
 
   // 錯誤發生時，等待幾秒後重定向到登入頁
   useEffect(() => {
     if (status === "error") {
       const timer = setTimeout(() => {
-        router.push("/tw/account/login")
+        router.push(`/${countryCode}/account/login`)
       }, 5000)
       return () => clearTimeout(timer)
     }
-  }, [status, router])
+  }, [status, router, countryCode])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -122,7 +128,7 @@ function GoogleCallbackPage() {
           <h2 className="text-2xl font-medium mb-2">登入失敗</h2>
           <p className="text-red-600 mb-4">{error}</p>
           <p className="text-gray-600">將在 5 秒後返回登入頁面，或者您可以<button 
-            onClick={() => router.push("/tw/account/login")}
+            onClick={() => router.push(`/${countryCode}/account/login`)}
             className="text-blue-600 hover:underline"
           >立即返回</button></p>
         </div>
