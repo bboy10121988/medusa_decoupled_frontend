@@ -25,6 +25,7 @@ export default function Profile() {
         ])
 
         if (customerResponse?.customer) {
+          console.log('🔍 當前客戶資料:', customerResponse.customer)
           setCustomer(customerResponse.customer)
         }
         

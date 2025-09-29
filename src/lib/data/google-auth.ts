@@ -110,63 +110,88 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
       let lastName = ""
 
       try {
-        // 先嘗試從後端 API 獲取 Google 用戶資訊
-        console.log("🔍 嘗試從後端獲取 Google 用戶資訊...")
+        // 先嘗試從 JWT payload 中直接提取 Google 用戶資訊
+        console.log("🔍 從 JWT payload 中提取 Google 用戶資訊...")
+        console.log("🔍 完整 JWT payload:", JSON.stringify(payload, null, 2))
         
-        const identityResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/google/userinfo`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        })
-
-        if (identityResponse.ok) {
-          const userInfo = await identityResponse.json()
-          console.log("✅ 從後端獲取用戶資訊:", userInfo)
-          
-          email = userInfo.email || userInfo.user?.email || ""
-          firstName = userInfo.given_name || userInfo.first_name || ""
-          lastName = userInfo.family_name || userInfo.last_name || ""
-        } else {
-          console.log("⚠️ 無法從後端獲取用戶資訊，使用預設方式")
+        // 嘗試從多個可能的位置提取 email
+        const possibleEmails = [
+          payload?.email,
+          payload?.data?.email,
+          payload?.user?.email,
+          payload?.profile?.email,
+          payload?.emailAddress,
+          payload?.actor?.email,
+          payload?.identity?.email,
+          payload?.google?.email,
+          payload?.claims?.email,
+          payload?.user_metadata?.email
+        ].filter(Boolean)
+        
+        console.log("🔍 找到的可能 email:", possibleEmails)
+        
+        if (possibleEmails.length > 0) {
+          email = possibleEmails[0] as string
+          console.log("✅ 從 JWT 提取到 email:", email)
         }
+        
+        // 類似地提取姓名
+        const possibleFirstNames = [
+          payload?.given_name,
+          payload?.first_name,
+          payload?.data?.given_name,
+          payload?.user?.given_name,
+          payload?.profile?.given_name,
+          payload?.actor?.given_name,
+          payload?.identity?.given_name,
+          payload?.google?.given_name,
+          payload?.claims?.given_name,
+          payload?.user_metadata?.given_name
+        ].filter(Boolean)
+        
+        const possibleLastNames = [
+          payload?.family_name,
+          payload?.last_name,
+          payload?.data?.family_name,
+          payload?.user?.family_name,
+          payload?.profile?.family_name,
+          payload?.actor?.family_name,
+          payload?.identity?.family_name,
+          payload?.google?.family_name,
+          payload?.claims?.family_name,
+          payload?.user_metadata?.family_name
+        ].filter(Boolean)
+        
+        if (possibleFirstNames.length > 0) {
+          firstName = possibleFirstNames[0] as string
+        }
+        
+        if (possibleLastNames.length > 0) {
+          lastName = possibleLastNames[0] as string
+        }
+        
+        console.log("✅ 從 JWT 提取到姓名:", { firstName, lastName })
+        
       } catch (error) {
-        console.log("⚠️ 從後端獲取用戶資訊失敗:", error)
+        console.log("⚠️ 從 JWT 提取用戶資訊失敗:", error)
       }
 
-      // 如果還是沒有 email，從 JWT 中提取
+      // 如果還是沒有 email，使用虛擬 email（這種情況不應該發生）
       if (!email) {
-        email = payload?.email || 
-               payload?.data?.email || 
-               payload?.user?.email ||
-               payload?.profile?.email ||
-               payload?.emailAddress || ""
-      }
-
-      // 如果還是沒有 email，使用虛擬 email
-      if (!email) {
-        console.log("⚠️ 無法獲取 email，使用虛擬 email")
+        console.error("❌ 仍然無法獲取 email，這可能表示 Google OAuth 配置有問題")
+        console.log("🔍 原始 payload 用於調試:", payload)
         email = `google_user_${payload?.auth_identity_id || Date.now()}@temp.local`
-        firstName = "Google"
-        lastName = "User"
+        firstName = firstName || "Google"
+        lastName = lastName || "User"
       }
 
-      // 如果從 API 沒有獲取到姓名，從 JWT 中提取
+      // 設置預設姓名
       if (!firstName) {
-        firstName = payload?.given_name || 
-                   payload?.first_name || 
-                   payload?.data?.given_name ||
-                   payload?.user?.given_name ||
-                   payload?.profile?.given_name || ""
+        firstName = "Google"
       }
       
       if (!lastName) {
-        lastName = payload?.family_name || 
-                  payload?.last_name || 
-                  payload?.data?.family_name ||
-                  payload?.user?.family_name ||
-                  payload?.profile?.family_name || ""
+        lastName = "User"
       }
 
       console.log("📝 建立新客戶:", { email, firstName, lastName })
