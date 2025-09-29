@@ -215,7 +215,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
           isLoading={submitting}
           data-testid={dataTestId}
         >
-            {submitting ? "處理中..." : "前往 ECPay 付款223"}
+            {submitting ? "處理中..." : "前往 ECPay 付款"}
         </Button>
         // <form 
         //   method="POST" 

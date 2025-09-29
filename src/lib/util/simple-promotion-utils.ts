@@ -56,12 +56,8 @@ const LABEL_PRIORITIES: Record<PromotionLabelType, number> = {
 /**
  * 只從 Medusa API 獲取真實的促銷折扣標籤
  */
-export async function getActivePromotionLabels(
-  product: HttpTypes.StoreProduct,
-  regionId: string = 'reg_01JW1S1F7GB4ZP322G2DMETETH'
-): Promise<PromotionLabel[]> {
-  const labels: PromotionLabel[] = []
-  const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
+export async function applyPromotion(cartId: string, code: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || (process.env.NEXT_PUBLIC_ENV_MODE === 'local' ? 'http://localhost:9000' : 'https://timsfantasyworld.com')
   const { MEDUSA_BACKEND_URL } = await import('./config')
   const { getPublishableKeyForBackend } = await import('./lib/medusa-publishable-key')
   const publishableKey = getPublishableKeyForBackend(MEDUSA_BACKEND_URL)
@@ -87,7 +83,7 @@ export async function getActivePromotionLabels(
     // 1. 創建測試購物車
     let cartResponse
     try {
-      cartResponse = await fetch(`${baseUrl}/store/carts`, {
+      cartResponse = await fetch(`${baseUrl}/carts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +116,7 @@ export async function getActivePromotionLabels(
     // 2. 添加商品到購物車
     let addItemResponse
     try {
-      addItemResponse = await fetch(`${baseUrl}/store/carts/${cartId}/line-items`, {
+      addItemResponse = await fetch(`${baseUrl}/carts/${cartId}/line-items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -343,7 +339,7 @@ export async function getActivePromotionLabels(
 
     // 5. 清理測試購物車
     try {
-      const deleteResponse = await fetch(`${baseUrl}/store/carts/${cartId}`, {
+      const deleteResponse = await fetch(`${baseUrl}/carts/${cartId}`, {
         method: 'DELETE',
         headers: {
           'x-publishable-api-key': publishableKey,

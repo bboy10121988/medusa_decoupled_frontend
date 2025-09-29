@@ -29,9 +29,9 @@ const BankTransferPaymentButton = ({ cart, notReady, "data-testid": dataTestId }
       // 嘗試顯示更詳細的錯誤內容
       if (err?.response) {
         // 若有 response 物件（如 axios），顯示 response.data
-        setErrorMessage(JSON.stringify(err.response.data));
+        //setErrorMessage(JSON.stringify(err.response.data));
       } else if (err?.message) {
-        setErrorMessage(err.message);
+        //setErrorMessage(err.message);
       } else {
         setErrorMessage("建立訂單失敗");
       }

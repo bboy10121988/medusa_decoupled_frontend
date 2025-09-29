@@ -4,7 +4,7 @@ export async function GET(request: NextRequest) {
   if (process.env.NODE_ENV === 'development') console.log('🛒 Get Cart API called')
   
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
+    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || (process.env.NEXT_PUBLIC_ENV_MODE === 'local' ? 'http://localhost:9000' : 'https://timsfantasyworld.com')
     const { getPublishableKeyForBackend } = await import('@lib/medusa-publishable-key')
     const publishableKey = getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)
 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     if (process.env.NODE_ENV === 'development') console.log('🔍 Found cart ID:', cartId)
 
     // 獲取購物車資料
-    const response = await fetch(`${baseUrl}/store/carts/${cartId}?fields=*items,*region,*items.product,*items.variant,*items.variant.options,*items.variant.options.option,*items.thumbnail,*items.metadata,+items.total,*promotions,+shipping_methods.name`, {
+    const response = await fetch(`${baseUrl}/carts/${cartId}?fields=*items,*region,*items.product,*items.variant,*items.variant.options,*items.variant.options.option,*items.thumbnail,*items.metadata,+items.total,*promotions,+shipping_methods.name`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
