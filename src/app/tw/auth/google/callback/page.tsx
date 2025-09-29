@@ -13,30 +13,42 @@ function GoogleCallbackContent() {
   useEffect(() => {
     async function processCallback() {
       try {
-        // 獲取授權碼
-        const code = searchParams.get("code")
-        if (!code) {
-          const error = searchParams.get("error") || "未收到授權碼"
-          setError(`Google 登入失敗: ${error}`)
+        // 檢查是否有 OAuth 錯誤
+        const oauthError = searchParams.get("error")
+        if (oauthError) {
+          const errorDescription = searchParams.get("error_description") || "Google 認證被拒絕"
+          console.error("Google OAuth 錯誤:", oauthError, errorDescription)
+          setError(`Google 登入失敗: ${errorDescription}`)
           setStatus("error")
           return
         }
 
-        // 處理 Google 回調
-        console.log("正在處理 Google 授權回調...")
+        // 獲取授權碼
+        const code = searchParams.get("code")
+        if (!code) {
+          console.error("Google callback 缺少授權碼")
+          setError("Google 登入失敗: 未收到授權碼")
+          setStatus("error")
+          return
+        }
+
+        // 處理 Google 回調（根據流程圖步驟4）
+        console.log("🔄 正在處理 Google OAuth 回調...")
         const queryObject = Object.fromEntries(searchParams.entries())
         const result = await handleGoogleCallback(queryObject)
 
         if (result && !result.success) {
+          console.error("❌ Google OAuth 處理失敗:", result.error)
           setError(result.error || "處理授權回調時發生未知錯誤")
           setStatus("error")
           return
         }
 
-        // handleGoogleCallback 會自動重定向，以下代碼通常不會執行
+        // handleGoogleCallback 成功時會自動重定向，以下代碼通常不會執行
+        console.log("✅ Google OAuth 處理成功")
         setStatus("success")
       } catch (err: any) {
-        console.error("Google 回調處理出錯:", err)
+        console.error("❌ Google 回調處理異常:", err)
         setError(err.message || "處理 Google 登入時發生錯誤")
         setStatus("error")
       }

@@ -39,36 +39,46 @@ const buildQueryObject = (params: CallbackParams): Record<string, string> => {
 // 處理 Google 登入回調（客戶端）
 export async function handleGoogleCallback(rawParams: CallbackParams) {
   try {
-    if (process.env.NODE_ENV === "development") console.log("處理 Google 回調")
+    console.log("🔄 開始處理 Google OAuth 回調")
 
     const params = buildQueryObject(rawParams)
     const code = params.code
+    const state = params.state
 
     if (!code) {
-      throw new Error("缺少授權碼")
+      const error = params.error || "未收到授權碼"
+      console.error("❌ Google OAuth 錯誤:", error)
+      throw new Error(`Google 授權失敗: ${error}`)
     }
 
+    console.log("📝 收到 OAuth 參數:", { code: code.substring(0, 10) + "...", state, hasState: !!state })
+
+    // 根據流程圖步驟4: 使用 Medusa SDK 處理 callback
+    console.log("🔗 調用 Medusa SDK auth.callback...")
     const token = await sdk.auth.callback("customer", "google", params)
 
     if (typeof token !== "string") {
-      throw new Error("Google 登入回傳資料異常")
+      console.error("❌ Medusa SDK 回傳無效 token:", typeof token, token)
+      throw new Error("Medusa 認證服務回傳無效資料")
     }
 
+    console.log("✅ 收到 Medusa token:", token.substring(0, 20) + "...")
     let tokenToPersist = token
     const payload = parseJwt(token)
 
-    // 在開發環境中使用除錯工具
+    // 根據流程圖步驟5: 驗證令牌
+    console.log("🔍 解析 JWT 內容...")
     if (process.env.NODE_ENV === "development") {
       debugGoogleToken(token)
     }
 
+    // 檢查是否為新用戶（根據流程圖步驟5-6）
     if (!payload?.actor_id) {
-      // 更詳細的 debug 資訊
-      if (process.env.NODE_ENV === "development") {
-        console.log("JWT Payload (for new user):", payload)
-      }
+      // 根據流程圖步驟6: 新用戶需要建立客戶資料
+      console.log("👤 檢測到新用戶，準備建立客戶資料...")
+      console.log("🔍 JWT Payload:", payload)
 
-      // 嘗試多種方式提取 email
+      // 從 JWT 中提取用戶資訊
       const email = payload?.email || 
                    payload?.data?.email || 
                    payload?.user?.email ||
@@ -76,11 +86,11 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
                    payload?.emailAddress
 
       if (!email) {
-        console.error("無法從 JWT payload 中找到 email:", payload)
-        throw new Error(`授權資料缺少 email，無法建立會員。請確認 Google 帳戶有提供 email 權限。Debug info: ${JSON.stringify(payload)}`)
+        console.error("❌ JWT 中缺少 email 資訊:", payload)
+        throw new Error(`Google 帳戶未提供 email 權限，無法建立會員。請確認 Google 帳戶設定允許分享 email。`)
       }
 
-      // 提取姓名資訊，支援多種格式
+      // 提取姓名資訊
       const firstName = payload?.given_name || 
                        payload?.first_name || 
                        payload?.data?.given_name ||
@@ -93,32 +103,45 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
                       payload?.user?.family_name ||
                       payload?.profile?.family_name || ""
 
+      console.log("📝 建立新客戶:", { email, firstName, lastName })
+      
+      // 根據流程圖步驟6: 建立客戶
       await sdk.store.customer.create({
         email,
         first_name: firstName,
         last_name: lastName,
       })
 
+      console.log("✅ 客戶建立成功，刷新認證...")
+      
+      // 根據流程圖步驟7: 刷新令牌以取得完整權限
       const refreshedToken = await sdk.auth.refresh()
 
       if (typeof refreshedToken !== "string") {
+        console.error("❌ 刷新 token 失敗:", typeof refreshedToken, refreshedToken)
         throw new Error("刷新登入憑證失敗")
       }
 
+      console.log("✅ Token 刷新成功")
       tokenToPersist = refreshedToken
+    } else {
+      console.log("✅ 現有用戶，直接使用 token")
     }
 
-    // 取得最新的 JWT 並交由後端設置 cookie
+    // 根據流程圖步驟8: 取得客戶資料並完成登入
+    console.log("🏁 準備完成登入流程...")
     const authToken = (await sdk.client.getToken()) || tokenToPersist
 
     if (!authToken) {
+      console.error("❌ 無法取得最終認證 token")
       throw new Error("無法取得登入憑證")
     }
 
+    console.log("🚀 重導向到帳戶頁面...")
     window.location.href = `/api/auth/set-token-redirect?token=${encodeURIComponent(authToken)}&redirect=/tw/account`
     return { success: true }
   } catch (error: any) {
-    if (process.env.NODE_ENV === "development") console.error("Google 回調處理錯誤:", error)
+    console.error("❌ Google OAuth 處理失敗:", error)
     return { success: false, error: error.message }
   }
 }
