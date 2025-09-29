@@ -63,6 +63,8 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
     
     const token = await sdk.auth.callback("customer", "google", params)
 
+    console.log("🔍 Medusa SDK callback 回傳:", typeof token, token)
+
     if (typeof token !== "string") {
       console.error("❌ Medusa SDK 回傳無效 token:", typeof token, token)
       
@@ -76,11 +78,19 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
 
     console.log("✅ 收到 Medusa token:", token.substring(0, 20) + "...")
     
+    // 先檢查 JWT token 是否有效
+    const tokenPayload = parseJwt(token)
+    console.log("🔍 JWT payload 檢查:", tokenPayload)
+    
     // 根據 Medusa session 驗證流程：先設定 session cookie
     console.log("🍪 設定 Medusa session cookie...")
+    const sessionUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/session`
+    console.log("🔗 Session URL:", sessionUrl)
+    console.log("🔍 使用 token:", `Bearer ${token.substring(0, 30)}...`)
+    
     try {
       // 調用 /auth/session 設定 session cookie
-      const sessionResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/session`, {
+      const sessionResponse = await fetch(sessionUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -89,13 +99,18 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
         credentials: 'include', // 重要：包含 cookies
       })
 
+      console.log("📊 Session response status:", sessionResponse.status)
+      console.log("📊 Session response headers:", Object.fromEntries(sessionResponse.headers.entries()))
+
       if (!sessionResponse.ok) {
         const errorText = await sessionResponse.text()
         console.error("❌ 設定 session 失敗:", sessionResponse.status, errorText)
-        throw new Error(`設定登入 session 失敗: ${sessionResponse.status}`)
+        console.error("❌ Response headers:", Object.fromEntries(sessionResponse.headers.entries()))
+        throw new Error(`設定登入 session 失敗: ${sessionResponse.status} - ${errorText}`)
       }
 
-      console.log("✅ Session cookie 設定成功")
+      const sessionData = await sessionResponse.json()
+      console.log("✅ Session cookie 設定成功:", sessionData)
     } catch (sessionError: any) {
       console.error("❌ Session 設定錯誤:", sessionError)
       throw new Error(`無法建立登入 session: ${sessionError.message}`)
