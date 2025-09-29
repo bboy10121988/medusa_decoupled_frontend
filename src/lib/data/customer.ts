@@ -17,9 +17,45 @@ import {
 
 export const retrieveCustomer =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
-    // 檢查是否是 Google OAuth token
-    const cookies = await import('next/headers').then(m => m.cookies())
-    const token = (await cookies).get("_medusa_jwt")?.value
+    // 首先嘗試使用標準的 Medusa JWT token 方式
+    const authHeaders = await getAuthHeaders()
+
+    if (authHeaders) {
+      // 處理一般的 Medusa JWT token
+      const headers = {
+        ...authHeaders,
+      }
+
+      const next = {
+        ...(await getCacheOptions("customers")),
+      }
+
+      try {
+        const result = await sdk.client
+          .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
+            method: "GET",
+            query: {
+              fields: "*orders",
+            },
+            headers,
+            next,
+            cache: "force-cache",
+          })
+          .then(({ customer }) => customer)
+        
+        if (result) {
+          console.log('成功使用 JWT token 獲取客戶資訊:', result)
+          return result
+        }
+      } catch (error) {
+        console.error('使用 JWT token 獲取客戶資訊失敗:', error)
+      }
+    }
+
+    // 如果標準方式失敗，檢查是否有舊版的 Google OAuth token 格式
+    const { cookies } = await import('next/headers')
+    const cookieStore = await cookies()
+    const token = cookieStore.get("_medusa_jwt")?.value
     
     if (token?.startsWith('google_oauth:')) {
       // 處理 Google OAuth 用戶
@@ -89,32 +125,7 @@ export const retrieveCustomer =
       }
     }
 
-    // 只有在不是 Google token 的情況下才獲取授權標頭
-    const authHeaders = await getAuthHeaders()
-
-    if (!authHeaders) return null
-
-    // 處理一般的 Medusa JWT token
-    const headers = {
-      ...authHeaders,
-    }
-
-    const next = {
-      ...(await getCacheOptions("customers")),
-    }
-
-    return await sdk.client
-      .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
-        method: "GET",
-        query: {
-          fields: "*orders",
-        },
-        headers,
-        next,
-        cache: "force-cache",
-      })
-      .then(({ customer }) => customer)
-      .catch(() => null)
+    return null
   }
 
 export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
@@ -165,7 +176,7 @@ export async function signup(_currentState: unknown, formData: FormData) {
       password: password,
     })
 
-    await setAuthToken(token as string)
+    await setAuthToken(token)
 
     const headers = {
       ...(await getAuthHeaders()),
@@ -237,7 +248,7 @@ export async function login(_currentState: unknown, formData: FormData) {
     // 使用標準 Medusa SDK 進行登入
     const token = await sdk.auth.login("customer", "emailpass", { email, password })
     
-    await setAuthToken(token as string)
+    await setAuthToken(typeof token === 'string' ? token : token.location)
     
     const customerCacheTag = await getCacheTag("customers")
     revalidateTag(customerCacheTag)
