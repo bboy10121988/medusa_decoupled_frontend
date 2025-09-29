@@ -6,12 +6,10 @@ import ProfilePhone from "@modules/account/components/profile-phone"
 import ProfileBillingAddress from "@modules/account/components/profile-billing-address"
 import ProfileEmail from "@modules/account/components/profile-email"
 import ProfileName from "@modules/account/components/profile-name"
+import AccountLayout from "@modules/account/templates/account-layout"
 
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
-
-export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
 
 export default function Profile() {
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
@@ -48,9 +46,11 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="w-full flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
+      <AccountLayout customer={customer}>
+        <div className="w-full flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      </AccountLayout>
     )
   }
 
@@ -59,27 +59,27 @@ export default function Profile() {
   }
 
   return (
-    <div className="w-full" data-testid="profile-page-wrapper">
-      <div className="mb-8 flex flex-col gap-y-4">
-        <h1 className="text-2xl-semi">Profile</h1>
-        <p className="text-base-regular">
-          View and update your profile information, including your name, email,
-          and phone number. You can also update your billing address, or change
-          your password.
-        </p>
+    <AccountLayout customer={customer}>
+      <div className="w-full" data-testid="profile-page-wrapper">
+        <div className="mb-8 flex flex-col gap-y-4">
+          <h1 className="text-2xl-semi">Profile</h1>
+          <p className="text-base-regular">
+            View and update your profile information, including your name, email,
+            and phone number. You can also update your billing address, or change
+            your password.
+          </p>
+        </div>
+        <div className="flex flex-col gap-y-8 w-full">
+          <ProfileName customer={customer} />
+          <Divider />
+          <ProfileEmail customer={customer} />
+          <Divider />
+          <ProfilePhone customer={customer} />
+          <Divider />
+          <ProfileBillingAddress customer={customer} regions={regions} />
+        </div>
       </div>
-      <div className="flex flex-col gap-y-8 w-full">
-        <ProfileName customer={customer} />
-        <Divider />
-        <ProfileEmail customer={customer} />
-        <Divider />
-        <ProfilePhone customer={customer} />
-        <Divider />
-        {/* <ProfilePassword customer={customer} />
-        <Divider /> */}
-        <ProfileBillingAddress customer={customer} regions={regions} />
-      </div>
-    </div>
+    </AccountLayout>
   )
 }
 
