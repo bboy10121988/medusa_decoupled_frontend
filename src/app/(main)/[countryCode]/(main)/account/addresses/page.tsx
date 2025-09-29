@@ -16,39 +16,30 @@ export default function Addresses() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchCustomer = async () => {
+    const fetchData = async () => {
       try {
-        const response = await sdk.store.customer.retrieve()
-        if (response?.customer) {
-          setCustomer(response.customer)
-        }
-      } catch (err) {
-        console.error('獲取客戶資料失敗:', err)
-      }
-    }
+        const [customerResponse, regionsResponse] = await Promise.all([
+          sdk.store.customer.retrieve().catch(() => null),
+          sdk.store.region.list({ fields: "*countries" }).catch(() => null)
+        ])
 
-    const fetchRegions = async () => {
-      try {
-        const response = await sdk.store.region.list({ fields: "*countries" })
-        if (response?.regions) {
-          // 簡化 region 選擇邏輯
-          const defaultRegion = response.regions[0]
+        if (customerResponse?.customer) {
+          setCustomer(customerResponse.customer)
+        }
+        
+        if (regionsResponse?.regions) {
+          const defaultRegion = regionsResponse.regions[0]
           setRegion(defaultRegion)
         }
       } catch (err) {
-        console.error('獲取地區資料失敗:', err)
+        console.error('獲取資料失敗:', err)
+        setError('無法載入資料')
+      } finally {
+        setLoading(false)
       }
     }
 
-    const loadData = async () => {
-      await Promise.all([fetchCustomer(), fetchRegions()])
-      setLoading(false)
-    }
-
-    loadData().catch(() => {
-      setError('無法載入資料')
-      setLoading(false)
-    })
+    fetchData()
   }, [countryCode])
 
   if (loading) {

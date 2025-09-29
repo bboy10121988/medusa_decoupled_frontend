@@ -7,7 +7,6 @@ import ProfileBillingAddress from "@modules/account/components/profile-billing-a
 import ProfileEmail from "@modules/account/components/profile-email"
 import ProfileName from "@modules/account/components/profile-name"
 import AccountLayout from "@modules/account/templates/account-layout"
-
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
 
@@ -20,7 +19,6 @@ export default function Profile() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 使用客戶端 SDK 獲取數據
         const [customerResponse, regionsResponse] = await Promise.all([
           sdk.store.customer.retrieve().catch(() => null),
           sdk.store.region.list().catch(() => null)
@@ -65,8 +63,7 @@ export default function Profile() {
           <h1 className="text-2xl-semi">Profile</h1>
           <p className="text-base-regular">
             View and update your profile information, including your name, email,
-            and phone number. You can also update your billing address, or change
-            your password.
+            and phone number. You can also update your billing address.
           </p>
         </div>
         <div className="flex flex-col gap-y-8 w-full">
