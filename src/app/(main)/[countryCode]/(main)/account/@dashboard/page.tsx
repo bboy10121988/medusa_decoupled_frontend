@@ -6,6 +6,8 @@ import Overview from "@modules/account/components/overview"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
 
+export const dynamic = 'force-dynamic'
+
 export default function OverviewTemplate() {
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
   const [orders, setOrders] = useState<HttpTypes.StoreOrder[] | null>(null)

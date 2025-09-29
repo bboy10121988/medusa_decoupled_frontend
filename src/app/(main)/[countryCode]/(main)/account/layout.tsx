@@ -6,6 +6,8 @@ import AccountLayout from "@modules/account/templates/account-layout"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
 
+export const dynamic = 'force-dynamic'
+
 export default function AccountPageLayout({
   dashboard,
   login,

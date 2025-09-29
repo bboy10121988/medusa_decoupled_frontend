@@ -6,6 +6,8 @@ import AddressBook from "@modules/account/components/address-book"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
 
+export const dynamic = 'force-dynamic'
+
 export default function Addresses() {
   const params = useParams()
   const countryCode = params.countryCode as string

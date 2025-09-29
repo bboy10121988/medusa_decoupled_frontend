@@ -10,6 +10,8 @@ import ProfileName from "@modules/account/components/profile-name"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
 
+export const dynamic = 'force-dynamic'
+
 export default function Profile() {
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
   const [regions, setRegions] = useState<HttpTypes.StoreRegion[] | null>(null)

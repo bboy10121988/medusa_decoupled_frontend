@@ -8,6 +8,8 @@ import TransferRequestForm from "@modules/account/components/transfer-request-fo
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
 
+export const dynamic = 'force-dynamic'
+
 export default function Orders() {
   const [orders, setOrders] = useState<HttpTypes.StoreOrder[] | null>(null)
   const [loading, setLoading] = useState(true)

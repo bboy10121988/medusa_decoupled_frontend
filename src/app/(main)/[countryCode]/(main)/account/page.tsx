@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { sdk } from "@lib/config"
 
+export const dynamic = 'force-dynamic'
 
 export default function AccountPage() {
   const params = useParams()
