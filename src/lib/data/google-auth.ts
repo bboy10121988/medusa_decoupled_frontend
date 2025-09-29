@@ -75,7 +75,32 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
     }
 
     console.log("✅ 收到 Medusa token:", token.substring(0, 20) + "...")
-    let tokenToPersist = token
+    
+    // 根據 Medusa session 驗證流程：先設定 session cookie
+    console.log("🍪 設定 Medusa session cookie...")
+    try {
+      // 調用 /auth/session 設定 session cookie
+      const sessionResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/session`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // 重要：包含 cookies
+      })
+
+      if (!sessionResponse.ok) {
+        const errorText = await sessionResponse.text()
+        console.error("❌ 設定 session 失敗:", sessionResponse.status, errorText)
+        throw new Error(`設定登入 session 失敗: ${sessionResponse.status}`)
+      }
+
+      console.log("✅ Session cookie 設定成功")
+    } catch (sessionError: any) {
+      console.error("❌ Session 設定錯誤:", sessionError)
+      throw new Error(`無法建立登入 session: ${sessionError.message}`)
+    }
+
     const payload = parseJwt(token)
 
     // 根據流程圖步驟5: 驗證令牌
@@ -135,22 +160,54 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
       }
 
       console.log("✅ Token 刷新成功")
-      tokenToPersist = refreshedToken
+      
+      // 新用戶也需要重新設定 session
+      console.log("🍪 為新用戶設定 session cookie...")
+      try {
+        const sessionResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/session`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${refreshedToken}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        })
+
+        if (!sessionResponse.ok) {
+          console.error("❌ 新用戶 session 設定失敗:", sessionResponse.status)
+          throw new Error(`新用戶 session 設定失敗: ${sessionResponse.status}`)
+        }
+
+        console.log("✅ 新用戶 session cookie 設定成功")
+      } catch (sessionError: any) {
+        console.error("❌ 新用戶 session 錯誤:", sessionError)
+        throw new Error(`新用戶 session 建立失敗: ${sessionError.message}`)
+      }
     } else {
-      console.log("✅ 現有用戶，直接使用 token")
+      console.log("✅ 現有用戶，已設定 session cookie")
     }
 
-    // 根據流程圖步驟8: 取得客戶資料並完成登入
-    console.log("🏁 準備完成登入流程...")
-    const authToken = (await sdk.client.getToken()) || tokenToPersist
-
-    if (!authToken) {
-      console.error("❌ 無法取得最終認證 token")
-      throw new Error("無法取得登入憑證")
+    // 根據流程圖步驟8: 完成登入流程
+    console.log("🏁 登入流程完成，session cookie 已設定")
+    
+    // 驗證 session 是否正常工作
+    try {
+      const customerResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/customers/me`, {
+        credentials: 'include', // 使用 session cookie
+      })
+      
+      if (customerResponse.ok) {
+        console.log("✅ Session 驗證成功，用戶已登入")
+      } else {
+        console.warn("⚠️ Session 驗證失败，但繼續重導向")
+      }
+    } catch (verifyError) {
+      console.warn("⚠️ 無法驗證 session，但繼續重導向:", verifyError)
     }
 
     console.log("🚀 重導向到帳戶頁面...")
-    window.location.href = `/api/auth/set-token-redirect?token=${encodeURIComponent(authToken)}&redirect=/tw/account`
+    // 直接重導向，不需要設定額外的 token，因為 session cookie 已經設定
+    window.location.href = "/tw/account"
     return { success: true }
   } catch (error: any) {
     console.error("❌ Google OAuth 處理失敗:", error)
