@@ -10,7 +10,7 @@ import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
-import { signout } from "@lib/data/customer"
+import SignoutButton from "../../../../components/common/signout-button"
 
 const AccountNav = ({
   customer,
@@ -20,15 +20,7 @@ const AccountNav = ({
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
 
-  const handleLogout = async () => {
-    try {
-      console.log('🔄 帳戶導航：開始登出，國家代碼:', countryCode)
-      await signout(countryCode)
-      console.log('✅ 帳戶導航：登出成功')
-    } catch (error) {
-      console.error('❌ 帳戶導航：登出失敗:', error)
-    }
-  }
+
 
   return (
     <div>
@@ -95,18 +87,16 @@ const AccountNav = ({
                   </LocalizedClientLink>
                 </li>
                 <li>
-                  <button
-                    type="button"
+                  <SignoutButton
+                    countryCode={countryCode}
                     className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
-                    onClick={handleLogout}
-                    data-testid="logout-button"
                   >
                     <div className="flex items-center gap-x-2">
                       <ArrowRightOnRectangle />
                       <span>登出</span>
                     </div>
                     <ChevronDown className="transform -rotate-90" />
-                  </button>
+                  </SignoutButton>
                 </li>
               </ul>
             </div>
@@ -157,13 +147,12 @@ const AccountNav = ({
                 </AccountNavLink>
               </li>
               <li className="text-grey-700">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  data-testid="logout-button"
+                <SignoutButton
+                  countryCode={countryCode}
+                  className=""
                 >
                   登出
-                </button>
+                </SignoutButton>
               </li>
             </ul>
           </div>

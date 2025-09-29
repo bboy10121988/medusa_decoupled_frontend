@@ -10,7 +10,6 @@ import {
   getCacheOptions,
   getCacheTag,
   getCartId,
-  removeAuthToken,
   removeCartId,
   setAuthToken,
 } from "./cookies"
@@ -283,24 +282,25 @@ export async function signout(countryCode: string) {
   console.log('🚪 開始登出流程，國家代碼:', countryCode)
   
   try {
-    // 1. 先嘗試 Medusa SDK 登出
-    console.log('🔐 嘗試 Medusa SDK 登出...')
-    await sdk.auth.logout()
-    console.log('✅ Medusa SDK 登出成功')
+    // 調用登出 API 來清除 cookies
+    console.log('� 呼叫登出 API 來清除 cookies...')
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    
+    if (response.ok) {
+      console.log('✅ 登出 API 調用成功')
+    } else {
+      console.warn('⚠️ 登出 API 調用失敗，但繼續執行')
+    }
   } catch (error) {
-    // 即使 SDK 登出失敗，也要繼續清理本地狀態
-    console.warn('⚠️ SDK logout failed:', error)
+    console.warn('⚠️ 登出 API 調用錯誤:', error)
   }
 
-  // 2. 清除認證 token
-  console.log('🍪 清除認證 token...')
-  await removeAuthToken()
-  
-  // 3. 清除購物車 ID
-  console.log('🛒 清除購物車 ID...')
-  await removeCartId()
-
-  // 4. 清除所有相關的快取
+  // 清除快取
   console.log('🗑️ 清除快取...')
   const customerCacheTag = await getCacheTag("customers")
   revalidateTag(customerCacheTag)
@@ -308,31 +308,8 @@ export async function signout(countryCode: string) {
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
-  // 5. 額外清理：手動清除可能的其他認證相關 cookies
-  console.log('🧹 手動清除所有認證 cookies...')
-  const { cookies } = await import('next/headers')
-  const cookieStore = await cookies()
-  
-  // 清除可能的其他認證 cookies
-  const authCookies = ['_medusa_jwt', '_medusa_cart_id', '_medusa_cache_id']
-  for (const cookieName of authCookies) {
-    try {
-      const currentValue = cookieStore.get(cookieName)?.value
-      console.log(`🍪 清除 ${cookieName}:`, currentValue ? '有值' : '無值')
-      
-      cookieStore.set(cookieName, '', {
-        maxAge: -1,
-        path: '/',
-        domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined,
-      })
-      console.log(`✅ ${cookieName} 已清除`)
-    } catch (error) {
-      console.warn(`❌ Failed to clear cookie ${cookieName}:`, error)
-    }
-  }
-
   console.log('✅ 登出流程完成，準備重定向到首頁')
-  // 6. 重定向到首頁
+  // 重定向到首頁
   redirect(`/${countryCode}`)
 }
 
