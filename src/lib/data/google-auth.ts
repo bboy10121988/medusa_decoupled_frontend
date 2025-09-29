@@ -193,7 +193,29 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
       // 新用戶認證 token 已透過 SDK 設定
       console.log("✅ 新用戶認證 token 已設定，準備使用 SDK 驗證")
     } else {
-      console.log("✅ 現有用戶，已設定 session cookie")
+      console.log("✅ 現有用戶，確保 token 正確設定...")
+      
+      // 確保現有用戶的 token 也被正確設定到前端狀態
+      try {
+        // 調用前端 API 來設置 session cookie
+        const setTokenResponse = await fetch('/api/auth/set-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        })
+
+        if (!setTokenResponse.ok) {
+          console.error("❌ 設置 token 到前端失敗")
+          throw new Error("設置登入狀態失敗")
+        }
+
+        console.log("✅ 現有用戶 token 已正確設定到前端")
+      } catch (error) {
+        console.error("❌ 設置現有用戶 token 失敗:", error)
+        throw new Error("設置登入狀態失敗")
+      }
     }
 
     // 根據流程圖步驟8: 完成登入流程
