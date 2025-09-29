@@ -88,7 +88,11 @@ export const removeAuthToken = async () => {
   const cookies = await nextCookies()
   cookies.set("_medusa_jwt", "", {
     maxAge: -1,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
     domain: COOKIE_DOMAIN,
+    path: "/",
   })
 }
 
@@ -115,6 +119,10 @@ export const removeCartId = async () => {
   const cookies = await nextCookies()
   cookies.set("_medusa_cart_id", "", {
     maxAge: -1,
+    httpOnly: false,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
     domain: COOKIE_DOMAIN,
+    path: "/",
   })
 }

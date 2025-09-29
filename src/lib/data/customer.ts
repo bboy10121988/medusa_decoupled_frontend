@@ -280,18 +280,46 @@ export async function login(_currentState: unknown, formData: FormData) {
 }
 
 export async function signout(countryCode: string) {
-  await sdk.auth.logout()
+  try {
+    // 1. 先嘗試 Medusa SDK 登出
+    await sdk.auth.logout()
+  } catch (error) {
+    // 即使 SDK 登出失敗，也要繼續清理本地狀態
+    console.warn('SDK logout failed:', error)
+  }
 
+  // 2. 清除認證 token
   await removeAuthToken()
+  
+  // 3. 清除購物車 ID
+  await removeCartId()
 
+  // 4. 清除所有相關的快取
   const customerCacheTag = await getCacheTag("customers")
   revalidateTag(customerCacheTag)
-
-  await removeCartId()
 
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
+  // 5. 額外清理：手動清除可能的其他認證相關 cookies
+  const { cookies } = await import('next/headers')
+  const cookieStore = await cookies()
+  
+  // 清除可能的其他認證 cookies
+  const authCookies = ['_medusa_jwt', '_medusa_cart_id', '_medusa_cache_id']
+  for (const cookieName of authCookies) {
+    try {
+      cookieStore.set(cookieName, '', {
+        maxAge: -1,
+        path: '/',
+        domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined,
+      })
+    } catch (error) {
+      console.warn(`Failed to clear cookie ${cookieName}:`, error)
+    }
+  }
+
+  // 6. 重定向到首頁
   redirect(`/${countryCode}`)
 }
 
