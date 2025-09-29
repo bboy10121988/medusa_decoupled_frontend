@@ -104,30 +104,70 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
       console.log("👤 檢測到新用戶，準備建立客戶資料...")
       console.log("🔍 JWT Payload:", payload)
 
-      // 從 JWT 中提取用戶資訊
-      const email = payload?.email || 
-                   payload?.data?.email || 
-                   payload?.user?.email ||
-                   payload?.profile?.email ||
-                   payload?.emailAddress
+      // 嘗試從 auth_identity_id 獲取 Google 用戶資訊
+      let email = ""
+      let firstName = ""
+      let lastName = ""
 
-      if (!email) {
-        console.error("❌ JWT 中缺少 email 資訊:", payload)
-        throw new Error(`Google 帳戶未提供 email 權限，無法建立會員。請確認 Google 帳戶設定允許分享 email。`)
+      try {
+        // 先嘗試從後端 API 獲取 Google 用戶資訊
+        console.log("🔍 嘗試從後端獲取 Google 用戶資訊...")
+        
+        const identityResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/google/userinfo`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (identityResponse.ok) {
+          const userInfo = await identityResponse.json()
+          console.log("✅ 從後端獲取用戶資訊:", userInfo)
+          
+          email = userInfo.email || userInfo.user?.email || ""
+          firstName = userInfo.given_name || userInfo.first_name || ""
+          lastName = userInfo.family_name || userInfo.last_name || ""
+        } else {
+          console.log("⚠️ 無法從後端獲取用戶資訊，使用預設方式")
+        }
+      } catch (error) {
+        console.log("⚠️ 從後端獲取用戶資訊失敗:", error)
       }
 
-      // 提取姓名資訊
-      const firstName = payload?.given_name || 
-                       payload?.first_name || 
-                       payload?.data?.given_name ||
-                       payload?.user?.given_name ||
-                       payload?.profile?.given_name || ""
+      // 如果還是沒有 email，從 JWT 中提取
+      if (!email) {
+        email = payload?.email || 
+               payload?.data?.email || 
+               payload?.user?.email ||
+               payload?.profile?.email ||
+               payload?.emailAddress || ""
+      }
+
+      // 如果還是沒有 email，使用虛擬 email
+      if (!email) {
+        console.log("⚠️ 無法獲取 email，使用虛擬 email")
+        email = `google_user_${payload?.auth_identity_id || Date.now()}@temp.local`
+        firstName = "Google"
+        lastName = "User"
+      }
+
+      // 如果從 API 沒有獲取到姓名，從 JWT 中提取
+      if (!firstName) {
+        firstName = payload?.given_name || 
+                   payload?.first_name || 
+                   payload?.data?.given_name ||
+                   payload?.user?.given_name ||
+                   payload?.profile?.given_name || ""
+      }
       
-      const lastName = payload?.family_name || 
-                      payload?.last_name || 
-                      payload?.data?.family_name ||
-                      payload?.user?.family_name ||
-                      payload?.profile?.family_name || ""
+      if (!lastName) {
+        lastName = payload?.family_name || 
+                  payload?.last_name || 
+                  payload?.data?.family_name ||
+                  payload?.user?.family_name ||
+                  payload?.profile?.family_name || ""
+      }
 
       console.log("📝 建立新客戶:", { email, firstName, lastName })
       
