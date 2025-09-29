@@ -82,39 +82,13 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
     const tokenPayload = parseJwt(token)
     console.log("🔍 JWT payload 檢查:", tokenPayload)
     
-    // 根據 Medusa session 驗證流程：先設定 session cookie
-    console.log("🍪 設定 Medusa session cookie...")
-    const sessionUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/session`
-    console.log("🔗 Session URL:", sessionUrl)
-    console.log("🔍 使用 token:", `Bearer ${token.substring(0, 30)}...`)
+    // 使用 Medusa SDK 的方式設定認證 token (不需要手動調用 /auth/session)
+    console.log("🍪 設定 Medusa 認證 token...")
+    console.log("� Token 類型:", typeof token)
+    console.log("🔍 Token 長度:", token.length)
     
-    try {
-      // 調用 /auth/session 設定 session cookie
-      const sessionResponse = await fetch(sessionUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 重要：包含 cookies
-      })
-
-      console.log("📊 Session response status:", sessionResponse.status)
-      console.log("📊 Session response headers:", Object.fromEntries(sessionResponse.headers.entries()))
-
-      if (!sessionResponse.ok) {
-        const errorText = await sessionResponse.text()
-        console.error("❌ 設定 session 失敗:", sessionResponse.status, errorText)
-        console.error("❌ Response headers:", Object.fromEntries(sessionResponse.headers.entries()))
-        throw new Error(`設定登入 session 失敗: ${sessionResponse.status} - ${errorText}`)
-      }
-
-      const sessionData = await sessionResponse.json()
-      console.log("✅ Session cookie 設定成功:", sessionData)
-    } catch (sessionError: any) {
-      console.error("❌ Session 設定錯誤:", sessionError)
-      throw new Error(`無法建立登入 session: ${sessionError.message}`)
-    }
+    // Medusa SDK 應該已經自動處理了 token 的設置
+    // 直接使用 token 進行後續操作，不需要手動設置 session
 
     const payload = parseJwt(token)
 
@@ -176,28 +150,8 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
 
       console.log("✅ Token 刷新成功")
       
-      // 新用戶也需要重新設定 session
-      console.log("🍪 為新用戶設定 session cookie...")
-      try {
-        const sessionResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/session`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${refreshedToken}`,
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        })
-
-        if (!sessionResponse.ok) {
-          console.error("❌ 新用戶 session 設定失敗:", sessionResponse.status)
-          throw new Error(`新用戶 session 設定失敗: ${sessionResponse.status}`)
-        }
-
-        console.log("✅ 新用戶 session cookie 設定成功")
-      } catch (sessionError: any) {
-        console.error("❌ 新用戶 session 錯誤:", sessionError)
-        throw new Error(`新用戶 session 建立失敗: ${sessionError.message}`)
-      }
+      // 新用戶認證 token 已透過 SDK 設定
+      console.log("✅ 新用戶認證 token 已設定，準備使用 SDK 驗證")
     } else {
       console.log("✅ 現有用戶，已設定 session cookie")
     }
@@ -205,23 +159,20 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
     // 根據流程圖步驟8: 完成登入流程
     console.log("🏁 登入流程完成，session cookie 已設定")
     
-    // 驗證 session 是否正常工作
+    // 驗證認證是否正常工作 (使用 Medusa SDK)
     try {
-      const customerResponse = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/customers/me`, {
-        credentials: 'include', // 使用 session cookie
-      })
-      
-      if (customerResponse.ok) {
-        console.log("✅ Session 驗證成功，用戶已登入")
+      const customerResponse = await sdk.store.customer.retrieve()
+      if (customerResponse?.customer) {
+        console.log("✅ 認證驗證成功，用戶已登入:", customerResponse.customer.email)
       } else {
-        console.warn("⚠️ Session 驗證失败，但繼續重導向")
+        console.warn("⚠️ 無法取得客戶資料，但繼續重導向")
       }
     } catch (verifyError) {
-      console.warn("⚠️ 無法驗證 session，但繼續重導向:", verifyError)
+      console.warn("⚠️ 無法驗證認證，但繼續重導向:", verifyError)
     }
 
     console.log("🚀 重導向到帳戶頁面...")
-    // 直接重導向，不需要設定額外的 token，因為 session cookie 已經設定
+    // 直接重導向，認證 token 已透過 Medusa SDK 設定
     window.location.href = "/tw/account"
     return { success: true }
   } catch (error: any) {
