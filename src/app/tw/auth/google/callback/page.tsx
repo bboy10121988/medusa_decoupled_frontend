@@ -44,9 +44,15 @@ function GoogleCallbackContent() {
           return
         }
 
-        // handleGoogleCallback 成功時會自動重定向，以下代碼通常不會執行
+        // Google OAuth 處理成功，設定成功狀態並重導向
         console.log("✅ Google OAuth 處理成功")
         setStatus("success")
+        
+        // 使用 Next.js 路由器進行重導向
+        setTimeout(() => {
+          console.log("🚀 重導向到帳戶頁面...")
+          router.push(result?.redirect || "/tw/account")
+        }, 2000) // 等待 2 秒確保認證狀態完全設定並讓用戶看到成功訊息
       } catch (err: any) {
         console.error("❌ Google 回調處理異常:", err)
         setError(err.message || "處理 Google 登入時發生錯誤")

@@ -211,10 +211,9 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
       console.warn("⚠️ 無法驗證認證，但繼續重導向:", verifyError)
     }
 
-    console.log("🚀 重導向到帳戶頁面...")
-    // 直接重導向，認證 token 已透過 Medusa SDK 設定
-    window.location.href = "/tw/account"
-    return { success: true }
+    console.log("🚀 準備重導向到帳戶頁面...")
+    // 返回成功狀態，讓調用方處理重導向
+    return { success: true, redirect: "/tw/account" }
   } catch (error: any) {
     console.error("❌ Google OAuth 處理失敗:", error)
     
