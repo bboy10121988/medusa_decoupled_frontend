@@ -48,11 +48,28 @@ function GoogleCallbackContent() {
         console.log("✅ Google OAuth 處理成功")
         setStatus("success")
         
-        // 使用 Next.js 路由器進行重導向
-        setTimeout(() => {
-          console.log("🚀 重導向到帳戶頁面...")
-          router.push(result?.redirect || "/tw/account")
-        }, 2000) // 等待 2 秒確保認證狀態完全設定並讓用戶看到成功訊息
+        // 立即嘗試重導向，不等待
+        const redirectUrl = result?.redirect || "/tw/account"
+        console.log("🚀 立即重導向到:", redirectUrl)
+        
+        // 使用多種方式確保重導向成功
+        try {
+          // 方法1: Next.js 路由器
+          router.push(redirectUrl)
+          
+          // 方法2: 備用的原生重導向（延遲執行）
+          setTimeout(() => {
+            console.log("� 備用重導向執行...")
+            if (window.location.pathname.includes('/callback')) {
+              window.location.href = redirectUrl
+            }
+          }, 1000)
+          
+        } catch (routerError) {
+          console.error("❌ 路由器重導向失敗:", routerError)
+          // 方法3: 立即使用原生重導向
+          window.location.href = redirectUrl
+        }
       } catch (err: any) {
         console.error("❌ Google 回調處理異常:", err)
         setError(err.message || "處理 Google 登入時發生錯誤")
