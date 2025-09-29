@@ -1,28 +1,57 @@
-import { Metadata } from "next"
+"use client"
 
+import { useEffect, useState } from "react"
+import { notFound } from "next/navigation"
 import ProfilePhone from "@modules/account/components/profile-phone"
 import ProfileBillingAddress from "@modules/account/components/profile-billing-address"
 import ProfileEmail from "@modules/account/components/profile-email"
 import ProfileName from "@modules/account/components/profile-name"
-import ProfilePassword from "@modules/account/components/profile-password"
 
-import { notFound } from "next/navigation"
-import { listRegions } from "@lib/data/regions"
-import { retrieveCustomer } from "@lib/data/customer"
+import { HttpTypes } from "@medusajs/types"
+import { sdk } from "@lib/config"
 
-// 強制動態渲染，避免預渲染問題
-export const dynamic = 'force-dynamic'
+export default function Profile() {
+  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
+  const [regions, setRegions] = useState<HttpTypes.StoreRegion[] | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-export const metadata: Metadata = {
-  title: "Profile",
-  description: "View and edit your Medusa Store profile.",
-}
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 使用客戶端 SDK 獲取數據
+        const [customerResponse, regionsResponse] = await Promise.all([
+          sdk.store.customer.retrieve().catch(() => null),
+          sdk.store.region.list().catch(() => null)
+        ])
 
-export default async function Profile() {
-  const customer = await retrieveCustomer()
-  const regions = await listRegions()
+        if (customerResponse?.customer) {
+          setCustomer(customerResponse.customer)
+        }
+        
+        if (regionsResponse?.regions) {
+          setRegions(regionsResponse.regions)
+        }
+      } catch (err) {
+        console.error('獲取資料失敗:', err)
+        setError('無法載入資料')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  if (!customer || !regions) {
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
+  if (error || !customer || !regions) {
     notFound()
   }
 

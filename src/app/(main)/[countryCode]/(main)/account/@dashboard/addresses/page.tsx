@@ -1,28 +1,64 @@
-import { Metadata } from "next"
-import { notFound } from "next/navigation"
+"use client"
 
+import { useEffect, useState } from "react"
+import { useParams, notFound } from "next/navigation"
 import AddressBook from "@modules/account/components/address-book"
+import { HttpTypes } from "@medusajs/types"
+import { sdk } from "@lib/config"
 
-import { getRegion } from "@lib/data/regions"
-import { retrieveCustomer } from "@lib/data/customer"
+export default function Addresses() {
+  const params = useParams()
+  const countryCode = params.countryCode as string
+  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
+  const [region, setRegion] = useState<HttpTypes.StoreRegion | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-export const metadata: Metadata = {
-  title: "Addresses",
-  description: "View your addresses",
-}
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      try {
+        const response = await sdk.store.customer.retrieve()
+        if (response?.customer) {
+          setCustomer(response.customer)
+        }
+      } catch (err) {
+        console.error('獲取客戶資料失敗:', err)
+      }
+    }
 
-// 強制動態渲染，避免預渲染問題
-export const dynamic = 'force-dynamic'
+    const fetchRegions = async () => {
+      try {
+        const response = await sdk.store.region.list({ fields: "*countries" })
+        if (response?.regions) {
+          // 簡化 region 選擇邏輯
+          const defaultRegion = response.regions[0]
+          setRegion(defaultRegion)
+        }
+      } catch (err) {
+        console.error('獲取地區資料失敗:', err)
+      }
+    }
 
-export default async function Addresses(props: {
-  params: Promise<{ countryCode: string }>
-}) {
-  const params = await props.params
-  const { countryCode } = params
-  const customer = await retrieveCustomer()
-  const region = await getRegion(countryCode)
+    const loadData = async () => {
+      await Promise.all([fetchCustomer(), fetchRegions()])
+      setLoading(false)
+    }
 
-  if (!customer || !region) {
+    loadData().catch(() => {
+      setError('無法載入資料')
+      setLoading(false)
+    })
+  }, [countryCode])
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
+  if (error || !customer || !region) {
     notFound()
   }
 
