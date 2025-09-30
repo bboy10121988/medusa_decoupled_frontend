@@ -6,14 +6,14 @@ export async function GET(request: NextRequest) {
     const customer = await retrieveCustomer().catch(() => null)
     
     if (!customer) {
-      return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
+      return NextResponse.json({ customer: null }, { status: 200 })
     }
 
-    return NextResponse.json(customer)
+    return NextResponse.json({ customer })
   } catch (error) {
     console.error('獲取客戶資料失敗:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { customer: null, error: 'Internal server error' },
       { status: 500 }
     )
   }
