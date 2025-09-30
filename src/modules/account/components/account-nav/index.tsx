@@ -19,44 +19,23 @@ const AccountNav = ({
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
 
-  const handleLogout = (e?: React.MouseEvent) => {
-    // 防止事件冒泡和預設行為
-    if (e) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
+  const handleLogout = () => {
+    console.log('🚪 簡化登出流程開始')
     
-    console.log('🚪 開始登出流程...')
+    // 立即清除存儲
+    localStorage.clear()
+    sessionStorage.clear()
     
-    // 調用我們的登出 API
+    // 立即重定向，不等待 API
+    window.location.href = `/${countryCode || 'tw'}/account`
+    
+    // 在背景調用登出 API（不阻塞重定向）
     fetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(response => {
-      if (response.ok) {
-        console.log('✅ 登出 API 調用成功')
-      } else {
-        console.log('⚠️ 登出 API 返回錯誤，但繼續清理流程')
-      }
-    }).catch(error => {
-      console.error('❌ 登出失敗:', error)
-    }).finally(() => {
-      // 清除本地存儲
-      if (typeof window !== 'undefined') {
-        localStorage.clear()
-        sessionStorage.clear()
-        console.log('🧹 本地存儲已清除')
-      }
-      
-      // 執行重定向
-      const redirectUrl = `/${countryCode || 'tw'}/account`
-      console.log('🔍 重定向目標:', redirectUrl)
-      console.log('🔍 當前 URL:', window.location.href)
-      console.log('🚀 執行重定向...')
-      window.location.replace(redirectUrl)
+      headers: { 'Content-Type': 'application/json' },
+    }).catch(() => {
+      // 忽略錯誤，因為重定向已經執行
     })
   }
 
@@ -128,7 +107,7 @@ const AccountNav = ({
                   <button
                     type="button"
                     className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
-                    onClick={(e) => handleLogout(e)}
+                    onClick={handleLogout}
                     data-testid="logout-button"
                   >
                     <div className="flex items-center gap-x-2">
@@ -189,7 +168,7 @@ const AccountNav = ({
               <li className="text-grey-700">
                 <button
                   type="button"
-                  onClick={(e) => handleLogout(e)}
+                  onClick={handleLogout}
                   data-testid="logout-button"
                 >
                   登出
