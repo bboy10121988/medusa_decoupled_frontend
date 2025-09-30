@@ -47,13 +47,16 @@ const AccountNav = ({
         console.log('🧹 本地存儲已清除')
       }
       
+      // 等待一小段時間確保 cookies 完全清除
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       // 強制重新整理頁面以確保完全重置狀態
       console.log('🔄 重新整理頁面以完全重置狀態...')
       const redirectUrl = `/${countryCode || 'tw'}/account`
       console.log('🔍 重定向到:', redirectUrl)
       
-      // 使用 window.location 而不是 router.push 來確保完全重新載入
-      window.location.href = redirectUrl
+      // 使用 window.location.replace 來確保不會回到之前的頁面
+      window.location.replace(redirectUrl)
       
     } catch (error) {
       console.error('❌ 登出失敗:', error)
@@ -65,7 +68,7 @@ const AccountNav = ({
       }
       
       const redirectUrl = `/${countryCode || 'tw'}/account`
-      window.location.href = redirectUrl
+      window.location.replace(redirectUrl)
     }
   }
 

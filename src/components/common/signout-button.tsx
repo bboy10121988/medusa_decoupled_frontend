@@ -1,8 +1,5 @@
 "use client"
 
-import { useRouter } from 'next/navigation'
-import { sdk } from "@lib/config"
-
 interface SignoutButtonProps {
   countryCode: string
   children: React.ReactNode
@@ -15,35 +12,59 @@ export default function SignoutButton({
   children, 
   className,
   onClick 
-}: SignoutButtonProps) {
-  const router = useRouter()
+}: Readonly<SignoutButtonProps>) {
 
   const handleSignout = async () => {
     try {
       console.log('🔄 客戶端登出：開始登出流程')
       
-      // 使用 Medusa SDK 登出
-      await sdk.auth.logout()
-      console.log('✅ 客戶端登出：SDK 登出成功')
+      // 調用登出 API 來清除所有狀態
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (response.ok) {
+        console.log('✅ 登出 API 調用成功')
+      } else {
+        console.log('⚠️ 登出 API 返回錯誤，但繼續清理流程')
+      }
+      
+      // 清除本地存儲
+      if (typeof window !== 'undefined') {
+        localStorage.clear()
+        sessionStorage.clear()
+      }
       
       // 可選：執行額外的回調
       if (onClick) {
         onClick()
       }
       
-      // 重定向到帳戶頁面並強制刷新
+      // 等待一小段時間確保 cookies 完全清除
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // 重定向到帳戶頁面並強制完全重新載入
       console.log('👤 重定向到帳戶頁面')
-      router.push(`/${countryCode}/account`)
-      router.refresh()
+      window.location.replace(`/${countryCode}/account`)
+      
     } catch (error) {
       console.error('❌ 客戶端登出：錯誤', error)
       
-      // 即使 SDK 登出失敗，也嘗試重定向
+      // 即使登出失敗，也嘗試清除本地狀態並重定向
+      if (typeof window !== 'undefined') {
+        localStorage.clear()
+        sessionStorage.clear()
+      }
+      
       if (onClick) {
         onClick()
       }
-      router.push(`/${countryCode}/account`)
-      router.refresh()
+      
+      window.location.replace(`/${countryCode}/account`)
     }
   }
 

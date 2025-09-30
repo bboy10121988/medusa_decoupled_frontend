@@ -277,6 +277,9 @@ export async function login(_currentState: unknown, formData: FormData) {
     console.error("購物車轉移錯誤:", error)
     // 購物車轉移失敗不應該阻止登入成功
   }
+
+  // 登入成功後重定向到 account 頁面
+  redirect("/tw/account")
 }
 
 export async function signout(countryCode: string) {
