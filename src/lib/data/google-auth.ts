@@ -114,9 +114,10 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
         console.log("🔍 從 JWT payload 中提取 Google 用戶資訊...")
         console.log("🔍 完整 JWT payload:", JSON.stringify(payload, null, 2))
         
-        // 嘗試從多個可能的位置提取 email
+        // 嘗試從多個可能的位置提取 email，包括 Google OAuth 標準字段
         const possibleEmails = [
           payload?.email,
+          payload?.email_verified && payload?.email, // Google OAuth 標準字段
           payload?.data?.email,
           payload?.user?.email,
           payload?.profile?.email,
@@ -125,7 +126,17 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
           payload?.identity?.email,
           payload?.google?.email,
           payload?.claims?.email,
-          payload?.user_metadata?.email
+          payload?.user_metadata?.email,
+          // Google OAuth ID token 標準聲明
+          payload?.aud && payload?.email, // 如果有 audience，通常 email 也會存在
+          payload?.iss && payload?.email, // 如果有 issuer，通常 email 也會存在
+          // Medusa 可能的嵌套結構
+          payload?.actor?.provider_metadata?.email,
+          payload?.identity?.provider_metadata?.email,
+          payload?.provider_metadata?.email,
+          // 其他可能的字段
+          payload?.userinfo?.email,
+          payload?.account?.email
         ].filter(Boolean)
         
         console.log("🔍 找到的可能 email:", possibleEmails)

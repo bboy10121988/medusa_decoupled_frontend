@@ -19,7 +19,9 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
       setIsLoading(true)
       setError(null)
 
-      const result = await sdk.auth.login("customer", "google", {})
+      const result = await sdk.auth.login("customer", "google", {
+        scope: "openid email profile"
+      })
 
       if (typeof result !== "string" && result.location) {
         window.location.href = result.location

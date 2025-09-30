@@ -10,7 +10,7 @@ import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
-import SignoutButton from "../../../../components/common/signout-button"
+import { signout } from "@lib/data/customer"
 
 const AccountNav = ({
   customer,
@@ -20,7 +20,9 @@ const AccountNav = ({
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
 
-
+  const handleLogout = async () => {
+    await signout(countryCode)
+  }
 
   return (
     <div>
@@ -87,16 +89,18 @@ const AccountNav = ({
                   </LocalizedClientLink>
                 </li>
                 <li>
-                  <SignoutButton
-                    countryCode={countryCode}
+                  <button
+                    type="button"
                     className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
+                    onClick={handleLogout}
+                    data-testid="logout-button"
                   >
                     <div className="flex items-center gap-x-2">
                       <ArrowRightOnRectangle />
                       <span>登出</span>
                     </div>
                     <ChevronDown className="transform -rotate-90" />
-                  </SignoutButton>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -147,12 +151,13 @@ const AccountNav = ({
                 </AccountNavLink>
               </li>
               <li className="text-grey-700">
-                <SignoutButton
-                  countryCode={countryCode}
-                  className=""
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  data-testid="logout-button"
                 >
                   登出
-                </SignoutButton>
+                </button>
               </li>
             </ul>
           </div>

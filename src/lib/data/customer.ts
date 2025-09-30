@@ -10,6 +10,7 @@ import {
   getCacheOptions,
   getCacheTag,
   getCartId,
+  removeAuthToken,
   removeCartId,
   setAuthToken,
 } from "./cookies"
@@ -279,38 +280,19 @@ export async function login(_currentState: unknown, formData: FormData) {
 }
 
 export async function signout(countryCode: string) {
-  console.log('🚪 開始登出流程，國家代碼:', countryCode)
-  
-  try {
-    // 調用登出 API 來清除 cookies
-    console.log('� 呼叫登出 API 來清除 cookies...')
-    const response = await fetch('/api/auth/logout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    
-    if (response.ok) {
-      console.log('✅ 登出 API 調用成功')
-    } else {
-      console.warn('⚠️ 登出 API 調用失敗，但繼續執行')
-    }
-  } catch (error) {
-    console.warn('⚠️ 登出 API 調用錯誤:', error)
-  }
+  await sdk.auth.logout()
 
-  // 清除快取
-  console.log('🗑️ 清除快取...')
+  await removeAuthToken()
+
   const customerCacheTag = await getCacheTag("customers")
   revalidateTag(customerCacheTag)
+
+  await removeCartId()
 
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
-  console.log('✅ 登出流程完成，準備重定向到首頁')
-  // 重定向到首頁
-  redirect(`/${countryCode}`)
+  redirect(`/${countryCode}/account`)
 }
 
 export async function transferCart() {
