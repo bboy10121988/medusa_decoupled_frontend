@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       const getAllPossibleEmails = (payload: any): string[] => {
         const emails: string[] = []
         
-        // 常見的 email 位置
+        // 常見的 email 位置 (擴展搜索路徑)
         const emailPaths = [
           'email',
           'data.email', 
@@ -70,9 +70,43 @@ export async function POST(request: NextRequest) {
           'auth_identity.email',
           'provider_user_data.email',
           'userinfo.email',
-          'google_user.email'
+          'google_user.email',
+          'claims.email',
+          'claims.emailaddress',
+          'preferred_username',
+          'unique_name',
+          'upn'
         ]
         
+        // 直接檢查根層級的 email
+        if (payload.email && typeof payload.email === 'string' && payload.email.includes('@')) {
+          emails.push(payload.email)
+        }
+        
+        // 遞歸搜尋所有層級
+        const searchAllLevels = (obj: any, currentPath = '') => {
+          if (typeof obj === 'string' && obj.includes('@') && obj.includes('.')) {
+            emails.push(obj)
+            return
+          }
+          
+          if (obj && typeof obj === 'object') {
+            Object.keys(obj).forEach(key => {
+              const fullPath = currentPath ? `${currentPath}.${key}` : key
+              const value = obj[key]
+              
+              if (typeof value === 'string' && value.includes('@') && value.includes('.')) {
+                emails.push(value)
+              } else if (typeof value === 'object' && value !== null) {
+                searchAllLevels(value, fullPath)
+              }
+            })
+          }
+        }
+        
+        searchAllLevels(payload)
+        
+        // 特定路徑檢查
         emailPaths.forEach(path => {
           const emailFromPath = getNestedProperty(payload, path)
           if (emailFromPath && typeof emailFromPath === 'string' && emailFromPath.includes('@')) {

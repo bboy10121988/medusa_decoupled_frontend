@@ -71,13 +71,9 @@ export default function Orders() {
       <div className="w-full">
         {orders && orders.length > 0 ? (
           <div className="flex flex-col gap-y-8">
-            {orders.map((order) => (
-              <div key={order.id}>
-                <OrderOverview order={order} />
-                <Divider />
-                <TransferRequestForm order={order} />
-              </div>
-            ))}
+            <OrderOverview orders={orders} />
+            <Divider />
+            <TransferRequestForm />
           </div>
         ) : (
           <div data-testid="no-orders-container">
