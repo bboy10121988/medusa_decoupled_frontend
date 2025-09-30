@@ -22,8 +22,13 @@ const LocalizedClientLink = ({
 }) => {
   const { countryCode } = useParams()
 
+  // 避免重複添加 countryCode
+  const finalHref = href.startsWith(`/${countryCode}`) 
+    ? href 
+    : `/${countryCode}${href}`
+
   return (
-    <Link href={`/${countryCode}${href}`} {...props}>
+    <Link href={finalHref} {...props}>
       {children}
     </Link>
   )
