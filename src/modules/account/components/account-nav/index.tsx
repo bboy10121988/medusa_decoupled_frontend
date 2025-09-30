@@ -20,23 +20,8 @@ const AccountNav = ({
   const { countryCode } = useParams() as { countryCode: string }
 
   const handleLogout = () => {
-    console.log('🚪 簡化登出流程開始')
-    
-    // 立即清除存儲
-    localStorage.clear()
-    sessionStorage.clear()
-    
-    // 立即重定向，不等待 API
-    window.location.href = `/${countryCode || 'tw'}/account`
-    
-    // 在背景調用登出 API（不阻塞重定向）
-    fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    }).catch(() => {
-      // 忽略錯誤，因為重定向已經執行
-    })
+    // 最簡單最直接的登出：只做重定向
+    window.location.href = '/tw/account/login'
   }
 
   return (
