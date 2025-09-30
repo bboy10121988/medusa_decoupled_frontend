@@ -14,7 +14,7 @@ export default function AccountPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 使用我們的 API 端點來獲取資料，避免直接調用 SDK
+        // 獲取客戶和訂單資料
         const [customerResponse, ordersResponse] = await Promise.all([
           fetch('/api/auth/customer', {
             credentials: 'include',
