@@ -2,7 +2,7 @@
 
 import { clx } from "@medusajs/ui"
 import { ArrowRightOnRectangle } from "@medusajs/icons"
-import { useParams, usePathname, useRouter } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 
 import ChevronDown from "@modules/common/icons/chevron-down"
 import User from "@modules/common/icons/user"
@@ -10,7 +10,6 @@ import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
-import { sdk } from "@lib/config"
 
 const AccountNav = ({
   customer,
@@ -18,29 +17,55 @@ const AccountNav = ({
   customer: HttpTypes.StoreCustomer | null
 }) => {
   const route = usePathname()
-  const router = useRouter()
   const { countryCode } = useParams() as { countryCode: string }
 
   const handleLogout = async () => {
     try {
       console.log('🚪 開始登出流程...')
       
-      // 使用 Medusa SDK 的官方登出方法
-      await sdk.auth.logout()
-      console.log('✅ Medusa SDK 登出成功')
+      // 調用我們的登出 API，它會處理 SDK 登出和 cookie 清除
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
       
-      // 使用 Next.js router 重定向到主頁
-      console.log('🔄 重定向到主頁...')
+      if (response.ok) {
+        console.log('✅ 登出 API 調用成功')
+      } else {
+        console.log('⚠️ 登出 API 返回錯誤，但繼續清理流程')
+      }
+      
+      // 清除所有可能的本地存儲
+      if (typeof window !== 'undefined') {
+        // 清除 localStorage
+        localStorage.clear()
+        // 清除 sessionStorage
+        sessionStorage.clear()
+        console.log('🧹 本地存儲已清除')
+      }
+      
+      // 強制重新整理頁面以確保完全重置狀態
+      console.log('🔄 重新整理頁面以完全重置狀態...')
       const redirectUrl = `/${countryCode || 'tw'}`
       console.log('🔍 重定向到:', redirectUrl)
-      router.push(redirectUrl)
+      
+      // 使用 window.location 而不是 router.push 來確保完全重新載入
+      window.location.href = redirectUrl
       
     } catch (error) {
       console.error('❌ 登出失敗:', error)
       
-      // 即使登出失敗，也嘗試重定向到主頁
+      // 即使登出失敗，也嘗試清除本地狀態並重定向
+      if (typeof window !== 'undefined') {
+        localStorage.clear()
+        sessionStorage.clear()
+      }
+      
       const redirectUrl = `/${countryCode || 'tw'}`
-      router.push(redirectUrl)
+      window.location.href = redirectUrl
     }
   }
 

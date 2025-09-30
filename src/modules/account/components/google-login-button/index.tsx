@@ -20,7 +20,9 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
       setError(null)
 
       const result = await sdk.auth.login("customer", "google", {
-        scope: "openid email profile"
+        scope: "openid email profile",
+        access_type: "online",
+        prompt: "select_account"
       })
 
       if (typeof result !== "string" && result.location) {

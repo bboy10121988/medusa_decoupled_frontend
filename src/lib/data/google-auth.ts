@@ -121,7 +121,11 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ 
+            token,
+            // 嘗試從 URL 參數中獲取 access_token (如果有的話)
+            accessToken: params.access_token
+          })
         })
         
         if (userInfoResponse.ok) {
