@@ -83,7 +83,37 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ 登出完成，所有認證狀態已清除，支援帳號重新選擇')
     
-    // 不需要設置重定向標頭，前端會直接處理重定向
+    // 檢查是否需要伺服器端重定向
+    const url = new URL(request.url)
+    const redirect = url.searchParams.get('redirect')
+    
+    if (redirect) {
+      console.log('🚀 執行伺服器端重定向到:', redirect)
+      // 創建重定向響應，保留清除的 cookies
+      const redirectResponse = NextResponse.redirect(new URL(redirect, request.url), { status: 302 })
+      
+      // 將 cookies 清除複製到重定向響應
+      cookiesToClear.forEach(cookieName => {
+        redirectResponse.cookies.delete(cookieName)
+        redirectResponse.cookies.set(cookieName, '', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          expires: new Date(0),
+          path: '/'
+        })
+        
+        redirectResponse.cookies.set(cookieName, '', {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          expires: new Date(0),
+          path: '/'
+        })
+      })
+      
+      return redirectResponse
+    }
     
     return response
     
