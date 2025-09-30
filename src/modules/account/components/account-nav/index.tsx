@@ -19,7 +19,13 @@ const AccountNav = ({
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
 
-  const handleLogout = async () => {
+  const handleLogout = async (e?: React.MouseEvent) => {
+    // 防止事件冒泡和預設行為
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
     try {
       console.log('🚪 開始登出流程...')
       
@@ -56,15 +62,34 @@ const AccountNav = ({
       console.log('🔍 重定向目標:', redirectUrl)
       console.log('🔍 當前 URL:', window.location.href)
       
-      // 使用 window.location.href 進行重定向
+      // 多種重定向方法確保成功
       console.log('🚀 執行重定向...')
-      window.location.href = redirectUrl
       
-      // 備用方案：如果上面的重定向沒有立即生效，使用 replace
+      // 方法 1: 使用 window.location.href
+      try {
+        window.location.href = redirectUrl
+      } catch (err) {
+        console.warn('方法 1 失敗:', err)
+      }
+      
+      // 方法 2: 備用方案使用 replace
       setTimeout(() => {
         console.log('⏰ 備用重定向執行...')
-        window.location.replace(redirectUrl)
-      }, 500)
+        try {
+          window.location.replace(redirectUrl)
+        } catch (err) {
+          console.warn('方法 2 失敗:', err)
+          // 方法 3: 最後手段使用 assign
+          try {
+            window.location.assign(redirectUrl)
+          } catch (err2) {
+            console.warn('方法 3 失敗:', err2)
+            // 方法 4: 強制重新載入到指定頁面
+            window.history.pushState(null, '', redirectUrl)
+            window.location.reload()
+          }
+        }
+      }, 300)
       
     } catch (error) {
       console.error('❌ 登出失敗:', error)
@@ -148,7 +173,7 @@ const AccountNav = ({
                   <button
                     type="button"
                     className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
-                    onClick={handleLogout}
+                    onClick={(e) => handleLogout(e)}
                     data-testid="logout-button"
                   >
                     <div className="flex items-center gap-x-2">
@@ -209,7 +234,7 @@ const AccountNav = ({
               <li className="text-grey-700">
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={(e) => handleLogout(e)}
                   data-testid="logout-button"
                 >
                   登出

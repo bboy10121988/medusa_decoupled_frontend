@@ -14,7 +14,13 @@ export default function SignoutButton({
   onClick 
 }: Readonly<SignoutButtonProps>) {
 
-  const handleSignout = async () => {
+  const handleSignout = async (e?: React.MouseEvent) => {
+    // 防止事件冒泡和預設行為
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
     try {
       console.log('🔄 客戶端登出：開始登出流程')
       
@@ -54,13 +60,30 @@ export default function SignoutButton({
       console.log('🔍 當前 URL:', window.location.href)
       
       console.log('🚀 執行重定向...')
-      window.location.href = redirectUrl
+      
+      // 多種重定向方法確保成功
+      try {
+        window.location.href = redirectUrl
+      } catch (err) {
+        console.warn('方法 1 失敗:', err)
+      }
       
       // 備用方案
       setTimeout(() => {
         console.log('⏰ 備用重定向執行...')
-        window.location.replace(redirectUrl)
-      }, 500)
+        try {
+          window.location.replace(redirectUrl)
+        } catch (err) {
+          console.warn('方法 2 失敗:', err)
+          try {
+            window.location.assign(redirectUrl)
+          } catch (err2) {
+            console.warn('方法 3 失敗:', err2)
+            window.history.pushState(null, '', redirectUrl)
+            window.location.reload()
+          }
+        }
+      }, 300)
       
     } catch (error) {
       console.error('❌ 客戶端登出：錯誤', error)
@@ -85,7 +108,7 @@ export default function SignoutButton({
     <button
       type="button"
       className={className}
-      onClick={handleSignout}
+      onClick={(e) => handleSignout(e)}
       data-testid="logout-button"
     >
       {children}
