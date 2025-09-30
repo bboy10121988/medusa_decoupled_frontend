@@ -1,18 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, ReactNode } from "react"
 import { Toaster } from "@medusajs/ui"
-import AccountLayout from "@modules/account/templates/account-layout"
+import LoginTemplate from "@modules/account/templates/login-template"
 import { HttpTypes } from "@medusajs/types"
 
 export const dynamic = 'force-dynamic'
 
 export default function AccountPageLayout({
-  dashboard,
-  login,
+  children,
 }: {
-  dashboard?: React.ReactNode
-  login?: React.ReactNode
+  children: ReactNode
 }) {
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
   const [loading, setLoading] = useState(true)
@@ -31,9 +29,8 @@ export default function AccountPageLayout({
         
         if (response.ok) {
           const data = await response.json()
-          if (data?.customer) {
-            setCustomer(data.customer)
-          }
+          // 設置客戶狀態，無論是 null 還是有效客戶
+          setCustomer(data?.customer || null)
         }
       } catch (err) {
         console.error('獲取客戶資料失敗:', err)
@@ -54,10 +51,21 @@ export default function AccountPageLayout({
     )
   }
 
+  // 如果沒有登入，顯示登入頁面
+  if (!customer) {
+    return (
+      <>
+        <LoginTemplate />
+        <Toaster />
+      </>
+    )
+  }
+
+  // 如果已登入，顯示子頁面
   return (
-    <AccountLayout customer={customer}>
-      {customer ? dashboard : login}
+    <>
+      {children}
       <Toaster />
-    </AccountLayout>
+    </>
   )
 }

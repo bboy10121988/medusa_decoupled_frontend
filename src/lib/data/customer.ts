@@ -4,7 +4,6 @@ import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
-import { redirect } from "next/navigation"
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -280,7 +279,28 @@ export async function login(_currentState: unknown, formData: FormData) {
 }
 
 export async function signout(countryCode: string) {
-  await sdk.auth.logout()
+  try {
+    // 使用我們的 API 端點進行登出
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      console.error('登出 API 失敗:', response.status)
+    }
+  } catch (error) {
+    console.error('登出請求失敗:', error)
+  }
+
+  try {
+    await sdk.auth.logout()
+  } catch (error) {
+    console.warn('SDK 登出失敗:', error)
+  }
 
   await removeAuthToken()
 
@@ -292,7 +312,8 @@ export async function signout(countryCode: string) {
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
-  redirect(`/${countryCode}/account`)
+  // 重新載入頁面而不是重定向，這樣會觸發 layout 重新檢查認證狀態
+  window.location.reload()
 }
 
 export async function transferCart() {

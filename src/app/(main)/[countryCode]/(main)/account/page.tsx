@@ -1,5 +1,17 @@
-// 這個頁面文件是必需的，但內容由平行路由 (@dashboard 和 @login) 處理
-// layout.tsx 會根據用戶認證狀態決定顯示哪個平行路由
+"use client"
+
+import { useEffect } from "react"
+import { useRouter, useParams } from "next/navigation"
+
 export default function AccountPage() {
+  const router = useRouter()
+  const params = useParams()
+  const countryCode = params.countryCode as string
+
+  useEffect(() => {
+    // 重定向到 profile 頁面
+    router.replace(`/${countryCode}/account/profile`)
+  }, [router, countryCode])
+
   return null
 }
