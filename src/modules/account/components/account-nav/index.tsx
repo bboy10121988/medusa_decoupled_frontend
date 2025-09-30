@@ -19,70 +19,45 @@ const AccountNav = ({
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
 
-  const handleLogout = async (e?: React.MouseEvent) => {
+  const handleLogout = (e?: React.MouseEvent) => {
     // 防止事件冒泡和預設行為
     if (e) {
       e.preventDefault()
       e.stopPropagation()
     }
     
-    try {
-      console.log('🚪 開始登出流程...')
-      
-      // 調用我們的登出 API，它會處理 SDK 登出和 cookie 清除
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      
+    console.log('🚪 開始登出流程...')
+    
+    // 調用我們的登出 API
+    fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => {
       if (response.ok) {
         console.log('✅ 登出 API 調用成功')
       } else {
         console.log('⚠️ 登出 API 返回錯誤，但繼續清理流程')
       }
-      
-      // 清除所有可能的本地存儲
+    }).catch(error => {
+      console.error('❌ 登出失敗:', error)
+    }).finally(() => {
+      // 清除本地存儲
       if (typeof window !== 'undefined') {
-        // 清除 localStorage
         localStorage.clear()
-        // 清除 sessionStorage
         sessionStorage.clear()
         console.log('🧹 本地存儲已清除')
       }
       
-      // 立即執行重定向，不等待
+      // 執行重定向
       const redirectUrl = `/${countryCode || 'tw'}/account`
       console.log('🔍 重定向目標:', redirectUrl)
       console.log('🔍 當前 URL:', window.location.href)
-      console.log('🚀 立即執行重定向...')
-      
-      // 使用最強制的方法
+      console.log('🚀 執行重定向...')
       window.location.replace(redirectUrl)
-      
-    } catch (error) {
-      console.error('❌ 登出失敗:', error)
-      
-      // 即使登出失敗，也嘗試清除本地狀態並重定向
-      if (typeof window !== 'undefined') {
-        localStorage.clear()
-        sessionStorage.clear()
-      }
-      
-      const redirectUrl = `/${countryCode || 'tw'}/account`
-      console.log('❌ 錯誤情況下執行重定向到:', redirectUrl)
-      window.location.replace(redirectUrl)
-    } finally {
-      // 確保無論如何都會嘗試重定向
-      console.log('🔚 Finally 塊：確保重定向執行')
-      const redirectUrl = `/${countryCode || 'tw'}/account`
-      setTimeout(() => {
-        console.log('⏰ Finally 塊延遲重定向執行...')
-        window.location.replace(redirectUrl)  
-      }, 200)
-    }
+    })
   }
 
   return (
