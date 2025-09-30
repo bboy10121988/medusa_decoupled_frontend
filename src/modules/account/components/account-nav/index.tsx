@@ -19,9 +19,38 @@ const AccountNav = ({
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
 
-  const handleLogout = () => {
-    // 最簡單最直接的登出：只做重定向
-    window.location.href = '/tw/account/login'
+  const handleLogout = async () => {
+    console.log('🚪 開始兩步驟登出流程')
+    
+    // 步驟 1: 調用 API 登出
+    try {
+      console.log('📡 步驟 1: 調用登出 API')
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (response.ok) {
+        console.log('✅ API 登出成功')
+      } else {
+        console.log('⚠️ API 返回錯誤，但繼續登出流程')
+      }
+    } catch (error) {
+      console.error('❌ API 調用失敗:', error)
+      console.log('🔄 繼續執行重定向')
+    }
+    
+    // 步驟 2: 清除本地狀態並重定向
+    console.log('🧹 步驟 2: 清除本地狀態')
+    localStorage.clear()
+    sessionStorage.clear()
+    
+    console.log('🚀 步驟 2: 執行重定向')
+    const redirectUrl = `/${countryCode || 'tw'}/account`
+    window.location.href = redirectUrl
   }
 
   return (
