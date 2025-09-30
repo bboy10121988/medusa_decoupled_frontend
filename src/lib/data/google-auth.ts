@@ -57,14 +57,9 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
 
     console.log("📝 收到 OAuth 參數:", { code: code.substring(0, 10) + "...", state, hasState: !!state })
 
-    // 根據流程圖步驟4: 使用 Medusa SDK 處理 callback
-    console.log("🔗 調用 Medusa SDK auth.callback...")
-    console.log("🔍 傳送到 Medusa 的參數:", { 
-      code: code.substring(0, 15) + "...", 
-      state: state?.substring(0, 15) + "...",
-      hasAllParams: !!(code && state)
-    })
+    // 純粹使用 Medusa SDK 流程，不需要額外的前端 API
     
+    // 根據流程圖步驟4: 使用 Medusa SDK 處理 callback
     const token = await sdk.auth.callback("customer", "google", params)
 
     console.log("🔍 Medusa SDK callback 回傳:", typeof token, token)
@@ -86,6 +81,9 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     const tokenPayload = parseJwt(token)
     console.log("🔍 JWT payload 檢查:", tokenPayload)
     
+    // 詳細調試 token 內容
+    debugGoogleToken(token)
+    
     // 使用 Medusa SDK 的方式設定認證 token (不需要手動調用 /auth/session)
     console.log("🍪 設定 Medusa 認證 token...")
     console.log("� Token 類型:", typeof token)
@@ -105,53 +103,11 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     // 檢查是否為新用戶（根據流程圖步驟5-6）
     if (!payload?.actor_id) {
       // 根據流程圖步驟6: 新用戶需要建立客戶資料
-      console.log("👤 檢測到新用戶，準備建立客戶資料...")
-      console.log("🔍 JWT Payload:", payload)
-
-      // 使用我們的 API 來提取 Google 用戶資訊
-      let email = ""
-      let firstName = ""
-      let lastName = ""
-
-      try {
-        console.log("🔍 調用 API 提取 Google 用戶資訊...")
-        
-        const userInfoResponse = await fetch('/api/auth/google-user-info', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            token,
-            // 嘗試從 URL 參數中獲取 access_token (如果有的話)
-            accessToken: params.access_token
-          })
-        })
-        
-        if (userInfoResponse.ok) {
-          const userInfo = await userInfoResponse.json()
-          console.log("✅ API 返回用戶資訊:", userInfo)
-          
-          email = userInfo.email || ""
-          firstName = userInfo.firstName || ""
-          lastName = userInfo.lastName || ""
-          
-          if (!email) {
-            console.error("❌ API 無法提取 email")
-            console.log("🔍 原始 payload:", userInfo.payload)
-          }
-        } else {
-          throw new Error(`API 調用失敗: ${userInfoResponse.status}`)
-        }
-        
-      } catch (error) {
-        console.log("⚠️ API 提取用戶資訊失敗，使用備用方法:", error)
-        
-        // 備用方法：直接從 JWT payload 提取
-        email = payload?.email || ""
-        firstName = payload?.given_name || payload?.first_name || ""
-        lastName = payload?.family_name || payload?.last_name || ""
-      }
+      
+      // 從 JWT payload 獲取用戶資訊
+      let email = payload?.email || ""
+      let firstName = payload?.given_name || payload?.first_name || ""
+      let lastName = payload?.family_name || payload?.last_name || ""
 
       // 如果還是沒有 email，使用虛擬 email（這種情況不應該發生）
       if (!email) {

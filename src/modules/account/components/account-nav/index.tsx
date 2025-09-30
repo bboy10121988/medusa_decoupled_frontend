@@ -49,7 +49,7 @@ const AccountNav = ({
       
       // 強制重新整理頁面以確保完全重置狀態
       console.log('🔄 重新整理頁面以完全重置狀態...')
-      const redirectUrl = `/${countryCode || 'tw'}`
+      const redirectUrl = `/${countryCode || 'tw'}/account`
       console.log('🔍 重定向到:', redirectUrl)
       
       // 使用 window.location 而不是 router.push 來確保完全重新載入
@@ -64,7 +64,7 @@ const AccountNav = ({
         sessionStorage.clear()
       }
       
-      const redirectUrl = `/${countryCode || 'tw'}`
+      const redirectUrl = `/${countryCode || 'tw'}/account`
       window.location.href = redirectUrl
     }
   }

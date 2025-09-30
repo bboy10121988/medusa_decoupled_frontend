@@ -31,9 +31,9 @@ export default function SignoutButton({
         onClick()
       }
       
-      // 重定向到首頁並強制刷新
-      console.log('🏠 重定向到首頁')
-      router.push(`/${countryCode}`)
+      // 重定向到帳戶頁面並強制刷新
+      console.log('👤 重定向到帳戶頁面')
+      router.push(`/${countryCode}/account`)
       router.refresh()
     } catch (error) {
       console.error('❌ 客戶端登出：錯誤', error)
@@ -42,7 +42,7 @@ export default function SignoutButton({
       if (onClick) {
         onClick()
       }
-      router.push(`/${countryCode}`)
+      router.push(`/${countryCode}/account`)
       router.refresh()
     }
   }
