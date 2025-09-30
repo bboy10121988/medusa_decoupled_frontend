@@ -13,7 +13,7 @@ export const MEDUSA_BACKEND_URL =
   process.env.MEDUSA_BACKEND_URL || 
   "http://localhost:9000"
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:8000"
 
 // 創建 SDK 實例，確保使用正確的 URL
 export const sdk = new Medusa({

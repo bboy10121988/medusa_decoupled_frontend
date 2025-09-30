@@ -2,7 +2,7 @@
 
 import { clx } from "@medusajs/ui"
 import { ArrowRightOnRectangle } from "@medusajs/icons"
-import { useParams, usePathname } from "next/navigation"
+import { useParams, usePathname, useRouter } from "next/navigation"
 
 import ChevronDown from "@modules/common/icons/chevron-down"
 import User from "@modules/common/icons/user"
@@ -10,6 +10,7 @@ import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
+import { sdk } from "@lib/config"
 
 const AccountNav = ({
   customer,
@@ -17,41 +18,30 @@ const AccountNav = ({
   customer: HttpTypes.StoreCustomer | null
 }) => {
   const route = usePathname()
+  const router = useRouter()
   const { countryCode } = useParams() as { countryCode: string }
 
   const handleLogout = async () => {
     try {
       console.log('🚪 開始登出流程...')
       
-      // 調用我們的 API 端點進行登出
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        console.log('✅ 登出 API 調用成功')
-      } else {
-        console.error('⚠️ 登出 API 失敗:', response.status)
-      }
+      // 使用 Medusa SDK 的官方登出方法
+      await sdk.auth.logout()
+      console.log('✅ Medusa SDK 登出成功')
+      
+      // 使用 Next.js router 重定向到主頁
+      console.log('🔄 重定向到主頁...')
+      const redirectUrl = `/${countryCode || 'tw'}`
+      console.log('🔍 重定向到:', redirectUrl)
+      router.push(redirectUrl)
+      
     } catch (error) {
-      console.error('❌ 登出請求失敗:', error)
+      console.error('❌ 登出失敗:', error)
+      
+      // 即使登出失敗，也嘗試重定向到主頁
+      const redirectUrl = `/${countryCode || 'tw'}`
+      router.push(redirectUrl)
     }
-    
-    // 清除本地存儲
-    try {
-      localStorage.clear()
-      sessionStorage.clear()
-    } catch (error) {
-      console.warn('⚠️ 清除本地存儲失敗:', error)
-    }
-
-    // 重定向到主頁而不是重新載入頁面
-    console.log('🔄 重定向到主頁...')
-    window.location.href = `/${countryCode}`
   }
 
   return (

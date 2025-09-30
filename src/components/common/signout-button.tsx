@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation'
+import { sdk } from "@lib/config"
 
 interface SignoutButtonProps {
   countryCode: string
@@ -21,31 +22,28 @@ export default function SignoutButton({
     try {
       console.log('🔄 客戶端登出：開始登出流程')
       
-      // 調用登出 API
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      // 使用 Medusa SDK 登出
+      await sdk.auth.logout()
+      console.log('✅ 客戶端登出：SDK 登出成功')
       
-      if (response.ok) {
-        console.log('✅ 客戶端登出：API 調用成功')
-        
-        // 可選：執行額外的回調
-        if (onClick) {
-          onClick()
-        }
-        
-        // 重定向到首頁並強制刷新
-        console.log('🏠 重定向到首頁')
-        router.push(`/${countryCode}`)
-        router.refresh()
-      } else {
-        console.error('❌ 客戶端登出：API 調用失敗')
+      // 可選：執行額外的回調
+      if (onClick) {
+        onClick()
       }
+      
+      // 重定向到首頁並強制刷新
+      console.log('🏠 重定向到首頁')
+      router.push(`/${countryCode}`)
+      router.refresh()
     } catch (error) {
       console.error('❌ 客戶端登出：錯誤', error)
+      
+      // 即使 SDK 登出失敗，也嘗試重定向
+      if (onClick) {
+        onClick()
+      }
+      router.push(`/${countryCode}`)
+      router.refresh()
     }
   }
 

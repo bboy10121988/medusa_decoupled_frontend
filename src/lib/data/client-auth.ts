@@ -1,29 +1,20 @@
 "use client"
 
+import { sdk } from "@lib/config"
+
 // 客戶端登出函數
 export async function clientSignout(countryCode: string) {
   try {
     console.log('🚪 開始客戶端登出流程...')
     
-    // 1. 呼叫我們的登出 API 來清除 cookies
-    const response = await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (response.ok) {
-      console.log('✅ 登出 API 調用成功')
-    } else {
-      console.error('⚠️ 登出 API 失敗:', response.status)
-    }
+    // 使用 Medusa SDK 登出
+    await sdk.auth.logout()
+    console.log('✅ SDK 登出成功')
   } catch (error) {
-    console.error('❌ 登出請求失敗:', error)
+    console.error('❌ SDK 登出失敗:', error)
   }
 
-  // 2. 清除本地存儲
+  // 清除本地存儲（可選的額外清理）
   try {
     localStorage.clear()
     sessionStorage.clear()
@@ -31,7 +22,7 @@ export async function clientSignout(countryCode: string) {
     console.warn('⚠️ 清除本地存儲失敗:', error)
   }
 
-  // 3. 重定向到主頁並重新載入頁面
+  // 重定向到主頁並重新載入頁面
   console.log('🔄 重定向到主頁...')
   window.location.href = `/${countryCode}`
 }

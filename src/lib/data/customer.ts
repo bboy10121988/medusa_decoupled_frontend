@@ -281,39 +281,28 @@ export async function login(_currentState: unknown, formData: FormData) {
 
 export async function signout(countryCode: string) {
   try {
-    // 呼叫我們的登出 API 來清除所有 cookies
-    const response = await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (!response.ok) {
-      console.error('登出 API 失敗:', response.status)
-    }
-  } catch (error) {
-    console.error('登出請求失敗:', error)
-  }
-
-  try {
+    // 使用 Medusa SDK 的官方登出方法
     await sdk.auth.logout()
+    console.log('✅ Medusa SDK 登出成功')
   } catch (error) {
-    console.warn('SDK 登出失敗:', error)
+    console.warn('⚠️ SDK 登出失敗:', error)
   }
 
+  // 清除認證令牌
   await removeAuthToken()
 
+  // 重新驗證客戶緩存
   const customerCacheTag = await getCacheTag("customers")
   revalidateTag(customerCacheTag)
 
+  // 清除購物車 ID
   await removeCartId()
 
+  // 重新驗證購物車緩存
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
-  // 重定向到主頁而不是 account 頁面，避免循環
+  // 重定向到主頁
   redirect(`/${countryCode}`)
 }
 
