@@ -16,6 +16,10 @@ export default function ClientAccountLayout({
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const handleLogoutComplete = () => {
+    setCustomer(null)
+  }
+
   useEffect(() => {
     const fetchCustomer = async () => {
       try {
@@ -54,7 +58,7 @@ export default function ClientAccountLayout({
 
   return (
     <>
-      <AccountLayout customer={customer}>
+      <AccountLayout customer={customer} onLogout={handleLogoutComplete}>
         {customer ? children : <LoginTemplate />}
       </AccountLayout>
       <Toaster />

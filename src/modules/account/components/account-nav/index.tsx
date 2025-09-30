@@ -10,28 +10,27 @@ import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
+import { useLogout } from "@lib/hooks/use-logout"
+
+type AccountNavProps = {
+  customer: HttpTypes.StoreCustomer | null
+  onLogout?: () => void
+}
 
 const AccountNav = ({
   customer,
-}: {
-  customer: HttpTypes.StoreCustomer | null
-}) => {
+  onLogout,
+}: AccountNavProps) => {
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
 
+  const { logout, isLoggingOut } = useLogout({
+    countryCode,
+    onLoggedOut: onLogout,
+  })
+
   const handleLogout = () => {
-    console.log('🚪 使用伺服器端重定向登出')
-    
-    // 清除本地狀態
-    localStorage.clear()
-    sessionStorage.clear()
-    
-    // 使用 API 重定向 - 讓伺服器處理重定向
-    const redirectUrl = `/${countryCode || 'tw'}/account`
-    console.log('🚀 跳轉到 API 重定向:', redirectUrl)
-    
-    // 直接跳轉到帶重定向參數的登出 API
-    window.location.href = `/api/auth/logout?redirect=${encodeURIComponent(redirectUrl)}`
+    void logout()
   }
 
   return (
@@ -104,6 +103,7 @@ const AccountNav = ({
                     className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
                     onClick={handleLogout}
                     data-testid="logout-button"
+                    disabled={isLoggingOut}
                   >
                     <div className="flex items-center gap-x-2">
                       <ArrowRightOnRectangle />
@@ -165,6 +165,7 @@ const AccountNav = ({
                   type="button"
                   onClick={handleLogout}
                   data-testid="logout-button"
+                  disabled={isLoggingOut}
                 >
                   登出
                 </button>

@@ -8,11 +8,13 @@ import { HttpTypes } from "@medusajs/types"
 interface AccountLayoutProps {
   customer: HttpTypes.StoreCustomer | null
   children: React.ReactNode
+  onLogout?: () => void
 }
 
 const AccountLayout: React.FC<AccountLayoutProps> = ({
   customer,
   children,
+  onLogout,
 }) => {
   return (
     <div className="flex-1 small:py-12" data-testid="account-page">
@@ -21,7 +23,7 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
         <div className={`py-12 ${customer ? 'grid grid-cols-1 small:grid-cols-[240px_1fr]' : 'flex justify-center'}`}>
           {customer && (
             <div>
-              <AccountNav customer={customer} />
+              <AccountNav customer={customer} onLogout={onLogout} />
             </div>
           )}
           <div className={`flex-1 ${!customer ? 'max-w-md w-full' : ''}`}>{children}</div>
