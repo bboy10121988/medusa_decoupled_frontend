@@ -83,6 +83,9 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ 登出完成，所有認證狀態已清除，支援帳號重新選擇')
     
+    // 設置重定向標頭
+    response.headers.set('X-Redirect-URL', '/tw/account')
+    
     return response
     
   } catch (error) {

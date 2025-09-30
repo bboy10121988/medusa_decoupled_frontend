@@ -34,6 +34,12 @@ const AccountNav = ({
       
       if (response.ok) {
         console.log('✅ 登出 API 調用成功')
+        
+        // 檢查是否有重定向標頭
+        const redirectUrl = response.headers.get('X-Redirect-URL')
+        if (redirectUrl) {
+          console.log('🔍 收到重定向標頭:', redirectUrl)
+        }
       } else {
         console.log('⚠️ 登出 API 返回錯誤，但繼續清理流程')
       }
