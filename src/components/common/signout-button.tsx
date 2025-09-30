@@ -50,40 +50,14 @@ export default function SignoutButton({
         onClick()
       }
       
-      // 等待一小段時間確保 cookies 完全清除
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // 重定向到帳戶頁面並強制完全重新載入
-      console.log('👤 準備重定向到帳戶頁面')
+      // 立即執行重定向
       const redirectUrl = `/${countryCode}/account`
       console.log('🔍 重定向目標:', redirectUrl)
       console.log('🔍 當前 URL:', window.location.href)
+      console.log('🚀 立即執行重定向...')
       
-      console.log('🚀 執行重定向...')
-      
-      // 多種重定向方法確保成功
-      try {
-        window.location.href = redirectUrl
-      } catch (err) {
-        console.warn('方法 1 失敗:', err)
-      }
-      
-      // 備用方案
-      setTimeout(() => {
-        console.log('⏰ 備用重定向執行...')
-        try {
-          window.location.replace(redirectUrl)
-        } catch (err) {
-          console.warn('方法 2 失敗:', err)
-          try {
-            window.location.assign(redirectUrl)
-          } catch (err2) {
-            console.warn('方法 3 失敗:', err2)
-            window.history.pushState(null, '', redirectUrl)
-            window.location.reload()
-          }
-        }
-      }, 300)
+      // 使用最強制的方法
+      window.location.replace(redirectUrl)
       
     } catch (error) {
       console.error('❌ 客戶端登出：錯誤', error)
