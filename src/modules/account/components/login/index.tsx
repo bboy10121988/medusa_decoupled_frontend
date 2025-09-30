@@ -39,6 +39,16 @@ const Login = ({ setCurrentView }: Props) => {
           />
         </div>
         <ErrorMessage error={message} data-testid="login-error-message" />
+        
+        {/* 如果是 Google 登入相關錯誤，顯示特別提示 */}
+        {message?.includes("Google") && (
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-2">
+            <p className="text-sm text-blue-700">
+              💡 提示：如果您之前使用 Google 登入註冊，請使用上方的「使用 Google 登入」按鈕。
+            </p>
+          </div>
+        )}
+        
         <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
           登入
         </SubmitButton>

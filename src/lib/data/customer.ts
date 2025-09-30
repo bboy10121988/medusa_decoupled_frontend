@@ -265,6 +265,17 @@ export async function login(_currentState: unknown, formData: FormData) {
         return "電子郵件或密碼錯誤，請檢查後重試"
       }
       
+      // 處理 Google 登入用戶嘗試用密碼登入的情況
+      if (errorMessage.includes('provider') || errorMessage.includes('oauth') || 
+          errorMessage.includes('google') || errorMessage.includes('social')) {
+        return "此電子郵件已使用 Google 登入註冊，請點擊「使用 Google 登入」按鈕"
+      }
+      
+      // 處理帳戶不存在的情況
+      if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
+        return "找不到此電子郵件的帳戶，請先註冊或使用 Google 登入"
+      }
+      
       return errorMessage
     }
     
