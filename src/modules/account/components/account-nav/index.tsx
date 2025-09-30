@@ -34,12 +34,6 @@ const AccountNav = ({
       
       if (response.ok) {
         console.log('✅ 登出 API 調用成功')
-        
-        // 檢查是否有重定向標頭
-        const redirectUrl = response.headers.get('X-Redirect-URL')
-        if (redirectUrl) {
-          console.log('🔍 收到重定向標頭:', redirectUrl)
-        }
       } else {
         console.log('⚠️ 登出 API 返回錯誤，但繼續清理流程')
       }
@@ -57,12 +51,20 @@ const AccountNav = ({
       await new Promise(resolve => setTimeout(resolve, 100))
       
       // 強制重新整理頁面以確保完全重置狀態
-      console.log('🔄 重新整理頁面以完全重置狀態...')
+      console.log('🔄 準備重定向...')
       const redirectUrl = `/${countryCode || 'tw'}/account`
-      console.log('🔍 重定向到:', redirectUrl)
+      console.log('🔍 重定向目標:', redirectUrl)
+      console.log('🔍 當前 URL:', window.location.href)
       
-      // 使用 window.location.replace 來確保不會回到之前的頁面
-      window.location.replace(redirectUrl)
+      // 使用 window.location.href 進行重定向
+      console.log('🚀 執行重定向...')
+      window.location.href = redirectUrl
+      
+      // 備用方案：如果上面的重定向沒有立即生效，使用 replace
+      setTimeout(() => {
+        console.log('⏰ 備用重定向執行...')
+        window.location.replace(redirectUrl)
+      }, 500)
       
     } catch (error) {
       console.error('❌ 登出失敗:', error)

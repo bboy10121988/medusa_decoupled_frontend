@@ -29,12 +29,6 @@ export default function SignoutButton({
       
       if (response.ok) {
         console.log('✅ 登出 API 調用成功')
-        
-        // 檢查是否有重定向標頭
-        const redirectUrl = response.headers.get('X-Redirect-URL')
-        if (redirectUrl) {
-          console.log('🔍 收到重定向標頭:', redirectUrl)
-        }
       } else {
         console.log('⚠️ 登出 API 返回錯誤，但繼續清理流程')
       }
@@ -54,8 +48,19 @@ export default function SignoutButton({
       await new Promise(resolve => setTimeout(resolve, 100))
       
       // 重定向到帳戶頁面並強制完全重新載入
-      console.log('👤 重定向到帳戶頁面')
-      window.location.replace(`/${countryCode}/account`)
+      console.log('👤 準備重定向到帳戶頁面')
+      const redirectUrl = `/${countryCode}/account`
+      console.log('🔍 重定向目標:', redirectUrl)
+      console.log('🔍 當前 URL:', window.location.href)
+      
+      console.log('🚀 執行重定向...')
+      window.location.href = redirectUrl
+      
+      // 備用方案
+      setTimeout(() => {
+        console.log('⏰ 備用重定向執行...')
+        window.location.replace(redirectUrl)
+      }, 500)
       
     } catch (error) {
       console.error('❌ 客戶端登出：錯誤', error)
@@ -70,7 +75,9 @@ export default function SignoutButton({
         onClick()
       }
       
-      window.location.replace(`/${countryCode}/account`)
+      const redirectUrl = `/${countryCode}/account`
+      console.log('🚀 錯誤情況下執行重定向到:', redirectUrl)
+      window.location.href = redirectUrl
     }
   }
 
