@@ -36,6 +36,10 @@ const buildQueryObject = (params: CallbackParams): Record<string, string> => {
   }, {})
 }
 
+const getNestedProperty = (obj: any, path: string): any => {
+  return path.split('.').reduce((current, key) => current?.[key], obj)
+}
+
 // 處理 Google 登入回調（客戶端）
 export async function handleGoogleCallback(rawParams: CallbackParams, countryCode: string = 'tw') {
   try {
@@ -104,87 +108,45 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
       console.log("👤 檢測到新用戶，準備建立客戶資料...")
       console.log("🔍 JWT Payload:", payload)
 
-      // 嘗試從 auth_identity_id 獲取 Google 用戶資訊
+      // 使用我們的 API 來提取 Google 用戶資訊
       let email = ""
       let firstName = ""
       let lastName = ""
 
       try {
-        // 先嘗試從 JWT payload 中直接提取 Google 用戶資訊
-        console.log("🔍 從 JWT payload 中提取 Google 用戶資訊...")
-        console.log("🔍 完整 JWT payload:", JSON.stringify(payload, null, 2))
+        console.log("🔍 調用 API 提取 Google 用戶資訊...")
         
-        // 嘗試從多個可能的位置提取 email，包括 Google OAuth 標準字段
-        const possibleEmails = [
-          payload?.email,
-          payload?.email_verified && payload?.email, // Google OAuth 標準字段
-          payload?.data?.email,
-          payload?.user?.email,
-          payload?.profile?.email,
-          payload?.emailAddress,
-          payload?.actor?.email,
-          payload?.identity?.email,
-          payload?.google?.email,
-          payload?.claims?.email,
-          payload?.user_metadata?.email,
-          // Google OAuth ID token 標準聲明
-          payload?.aud && payload?.email, // 如果有 audience，通常 email 也會存在
-          payload?.iss && payload?.email, // 如果有 issuer，通常 email 也會存在
-          // Medusa 可能的嵌套結構
-          payload?.actor?.provider_metadata?.email,
-          payload?.identity?.provider_metadata?.email,
-          payload?.provider_metadata?.email,
-          // 其他可能的字段
-          payload?.userinfo?.email,
-          payload?.account?.email
-        ].filter(Boolean)
+        const userInfoResponse = await fetch('/api/auth/google-user-info', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token })
+        })
         
-        console.log("🔍 找到的可能 email:", possibleEmails)
-        
-        if (possibleEmails.length > 0) {
-          email = possibleEmails[0] as string
-          console.log("✅ 從 JWT 提取到 email:", email)
+        if (userInfoResponse.ok) {
+          const userInfo = await userInfoResponse.json()
+          console.log("✅ API 返回用戶資訊:", userInfo)
+          
+          email = userInfo.email || ""
+          firstName = userInfo.firstName || ""
+          lastName = userInfo.lastName || ""
+          
+          if (!email) {
+            console.error("❌ API 無法提取 email")
+            console.log("🔍 原始 payload:", userInfo.payload)
+          }
+        } else {
+          throw new Error(`API 調用失敗: ${userInfoResponse.status}`)
         }
-        
-        // 類似地提取姓名
-        const possibleFirstNames = [
-          payload?.given_name,
-          payload?.first_name,
-          payload?.data?.given_name,
-          payload?.user?.given_name,
-          payload?.profile?.given_name,
-          payload?.actor?.given_name,
-          payload?.identity?.given_name,
-          payload?.google?.given_name,
-          payload?.claims?.given_name,
-          payload?.user_metadata?.given_name
-        ].filter(Boolean)
-        
-        const possibleLastNames = [
-          payload?.family_name,
-          payload?.last_name,
-          payload?.data?.family_name,
-          payload?.user?.family_name,
-          payload?.profile?.family_name,
-          payload?.actor?.family_name,
-          payload?.identity?.family_name,
-          payload?.google?.family_name,
-          payload?.claims?.family_name,
-          payload?.user_metadata?.family_name
-        ].filter(Boolean)
-        
-        if (possibleFirstNames.length > 0) {
-          firstName = possibleFirstNames[0] as string
-        }
-        
-        if (possibleLastNames.length > 0) {
-          lastName = possibleLastNames[0] as string
-        }
-        
-        console.log("✅ 從 JWT 提取到姓名:", { firstName, lastName })
         
       } catch (error) {
-        console.log("⚠️ 從 JWT 提取用戶資訊失敗:", error)
+        console.log("⚠️ API 提取用戶資訊失敗，使用備用方法:", error)
+        
+        // 備用方法：直接從 JWT payload 提取
+        email = payload?.email || ""
+        firstName = payload?.given_name || payload?.first_name || ""
+        lastName = payload?.family_name || payload?.last_name || ""
       }
 
       // 如果還是沒有 email，使用虛擬 email（這種情況不應該發生）

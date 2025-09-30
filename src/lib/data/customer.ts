@@ -4,6 +4,7 @@ import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
+import { redirect } from "next/navigation"
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -280,7 +281,7 @@ export async function login(_currentState: unknown, formData: FormData) {
 
 export async function signout(countryCode: string) {
   try {
-    // 使用我們的 API 端點進行登出
+    // 呼叫我們的登出 API 來清除所有 cookies
     const response = await fetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
@@ -312,8 +313,8 @@ export async function signout(countryCode: string) {
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
-  // 重新載入頁面而不是重定向，這樣會觸發 layout 重新檢查認證狀態
-  window.location.reload()
+  // 重定向到主頁而不是 account 頁面，避免循環
+  redirect(`/${countryCode}`)
 }
 
 export async function transferCart() {

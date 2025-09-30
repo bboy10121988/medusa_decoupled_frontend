@@ -10,7 +10,6 @@ import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
-import { signout } from "@lib/data/customer"
 
 const AccountNav = ({
   customer,
@@ -21,7 +20,38 @@ const AccountNav = ({
   const { countryCode } = useParams() as { countryCode: string }
 
   const handleLogout = async () => {
-    await signout(countryCode)
+    try {
+      console.log('🚪 開始登出流程...')
+      
+      // 調用我們的 API 端點進行登出
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        console.log('✅ 登出 API 調用成功')
+      } else {
+        console.error('⚠️ 登出 API 失敗:', response.status)
+      }
+    } catch (error) {
+      console.error('❌ 登出請求失敗:', error)
+    }
+    
+    // 清除本地存儲
+    try {
+      localStorage.clear()
+      sessionStorage.clear()
+    } catch (error) {
+      console.warn('⚠️ 清除本地存儲失敗:', error)
+    }
+
+    // 重定向到主頁而不是重新載入頁面
+    console.log('🔄 重定向到主頁...')
+    window.location.href = `/${countryCode}`
   }
 
   return (
