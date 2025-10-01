@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { sdk } from "@lib/config"
 
+// 讓此路由永遠動態、不可快取，避免因 ISR 或快取造成延遲或狀態殘留
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+export const fetchCache = "force-no-store"
+
+// 最多花在等待後端 SDK logout 的時間（毫秒）。超過就直接返回，避免使用者體感延遲。
+const LOGOUT_AWAIT_TIMEOUT_MS = 500
+
 const COOKIES_TO_CLEAR = [
   "_medusa_jwt",
   "_medusa_cart_id",
@@ -71,26 +79,45 @@ const createRedirectResponse = (request: NextRequest, redirect?: string | null) 
 
 const performLogout = async (request: NextRequest) => {
   console.log("🚪 開始後端登出流程...")
+  const url = new URL(request.url)
+  const redirect = url.searchParams.get("redirect")
+  const fast = url.searchParams.get("fast") === "1"
 
-  try {
-    await sdk.auth.logout()
-    console.log("✅ Medusa SDK 登出成功")
-  } catch (sdkError) {
-    console.log("⚠️ SDK 登出失敗，繼續清除 cookies:", sdkError)
+  // 啟動非同步 logout，不阻塞主要流程，提升體感速度
+  const logoutPromise = (async () => {
+    try {
+      await sdk.auth.logout()
+      console.log("✅ Medusa SDK 登出成功")
+    } catch (sdkError) {
+      console.log("⚠️ SDK 登出失敗，已忽略 (cookies 仍會被清除):", sdkError)
+    }
+  })()
+
+  if (!fast) {
+    // 只有非 fast 模式才會有限度等待 SDK 完成
+    try {
+      await Promise.race([
+        logoutPromise,
+        new Promise((resolve) => setTimeout(resolve, LOGOUT_AWAIT_TIMEOUT_MS)),
+      ])
+    } catch (e) {
+      console.log("⚠️ 等待 SDK logout race 發生錯誤，忽略。")
+    }
+  } else {
+    console.log("⚡ fast=1 已啟用，跳過等待 SDK logout 完成")
   }
 
   console.log("🧹 清除 cookies:", COOKIES_TO_CLEAR)
 
-  const url = new URL(request.url)
-  const redirect = url.searchParams.get("redirect")
-
   const redirectResponse = createRedirectResponse(request, redirect)
   if (redirectResponse) {
+    redirectResponse.headers.set("X-Logout-Mode", fast ? "fast" : "normal")
     return redirectResponse
   }
 
   const response = NextResponse.json({ success: true, message: "登出成功" }, { status: 200 })
   clearCookies(response)
+  response.headers.set("X-Logout-Mode", fast ? "fast" : "normal")
   console.log("✅ 登出完成，所有認證狀態已清除，支援帳號重新選擇")
   return response
 }
