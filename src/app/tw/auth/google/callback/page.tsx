@@ -1,132 +1,97 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
-import { sdk } from "@lib/config"
-import { Spinner } from "@medusajs/icons"
-
-// 簡單的 JWT 解析函數
-const parseJwt = (token: string): Record<string, any> | null => {
-  try {
-    const [, payload] = token.split(".")
-    if (!payload) return null
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/")
-    const decoded = decodeURIComponent(
-      atob(normalized)
-        .split("")
-        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
-        .join("")
-    )
-    return JSON.parse(decoded)
-  } catch (error) {
-    console.error("解析 JWT 失敗", error)
-    return null
-  }
-}
+import { handleGoogleCallback } from "@lib/data/google-auth"
+import { useRouter, useSearchParams } from "next/navigation"
 
 function GoogleCallbackContent() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
-  const [message, setMessage] = useState("")
+  const [error, setError] = useState<string | null>(null)
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
-    const handleCallback = async () => {
+    async function processCallback() {
       try {
+        // 獲取授權碼
         const code = searchParams.get("code")
-        const state = searchParams.get("state")
-        
         if (!code) {
-          throw new Error("缺少授權碼")
+          const error = searchParams.get("error") || "未收到授權碼"
+          setError(`Google 登入失敗: ${error}`)
+          setStatus("error")
+          return
         }
 
-        console.log("處理 Google OAuth 回調...")
-        
-        const params = { code, state }
-        const token = await sdk.auth.callback("customer", "google", params)
+        // 處理 Google 回調
+        console.log("正在處理 Google 授權回調...")
+        const queryObject = Object.fromEntries(searchParams.entries())
+        const result = await handleGoogleCallback(queryObject)
 
-        if (typeof token !== "string") {
-          throw new Error("Google 登入回傳資料異常")
+        if (result && !result.success) {
+          setError(result.error || "處理授權回調時發生未知錯誤")
+          setStatus("error")
+          return
         }
 
-        console.log("✅ 獲得 JWT token")
-        
-        const payload = parseJwt(token)
-        console.log("JWT Payload:", payload)
-
-        if (!payload?.actor_id) {
-          console.log("🆕 新用戶，需要創建客戶資料")
-          
-          const email = payload?.email || payload?.data?.email
-          
-          if (!email) {
-            throw new Error("無法獲取 Google 帳戶的 email")
-          }
-
-          await sdk.store.customer.create({
-            email,
-            first_name: payload?.given_name || "",
-            last_name: payload?.family_name || "",
-          })
-
-          console.log("✅ 客戶資料已創建")
-
-          const refreshedToken = await sdk.auth.refresh()
-          console.log("✅ Token 已刷新")
-        }
-
-        const finalToken = (await sdk.client.getToken()) || token
-        
-        // 使用當前域名構建完整的 URL
-        const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-        const setTokenUrl = `${baseUrl}/api/auth/set-token?token=${encodeURIComponent(finalToken)}&redirect=/tw/account`
-        
-        console.log("🔗 重定向到:", setTokenUrl)
-        window.location.href = setTokenUrl
-        
-      } catch (error: any) {
-        console.error("OAuth 回調處理失敗:", error)
+        // handleGoogleCallback 會自動重定向，以下代碼通常不會執行
+        setStatus("success")
+      } catch (err: any) {
+        console.error("Google 回調處理出錯:", err)
+        setError(err.message || "處理 Google 登入時發生錯誤")
         setStatus("error")
-        setMessage(error.message || "登入失敗")
       }
     }
 
-    handleCallback()
+    processCallback()
   }, [searchParams])
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Spinner className="animate-spin w-8 h-8 mx-auto mb-4" />
-          <p className="text-lg">正在處理 Google 登入...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (status === "error") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">登入失敗</h1>
-          <p className="text-gray-600 mb-4">{message}</p>
-          <a 
-            href="/tw/account" 
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-          >
-            返回登入頁面
-          </a>
-        </div>
-      </div>
-    )
-  }
+  // 錯誤發生時，等待幾秒後重定向到會員中心
+  useEffect(() => {
+    if (status === "error") {
+      const timer = setTimeout(() => {
+        router.push("/tw/account")
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [status, router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-green-600 mb-4">登入成功</h1>
-        <p className="text-gray-600">正在重定向...</p>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
+      {status === "loading" && (
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-2xl font-medium mb-2">處理 Google 登入中</h2>
+          <p className="text-gray-600">請稍候，正在完成您的登入...</p>
+        </div>
+      )}
+
+      {status === "success" && (
+        <div className="text-center">
+          <div className="w-16 h-16 text-green-500 mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-medium mb-2">登入成功！</h2>
+          <p className="text-gray-600">正在將您重定向到帳戶頁面...</p>
+        </div>
+      )}
+
+      {status === "error" && (
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 text-red-500 mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-medium mb-2">登入失敗</h2>
+          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-gray-600">將在 5 秒後返回會員中心，或者您可以 <button 
+            onClick={() => router.push("/tw/account")}
+            className="text-blue-600 hover:underline"
+          >立即返回</button></p>
+        </div>
+      )}
     </div>
   )
 }
@@ -134,11 +99,10 @@ function GoogleCallbackContent() {
 export default function GoogleCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Spinner className="animate-spin w-8 h-8 mx-auto mb-4" />
-          <p className="text-lg">載入中...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <h2 className="text-2xl font-medium mb-2">載入中...</h2>
+        <p className="text-gray-600">正在處理您的請求...</p>
       </div>
     }>
       <GoogleCallbackContent />
