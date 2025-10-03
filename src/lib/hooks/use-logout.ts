@@ -26,12 +26,26 @@ const buildDestination = (countryCode?: string, redirectPath?: string) => {
     return redirectPath
   }
 
+  // 確保 countryCode 有效，如果沒有或無效則使用默認值
   const normalizedCode = countryCode?.trim()
-  const destination = normalizedCode ? `/${normalizedCode}/account` : "/account"
+  
+  // 檢查 countryCode 是否有效（不是空、不是 'api'、不是其他無效值）
+  const isValidCountryCode = normalizedCode && 
+                           typeof normalizedCode === 'string' &&
+                           normalizedCode !== 'api' && 
+                           normalizedCode.length === 2 && 
+                           /^[a-z]{2}$/.test(normalizedCode)
+  
+  const destination = isValidCountryCode ? `/${normalizedCode}/account` : "/tw/account"
   
   // 調試日誌
   if (process.env.NODE_ENV === 'development') {
-    console.log('buildDestination:', { countryCode, normalizedCode, destination })
+    console.log('buildDestination:', { 
+      countryCode, 
+      normalizedCode, 
+      isValidCountryCode, 
+      destination 
+    })
   }
   
   return destination

@@ -22,7 +22,27 @@ const AccountNav = ({
   onLogout,
 }: AccountNavProps) => {
   const route = usePathname()
-  const { countryCode } = useParams() as { countryCode: string }
+  const params = useParams()
+  const { countryCode: rawCountryCode } = params as { countryCode: string }
+
+  // 確保 countryCode 有效，從路徑中提取或使用默認值
+  const countryCode = rawCountryCode && 
+                     typeof rawCountryCode === 'string' &&
+                     rawCountryCode !== 'api' && 
+                     rawCountryCode.length === 2 && 
+                     /^[a-z]{2}$/.test(rawCountryCode) 
+                     ? rawCountryCode 
+                     : 'tw'
+
+  // 調試日誌
+  if (process.env.NODE_ENV === 'development') {
+    console.log('AccountNav debug:', { 
+      route, 
+      params, 
+      rawCountryCode, 
+      countryCode 
+    })
+  }
 
   const { logout, isLoggingOut } = useLogout({
     countryCode,
@@ -191,7 +211,16 @@ const AccountNavLink = ({
   children,
   "data-testid": dataTestId,
 }: AccountNavLinkProps) => {
-  const { countryCode }: { countryCode: string } = useParams()
+  const { countryCode: rawCountryCode }: { countryCode: string } = useParams()
+  
+  // 確保 countryCode 有效
+  const countryCode = rawCountryCode && 
+                     typeof rawCountryCode === 'string' &&
+                     rawCountryCode !== 'api' && 
+                     rawCountryCode.length === 2 && 
+                     /^[a-z]{2}$/.test(rawCountryCode) 
+                     ? rawCountryCode 
+                     : 'tw'
 
   const active = route.split(countryCode)[1] === href
   return (

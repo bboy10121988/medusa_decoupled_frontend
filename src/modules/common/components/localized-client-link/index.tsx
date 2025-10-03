@@ -20,7 +20,16 @@ const LocalizedClientLink = ({
   passHref?: true
   [x: string]: any
 }) => {
-  const { countryCode } = useParams()
+  const { countryCode: rawCountryCode } = useParams()
+  
+  // 確保 countryCode 有效，如果無效則使用默認值
+  const countryCode = rawCountryCode && 
+                     typeof rawCountryCode === 'string' &&
+                     rawCountryCode !== 'api' && 
+                     rawCountryCode.length === 2 && 
+                     /^[a-z]{2}$/.test(rawCountryCode) 
+                     ? rawCountryCode 
+                     : 'tw'
 
   // 避免重複添加 countryCode
   const finalHref = href.startsWith(`/${countryCode}`) 
