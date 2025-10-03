@@ -16,11 +16,16 @@ export async function GET(request: NextRequest) {
     const customerCacheTag = await getCacheTag("customers")
     revalidateTag(customerCacheTag)
     
-    // 重定向到指定頁面
-    return NextResponse.redirect(new URL(redirect, request.url))
+    // 重定向到指定頁面 - 使用完整的 origin 確保正確的域名
+    const origin = new URL(request.url).origin
+    const redirectUrl = `${origin}${redirect}`
+    
+    console.log('🔗 重定向到:', redirectUrl)
+    return NextResponse.redirect(redirectUrl)
   } catch (error) {
     console.error('設定 token 錯誤:', error)
-    return NextResponse.redirect(new URL('/tw/account?error=auth_failed', request.url))
+    const origin = new URL(request.url).origin
+    return NextResponse.redirect(`${origin}/tw/account?error=auth_failed`)
   }
 }
 
