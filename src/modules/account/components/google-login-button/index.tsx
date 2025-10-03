@@ -42,12 +42,16 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
         if (authUrl.includes('accounts.google.com/o/oauth2/v2/auth')) {
           // 檢查是否已經有 prompt 參數
           if (!authUrl.includes('prompt=')) {
-            const separator = authUrl.includes('?') ? '&' : '?'
+            const separator = '&' // Google OAuth URLs 總是已經有參數
             authUrl += `${separator}prompt=select_account`
             console.log("✅ 已添加 prompt=select_account 參數到 Google OAuth URL")
+            console.log("🔗 修正後的 URL:", authUrl)
+          } else {
+            console.log("ℹ️ URL 已包含 prompt 參數")
           }
         }
         
+        console.log("🚀 重定向到 Google OAuth URL:", authUrl)
         window.location.href = authUrl
         return
       }
