@@ -28,6 +28,11 @@ const COOKIES_TO_CLEAR = [
   "__Secure-next-auth.session-token",
   "__Host-next-auth.csrf-token",
   "google-auth-state",
+  // 調試 cookies
+  "_debug_jwt_preview",
+  "_debug_jwt_full",
+  "_client_debug_jwt",
+  "_client_jwt_info",
 ]
 
 const clearCookies = (response: NextResponse) => {
