@@ -1,7 +1,6 @@
 "use client"
 
 import { useParams } from 'next/navigation'
-import { affiliateAdminSignout } from '@lib/data/affiliate-admin-auth'
 
 export default function AffiliateAdminLogoutButton() {
   const params = useParams<{ countryCode: string }>()
@@ -9,7 +8,8 @@ export default function AffiliateAdminLogoutButton() {
 
   const handleLogout = async () => {
     try {
-      await affiliateAdminSignout(countryCode)
+      // 直接導向 API 路由，讓伺服器處理登出邏輯
+      window.location.href = `/api/affiliate-admin/signout?countryCode=${countryCode}`
     } catch (error) {
       console.error('登出失敗:', error)
     }
@@ -18,21 +18,8 @@ export default function AffiliateAdminLogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700 border border-red-200 hover:bg-red-100 hover:text-red-800 transition-colors"
+      className="hover:underline text-sm text-gray-500 p-0 m-0 bg-transparent border-none"
     >
-      <svg 
-        className="h-4 w-4" 
-        fill="none" 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
-      >
-        <path 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          strokeWidth={2} 
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
-        />
-      </svg>
       登出
     </button>
   )

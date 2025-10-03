@@ -27,7 +27,7 @@ const buildDestination = (countryCode?: string, redirectPath?: string) => {
   }
 
   const normalizedCode = countryCode?.trim()
-  return normalizedCode ? `/${normalizedCode}/account` : "/account"
+  return normalizedCode ? `/${normalizedCode}` : "/"
 }
 
 export const useLogout = ({

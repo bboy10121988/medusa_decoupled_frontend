@@ -3,8 +3,9 @@ import { NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    // 默認國家代碼
-    const countryCode = 'tw'
+    // 從請求參數獲取國家代碼，預設為 tw
+    const { searchParams } = new URL(request.url)
+    const countryCode = searchParams.get('countryCode') || 'tw'
     
     await affiliateAdminSignout(countryCode)
     
