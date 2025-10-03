@@ -1,7 +1,6 @@
 "use client"
 
 import { sdk } from "@lib/config"
-import { debugGoogleToken } from "@lib/debug-google-token"
 
 type CallbackParams = URLSearchParams | Record<string, string | null | undefined>
 
@@ -126,24 +125,9 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
       console.log("  - user_metadata:", tokenPayload.user_metadata)
     }
     
-    // 詳細調試 token 內容
-    debugGoogleToken(token)
+    // Token 已獲取並解析
     
-    // 額外調試：發送到調試 API
-    try {
-      const debugResponse = await fetch('/api/debug/google-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
-      })
-      
-      if (debugResponse.ok) {
-        const debugData = await debugResponse.json()
-        console.log("🔍 調試 API 回應:", debugData)
-      }
-    } catch (debugError) {
-      console.log("⚠️ 調試 API 呼叫失敗:", debugError)
-    }
+    // Google OAuth token 已成功獲取
     
     // 使用 Medusa SDK 的方式設定認證 token (不需要手動調用 /auth/session)
     console.log("🍪 設定 Medusa 認證 token...")
@@ -158,9 +142,6 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
 
     // 根據流程圖步驟5: 驗證令牌
     console.log("🔍 解析 JWT 內容...")
-    if (process.env.NODE_ENV === "development") {
-      debugGoogleToken(token)
-    }
 
     // 🔍 所有用戶都執行 email 提取和調試 - 移除新舊用戶判斷
     // 從 JWT payload 獲取用戶資訊 - 檢查多種可能的欄位路徑
@@ -179,6 +160,7 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     console.log("  - payload.provider_metadata:", payload?.provider_metadata)
     console.log("  - payload.google:", payload?.google)
     
+    // 🎯 修正：優先從 JWT 中提取真實 email，新用戶應該直接有真實 email
     let email = payload?.email || 
                 getNestedProperty(payload, 'data.email') ||
                 getNestedProperty(payload, 'user.email') ||
@@ -188,18 +170,12 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
                 payload?.upn ||  // Microsoft-style email field
                 ""
                 
-    console.log("🔍 Email 提取結果:", email)
+    console.log("🔍 初步 Email 提取結果:", email)
     console.log("🔍 Email 提取詳情:")
     console.log("  - 是否有 actor_id (舊用戶):", !!payload?.actor_id)
     console.log("  - email_verified 狀態:", payload?.email_verified)
     console.log("  - JWT iss:", payload?.iss)
     console.log("  - JWT aud:", payload?.aud)
-    
-    // 如果 payload 中沒有 email，但有 sub (Google ID)，嘗試從 Medusa 身份資訊獲取
-    if (!email && payload?.sub) {
-      console.log("🔍 嘗試從 Google ID 獲取關聯的 email...")
-      // 這裡可以嘗試調用後端 API 來獲取身份關聯的 email
-    }
     
     let firstName = payload?.given_name || 
                     payload?.first_name || 
@@ -213,10 +189,9 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
                    getNestedProperty(payload, 'profile.family_name') ||
                    ""
 
-    // 🔄 如果 JWT 中沒有 email，但有 Google ID (sub)，使用已知的映射
-    if (!email && payload?.sub) {
-      console.log("🔍 JWT 中沒有 email，但有 Google ID，嘗試映射已知的 email...")
-      console.log("  - Google ID (sub):", payload.sub)
+    // 🔄 修正邏輯：只有在 email 為空或為 debug email 時才使用 Google ID 映射
+    if (payload?.sub) {
+      console.log("🔍 檢查 Google ID 映射，Google ID (sub):", payload.sub)
       
       // 映射已知的 Google ID 到對應的 email（從資料庫 provider_identity 得知）
       const knownGoogleMappings: Record<string, string> = {
@@ -225,11 +200,19 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
         '105418993380150805096': 'yossen.info@gmail.com',
       }
       
-      if (knownGoogleMappings[payload.sub]) {
-        email = knownGoogleMappings[payload.sub]
-        console.log("✅ 成功映射 Google ID 到 email:", email)
+      // 只有在沒有email或email是debug格式時才使用映射
+      const needsMapping = !email || email.startsWith('debug-') || email.includes('@example.com')
+      
+      if (needsMapping && knownGoogleMappings[payload.sub]) {
+        const mappedEmail = knownGoogleMappings[payload.sub]
+        console.log(`✅ 使用 Google ID 映射: ${payload.sub} -> ${mappedEmail}`)
+        console.log(`🔄 將 email 從 "${email}" 更新為 "${mappedEmail}"`)
+        email = mappedEmail
+      } else if (needsMapping) {
+        console.warn("⚠️ 需要映射但未找到對應的 Google ID:", payload.sub)
+        console.log("🔍 目前已知的 Google ID 映射:", Object.keys(knownGoogleMappings))
       } else {
-        console.warn("⚠️ 未知的 Google ID:", payload.sub)
+        console.log("✅ JWT 中已有有效 email，無需映射:", email)
       }
     }
     
@@ -315,15 +298,27 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     // 根據流程圖步驟8: 完成登入流程
     console.log("🏁 登入流程完成，session cookie 已設定")
     
+    // 🎯 關鍵修正：無論新舊用戶，都將從JWT獲取的真實email存儲到localStorage
+    if (email && !email.startsWith('debug-') && typeof window !== 'undefined') {
+      localStorage.setItem('google_real_email', email)
+      localStorage.setItem('customer_display_email', email)
+      console.log("💾 已將JWT中的真實 Google email 存儲到 localStorage:", email)
+    }
+    
     // 驗證認證是否正常工作 (使用 Medusa SDK)
     try {
       const customerResponse = await sdk.store.customer.retrieve()
       if (customerResponse?.customer) {
-        console.log("✅ 認證驗證成功，用戶已登入:", customerResponse.customer.email)
+        console.log("✅ 認證驗證成功，用戶已登入")
+        console.log("📧 資料庫中的客戶 email:", customerResponse.customer.email)
+        console.log("📧 JWT中解析的真實 email:", email)
         
-        // 🔥 關鍵修正：如果客戶 email 是 debug email，嘗試從 Google OAuth 資料更新真實 email
-        if (customerResponse.customer.email?.startsWith('debug-')) {
-          console.log("🔄 檢測到 debug email，嘗試更新為真實 Google email...")
+        // 🔥 只有在資料庫email是debug且我們沒有從JWT獲取到真實email時，才使用API映射
+        const needsMapping = customerResponse.customer.email?.startsWith('debug-') && 
+                           (!email || email.startsWith('debug-'))
+        
+        if (needsMapping) {
+          console.log("🔄 需要從映射表獲取真實 email...")
           
           try {
             // 調用後端 API 獲取 Google OAuth 的真實 email 並更新客戶資料
@@ -340,16 +335,16 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
             if (updateResponse.ok) {
               const updateData = await updateResponse.json()
               if (updateData.success && updateData.realEmail) {
-                console.log("✅ 成功獲取真實 Google email:", updateData.realEmail)
+                console.log("✅ 從映射表獲取真實 Google email:", updateData.realEmail)
                 
                 // 🍪 將真實 email 存儲在 localStorage 中供前端使用
                 if (typeof window !== 'undefined') {
                   localStorage.setItem('google_real_email', updateData.realEmail)
                   localStorage.setItem('customer_display_email', updateData.realEmail)
-                  console.log("💾 已將真實 email 存儲到 localStorage")
+                  console.log("💾 已將映射的真實 email 存儲到 localStorage")
                 }
               } else {
-                console.warn("⚠️ 無法取得真實 email，繼續使用 debug email")
+                console.warn("⚠️ 無法從映射表取得真實 email")
               }
             } else {
               console.warn("⚠️ 更新 email API 呼叫失敗")
@@ -357,6 +352,8 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
           } catch (updateError) {
             console.warn("⚠️ 更新 email 過程出錯:", updateError)
           }
+        } else {
+          console.log("✅ 已有真實 email，無需額外映射")
         }
       } else {
         console.warn("⚠️ 無法取得客戶資料，但繼續重導向")
@@ -366,6 +363,10 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     }
 
     console.log("🚀 準備重導向到帳戶頁面...")
+    console.log("📊 最終 email 處理結果:")
+    console.log("  - JWT 解析的 email:", email)
+    console.log("  - localStorage 中的真實 email:", typeof window !== 'undefined' ? localStorage.getItem('google_real_email') : 'N/A')
+    
     // 返回成功狀態，讓調用方處理重導向
     return { success: true, redirect: `/${countryCode}/account` }
   } catch (error: any) {

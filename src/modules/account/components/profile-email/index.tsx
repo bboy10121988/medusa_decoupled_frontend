@@ -1,11 +1,12 @@
 "use client"
 
-import React, { useEffect, useActionState } from "react";
+import React, { useEffect, useActionState, useState } from "react";
 
 import Input from "@modules/common/components/input"
 
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
+import { getDisplayEmail } from "@lib/utils/google-email-utils"
 // import { updateCustomer } from "@lib/data/customer"
 
 type MyInformationProps = {
@@ -14,26 +15,25 @@ type MyInformationProps = {
 
 const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
+  const [displayEmail, setDisplayEmail] = useState<string>(customer.email)
 
-  // TODO: It seems we don't support updating emails now?
+  // 獲取顯示用的email（優先使用真實Google email）
+  useEffect(() => {
+    const realEmail = getDisplayEmail(customer.email)
+    setDisplayEmail(realEmail)
+  }, [customer.email])
+
+  // Email 更新功能暫時禁用（基於安全考量）
   const updateCustomerEmail = (
-    _currentState: Record<string, unknown>,
-    formData: FormData
+    _currentState: { success: boolean; error: string },
+    _formData: FormData
   ) => {
-    const customer = {
-      email: formData.get("email") as string,
-    }
-
-    try {
-      // await updateCustomer(customer)
-      return { success: true, error: null }
-    } catch (error: any) {
-      return { success: false, error: error.toString() }
-    }
+    // Email 更新功能暫時不可用
+    return { success: false, error: "Email 更新功能暫時不可用" }
   }
 
   const [state, formAction] = useActionState(updateCustomerEmail, {
-    error: false,
+    error: "",
     success: false,
   })
 
@@ -49,7 +49,7 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
     <form action={formAction} className="w-full">
       <AccountInfo
         label="電子郵件"
-        currentInfo={`${customer.email}`}
+        currentInfo={displayEmail}
         isSuccess={successState}
         isError={!!state.error}
         errorMessage={state.error}
@@ -63,7 +63,7 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
             type="email"
             autoComplete="email"
             required
-            defaultValue={customer.email}
+            defaultValue={displayEmail}
             data-testid="email-input"
           />
         </div>
