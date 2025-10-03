@@ -81,6 +81,7 @@ export const setAuthToken = async (token: string) => {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     domain: COOKIE_DOMAIN,
+    path: "/", // 確保 cookie 路徑一致
   })
   
   // 🔍 調試用：額外設置一個可在瀏覽器中查看的 JWT cookie
@@ -92,6 +93,7 @@ export const setAuthToken = async (token: string) => {
       sameSite: "lax",
       secure: false, // 開發環境中不需要 HTTPS
       domain: COOKIE_DOMAIN,
+      path: "/", // 確保路徑一致
     })
     
     // 🔍 完整的 JWT token 用於調試（僅開發環境）
@@ -101,6 +103,7 @@ export const setAuthToken = async (token: string) => {
       sameSite: "lax", 
       secure: false,
       domain: COOKIE_DOMAIN,
+      path: "/", // 確保路徑一致
     })
   }
 }
