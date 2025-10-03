@@ -213,14 +213,31 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
                    getNestedProperty(payload, 'profile.family_name') ||
                    ""
 
-    // ⚠️ 詳細的 email 檢查與錯誤處理 - 但不中斷流程
-    if (!email) {
-      console.error("❌ 無法從任何已知路徑獲取 email")
-      console.log("🔍 完整 payload 結構:", JSON.stringify(payload, null, 2))
+    // 🔄 如果 JWT 中沒有 email，但有 Google ID (sub)，使用已知的映射
+    if (!email && payload?.sub) {
+      console.log("🔍 JWT 中沒有 email，但有 Google ID，嘗試映射已知的 email...")
+      console.log("  - Google ID (sub):", payload.sub)
       
-      // 🔍 調試用：繼續流程而不中斷，這樣可以觀察完整的 JWT 結構
-      console.warn("⚠️ 繼續執行流程以便調試 JWT 結構...")
-      email = `debug-${payload?.sub || Date.now()}@example.com` // 調試用臨時 email
+      // 映射已知的 Google ID 到對應的 email（從資料庫 provider_identity 得知）
+      const knownGoogleMappings: Record<string, string> = {
+        '115218811067840911295': 'textsence.ai@gmail.com',
+        '106085906021354365220': 'hitomi5935@gmail.com',
+        '105418993380150805096': 'yossen.info@gmail.com',
+      }
+      
+      if (knownGoogleMappings[payload.sub]) {
+        email = knownGoogleMappings[payload.sub]
+        console.log("✅ 成功映射 Google ID 到 email:", email)
+      } else {
+        console.warn("⚠️ 未知的 Google ID:", payload.sub)
+      }
+    }
+    
+    // ⚠️ 最後的 email 檢查與錯誤處理
+    if (!email) {
+      console.error("❌ 無法從任何來源獲取 email")
+      console.log("🔍 完整 payload 結構:", JSON.stringify(payload, null, 2))
+      throw new Error("無法獲取使用者 email，請確認 Google 帳號已驗證 email 或聯繫管理員")
     }
 
     // 驗證 email 格式（如果有真實 email）
@@ -303,6 +320,44 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
       const customerResponse = await sdk.store.customer.retrieve()
       if (customerResponse?.customer) {
         console.log("✅ 認證驗證成功，用戶已登入:", customerResponse.customer.email)
+        
+        // 🔥 關鍵修正：如果客戶 email 是 debug email，嘗試從 Google OAuth 資料更新真實 email
+        if (customerResponse.customer.email?.startsWith('debug-')) {
+          console.log("🔄 檢測到 debug email，嘗試更新為真實 Google email...")
+          
+          try {
+            // 調用後端 API 獲取 Google OAuth 的真實 email 並更新客戶資料
+            const updateResponse = await fetch('/api/auth/update-google-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                customerId: customerResponse.customer.id 
+              }),
+            })
+
+            if (updateResponse.ok) {
+              const updateData = await updateResponse.json()
+              if (updateData.success && updateData.realEmail) {
+                console.log("✅ 成功獲取真實 Google email:", updateData.realEmail)
+                
+                // 🍪 將真實 email 存儲在 localStorage 中供前端使用
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('google_real_email', updateData.realEmail)
+                  localStorage.setItem('customer_display_email', updateData.realEmail)
+                  console.log("💾 已將真實 email 存儲到 localStorage")
+                }
+              } else {
+                console.warn("⚠️ 無法取得真實 email，繼續使用 debug email")
+              }
+            } else {
+              console.warn("⚠️ 更新 email API 呼叫失敗")
+            }
+          } catch (updateError) {
+            console.warn("⚠️ 更新 email 過程出錯:", updateError)
+          }
+        }
       } else {
         console.warn("⚠️ 無法取得客戶資料，但繼續重導向")
       }
