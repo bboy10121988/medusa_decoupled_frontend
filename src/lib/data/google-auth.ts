@@ -77,12 +77,66 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
 
     console.log("✅ 收到 Medusa token:", token.substring(0, 20) + "...")
     
+    // 🔍 完整顯示 JWT token (用於調試)
+    console.log("🔍 完整 JWT Token:")
+    console.log(token)
+    console.log("🔍 JWT Token 長度:", token.length)
+    
     // 先檢查 JWT token 是否有效
     const tokenPayload = parseJwt(token)
     console.log("🔍 JWT payload 檢查:", tokenPayload)
+    console.log("🔍 完整 payload keys:", tokenPayload ? Object.keys(tokenPayload) : 'null')
+    
+    // 🚨 關鍵調試：檢查 token 是否為空或無效
+    if (!tokenPayload) {
+      console.error("🚨 JWT token 解析失敗！原始 token:", token.substring(0, 100) + "...")
+      throw new Error("JWT token 解析失敗，可能是格式問題")
+    }
+    
+    // 檢查各種可能的 email 欄位
+    if (tokenPayload) {
+      console.log("📧 Email 欄位檢查:")
+      console.log("  - email:", tokenPayload.email)
+      console.log("  - emailVerified:", tokenPayload.email_verified)
+      console.log("  - sub:", tokenPayload.sub)
+      console.log("  - aud:", tokenPayload.aud)
+      console.log("  - iss:", tokenPayload.iss)
+      
+      // 🔍 完整的 payload 結構調試
+      console.log("🔍 完整 JWT payload 結構:")
+      console.log(JSON.stringify(tokenPayload, null, 2))
+      
+      // 檢查是否有 auth_identity 或其他嵌套結構
+      if (tokenPayload.auth_identity) {
+        console.log("🔍 auth_identity 結構:", JSON.stringify(tokenPayload.auth_identity, null, 2))
+      }
+      
+      // 檢查 Medusa 特定欄位
+      console.log("🔍 Medusa 特定欄位:")
+      console.log("  - actor_id:", tokenPayload.actor_id)
+      console.log("  - actor_type:", tokenPayload.actor_type)
+      console.log("  - app_metadata:", tokenPayload.app_metadata)
+      console.log("  - user_metadata:", tokenPayload.user_metadata)
+    }
     
     // 詳細調試 token 內容
     debugGoogleToken(token)
+    
+    // 額外調試：發送到調試 API
+    try {
+      const debugResponse = await fetch('/api/debug/google-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      })
+      
+      if (debugResponse.ok) {
+        const debugData = await debugResponse.json()
+        console.log("🔍 調試 API 回應:", debugData)
+      }
+    } catch (debugError) {
+      console.log("⚠️ 調試 API 呼叫失敗:", debugError)
+    }
     
     // 使用 Medusa SDK 的方式設定認證 token (不需要手動調用 /auth/session)
     console.log("🍪 設定 Medusa 認證 token...")
@@ -92,7 +146,8 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     // Medusa SDK 應該已經自動處理了 token 的設置
     // 直接使用 token 進行後續操作，不需要手動設置 session
 
-    const payload = parseJwt(token)
+    // 🔧 修正：使用前面已經解析的 tokenPayload，避免重複解析
+    const payload = tokenPayload
 
     // 根據流程圖步驟5: 驗證令牌
     console.log("🔍 解析 JWT 內容...")
@@ -104,18 +159,82 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     if (!payload?.actor_id) {
       // 根據流程圖步驟6: 新用戶需要建立客戶資料
       
-      // 從 JWT payload 獲取用戶資訊
-      let email = payload?.email || ""
-      let firstName = payload?.given_name || payload?.first_name || ""
-      let lastName = payload?.family_name || payload?.last_name || ""
+      // 從 JWT payload 獲取用戶資訊 - 檢查多種可能的欄位路徑
+      console.log("🔍 開始提取 email，payload 內容:")
+      console.log("  - payload.email:", payload?.email)
+      console.log("  - payload.data:", payload?.data)
+      console.log("  - payload.user:", payload?.user)  
+      console.log("  - payload.profile:", payload?.profile)
+      console.log("  - payload.auth_identity:", payload?.auth_identity)
+      
+      // 🔍 檢查 Medusa 可能的特殊結構
+      console.log("🔍 檢查 Medusa 特殊結構:")
+      console.log("  - payload.identity:", payload?.identity)
+      console.log("  - payload.customer:", payload?.customer)
+      console.log("  - payload.metadata:", payload?.metadata)
+      console.log("  - payload.provider_metadata:", payload?.provider_metadata)
+      console.log("  - payload.google:", payload?.google)
+      
+      let email = payload?.email || 
+                  getNestedProperty(payload, 'data.email') ||
+                  getNestedProperty(payload, 'user.email') ||
+                  getNestedProperty(payload, 'profile.email') ||
+                  getNestedProperty(payload, 'auth_identity.email') ||
+                  payload?.preferred_username ||  // 有時候 email 會在這裡
+                  payload?.upn ||  // Microsoft-style email field
+                  ""
+                  
+      console.log("🔍 Email 提取結果:", email)
+      
+      // 如果 payload 中沒有 email，但有 sub (Google ID)，嘗試從 Medusa 身份資訊獲取
+      if (!email && payload?.sub) {
+        console.log("🔍 嘗試從 Google ID 獲取關聯的 email...")
+        // 這裡可以嘗試調用後端 API 來獲取身份關聯的 email
+      }
+      
+      let firstName = payload?.given_name || 
+                      payload?.first_name || 
+                      getNestedProperty(payload, 'data.given_name') ||
+                      getNestedProperty(payload, 'profile.given_name') ||
+                      ""
+      
+      let lastName = payload?.family_name || 
+                     payload?.last_name || 
+                     getNestedProperty(payload, 'data.family_name') ||
+                     getNestedProperty(payload, 'profile.family_name') ||
+                     ""
 
-      // 如果還是沒有 email，使用虛擬 email（這種情況不應該發生）
+      // 詳細的 email 檢查與錯誤處理
       if (!email) {
-        console.error("❌ 仍然無法獲取 email，這可能表示 Google OAuth 配置有問題")
-        console.log("🔍 原始 payload 用於調試:", payload)
-        email = `google_user_${payload?.auth_identity_id || Date.now()}@temp.local`
-        firstName = firstName || "Google"
-        lastName = lastName || "User"
+        console.error("❌ 無法從任何已知路徑獲取 email")
+        console.log("🔍 完整 payload 結構:", JSON.stringify(payload, null, 2))
+        
+        // 嘗試從 sub (Google ID) 生成識別碼，但提醒用戶需要真實 email
+        const googleId = payload?.sub || payload?.auth_identity_id || Date.now()
+        
+        // 暫時解決方案：提示用戶手動輸入 email
+        console.error("❌ 無法自動獲取 email，將要求用戶手動提供")
+        
+        throw new Error(`Google 登入成功，但無法自動獲取您的 email 資訊。
+
+可能原因：
+1. 您的 Google 帳號隱私設定限制了 email 共享
+2. 應用程式權限設定需要調整
+3. 網路連線問題
+
+請嘗試：
+1. 重新登入並確保授權時勾選「允許存取 email」
+2. 或使用一般註冊方式建立帳號
+3. 聯繫客服協助處理
+
+如果問題持續發生，請改用「一般註冊」功能。`)
+      }
+
+      // 驗證 email 格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email)) {
+        console.error("❌ 獲取的 email 格式無效:", email)
+        throw new Error(`從 Google 獲取的 email 格式無效: ${email}。請聯繫技術支援。`)
       }
 
       // 設置預設姓名
@@ -200,7 +319,16 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     // 特殊處理不同類型的錯誤
     let errorMessage = error.message
     
-    if (error.message?.includes('unauthorized') || error.message?.includes('session expired')) {
+    if (error.message?.includes('Email not verified') || error.message?.includes('email_verified')) {
+      errorMessage = `Google 帳號 email 未驗證，無法登入。
+
+解決方案：
+1. 請到您的 Google 帳號設定確認 email 已驗證
+2. 或者聯繫網站管理員更新 Google OAuth 設定
+3. 暫時可使用一般註冊功能
+
+錯誤詳情：${error.message}`
+    } else if (error.message?.includes('unauthorized') || error.message?.includes('session expired')) {
       errorMessage = "Google 登入 session 已過期，請重新開始登入流程"
     } else if (error.message?.includes('state')) {
       errorMessage = "Google 登入驗證失敗，請重新嘗試"

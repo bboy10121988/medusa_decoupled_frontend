@@ -14,6 +14,16 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // 檢測是否為 LINE 內建瀏覽器或其他 WebView
+  const isInWebView = () => {
+    if (typeof window === 'undefined') return false
+    const userAgent = window.navigator.userAgent.toLowerCase()
+    return userAgent.includes('line/') || 
+           userAgent.includes('wv') || 
+           userAgent.includes('webview') ||
+           (userAgent.includes('mobile') && !userAgent.includes('safari'))
+  }
+
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true)
@@ -21,8 +31,9 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
 
       const result = await sdk.auth.login("customer", "google", {
         scope: "openid email profile",
-        access_type: "online",
-        prompt: "select_account"
+        access_type: "online", 
+        prompt: "select_account",
+        include_granted_scopes: true
       })
 
       if (typeof result !== "string" && result.location) {
@@ -43,7 +54,13 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
 
       throw new Error("Google 登入回傳資料異常")
     } catch (err: any) {
-      const message = err?.message || "Google 登入失敗，請稍後再試"
+      let message = err?.message || "Google 登入失敗，請稍後再試"
+      
+      // 針對 WebView 環境提供特殊錯誤訊息
+      if (isInWebView() && (message.includes('OAuth') || message.includes('授權') || message.includes('blocked'))) {
+        message = "LINE 內建瀏覽器不支援 Google 登入，請點擊右上角「在瀏覽器中開啟」後重試"
+      }
+      
       setError(message)
       if (onError) onError(message)
     } finally {
@@ -53,6 +70,27 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
 
   return (
     <div className="w-full">
+      {/* WebView 警告提示 */}
+      {isInWebView() && (
+        <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-amber-700">
+              💡 偵測到您正在使用 LINE 或其他 App 內建瀏覽器，Google 登入可能會被封鎖。
+            </p>
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.open(window.location.href, '_blank')
+                }
+              }}
+              className="inline-flex items-center gap-1 text-sm text-amber-800 hover:text-amber-900 underline font-medium"
+            >
+              🔗 在瀏覽器中開啟此頁面
+            </button>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
           <p className="text-sm text-red-600">{error}</p>
