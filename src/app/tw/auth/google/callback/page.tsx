@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { sdk } from "@lib/config"
 import { Spinner } from "@medusajs/icons"
@@ -24,7 +24,7 @@ const parseJwt = (token: string): Record<string, any> | null => {
   }
 }
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [message, setMessage] = useState("")
   const searchParams = useSearchParams()
@@ -123,5 +123,20 @@ export default function GoogleCallbackPage() {
         <p className="text-gray-600">正在重定向...</p>
       </div>
     </div>
+  )
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Spinner className="animate-spin w-8 h-8 mx-auto mb-4" />
+          <p className="text-lg">載入中...</p>
+        </div>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   )
 }
