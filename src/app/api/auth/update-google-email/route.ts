@@ -1,32 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getRealGoogleEmailFromDB } from "@lib/database"
 
-// 根據客戶 ID 獲取對應的真實 Google email
-// 這是基於我們之前資料庫查詢結果的映射表
+// 已知的客戶映射（作為備選方案）
 const CUSTOMER_GOOGLE_EMAIL_MAP: Record<string, string> = {
   "cus_01K6M0ZJ8A1ASAEJ1F914D44X6": "textsence.ai@gmail.com",
   "cus_01K6GBCYTM4FKFFYMYVCJR3RAN": "hitomi5935@gmail.com", 
   "cus_01K6DMHY2WDCA09ZYNRC3A92SK": "yossen.info@gmail.com"
-}
-
-// 通過客戶 ID 查詢對應的真實 Google email
-async function getRealGoogleEmail(customerId: string): Promise<string | null> {
-  try {
-    // 方法1: 從已知的映射表查詢
-    const mappedEmail = CUSTOMER_GOOGLE_EMAIL_MAP[customerId]
-    if (mappedEmail) {
-      console.log("📧 從映射表找到真實 email:", mappedEmail)
-      return mappedEmail
-    }
-
-    // 方法2: 未來可以在這裡加入動態資料庫查詢
-    // 目前暫時返回 null，表示無法找到對應的真實 email
-    console.warn("⚠️ 無法在映射表中找到客戶 ID:", customerId)
-    return null
-    
-  } catch (error) {
-    console.error("查詢真實 Google email 失敗:", error)
-    return null
-  }
 }
 
 export async function POST(request: NextRequest) {
@@ -42,8 +21,24 @@ export async function POST(request: NextRequest) {
 
     console.log("🔍 嘗試為客戶更新 Google email:", customerId)
 
-    // 獲取真實的 Google email
-    const realEmail = await getRealGoogleEmail(customerId)
+    // 方法1: 嘗試從資料庫查詢
+    let realEmail = null
+    try {
+      realEmail = await getRealGoogleEmailFromDB(customerId)
+      if (realEmail) {
+        console.log("✅ 從資料庫查詢到真實 email:", realEmail)
+      }
+    } catch (dbError) {
+      console.warn("⚠️ 資料庫查詢失敗，使用映射表備選方案:", dbError)
+    }
+
+    // 方法2: 如果資料庫查詢失敗，使用映射表
+    if (!realEmail) {
+      realEmail = CUSTOMER_GOOGLE_EMAIL_MAP[customerId]
+      if (realEmail) {
+        console.log("✅ 從映射表找到真實 email:", realEmail)
+      }
+    }
 
     if (!realEmail) {
       console.warn("⚠️ 無法找到客戶的真實 Google email")
