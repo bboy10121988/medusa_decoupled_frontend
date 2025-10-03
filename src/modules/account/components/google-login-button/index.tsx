@@ -37,7 +37,18 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
       })
 
       if (typeof result !== "string" && result.location) {
-        window.location.href = result.location
+        // 🔧 修正：手動添加 prompt=select_account 參數到 Google OAuth URL
+        let authUrl = result.location
+        if (authUrl.includes('accounts.google.com/o/oauth2/v2/auth')) {
+          // 檢查是否已經有 prompt 參數
+          if (!authUrl.includes('prompt=')) {
+            const separator = authUrl.includes('?') ? '&' : '?'
+            authUrl += `${separator}prompt=select_account`
+            console.log("✅ 已添加 prompt=select_account 參數到 Google OAuth URL")
+          }
+        }
+        
+        window.location.href = authUrl
         return
       }
 
