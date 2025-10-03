@@ -24,22 +24,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '伺服器 Google OAuth 配置錯誤' }, { status: 500 })
     }
 
+    // 從查詢參數獲取國家代碼
+    const { searchParams } = new URL(request.url)
+    const countryCode = searchParams.get('countryCode') || 'tw'
+
     // 產生動態 callback URL（與部署網域一致）
     const origin = process.env.NEXT_PUBLIC_STORE_URL || process.env.NEXTAUTH_URL || 
                    (process.env.NODE_ENV === 'production' ? 'https://timsfantasyworld.com' : 'http://localhost:8001')
-    const redirectUri = `${origin.replace(/\/$/, '')}/tw/auth/google/callback`
+    const redirectUri = `${origin.replace(/\/$/, '')}/auth/google/callback`
 
     if (process.env.NODE_ENV === 'development') console.log('使用回調 URL:', redirectUri)
 
-    // 構建 Google OAuth 授權 URL
-    // 注意：這裡使用 OAuth2 授權碼流程，需要在 Google Cloud Console 配置相同的重定向 URI
+    // 構建 Google OAuth 授權 URL，使用 state 參數傳遞國家代碼
+    const state = encodeURIComponent(JSON.stringify({ countryCode }))
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` + 
       `client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` + 
       `&redirect_uri=${encodeURIComponent(redirectUri)}` + 
       `&response_type=code` +
       `&scope=${encodeURIComponent('profile email')}` + 
       `&access_type=offline` +
-      `&prompt=consent`
+      `&prompt=consent` +
+      `&state=${state}`
 
     if (process.env.NODE_ENV === 'development') console.log('生成的授權 URL:', authUrl)
     return NextResponse.json({ authUrl }, { status: 200 })

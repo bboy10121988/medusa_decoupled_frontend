@@ -21,25 +21,21 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
       setIsLoading(true)
       setError(null)
 
-      const result = await sdk.auth.login("customer", "google", {})
+      // 通過我們的 API 路由獲取 Google 授權 URL，傳遞國家代碼
+      const response = await fetch(`/api/medusa/auth/google?countryCode=${countryCode}`)
+      const data = await response.json()
 
-      if (typeof result !== "string" && result.location) {
-        window.location.href = result.location
+      if (!response.ok) {
+        throw new Error(data.error || 'Google 登入初始化失敗')
+      }
+
+      if (data.authUrl) {
+        // 重定向到 Google 授權頁面
+        window.location.href = data.authUrl
         return
       }
 
-      if (typeof result === "string") {
-        // 登入流程已完成（不需跳轉）
-        if (onSuccess) {
-          onSuccess()
-          return
-        }
-
-        router.push(`/${countryCode}/account`)
-        return
-      }
-
-      throw new Error("Google 登入回傳資料異常")
+      throw new Error("無法取得 Google 授權 URL")
     } catch (err: any) {
       const message = err?.message || "Google 登入失敗，請稍後再試"
       setError(message)
