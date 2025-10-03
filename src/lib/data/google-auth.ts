@@ -82,6 +82,13 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     console.log(token)
     console.log("🔍 JWT Token 長度:", token.length)
     
+    // 🍪 在客戶端也設定 debug cookies（僅開發環境）
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === "development") {
+      document.cookie = `_client_debug_jwt=${token}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
+      document.cookie = `_client_jwt_info=length:${token.length},received:${new Date().toISOString()}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
+      console.log("🍪 已設定客戶端調試 cookies: _client_debug_jwt, _client_jwt_info")
+    }
+    
     // 先檢查 JWT token 是否有效
     const tokenPayload = parseJwt(token)
     console.log("🔍 JWT payload 檢查:", tokenPayload)

@@ -82,6 +82,27 @@ export const setAuthToken = async (token: string) => {
     secure: process.env.NODE_ENV === "production",
     domain: COOKIE_DOMAIN,
   })
+  
+  // 🔍 調試用：額外設置一個可在瀏覽器中查看的 JWT cookie
+  // 只在開發環境中設置，並截取 token 的前 100 字符以便查看
+  if (process.env.NODE_ENV === "development") {
+    cookies.set("_debug_jwt_preview", token.substring(0, 200) + "...", {
+      maxAge: 60 * 60 * 24 * 7,
+      httpOnly: false, // 允許在瀏覽器中查看
+      sameSite: "lax",
+      secure: false, // 開發環境中不需要 HTTPS
+      domain: COOKIE_DOMAIN,
+    })
+    
+    // 🔍 完整的 JWT token 用於調試（僅開發環境）
+    cookies.set("_debug_jwt_full", token, {
+      maxAge: 60 * 60 * 24 * 7,
+      httpOnly: false, // 允許在瀏覽器中查看
+      sameSite: "lax", 
+      secure: false,
+      domain: COOKIE_DOMAIN,
+    })
+  }
 }
 
 export const removeAuthToken = async () => {
@@ -94,6 +115,27 @@ export const removeAuthToken = async () => {
     domain: COOKIE_DOMAIN,
     path: "/",
   })
+  
+  // 🔍 同時移除調試 cookies
+  if (process.env.NODE_ENV === "development") {
+    cookies.set("_debug_jwt_preview", "", {
+      maxAge: -1,
+      httpOnly: false,
+      sameSite: "lax",
+      secure: false,
+      domain: COOKIE_DOMAIN,
+      path: "/",
+    })
+    
+    cookies.set("_debug_jwt_full", "", {
+      maxAge: -1,
+      httpOnly: false,
+      sameSite: "lax",
+      secure: false,
+      domain: COOKIE_DOMAIN,
+      path: "/",
+    })
+  }
 }
 
 export const getCartId = async () => {
