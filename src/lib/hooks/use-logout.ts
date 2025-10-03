@@ -27,7 +27,14 @@ const buildDestination = (countryCode?: string, redirectPath?: string) => {
   }
 
   const normalizedCode = countryCode?.trim()
-  return normalizedCode ? `/${normalizedCode}` : "/"
+  const destination = normalizedCode ? `/${normalizedCode}/account/login` : "/account/login"
+  
+  // 調試日誌
+  if (process.env.NODE_ENV === 'development') {
+    console.log('buildDestination:', { countryCode, normalizedCode, destination })
+  }
+  
+  return destination
 }
 
 export const useLogout = ({
