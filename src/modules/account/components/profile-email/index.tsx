@@ -1,12 +1,11 @@
 "use client"
 
-import React, { useEffect, useActionState, useState } from "react";
+import React, { useEffect, useActionState } from "react";
 
 import Input from "@modules/common/components/input"
 
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
-import { getDisplayEmail } from "@lib/utils/google-email-utils"
 // import { updateCustomer } from "@lib/data/customer"
 
 type MyInformationProps = {
@@ -15,13 +14,6 @@ type MyInformationProps = {
 
 const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
-  const [displayEmail, setDisplayEmail] = useState<string>(customer.email)
-
-  // 獲取顯示用的email（優先使用真實Google email）
-  useEffect(() => {
-    const realEmail = getDisplayEmail(customer.email)
-    setDisplayEmail(realEmail)
-  }, [customer.email])
 
   // Email 更新功能暫時禁用（基於安全考量）
   const updateCustomerEmail = (
@@ -49,7 +41,7 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
     <form action={formAction} className="w-full">
       <AccountInfo
         label="電子郵件"
-        currentInfo={displayEmail}
+        currentInfo={customer.email}
         isSuccess={successState}
         isError={!!state.error}
         errorMessage={state.error}
@@ -63,7 +55,7 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
             type="email"
             autoComplete="email"
             required
-            defaultValue={displayEmail}
+            defaultValue={customer.email}
             data-testid="email-input"
           />
         </div>

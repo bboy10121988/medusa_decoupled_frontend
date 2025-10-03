@@ -17,115 +17,38 @@ import {
 
 export const retrieveCustomer =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
-    // 首先嘗試使用標準的 Medusa JWT token 方式
     const authHeaders = await getAuthHeaders()
 
-    if (authHeaders) {
-      // 處理一般的 Medusa JWT token
-      const headers = {
-        ...authHeaders,
-      }
-
-      const next = {
-        ...(await getCacheOptions("customers")),
-      }
-
-      try {
-        const result = await sdk.client
-          .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
-            method: "GET",
-            query: {
-              fields: "*orders",
-            },
-            headers,
-            next,
-            cache: "force-cache",
-          })
-          .then(({ customer }) => customer)
-        
-        if (result) {
-          console.log('成功使用 JWT token 獲取客戶資訊:', result)
-          return result
-        }
-      } catch (error) {
-        console.error('使用 JWT token 獲取客戶資訊失敗:', error)
-      }
+    if (!authHeaders) {
+      return null
     }
 
-    // 如果標準方式失敗，檢查是否有舊版的 Google OAuth token 格式
-    const { cookies } = await import('next/headers')
-    const cookieStore = await cookies()
-    const token = cookieStore.get("_medusa_jwt")?.value
-    
-    if (token?.startsWith('google_oauth:')) {
-      // 處理 Google OAuth 用戶
-      try {
-        const sessionData = JSON.parse(token.replace('google_oauth:', ''))
-        console.log('找到 Google OAuth 會話:', sessionData)
-        
-        // 返回 Google OAuth 用戶資料
-        return {
-          id: sessionData.customer_id,
-          email: sessionData.email,
-          first_name: sessionData.first_name,
-          last_name: sessionData.last_name,
-          company_name: null,
-          phone: null,
-          has_account: true,
-          metadata: {
-            auth_provider: 'google'
+    const headers = {
+      ...authHeaders,
+    }
+
+    const next = {
+      ...(await getCacheOptions("customers")),
+    }
+
+    try {
+      const result = await sdk.client
+        .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
+          method: "GET",
+          query: {
+            fields: "*orders",
           },
-          addresses: [],
-          default_billing_address_id: null,
-          default_shipping_address_id: null,
-          created_at: sessionData.created_at,
-          updated_at: sessionData.created_at,
-        } as unknown as HttpTypes.StoreCustomer
-      } catch (error) {
-        console.error('無法解析 Google OAuth 會話:', error)
-        return null
-      }
+          headers,
+          next,
+          cache: "force-cache",
+        })
+        .then(({ customer }) => customer)
+      
+      return result
+    } catch (error) {
+      console.error('獲取客戶資訊失敗:', error)
+      return null
     }
-
-    if (token?.startsWith('medusa_google_')) {
-      // 處理 Medusa Google token
-      try {
-        const tokenData = token.replace('medusa_google_', '')
-        const sessionData = JSON.parse(Buffer.from(tokenData, 'base64').toString())
-        
-        // 檢查 token 是否過期
-        if (sessionData.expires_at && Date.now() > sessionData.expires_at) {
-          console.log('Google token 已過期')
-          return null
-        }
-        
-        console.log('找到 Medusa Google 會話:', sessionData)
-        
-        // 返回 Google 用戶資料
-        return {
-          id: sessionData.customer_id,
-          email: sessionData.email,
-          first_name: sessionData.first_name || '',
-          last_name: sessionData.last_name || '',
-          company_name: null,
-          phone: null,
-          has_account: true,
-          metadata: {
-            auth_provider: 'google'
-          },
-          addresses: [],
-          default_billing_address_id: null,
-          default_shipping_address_id: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        } as unknown as HttpTypes.StoreCustomer
-      } catch (error) {
-        console.error('無法解析 Medusa Google token:', error)
-        return null
-      }
-    }
-
-    return null
   }
 
 export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
@@ -265,15 +188,9 @@ export async function login(_currentState: unknown, formData: FormData) {
         return "電子郵件或密碼錯誤，請檢查後重試"
       }
       
-      // 處理 Google 登入用戶嘗試用密碼登入的情況
-      if (errorMessage.includes('provider') || errorMessage.includes('oauth') || 
-          errorMessage.includes('google') || errorMessage.includes('social')) {
-        return "此電子郵件已使用 Google 登入註冊，請點擊「使用 Google 登入」按鈕"
-      }
-      
       // 處理帳戶不存在的情況
       if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
-        return "找不到此電子郵件的帳戶，請先註冊或使用 Google 登入"
+        return "找不到此電子郵件的帳戶，請先註冊"
       }
       
       return errorMessage

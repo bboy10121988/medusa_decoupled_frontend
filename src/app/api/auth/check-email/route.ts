@@ -29,17 +29,7 @@ export async function POST(request: NextRequest) {
       // 基於錯誤訊息來推斷帳戶類型
       const lowerErrorMessage = errorMessage.toLowerCase()
       
-      // 檢查是否提到 Google 或 OAuth 相關
-      if (lowerErrorMessage.includes('google') || 
-          lowerErrorMessage.includes('oauth') || 
-          lowerErrorMessage.includes('social') ||
-          lowerErrorMessage.includes('provider')) {
-        return NextResponse.json({
-          exists: true,
-          authProvider: 'google',
-          message: '此電子郵件已使用 Google 登入註冊'
-        })
-      }
+
       
       // 檢查是否為密碼錯誤（表示帳戶存在但使用密碼認證）
       if (lowerErrorMessage.includes('invalid') || 

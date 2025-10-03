@@ -4,7 +4,6 @@ import ChevronDown from "@modules/common/icons/chevron-down"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
-import { getDisplayEmail } from "@lib/utils/google-email-utils"
 
 type OverviewProps = {
   customer: HttpTypes.StoreCustomer | null
@@ -24,9 +23,9 @@ const Overview = ({ customer, orders }: OverviewProps) => {
             <span
               className="font-semibold"
               data-testid="customer-email"
-              data-value={getDisplayEmail(customer?.email)}
+              data-value={customer?.email}
             >
-              {getDisplayEmail(customer?.email)}
+              {customer?.email}
             </span>
           </span>
         </div>

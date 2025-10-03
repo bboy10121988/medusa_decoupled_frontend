@@ -16,7 +16,7 @@ export async function POST() {
       'connect.sid',
       'session',
       'auth-token',
-      'google-oauth-state',
+
     ]
 
     cookiesToClear.forEach(name => {

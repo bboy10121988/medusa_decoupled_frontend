@@ -24,10 +24,8 @@ const COOKIES_TO_CLEAR = [
   "next-auth.csrf-token",
   "auth-token",
   "auth_session",
-  "google-oauth-state",
   "__Secure-next-auth.session-token",
   "__Host-next-auth.csrf-token",
-  "google-auth-state",
   // 調試 cookies
   "_debug_jwt_preview",
   "_debug_jwt_full",
