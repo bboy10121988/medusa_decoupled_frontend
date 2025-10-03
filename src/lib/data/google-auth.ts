@@ -218,9 +218,18 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
     
     // ⚠️ 最後的 email 檢查與錯誤處理
     if (!email) {
-      console.error("❌ 無法從任何來源獲取 email")
+      console.warn("⚠️ JWT 中未包含 email，但這是正常的")
+      console.log("📝 Medusa 後端會將真實 Google email 存入資料庫 provider_identity 表")
       console.log("🔍 完整 payload 結構:", JSON.stringify(payload, null, 2))
-      throw new Error("無法獲取使用者 email，請確認 Google 帳號已驗證 email 或聯繫管理員")
+      
+      // 🔧 修正：JWT沒有email是正常的，使用Google ID生成臨時email以便繼續流程
+      if (payload?.sub) {
+        email = `temp-google-${payload.sub}@medusa.local`
+        console.log("✅ 使用Google ID生成臨時 email 繼續流程:", email)
+        console.log("� 真實email會在後續從資料庫provider_identity表中獲取")
+      } else {
+        throw new Error("無法獲取 Google ID (sub)，無法繼續登入流程")
+      }
     }
 
     // 驗證 email 格式（如果有真實 email）
@@ -313,15 +322,16 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
         console.log("📧 資料庫中的客戶 email:", customerResponse.customer.email)
         console.log("📧 JWT中解析的真實 email:", email)
         
-        // 🔥 只有在資料庫email是debug且我們沒有從JWT獲取到真實email時，才使用API映射
-        const needsMapping = customerResponse.customer.email?.startsWith('debug-') && 
-                           (!email || email.startsWith('debug-'))
+        // 🔥 修正：由於JWT沒有email，總是嘗試從資料庫獲取真實email
+        const needsRealEmail = customerResponse.customer.email?.startsWith('debug-') || 
+                              customerResponse.customer.email?.startsWith('temp-google-') ||
+                              email.startsWith('temp-google-')
         
-        if (needsMapping) {
-          console.log("🔄 需要從映射表獲取真實 email...")
+        if (needsRealEmail) {
+          console.log("🔄 從資料庫provider_identity表獲取真實 Google email...")
           
           try {
-            // 調用後端 API 獲取 Google OAuth 的真實 email 並更新客戶資料
+            // 調用後端 API 獲取 Google OAuth 的真實 email
             const updateResponse = await fetch('/api/auth/update-google-email', {
               method: 'POST',
               headers: {
@@ -335,25 +345,26 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
             if (updateResponse.ok) {
               const updateData = await updateResponse.json()
               if (updateData.success && updateData.realEmail) {
-                console.log("✅ 從映射表獲取真實 Google email:", updateData.realEmail)
+                console.log("✅ 從資料庫獲取真實 Google email:", updateData.realEmail)
                 
                 // 🍪 將真實 email 存儲在 localStorage 中供前端使用
                 if (typeof window !== 'undefined') {
                   localStorage.setItem('google_real_email', updateData.realEmail)
                   localStorage.setItem('customer_display_email', updateData.realEmail)
-                  console.log("💾 已將映射的真實 email 存儲到 localStorage")
+                  console.log("💾 已將真實 email 存儲到 localStorage")
                 }
               } else {
-                console.warn("⚠️ 無法從映射表取得真實 email")
+                console.warn("⚠️ 無法從資料庫取得真實 email，可能是新用戶或未在映射表中")
+                console.log("💡 新用戶的真實email會在資料庫provider_identity表中，需要後端支援查詢")
               }
             } else {
-              console.warn("⚠️ 更新 email API 呼叫失敗")
+              console.warn("⚠️ 獲取真實 email API 呼叫失敗")
             }
           } catch (updateError) {
-            console.warn("⚠️ 更新 email 過程出錯:", updateError)
+            console.warn("⚠️ 獲取真實 email 過程出錯:", updateError)
           }
         } else {
-          console.log("✅ 已有真實 email，無需額外映射")
+          console.log("✅ 客戶email看起來是真實email，無需額外查詢")
         }
       } else {
         console.warn("⚠️ 無法取得客戶資料，但繼續重導向")
