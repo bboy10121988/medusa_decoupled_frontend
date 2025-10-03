@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { sdk } from "@lib/config"
 
 interface GoogleLoginButtonProps {
@@ -11,8 +11,10 @@ interface GoogleLoginButtonProps {
 
 const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
   const router = useRouter()
+  const params = useParams()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const countryCode = (params?.countryCode as string) || 'tw'
 
   const handleGoogleLogin = async () => {
     try {
@@ -33,7 +35,7 @@ const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
           return
         }
 
-        router.push("/tw/account")
+        router.push(`/${countryCode}/account`)
         return
       }
 

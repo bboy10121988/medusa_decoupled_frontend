@@ -2,13 +2,15 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { handleGoogleCallback } from "@lib/data/google-auth"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, useParams } from "next/navigation"
 
 function GoogleCallbackContent() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [error, setError] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const router = useRouter()
+  const params = useParams()
+  const countryCode = params.countryCode as string
 
   useEffect(() => {
     async function processCallback() {
@@ -25,7 +27,7 @@ function GoogleCallbackContent() {
         // 處理 Google 回調
         console.log("正在處理 Google 授權回調...")
         const queryObject = Object.fromEntries(searchParams.entries())
-        const result = await handleGoogleCallback(queryObject)
+        const result = await handleGoogleCallback(queryObject, countryCode)
 
         if (result && !result.success) {
           setError(result.error || "處理授權回調時發生未知錯誤")
@@ -49,11 +51,11 @@ function GoogleCallbackContent() {
   useEffect(() => {
     if (status === "error") {
       const timer = setTimeout(() => {
-        router.push("/tw/account")
+        router.push(`/${countryCode}/account`)
       }, 5000)
       return () => clearTimeout(timer)
     }
-  }, [status, router])
+  }, [status, router, countryCode])
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
@@ -87,7 +89,7 @@ function GoogleCallbackContent() {
           <h2 className="text-2xl font-medium mb-2">登入失敗</h2>
           <p className="text-red-600 mb-4">{error}</p>
           <p className="text-gray-600">將在 5 秒後返回會員中心，或者您可以 <button 
-            onClick={() => router.push("/tw/account")}
+            onClick={() => router.push(`/${countryCode}/account`)}
             className="text-blue-600 hover:underline"
           >立即返回</button></p>
         </div>

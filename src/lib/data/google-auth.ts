@@ -37,7 +37,7 @@ const buildQueryObject = (params: CallbackParams): Record<string, string> => {
 }
 
 // 處理 Google 登入回調（客戶端）
-export async function handleGoogleCallback(rawParams: CallbackParams) {
+export async function handleGoogleCallback(rawParams: CallbackParams, countryCode: string = 'tw') {
   try {
     if (process.env.NODE_ENV === "development") console.log("處理 Google 回調")
 
@@ -115,7 +115,7 @@ export async function handleGoogleCallback(rawParams: CallbackParams) {
       throw new Error("無法取得登入憑證")
     }
 
-    window.location.href = `/api/auth/set-token-redirect?token=${encodeURIComponent(authToken)}&redirect=/tw/account`
+    window.location.href = `/api/auth/set-token-redirect?token=${encodeURIComponent(authToken)}&redirect=/${countryCode}/account`
     return { success: true }
   } catch (error: any) {
     if (process.env.NODE_ENV === "development") console.error("Google 回調處理錯誤:", error)
