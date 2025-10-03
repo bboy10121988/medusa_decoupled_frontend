@@ -76,7 +76,12 @@ function GoogleCallbackContent() {
 
         const finalToken = (await sdk.client.getToken()) || token
         
-        window.location.href = `/api/auth/set-token?token=${encodeURIComponent(finalToken)}&redirect=/tw/account`
+        // 使用當前域名構建完整的 URL
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+        const setTokenUrl = `${baseUrl}/api/auth/set-token?token=${encodeURIComponent(finalToken)}&redirect=/tw/account`
+        
+        console.log("🔗 重定向到:", setTokenUrl)
+        window.location.href = setTokenUrl
         
       } catch (error: any) {
         console.error("OAuth 回調處理失敗:", error)
