@@ -228,7 +228,17 @@ export async function handleGoogleCallback(rawParams: CallbackParams, countryCod
         console.log("✅ 使用Google ID生成臨時 email 繼續流程:", email)
         console.log("� 真實email會在後續從資料庫provider_identity表中獲取")
       } else {
-        throw new Error("無法獲取 Google ID (sub)，無法繼續登入流程")
+        // 嘗試使用 actor_id 作為替代識別碼
+        const userIdentifier = payload?.actor_id
+        if (userIdentifier) {
+          email = `temp-google-${userIdentifier}@medusa.local`
+          console.log("✅ 使用 actor_id 生成臨時 email 繼續流程:", email)
+          console.log("📝 真實email會在後續從資料庫provider_identity表中獲取")
+        } else {
+          console.error("🚨 JWT 完全缺少用戶識別碼！")
+          console.error("🔍 payload 內容:", JSON.stringify(payload, null, 2))
+          throw new Error("無法獲取任何用戶識別碼 (sub 或 actor_id)，無法繼續登入流程")
+        }
       }
     }
 
