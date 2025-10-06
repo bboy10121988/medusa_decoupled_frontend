@@ -6,6 +6,7 @@ import { placeOrder } from "@lib/data/cart"
 import { PaymentData } from "../../../../internal/ecpayments"
 import { de, id } from "date-fns/locale"
 import {sdk} from "@lib/config";
+import { removeCartIdClient } from "@/lib/data/cart-storage"
 
 type Props = {
   cart: HttpTypes.StoreCart
@@ -148,7 +149,9 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
           console.log("order ID : ",data.order.id)
 
           const orderID: string = data.order.id
+
           // 清除 cart id
+          removeCartIdClient()
 
           // "使用者"付款完成後返回的網址
 
@@ -164,7 +167,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
           const form = document.createElement('form')
           form.method = 'POST'
           form.action = ecpayAPI
-          form.target = '_blank' // 開啟新視窗
+          // form.target = '_blank' // 開啟新視窗
           form.encType = 'application/x-www-form-urlencoded'
 
           // 添加所有參數作為隱藏輸入欄位
