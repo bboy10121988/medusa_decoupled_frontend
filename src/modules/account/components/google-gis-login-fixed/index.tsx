@@ -63,6 +63,7 @@ export default function GoogleGISLoginFixed({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           credential: response.credential,
         }),

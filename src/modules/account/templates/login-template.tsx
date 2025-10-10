@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import GoogleGISLogin from "@modules/account/components/google-gis-login-fixed"
 import Register from "@modules/account/components/register"
 import Login from "@modules/account/components/login"
+import { useAccount } from "@lib/context/account-context"
 
 export enum LOGIN_VIEW {
   SIGN_IN = "sign-in",
@@ -16,6 +18,20 @@ interface LoginTemplateProps {
 
 const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
   const [currentView, setCurrentView] = useState("sign-in")
+  const router = useRouter()
+  const { refreshCustomer } = useAccount()
+
+  const handleGoogleSuccess = async () => {
+    try {
+      await refreshCustomer()
+      const destination = `/${countryCode}/account`
+      router.push(destination)
+      router.refresh()
+    } catch (error) {
+      console.error("❌ Google 登入後刷新帳號狀態失敗:", error)
+      router.push(`/${countryCode}`)
+    }
+  }
 
   return (
     <div className="w-full flex justify-center px-8 py-8">
@@ -34,7 +50,7 @@ const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
           
           {/* 共用的 Google 登入按鈕 - 在切換時保持不變 */}
           <div className="w-full mb-6">
-            <GoogleGISLogin countryCode={countryCode} />
+            <GoogleGISLogin countryCode={countryCode} onSuccess={handleGoogleSuccess} />
           </div>
           
           {/* 分隔線 */}
