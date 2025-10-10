@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import GoogleLoginButton from "@modules/account/components/google-login-button"
+import GoogleGISLogin from "@modules/account/components/google-gis-login-fixed"
 import Register from "@modules/account/components/register"
 import Login from "@modules/account/components/login"
 
@@ -10,7 +10,11 @@ export enum LOGIN_VIEW {
   REGISTER = "register",
 }
 
-const LoginTemplate = () => {
+interface LoginTemplateProps {
+  countryCode?: string
+}
+
+const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
   const [currentView, setCurrentView] = useState("sign-in")
 
   return (
@@ -30,7 +34,7 @@ const LoginTemplate = () => {
           
           {/* 共用的 Google 登入按鈕 - 在切換時保持不變 */}
           <div className="w-full mb-6">
-            <GoogleLoginButton />
+            <GoogleGISLogin countryCode={countryCode} />
           </div>
           
           {/* 分隔線 */}

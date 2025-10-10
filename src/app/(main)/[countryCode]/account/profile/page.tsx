@@ -5,47 +5,37 @@ import ProfilePhone from "@modules/account/components/profile-phone"
 import ProfileBillingAddress from "@modules/account/components/profile-billing-address"
 import ProfileEmail from "@modules/account/components/profile-email"
 import ProfileName from "@modules/account/components/profile-name"
+import { useAccount } from "@lib/context/account-context"
 import { HttpTypes } from "@medusajs/types"
 
 export default function Profile() {
-  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
+  const { customer, loading: customerLoading } = useAccount()
   const [regions, setRegions] = useState<HttpTypes.StoreRegion[] | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRegions = async () => {
       try {
-        const [customerResponse, regionsResponse] = await Promise.all([
-          fetch('/api/auth/customer', {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          }),
-          fetch('/api/regions', {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          })
-        ])
+        const regionsResponse = await fetch('/api/regions', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        })
 
-        if (customerResponse.ok) {
-          const customerData = await customerResponse.json()
-          setCustomer(customerData.customer)
-        }
-        
         if (regionsResponse.ok) {
           const regionsData = await regionsResponse.json()
           setRegions(regionsData.regions || [])
         }
       } catch (err) {
-        console.error('獲取客戶資料失敗:', err)
+        console.error('獲取區域資料失敗:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchData()
+    fetchRegions()
   }, [])
 
-  if (loading) {
+  if (loading || !customer) {
     return (
       <div className="w-full flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -53,10 +43,10 @@ export default function Profile() {
     )
   }
 
-  if (!customer || !regions) {
+  if (!regions) {
     return (
       <div className="w-full flex items-center justify-center py-12">
-        <div className="text-red-500">載入資料時發生錯誤</div>
+        <div className="text-red-500">載入區域資料失敗</div>
       </div>
     )
   }

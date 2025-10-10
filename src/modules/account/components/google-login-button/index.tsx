@@ -1,41 +1,64 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { sdk } from "@lib/config"
 
 interface GoogleLoginButtonProps {
   onSuccess?: () => void
   onError?: (error: string) => void
+  countryCode?: string
 }
 
-const GoogleLoginButton = ({ onSuccess, onError }: GoogleLoginButtonProps) => {
+const GoogleLoginButton = ({ onSuccess, onError, countryCode = 'tw' }: GoogleLoginButtonProps) => {
   const router = useRouter()
-  const params = useParams()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const countryCode = (params?.countryCode as string) || 'tw'
 
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true)
       setError(null)
 
-      // 通過我們的 API 路由獲取 Google 授權 URL，傳遞國家代碼
-      const response = await fetch(`/api/medusa/auth/google?countryCode=${countryCode}`)
-      const data = await response.json()
+      const callbackUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/${countryCode}/auth/google/callback`
+          : undefined
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Google 登入初始化失敗')
-      }
+      const result = await sdk.auth.login("customer", "google", {
+        ...(callbackUrl ? { callback_url: callbackUrl } : {}),
+      })
 
-      if (data.authUrl) {
-        // 重定向到 Google 授權頁面
-        window.location.href = data.authUrl
+      if (typeof result !== "string" && result.location) {
+        window.location.href = result.location
         return
       }
 
-      throw new Error("無法取得 Google 授權 URL")
+      if (typeof result === "string") {
+        try {
+          await fetch('/api/auth/set-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ token: result }),
+          })
+        } catch (tokenError) {
+          console.error('設定登入憑證失敗:', tokenError)
+        }
+
+        if (onSuccess) {
+          onSuccess()
+          return
+        }
+
+        router.push(`/${countryCode}/account`)
+        router.refresh()
+        return
+      }
+
+      throw new Error("Google 登入回傳資料異常")
     } catch (err: any) {
       const message = err?.message || "Google 登入失敗，請稍後再試"
       setError(message)

@@ -4,35 +4,25 @@ import { useEffect, useState } from "react"
 import OrderOverview from "@modules/account/components/order-overview"
 import Divider from "@modules/common/components/divider"
 import TransferRequestForm from "@modules/account/components/transfer-request-form"
+import { useAccount } from "@lib/context/account-context"
 import { HttpTypes } from "@medusajs/types"
 
 export default function Orders() {
+  const { customer } = useAccount()
   const [orders, setOrders] = useState<HttpTypes.StoreOrder[] | null>(null)
-  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchOrders = async () => {
       try {
-        const [ordersResponse, customerResponse] = await Promise.all([
-          fetch('/api/customer/orders', {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          }),
-          fetch('/api/auth/customer', {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          })
-        ])
+        const ordersResponse = await fetch('/api/customer/orders', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        })
         
         if (ordersResponse.ok) {
           const ordersData = await ordersResponse.json()
           setOrders(ordersData.orders || [])
-        }
-        
-        if (customerResponse.ok) {
-          const customerData = await customerResponse.json()
-          setCustomer(customerData.customer)
         }
       } catch (err) {
         console.error('獲取訂單資料失敗:', err)
@@ -41,7 +31,7 @@ export default function Orders() {
       }
     }
 
-    fetchData()
+    fetchOrders()
   }, [])
 
   if (loading) {

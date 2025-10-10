@@ -1,65 +1,72 @@
 import { NextRequest, NextResponse } from "next/server"
-import { sdk } from "@lib/config"
-import { setAuthToken } from "@lib/data/cookies"
+import Medusa from "@medusajs/js-sdk"
+import { getApiConfig } from "@lib/config"
+import { getCacheTag, getCartId, setAuthToken } from "@lib/data/cookies"
+import { revalidateTag } from "next/cache"
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
 
-    // 驗證必填欄位
     if (!email || !password) {
-      return NextResponse.json({ 
-        error: "請輸入電子郵件和密碼" 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          success: false,
+          error: "請輸入電子郵件和密碼",
+        },
+        { status: 400 }
+      )
     }
 
-    // 驗證電子郵件格式
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ 
-        error: "請輸入有效的電子郵件地址" 
-      }, { status: 400 })
+    const medusa = new Medusa(getApiConfig())
+    const result = await medusa.auth.login("customer", "emailpass", { email, password })
+
+    if (typeof result !== "string") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "登入流程需要額外驗證，請使用預設登入表單。",
+        },
+        { status: 400 }
+      )
+    }
+
+    await setAuthToken(result)
+
+    try {
+      const cartId = await getCartId()
+
+      if (cartId) {
+        await medusa.store.cart.transferCart(cartId, {}, {})
+      }
+    } catch (cartError) {
+      console.warn("登入後轉移購物車失敗:", cartError)
     }
 
     try {
-      // 使用 Medusa SDK 進行登入
-      const token = await sdk.auth.login("customer", "emailpass", {
-        email,
-        password
-      })
-
-      if (!token) {
-        return NextResponse.json({ 
-          error: "電子郵件或密碼錯誤" 
-        }, { status: 401 })
+      const customerTag = await getCacheTag("customers")
+      if (customerTag) {
+        revalidateTag(customerTag)
       }
-
-      // 設置認證 token 到 cookies
-      await setAuthToken(token as string)
-
-      return NextResponse.json({ 
-        success: true,
-        message: "登入成功" 
-      })
-  } catch (authError: any) {
-    if (process.env.NODE_ENV === 'development') console.error("Authentication error:", authError)
-      
-      // 處理常見的認證錯誤
-      if (authError.message?.includes("Invalid email or password") || 
-          authError.message?.includes("Unauthorized")) {
-        return NextResponse.json({ 
-          error: "電子郵件或密碼錯誤" 
-        }, { status: 401 })
-      }
-      
-      return NextResponse.json({ 
-        error: "登入失敗，請稍後再試" 
-      }, { status: 500 })
+    } catch (error) {
+      console.warn("重新驗證客戶快取失敗:", error)
     }
+
+    return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error("Login API error:", error)
-    return NextResponse.json({ 
-      error: "登入失敗，請稍後再試" 
-    }, { status: 500 })
+    console.error("登入 API 發生錯誤:", error)
+
+    const message =
+      error?.message?.includes("unauthorized") || error?.message?.includes("401")
+        ? "電子郵件或密碼錯誤，請重新輸入"
+        : "登入失敗，請稍後再試"
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: message,
+      },
+      { status: 500 }
+    )
   }
 }

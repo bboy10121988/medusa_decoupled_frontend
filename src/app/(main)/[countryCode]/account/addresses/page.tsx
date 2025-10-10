@@ -3,39 +3,29 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import AddressBook from "@modules/account/components/address-book"
+import { useAccount } from "@lib/context/account-context"
 import { HttpTypes } from "@medusajs/types"
 
 export default function Addresses() {
   const params = useParams()
   const countryCode = params.countryCode as string
-  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
+  const { customer } = useAccount()
   const [region, setRegion] = useState<HttpTypes.StoreRegion | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRegions = async () => {
       try {
-        const [customerResponse, regionsResponse] = await Promise.all([
-          fetch('/api/auth/customer', {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          }),
-          fetch('/api/regions', {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          })
-        ])
+        const regionsResponse = await fetch('/api/regions', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        })
 
-        if (customerResponse.ok) {
-          const customerData = await customerResponse.json()
-          setCustomer(customerData.customer)
-        }
-        
         if (regionsResponse.ok) {
           const regionsData = await regionsResponse.json()
           const regions = regionsData.regions || []
-          const currentRegion = regions.find((r: any) => 
-            r.countries?.some((c: any) => c.iso_2 === countryCode)
+          const currentRegion = regions.find((r: HttpTypes.StoreRegion) => 
+            r.countries?.some(country => country.iso_2 === countryCode)
           )
           setRegion(currentRegion || regions[0] || null)
         }
@@ -46,10 +36,10 @@ export default function Addresses() {
       }
     }
 
-    fetchData()
+    fetchRegions()
   }, [countryCode])
 
-  if (loading) {
+  if (loading || !customer) {
     return (
       <div className="w-full flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -57,7 +47,7 @@ export default function Addresses() {
     )
   }
 
-  if (!customer || !region) {
+  if (!region) {
     return (
       <div className="w-full flex items-center justify-center py-12">
         <div className="text-red-500">載入資料時發生錯誤</div>

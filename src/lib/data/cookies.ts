@@ -12,6 +12,13 @@ export const getAuthHeaders = async (): Promise<
     const cookies = await nextCookies()
     const token = cookies.get("_medusa_jwt")?.value
     
+    console.log('🔍 getAuthHeaders - 檢查 token:', {
+      hasToken: !!token,
+      tokenLength: token?.length || 0,
+      tokenPreview: token ? `${token.substring(0, 30)}...` : null,
+      cookieName: '_medusa_jwt'
+    })
+    
     // 總是包含 publishable key
     const headers: { authorization?: string; 'x-publishable-api-key'?: string } = {}
     
@@ -21,14 +28,15 @@ export const getAuthHeaders = async (): Promise<
     }
 
     if (!token) {
+      console.log('❌ getAuthHeaders - 沒有找到 token，返回僅含 publishable key 的 headers')
       return headers
     }
 
-
-
     headers.authorization = `Bearer ${token}`
+    console.log('✅ getAuthHeaders - 設置 authorization header')
     return headers
-  } catch {
+  } catch (error) {
+    console.error('❌ getAuthHeaders 錯誤:', error)
     // 即使出錯也返回 publishable key
     if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
       return { 'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }

@@ -1,52 +1,22 @@
 "use client"
 
-import { useEffect, useState, ReactNode } from "react"
+import { ReactNode } from "react"
+import { useParams } from "next/navigation"
 import { Toaster } from "@medusajs/ui"
 import AccountLayout from "@modules/account/templates/account-layout"
 import LoginTemplate from "@modules/account/templates/login-template"
-import { HttpTypes } from "@medusajs/types"
+import { AccountProvider, useAccount } from "@lib/context/account-context"
 
 export const dynamic = 'force-dynamic'
 
-export default function ClientAccountLayout({
-  children,
-}: {
-  children: ReactNode
-}) {
-  const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null)
-  const [loading, setLoading] = useState(true)
+function AccountContent({ children }: { children: ReactNode }) {
+  const params = useParams()
+  const countryCode = params?.countryCode as string || 'tw'
+  const { customer, loading, refreshCustomer } = useAccount()
 
-  const handleLogoutComplete = () => {
-    setCustomer(null)
+  const handleLogoutComplete = async () => {
+    await refreshCustomer()
   }
-
-  useEffect(() => {
-    const fetchCustomer = async () => {
-      try {
-        // 使用我們自己的 API 端點，並包含 cookies
-        const response = await fetch('/api/auth/customer', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          // 設置客戶狀態，無論是 null 還是有效客戶
-          setCustomer(data?.customer || null)
-        }
-      } catch (err) {
-        console.error('獲取客戶資料失敗:', err)
-        // 不設置客戶資料，保持 null 狀態
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchCustomer()
-  }, [])
 
   if (loading) {
     return (
@@ -59,9 +29,21 @@ export default function ClientAccountLayout({
   return (
     <>
       <AccountLayout customer={customer} onLogout={handleLogoutComplete}>
-        {customer ? children : <LoginTemplate />}
+        {customer ? children : <LoginTemplate countryCode={countryCode} />}
       </AccountLayout>
       <Toaster />
     </>
+  )
+}
+
+export default function ClientAccountLayout({
+  children,
+}: {
+  children: ReactNode
+}) {
+  return (
+    <AccountProvider>
+      <AccountContent>{children}</AccountContent>
+    </AccountProvider>
   )
 }

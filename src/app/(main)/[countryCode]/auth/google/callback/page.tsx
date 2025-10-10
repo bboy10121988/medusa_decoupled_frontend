@@ -1,113 +1,143 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState, Suspense, use } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { handleGoogleCallback } from "@lib/data/google-auth"
-import { useRouter, useSearchParams, useParams } from "next/navigation"
 
-function GoogleCallbackContent() {
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
-  const [error, setError] = useState<string | null>(null)
-  const searchParams = useSearchParams()
+interface GoogleCallbackContentProps {
+  params: Promise<{ countryCode: string }>
+}
+
+function GoogleCallbackContent({ params }: GoogleCallbackContentProps) {
+  const resolvedParams = use(params)
   const router = useRouter()
-  const params = useParams()
-  const countryCode = params.countryCode as string
-
+  const searchParams = useSearchParams()
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+  const [message, setMessage] = useState('')
+  
   useEffect(() => {
-    async function processCallback() {
+    const processCallback = async () => {
       try {
-        // 獲取授權碼
-        const code = searchParams.get("code")
+        const code = searchParams.get('code')
+        const stateParam = searchParams.get('state')
+        const error = searchParams.get('error')
+        
+        if (error) {
+          setStatus('error')
+          setMessage(`OAuth 錯誤: ${error}`)
+          setTimeout(() => {
+            router.push(`/${resolvedParams.countryCode}/account`)
+          }, 3000)
+          return
+        }
+
         if (!code) {
-          const error = searchParams.get("error") || "未收到授權碼"
-          setError(`Google 登入失敗: ${error}`)
-          setStatus("error")
+          setStatus('error')
+          setMessage('缺少授權代碼')
+          setTimeout(() => {
+            router.push(`/${resolvedParams.countryCode}/account`)
+          }, 3000)
           return
         }
 
-        // 處理 Google 回調
-        console.log("正在處理 Google 授權回調...")
-        const queryObject = Object.fromEntries(searchParams.entries())
-        const result = await handleGoogleCallback(queryObject, countryCode)
+        setStatus('loading')
+        setMessage('處理 Google 登入中...')
 
-        if (result && !result.success) {
-          setError(result.error || "處理授權回調時發生未知錯誤")
-          setStatus("error")
-          return
+        const redirectUri =
+          typeof window !== 'undefined'
+            ? `${window.location.origin}${window.location.pathname}`
+            : undefined
+
+        const result = await handleGoogleCallback({
+          code,
+          state: stateParam || '',
+          ...(redirectUri ? { redirect_uri: redirectUri } : {}),
+        })
+
+        if (result.success) {
+          setStatus('success')
+          setMessage('登入成功！正在重定向...')
+
+          setTimeout(() => {
+            router.replace(`/${resolvedParams.countryCode}/account`)
+          }, 1500)
+        } else {
+          setStatus('error')
+          setMessage(result.error || '登入失敗')
+          setTimeout(() => {
+            router.push(`/${resolvedParams.countryCode}/account`)
+          }, 3000)
         }
-
-        // handleGoogleCallback 會自動重定向，以下代碼通常不會執行
-        setStatus("success")
-      } catch (err: any) {
-        console.error("Google 回調處理出錯:", err)
-        setError(err.message || "處理 Google 登入時發生錯誤")
-        setStatus("error")
+      } catch (error) {
+        console.error('Google callback error:', error)
+        setStatus('error')
+        setMessage('處理 Google 登入時發生錯誤')
+        setTimeout(() => {
+          router.push(`/${resolvedParams.countryCode}/account`)
+        }, 3000)
       }
     }
-
+    
     processCallback()
-  }, [searchParams])
-
-  // 錯誤發生時，等待幾秒後重定向到會員中心
-  useEffect(() => {
-    if (status === "error") {
-      const timer = setTimeout(() => {
-        router.push(`/${countryCode}/account`)
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [status, router, countryCode])
-
+  }, [searchParams, router, resolvedParams.countryCode])
+  
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
-      {status === "loading" && (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-2xl font-medium mb-2">處理 Google 登入中</h2>
-          <p className="text-gray-600">請稍候，正在完成您的登入...</p>
+          {status === 'loading' && (
+            <>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                正在處理 Google 登入...
+              </h2>
+              <p className="text-gray-600">請稍候</p>
+            </>
+          )}
+          
+          {status === 'success' && (
+            <>
+              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-green-900 mb-2">
+                {message}
+              </h2>
+            </>
+          )}
+          
+          {status === 'error' && (
+            <>
+              <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-red-900 mb-2">
+                登入失敗
+              </h2>
+              <p className="text-red-600 mb-4">{message}</p>
+              <p className="text-gray-600 text-sm">即將重定向到登入頁面...</p>
+            </>
+          )}
         </div>
-      )}
-
-      {status === "success" && (
-        <div className="text-center">
-          <div className="w-16 h-16 text-green-500 mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-medium mb-2">登入成功！</h2>
-          <p className="text-gray-600">正在將您重定向到帳戶頁面...</p>
-        </div>
-      )}
-
-      {status === "error" && (
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 text-red-500 mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-medium mb-2">登入失敗</h2>
-          <p className="text-red-600 mb-4">{error}</p>
-          <p className="text-gray-600">將在 5 秒後返回會員中心，或者您可以 <button 
-            onClick={() => router.push(`/${countryCode}/account`)}
-            className="text-blue-600 hover:underline"
-          >立即返回</button></p>
-        </div>
-      )}
+      </div>
     </div>
   )
 }
 
-export default function GoogleCallbackPage() {
+export default function GoogleCallbackPage({ params }: GoogleCallbackContentProps) {
   return (
-    <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <h2 className="text-2xl font-medium mb-2">載入中...</h2>
-        <p className="text-gray-600">正在處理您的請求...</p>
-      </div>
-    }>
-      <GoogleCallbackContent />
+    <Suspense 
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      }
+    >
+      <GoogleCallbackContent params={params} />
     </Suspense>
   )
 }
