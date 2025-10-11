@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Register from "@modules/account/components/register"
 import Login from "@modules/account/components/login"
+import GoogleLoginButton from "@modules/account/components/google-login-button"
 
 export enum LOGIN_VIEW {
   SIGN_IN = "sign-in",
@@ -33,7 +34,13 @@ const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
           
           {/* 登入/註冊表單 */}
           {currentView === "sign-in" ? (
-            <Login setCurrentView={setCurrentView} />
+            <>
+              <div className="w-full flex flex-col items-center mb-6">
+                <GoogleLoginButton />
+                <div className="text-gray-500 my-4">- 或使用電子郵件登入 -</div>
+              </div>
+              <Login setCurrentView={setCurrentView} />
+            </>
           ) : (
             <Register setCurrentView={setCurrentView} />
           )}

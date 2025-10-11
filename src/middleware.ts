@@ -147,6 +147,11 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.includes("/affiliate-admin")) {
     return NextResponse.next()
   }
+  
+  // Skip middleware for auth routes (needed for OAuth callbacks)
+  if (request.nextUrl.pathname.startsWith("/auth")) {
+    return NextResponse.next()
+  }
 
   // 預設不重導，必要時才建立 redirect 回應
   let response = NextResponse.next()
@@ -293,6 +298,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|images|assets|studio|cms|png|svg|jpg|jpeg|gif|webp).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|images|assets|studio|cms|auth|png|svg|jpg|jpeg|gif|webp).*)",
   ],
 }
