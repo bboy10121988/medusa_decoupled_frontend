@@ -18,7 +18,6 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
   const fetchCustomer = async () => {
     try {
-      console.log('🔍 檢查用戶認證狀態...')
       const response = await fetch('/api/auth/customer', {
         method: 'GET',
         credentials: 'include',
@@ -28,19 +27,15 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         cache: 'no-cache'
       })
       
-      console.log('📡 用戶認證 API 回應:', response.status)
-      
       if (response.ok) {
         const data = await response.json()
         const customerData = data?.customer || null
-        console.log('✅ 用戶狀態:', customerData ? `已登入 (${customerData.email})` : '未登入')
         setCustomer(customerData)
       } else {
-        console.log('❌ 用戶認證失敗:', response.status)
         setCustomer(null)
       }
     } catch (err) {
-      console.error('❌ 獲取客戶資料失敗:', err)
+      console.error('Failed to fetch customer:', err)
       setCustomer(null)
     } finally {
       setLoading(false)
@@ -54,8 +49,6 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchCustomer()
-    
-    // SDK 版本不需要特殊的重定向處理，所以我們也移除這部分
   }, [])
 
   const value = useMemo<AccountContextType>(() => ({

@@ -16,7 +16,8 @@ export const getAuthHeaders = async (): Promise<
       hasToken: !!token,
       tokenLength: token?.length || 0,
       tokenPreview: token ? `${token.substring(0, 30)}...` : null,
-      cookieName: '_medusa_jwt'
+      cookieName: '_medusa_jwt',
+      allCookies: Array.from(cookies.getAll()).map(c => c.name)
     })
     
     // 總是包含 publishable key
@@ -77,7 +78,15 @@ export const getCacheOptions = async (
 }
 
 export const setAuthToken = async (token: string) => {
+  console.log("📝 setAuthToken 開始", {
+    tokenLength: token?.length || 0,
+    tokenPreview: token ? token.substring(0, 50) + "..." : null,
+    env: process.env.NODE_ENV,
+    cookieDomain: COOKIE_DOMAIN
+  })
+  
   const cookies = await nextCookies()
+  
   cookies.set("_medusa_jwt", token, {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
@@ -88,6 +97,8 @@ export const setAuthToken = async (token: string) => {
     domain: COOKIE_DOMAIN,
     path: "/", // 確保 cookie 路徑一致
   })
+  
+  console.log("✅ setAuthToken 完成 - _medusa_jwt cookie 已設置")
   
   // 🔍 調試用：額外設置一個可在瀏覽器中查看的 JWT cookie
   // 只在開發環境中設置，並截取 token 的前 100 字符以便查看
@@ -110,6 +121,8 @@ export const setAuthToken = async (token: string) => {
       domain: COOKIE_DOMAIN,
       path: "/", // 確保路徑一致
     })
+    
+    console.log("✅ setAuthToken 完成 - Debug cookies 已設置 (_debug_jwt_preview, _debug_jwt_full)")
   }
 }
 

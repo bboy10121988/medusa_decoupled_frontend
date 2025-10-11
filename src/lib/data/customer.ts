@@ -111,13 +111,18 @@ export async function signup(_currentState: unknown, formData: FormData) {
   }
 
   try {
+    console.log("🔐 開始傳統註冊流程:", { email: customerForm.email })
+    
     // 使用標準 Medusa SDK 進行註冊
-    const token = await sdk.auth.register("customer", "emailpass", {
+    const registerToken = await sdk.auth.register("customer", "emailpass", {
       email: customerForm.email,
       password: password,
     })
 
-    await setAuthToken(token)
+    console.log("✅ 註冊成功，獲得 token:", { hasToken: !!registerToken })
+
+    // 先設置註冊 token 來創建客戶資料
+    await setAuthToken(registerToken)
 
     const headers = {
       ...(await getAuthHeaders()),
@@ -129,19 +134,27 @@ export async function signup(_currentState: unknown, formData: FormData) {
       headers
     )
 
-    // 註冊後自動登入
+    console.log("✅ 客戶資料創建成功:", { 
+      customerId: createdCustomer?.id, 
+      email: createdCustomer?.email 
+    })
+
+    // 註冊後自動登入以獲得完整的認證狀態
     const loginToken = await sdk.auth.login("customer", "emailpass", {
       email: customerForm.email,
       password,
     })
 
+    console.log("✅ 自動登入成功，設置最終 token")
     await setAuthToken(loginToken as string)
 
+    // 清除快取並轉移購物車
     const customerCacheTag = await getCacheTag("customers")
     revalidateTag(customerCacheTag)
 
     await transferCart()
 
+    console.log("🎉 註冊流程完成，客戶應已登入")
     return createdCustomer
   } catch (error: any) {
     console.error("註冊錯誤:", error)
@@ -439,5 +452,24 @@ async function ensureCartAssociation() {
     revalidateTag(cartCacheTag)
     
     console.log("已清除本地購物車，系統將創建新的購物車")
+  }
+}
+
+export async function handleGoogleCallback(token: string) {
+  try {
+    console.log("🔐 處理 Google 登入回調")
+    
+    await setAuthToken(token)
+    
+    const customerCacheTag = await getCacheTag("customers")
+    revalidateTag(customerCacheTag)
+    
+    await transferCart()
+    
+    console.log("✅ Google 登入成功")
+    return { success: true }
+  } catch (error: any) {
+    console.error("❌ Google 登入回調處理失敗:", error)
+    return { success: false, error: error.message || "處理失敗" }
   }
 }

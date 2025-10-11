@@ -1,11 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import GoogleGISLogin from "@modules/account/components/google-gis-login-fixed"
 import Register from "@modules/account/components/register"
 import Login from "@modules/account/components/login"
-import { useAccount } from "@lib/context/account-context"
 
 export enum LOGIN_VIEW {
   SIGN_IN = "sign-in",
@@ -18,20 +15,6 @@ interface LoginTemplateProps {
 
 const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
   const [currentView, setCurrentView] = useState("sign-in")
-  const router = useRouter()
-  const { refreshCustomer } = useAccount()
-
-  const handleGoogleSuccess = async () => {
-    try {
-      await refreshCustomer()
-      const destination = `/${countryCode}/account`
-      router.push(destination)
-      router.refresh()
-    } catch (error) {
-      console.error("❌ Google 登入後刷新帳號狀態失敗:", error)
-      router.push(`/${countryCode}`)
-    }
-  }
 
   return (
     <div className="w-full flex justify-center px-8 py-8">
@@ -48,22 +31,7 @@ const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
             }
           </p>
           
-          {/* 共用的 Google 登入按鈕 - 在切換時保持不變 */}
-          <div className="w-full mb-6">
-            <GoogleGISLogin countryCode={countryCode} onSuccess={handleGoogleSuccess} />
-          </div>
-          
-          {/* 分隔線 */}
-          <div className="relative mb-6 w-full">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">或</span>
-            </div>
-          </div>
-          
-          {/* 動態內容區域 - 只渲染表單部分，不包含 Google 按鈕 */}
+          {/* 登入/註冊表單 */}
           {currentView === "sign-in" ? (
             <Login setCurrentView={setCurrentView} />
           ) : (

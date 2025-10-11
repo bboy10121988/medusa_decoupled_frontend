@@ -3,7 +3,8 @@ import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import Input from "@modules/common/components/input"
-import { useActionState, useState } from "react"
+import { useActionState, useState, useEffect } from "react"
+import { useAccount } from "@lib/context/account-context"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -16,12 +17,41 @@ interface EmailCheckResult {
 }
 
 const Login = ({ setCurrentView }: Props) => {
-  const [message, formAction] = useActionState(login, null)
+  const [result, formAction] = useActionState(login, null)
+  const { refreshCustomer } = useAccount()
+
+  // 處理登入成功
+  useEffect(() => {
+    if (result === "login_success") {
+      console.log("🎉 登入成功，刷新客戶狀態並重定向")
+      
+      const handleSuccess = async () => {
+        try {
+          await refreshCustomer()
+          // 給 cookie 一點時間生效
+          setTimeout(() => {
+            window.location.href = '/tw/account'
+          }, 500)
+        } catch (error) {
+          console.error("刷新客戶狀態失敗:", error)
+          // 即使刷新失敗，也嘗試重定向
+          setTimeout(() => {
+            window.location.href = '/tw/account'
+          }, 500)
+        }
+      }
+      
+      handleSuccess()
+    }
+  }, [result, refreshCustomer])
+
+  // 錯誤訊息：如果不是成功狀態，就當作錯誤訊息
+  const errorMessage = result && result !== "login_success" ? result : null
   const [emailCheckResult, setEmailCheckResult] = useState<EmailCheckResult | null>(null)
   const [isCheckingEmail, setIsCheckingEmail] = useState(false)
 
   const checkEmail = async (email: string) => {
-    if (!email || !email.includes('@')) {
+    if (!email?.includes('@')) {
       setEmailCheckResult(null)
       return
     }
@@ -99,7 +129,7 @@ const Login = ({ setCurrentView }: Props) => {
             disabled={false}
           />
         </div>
-        <ErrorMessage error={message} data-testid="login-error-message" />
+        <ErrorMessage error={errorMessage} data-testid="login-error-message" />
         
         <SubmitButton 
           data-testid="sign-in-button" 
