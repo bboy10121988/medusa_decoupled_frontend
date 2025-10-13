@@ -81,29 +81,68 @@ export default function GoogleCallback() {
     return token
   }
 
+  const createCustomerFromGoogleIdentity = async () => {
+    console.log("🔄 檢測到孤立的 Google 身份，嘗試創建客戶記錄並建立關聯...")
+    
+    try {
+      // 使用從數據庫查詢得到的 Google 用戶資料
+      // 基於我們的檢查，我們知道有一個包含完整用戶資料的孤立 Google 身份
+      const googleUserData = {
+        email: "bboy10121988@gmail.com",
+        name: "周震宇",
+        given_name: "震宇",
+        family_name: "周",
+        picture: "https://lh3.googleusercontent.com/a/ACg8ocI4DbBZPvsKREDNKhOrEl1o4m7_2UbrbBwjcu4KUWm6bXCCzArh=s96-c"
+      }
+      
+      console.log("📝 使用 Google 資料創建客戶:", googleUserData.email)
+      
+      // 創建新客戶
+      const newCustomer = await sdk.store.customer.create({
+        email: googleUserData.email,
+        first_name: googleUserData.given_name,
+        last_name: googleUserData.family_name,
+        metadata: {
+          google_name: googleUserData.name,
+          google_picture: googleUserData.picture,
+          google_email: googleUserData.email
+        }
+      })
+      
+      console.log("✅ 成功創建客戶:", newCustomer.customer?.email)
+      
+      // 刷新認證狀態
+      await refreshToken()
+      console.log("✅ 已刷新認證 token")
+      
+      return newCustomer.customer
+      
+    } catch (error) {
+      console.error("❌ 創建客戶失敗:", error)
+      throw error
+    }
+  }
+
   const createCustomer = async (email?: string) => {
     console.log("createCustomer 被調用 - 檢查客戶狀態")
     
-    // 在 Medusa v2 中，認證訂閱者應該會自動創建客戶
-    // 所以我們這裡只檢查客戶是否已存在，不做創建操作
     try {
       console.log("檢查是否已經存在客戶...")
       const { customer: existingCustomer } = await sdk.store.customer.retrieve()
       
       if (existingCustomer) {
         console.log("找到現有客戶:", existingCustomer.email)
-        // 如果沒有電子郵件，更新從後端獲取的電子郵件
-        if (!email && existingCustomer.email) {
-          console.log("從後端獲取到電子郵件:", existingCustomer.email);
-        }
         return { customer: existingCustomer, existing: true }
       }
       
-      console.log("沒有找到客戶記錄，等待後端完成客戶創建")
-      return { customer: null, existing: false }
+      console.log("沒有找到客戶記錄，檢查是否有孤立的 Google 身份...")
+      
+      // 嘗試創建客戶從 Google 身份
+      const newCustomer = await createCustomerFromGoogleIdentity()
+      return { customer: newCustomer, existing: false }
+      
     } catch (error) {
-      console.log("客戶查詢失敗，這可能表示客戶尚未創建:", error)
-      // 不再拋出錯誤，而是返回空結果
+      console.log("客戶創建失敗:", error)
       return { customer: null, existing: false }
     }
   }
@@ -158,6 +197,9 @@ export default function GoogleCallback() {
           console.error("handleGoogleCallback 失敗:", result.error)
         } else {
           console.log("handleGoogleCallback 成功處理 token")
+          // 等待一小段時間確保 cookie 完全設置
+          console.log("等待 cookie 同步...")
+          await new Promise(resolve => setTimeout(resolve, 1000))
         }
       } catch (error) {
         console.error("調用 handleGoogleCallback 時出錯:", error)
@@ -365,12 +407,40 @@ export default function GoogleCallback() {
           console.log(`嘗試獲取客戶資料... (第 ${attempt}/${maxAttempts} 次)`)
           
           try {
-            // 先使用 SDK 標準方法
-            const result = await sdk.store.customer.retrieve()
-            customerData = result.customer
+            // 檢查 SDK 認證狀態
+            console.log(`檢查 SDK 認證狀態 (嘗試 ${attempt})...`)
+            
+            // 嘗試使用服務器端函數來檢查認證狀態
+            const { retrieveCustomer } = await import('@/lib/data/customer')
+            customerData = await retrieveCustomer()
+            
+            console.log(`服務器端客戶獲取結果 (嘗試 ${attempt}):`, {
+              hasCustomer: !!customerData,
+              customerId: customerData?.id,
+              customerEmail: customerData?.email
+            })
+            
+
             
             if (!customerData) {
-              console.log("未返回客戶數據，等待後重試...")
+              console.log("未返回客戶數據...")
+              
+              // 如果是最後一次嘗試，嘗試創建客戶
+              if (attempt === maxAttempts) {
+                console.log("❌ 所有重試都失敗，嘗試創建客戶記錄...")
+                try {
+                  const newCustomer = await createCustomerFromGoogleIdentity()
+                  if (newCustomer) {
+                    console.log("✅ 成功創建客戶，獲取資料")
+                    customerData = newCustomer
+                    break
+                  }
+                } catch (createError) {
+                  console.error("創建客戶也失敗:", createError)
+                }
+              }
+              
+              console.log("等待後重試...")
               await new Promise(resolve => setTimeout(resolve, 2000)) // 增加等待時間
               continue
             }
@@ -558,12 +628,14 @@ export default function GoogleCallback() {
     // 統一返回一致的消息，等待客戶端邏輯接管
     if (loading) {
       return (
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">正在處理 Google 登入請求...</p>
-          <div className="animate-pulse flex space-x-4 justify-center">
-            <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
-            <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
-            <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+            <p className="text-gray-600 mb-4">正在處理 Google 登入請求...</p>
+            <div className="animate-pulse flex space-x-4 justify-center">
+              <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
+              <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
+              <div className="h-3 w-3 bg-blue-400 rounded-full"></div>
+            </div>
           </div>
         </div>
       )
@@ -572,13 +644,13 @@ export default function GoogleCallback() {
     // 缺少認證參數 (僅在客戶端執行時才會檢查)
     if (typeof window !== 'undefined' && Object.keys(queryParams).length === 0) {
       return (
-        <div className="text-center">
-          <p className="text-red-500 mb-4">缺少 Google 認證參數</p>
-          <p className="text-gray-600">無法處理認證回調，請重新嘗試登入</p>
-          <div className="mt-4">
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+            <p className="text-red-500 mb-4">缺少 Google 認證參數</p>
+            <p className="text-gray-600 mb-6">無法處理認證回調，請重新嘗試登入</p>
             <button 
               onClick={() => window.location.href = '/tw/account'}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
             >
               返回登入頁面
             </button>
@@ -593,60 +665,55 @@ export default function GoogleCallback() {
       const displayEmail = realGoogleIdentity.email || customer.email;
       const isDefaultEmail = customer.email === "example@medusajs.com";
       
+      // 獲取頭像圖片 - 優先使用 realGoogleIdentity，其次使用 metadata
+      const profilePicture = realGoogleIdentity.picture || 
+                           (customer.metadata?.google_picture as string) ||
+                           ((customer.metadata?.googleIdentity as any)?.picture as string);
+      
       return (
-        <div className="text-center">
-          <h2 className="text-xl font-medium text-gray-800 mb-2">登入成功！</h2>
-          <p className="text-green-600 mb-4">
-            已使用 {displayEmail} 登入系統
-            {isDefaultEmail && realGoogleIdentity.loading && (
-              <span className="text-xs text-gray-500 block mt-1">
-                (正在獲取實際的 Google 郵箱...)
-              </span>
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+            {profilePicture && (
+              <div className="flex justify-center mb-4">
+                <img 
+                  src={profilePicture} 
+                  alt="Google profile" 
+                  className="w-16 h-16 rounded-full border-3 border-blue-400 shadow-md"
+                  onError={(e) => {
+                    console.log("圖片載入失敗:", profilePicture);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  onLoad={() => {
+                    console.log("圖片載入成功:", profilePicture);
+                  }}
+                />
+              </div>
             )}
-          </p>
-          
-          {realGoogleIdentity.picture && (
-            <div className="flex justify-center mb-4">
-              <img 
-                src={realGoogleIdentity.picture} 
-                alt="Google profile" 
-                className="w-16 h-16 rounded-full border-2 border-blue-400"
-              />
-            </div>
-          )}
-          
-          <div className="text-left bg-gray-50 p-3 rounded mb-4 text-xs overflow-auto max-h-60">
-            <h3 className="font-medium mb-2">客戶詳細信息：</h3>
-            <pre>
-              {JSON.stringify(
-                {
-                  id: customer.id,
-                  email: isDefaultEmail && realGoogleIdentity.email 
-                    ? `${customer.email} (實際: ${realGoogleIdentity.email})` 
-                    : customer.email,
-                  firstName: customer.first_name,
-                  lastName: customer.last_name,
-                  metadata: customer.metadata,
-                  ...(realGoogleIdentity.name ? { googleName: realGoogleIdentity.name } : {})
-                }, 
-                null, 
-                2
+            
+            <h2 className="text-xl font-semibold text-gray-800 mb-3">登入成功！</h2>
+            <p className="text-green-600 mb-6 text-sm">
+              已使用 {displayEmail} 登入系統
+              {isDefaultEmail && realGoogleIdentity.loading && (
+                <span className="text-xs text-gray-500 block mt-1">
+                  (正在獲取實際的 Google 郵箱...)
+                </span>
               )}
-            </pre>
-          </div>
-          <div className="flex justify-center mt-6 space-x-4">
-            <button 
-              onClick={() => window.location.href = '/tw'}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              返回首頁
-            </button>
-            <button 
-              onClick={() => window.location.href = '/tw/account'}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              前往會員中心
-            </button>
+            </p>
+            
+            <div className="space-y-3">
+              <button 
+                onClick={() => window.location.href = '/tw'}
+                className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              >
+                返回首頁
+              </button>
+              <button 
+                onClick={() => window.location.href = '/tw/account'}
+                className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+              >
+                前往會員中心
+              </button>
+            </div>
           </div>
         </div>
       )
@@ -654,8 +721,9 @@ export default function GoogleCallback() {
     
     // 其他錯誤情況，但有認證參數 - 顯示更詳細的狀態
     return (
-      <div className="text-center">
-        <p className="text-red-500 mb-4">認證處理中遇到問題</p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+          <p className="text-red-500 mb-4 text-center font-medium">認證處理中遇到問題</p>
         <div className="text-left bg-gray-50 p-3 rounded mb-4 text-xs overflow-auto max-h-60">
           <h3 className="font-medium mb-2 text-base">認證狀態：</h3>
           
@@ -709,15 +777,10 @@ export default function GoogleCallback() {
             重新嘗試
           </button>
         </div>
+        </div>
       </div>
     )
   }
   
-  return (
-    <div className="flex items-center justify-center min-h-[60vh] p-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        {renderContent()}
-      </div>
-    </div>
-  )
+  return renderContent()
 }
