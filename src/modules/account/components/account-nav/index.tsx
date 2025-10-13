@@ -49,8 +49,20 @@ const AccountNav = ({
     onLoggedOut: onLogout,
   })
 
-  const handleLogout = () => {
-    void logout()
+  const handleLogout = async () => {
+    try {
+      console.log('🔓 Account Nav: 開始簡化登出流程 - 委託給 useLogout hook')
+      
+      // 🔧 直接使用 useLogout hook，避免重複的清除邏輯
+      await logout()
+      
+    } catch (error) {
+      console.error('❌ Account Nav 登出失敗:', error)
+      
+      // 最後手段：強制重新加載頁面
+      console.log('🔄 使用最後手段：強制重新加載')
+      window.location.href = `/${countryCode}/account?force_logout=1`
+    }
   }
 
   return (

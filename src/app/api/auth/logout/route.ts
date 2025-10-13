@@ -27,7 +27,7 @@ const performLogout = async () => {
   await removeAuthToken()
   await removeCartId()
 
-  // 清除額外的認證相關 cookies
+  // 清除額外的認證相關 cookies，包括 Google OAuth 相關
   const additionalCookiesToClear = [
     "_medusa_customer_id",
     "medusa-auth-token", 
@@ -39,10 +39,55 @@ const performLogout = async () => {
     "__Secure-next-auth.session-token",
     "__Host-next-auth.csrf-token",
     "connect.sid",
-    "session"
+    "session",
+    // Google OAuth 相關 cookies
+    "g_state",
+    "g_csrf_token",
+    "google_oauth_state",
+    "oauth_state",
+    "gsi_callback_data",
+    "__gads",
+    "__gpi",
+    "_gcl_au",
+    // Google Identity Services cookies
+    "g_enabled_idps",
+    "g_session_check",
+    "g_accounts_check", 
+    "google_auto_select",
+    "1P_JAR",
+    "APISID",
+    "SAPISID",
+    "HSID",
+    "SSID",
+    "SID",
+    // Google 帳戶選擇相關
+    "ACCOUNT_CHOOSER",
+    "LSOLH",
+    "LSID",
+    // 調試用 cookies
+    "_debug_jwt_preview",
+    "_debug_jwt_full"
   ]
 
   for (const cookieName of additionalCookiesToClear) {
+    // 清除多個路徑和域名的 cookies
+    const paths = ["/", "/tw", "/tw/", "/auth", "/auth/google"]
+    const domains = ["", "localhost", ".localhost", ".google.com", ".accounts.google.com"]
+    
+    paths.forEach(path => {
+      domains.forEach(domain => {
+        cookieStore.set(cookieName, "", {
+          maxAge: -1,
+          httpOnly: false,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          path: path,
+          ...(domain && { domain: domain })
+        })
+      })
+    })
+    
+    // 基本清除
     cookieStore.set(cookieName, "", {
       maxAge: -1,
       httpOnly: false,
@@ -83,8 +128,19 @@ export async function GET(request: NextRequest) {
 
   const redirectParam = request.nextUrl.searchParams.get("redirect") || "/"
   const redirectUrl = new URL(redirectParam, request.nextUrl.origin)
+  
+  // 添加一個查詢參數來強制頁面重新載入，清除任何殘留的 Google OAuth 狀態
+  redirectUrl.searchParams.set('_logout', Date.now().toString())
+  redirectUrl.searchParams.set('_clear_oauth', '1')
 
-  return NextResponse.redirect(redirectUrl.toString(), {
+  const response = NextResponse.redirect(redirectUrl.toString(), {
     status: 302,
   })
+  
+  // 額外設置響應標頭來清除緩存
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+  response.headers.set('Pragma', 'no-cache')
+  response.headers.set('Expires', '0')
+  
+  return response
 }

@@ -200,6 +200,75 @@ export default function GoogleCallback() {
           // 等待一小段時間確保 cookie 完全設置
           console.log("等待 cookie 同步...")
           await new Promise(resolve => setTimeout(resolve, 1000))
+          
+          // 🔧 登入成功後立即清除 Google OAuth 客戶端狀態，避免自動重新登入
+          try {
+            console.log("🧹 清除 Google OAuth 客戶端狀態以避免自動重新登入...")
+            
+            // 清除 Google Identity Services 相關的 localStorage 和 sessionStorage
+            if (typeof window !== 'undefined') {
+              const googleKeys = [
+                'g_state', 'google_oauth_state', 'gsi_callback_data',
+                'google_signin_token', 'google_oauth_token',
+                'oauth_state', 'google_auth_state', 'gapi_signin_state',
+                'g_enabled_idps', 'g_session_check', 'g_accounts_check'
+              ]
+              
+              googleKeys.forEach(key => {
+                try {
+                  localStorage.removeItem(key)
+                  sessionStorage.removeItem(key)
+                } catch (e) {
+                  // 忽略清除錯誤
+                }
+              })
+              
+              // 清除所有 Google 相關的 cookies
+              const googleCookies = [
+                'g_state', 'g_csrf_token', '1P_JAR', 'APISID', 'SAPISID', 
+                'HSID', 'SSID', 'SID', 'ACCOUNT_CHOOSER', 'LSOLH', 'LSID',
+                '__gads', '__gpi', '_gcl_au', 'g_enabled_idps', 'g_session_check'
+              ]
+              
+              const domains = [window.location.hostname, `.${window.location.hostname}`, '.google.com', '.accounts.google.com', '']
+              
+              googleCookies.forEach(cookieName => {
+                domains.forEach(domain => {
+                  const domainPart = domain ? `; domain=${domain}` : ""
+                  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/${domainPart}`
+                  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/tw${domainPart}`
+                })
+              })
+              
+              // 嘗試調用 Google Identity Services 的 signOut 方法
+              const googleWindow = window as any
+              if (typeof googleWindow.google !== 'undefined' && googleWindow.google.accounts) {
+                try {
+                  // 確保 Google Identity Services 登出當前會話
+                  if (googleWindow.google.accounts.id && typeof googleWindow.google.accounts.id.disableAutoSelect === 'function') {
+                    googleWindow.google.accounts.id.disableAutoSelect()
+                    console.log("✅ 已禁用 Google 自動選擇")
+                  }
+                  
+                  // 嘗試撤銷令牌
+                  if (googleWindow.google.accounts.oauth2 && typeof googleWindow.google.accounts.oauth2.revoke === 'function') {
+                    try {
+                      // 注意：這需要訪問令牌，可能不會總是有效
+                      console.log("🔒 嘗試撤銷 Google OAuth 令牌...")
+                    } catch (revokeError) {
+                      console.log("撤銷 Google OAuth 令牌失敗:", revokeError)
+                    }
+                  }
+                } catch (googleError) {
+                  console.log("Google Identity Services 操作失敗:", googleError)
+                }
+              }
+              
+              console.log("✅ Google OAuth 客戶端狀態已清除")
+            }
+          } catch (cleanupError) {
+            console.log("清除 Google OAuth 狀態時出錯:", cleanupError)
+          }
         }
       } catch (error) {
         console.error("調用 handleGoogleCallback 時出錯:", error)

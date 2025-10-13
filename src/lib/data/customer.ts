@@ -26,7 +26,7 @@ export const retrieveCustomer =
     })
 
     if (!authHeaders || !(authHeaders as any)?.authorization) {
-      console.log('❌ retrieveCustomer - 無認證標頭，返回 null')
+      console.log('ℹ️ retrieveCustomer - 使用者未登入，返回 null (正常情況)')
       return null
     }
 
@@ -61,10 +61,20 @@ export const retrieveCustomer =
       
       return result
     } catch (error) {
-      console.error('❌ retrieveCustomer - 獲取客戶資訊失敗:', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      })
+      // 檢查是否為認證錯誤（401 Unauthorized）
+      const isAuthError = error instanceof Error && 
+        (error.message.includes('401') || 
+         error.message.includes('Unauthorized') || 
+         error.message.includes('Invalid token'))
+      
+      if (isAuthError) {
+        console.log('ℹ️ retrieveCustomer - 認證失敗，可能是未登入或 token 過期 (正常情況)')
+      } else {
+        console.error('❌ retrieveCustomer - 獲取客戶資訊失敗:', {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        })
+      }
       return null
     }
   }

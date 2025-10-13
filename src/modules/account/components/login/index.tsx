@@ -149,6 +149,37 @@ const Login = ({ setCurrentView }: Props) => {
         </button>
         。
       </span>
+      
+      {/* 測試按鈕：清除 Google 狀態 */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+          <h4 className="text-sm font-medium text-yellow-800 mb-2">🧪 測試工具</h4>
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                console.log('🧹 簡化版 Google OAuth 狀態清除')
+                
+                // 只清除基本的 Google 狀態
+                if ((window as any).google?.accounts?.id?.disableAutoSelect) {
+                  (window as any).google.accounts.id.disableAutoSelect()
+                }
+                
+                // 清除 Google 相關的 localStorage 項目
+                const googleKeys = ['g_state', 'google_oauth_state', 'gsi_callback_data']
+                googleKeys.forEach(key => {
+                  localStorage.removeItem(key)
+                  sessionStorage.removeItem(key)
+                })
+                
+                alert('✅ Google OAuth 狀態已清除！\n現在嘗試 Google 登入應該會顯示帳號選擇界面。')
+              }
+            }}
+            className="w-full px-3 py-2 text-xs bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors"
+          >
+            🧹 清除 Google OAuth 狀態（測試用）
+          </button>
+        </div>
+      )}
     </div>
   )
 }

@@ -5,10 +5,52 @@ import { sdk } from "@/lib/config"
 
 export default function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
+  
   const loginWithGoogle = async () => {
     setIsLoading(true)
     try {
-      const result = await sdk.auth.login("customer", "google", {})
+      console.log('🔑 開始 Google 登入流程 - 檢查 OAuth URL')
+      
+      // 🔧 禁用自動選擇
+      if (typeof window !== 'undefined' && (window as any).google?.accounts?.id?.disableAutoSelect) {
+        (window as any).google.accounts.id.disableAutoSelect()
+        console.log('✅ 已禁用 Google 自動選擇')
+      }
+      
+      // 🔧 發起 Google OAuth 請求並檢查生成的 URL
+      console.log('📡 發起 Google OAuth 請求，檢查 URL 是否包含正確的參數...')
+      const result = await sdk.auth.login("customer", "google", {
+        prompt: "consent select_account",
+        approval_prompt: "force",
+        access_type: "offline"
+      })
+      
+      // 🔍 檢查返回的結果和 URL
+      console.log('🔍 Google OAuth 結果:', {
+        resultType: typeof result,
+        hasLocation: typeof result === "object" && result?.location,
+        locationUrl: typeof result === "object" ? result?.location : null
+      })
+      
+      // 如果有 location URL，檢查是否包含必要的參數
+      if (typeof result === "object" && result?.location) {
+        const url = new URL(result.location)
+        console.log('🔍 Google OAuth URL 參數檢查:', {
+          prompt: url.searchParams.get('prompt'),
+          access_type: url.searchParams.get('access_type'),
+          approval_prompt: url.searchParams.get('approval_prompt'),
+          allParams: Object.fromEntries(url.searchParams.entries())
+        })
+        
+        // 如果 URL 沒有包含 prompt=select_account，手動添加
+        if (!url.searchParams.get('prompt')?.includes('select_account')) {
+          console.log('⚠️ URL 缺少 select_account 參數，手動添加...')
+          url.searchParams.set('prompt', 'consent select_account')
+          console.log('✅ 已添加強制帳號選擇參數')
+          window.location.href = url.toString()
+          return
+        }
+      }
 
       if (typeof result === "object" && result.location) {
         // redirect to Google for authentication
