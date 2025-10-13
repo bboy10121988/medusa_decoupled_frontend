@@ -29,12 +29,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
+# local env files (包含敏感資料)
 .env
 .env.local
+.env.vm
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
 
 # vercel
 .vercel
@@ -48,6 +50,26 @@ node_modules
 dump.rdb
 /test-results/
 /playwright-report/
+
+# 後端環境配置檔案 (敏感資料)
+backend_vm/medusa-backend/.env*
+
+# 資料庫備份檔案
+*.sql
+backup_*
+
+# 日誌檔案
+*.log
+backend.log
+
+# SSL 證書和金鑰
+*.key
+*.crt
+*.pem
+
+# 上傳檔案目錄
+uploads/
+static/uploads/
 /blob-report/
 /playwright/.cache/
 /test-results/
