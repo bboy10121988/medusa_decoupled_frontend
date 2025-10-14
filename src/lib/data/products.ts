@@ -6,7 +6,6 @@ import { getPublishableKeyForBackend } from "../medusa-publishable-key"
 import { sortProducts } from "../util/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import type { SortOptions } from "../../modules/store/components/refinement-list/sort-products"
-import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 
 // 產品查詢快取配置

@@ -170,7 +170,11 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
   // Determine completion status based on cart state
   const hasAddress = !!(cart.shipping_address && cart.email)
   const hasShipping = !!(cart.shipping_methods && cart.shipping_methods.length > 0)
-  const hasPayment = !!(cart.payment_collection?.payment_sessions && cart.payment_collection.payment_sessions.length > 0)
+  // 支付完成判斷：檢查 metadata 中的支付方式選擇 或 payment_sessions
+  const hasPayment = !!(
+    cart.metadata?.selected_payment_provider || 
+    (cart.payment_collection?.payment_sessions && cart.payment_collection.payment_sessions.length > 0)
+  )
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep)
 

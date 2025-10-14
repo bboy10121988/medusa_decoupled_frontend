@@ -38,7 +38,7 @@ export const listCartShippingMethods = async (cartId: string) => {
     
     console.log("✅✅✅ 原生 API 回應:", data)
     
-    if (data && data.shipping_options) {
+    if (data?.shipping_options) {
       console.log("🚚🚚🚚 listCartShippingMethods 成功，收到 shipping_options:", data.shipping_options.length, "個選項")
       return data.shipping_options
     } else {

@@ -236,7 +236,7 @@ export default function MembersPage() {
   const filteredApplications = applications.filter(app =>
     app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (app.website && app.website.toLowerCase().includes(searchTerm.toLowerCase()))
+    (app.website?.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   if (loading) {

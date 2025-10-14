@@ -9,8 +9,7 @@ const DEFAULT_LOGO_WIDTH = 150
  */
 export async function getHeaderData() {
   try {
-    const headerData = await getHeader()
-    return headerData
+    return await getHeader()
   } catch (error) {
     console.error("獲取 header 數據時出錯:", error)
     return null

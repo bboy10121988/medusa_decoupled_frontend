@@ -55,8 +55,7 @@ export async function getSanityImages(): Promise<SanityImage[]> {
       _updatedAt
     }`
     
-    const images = await client.fetch<SanityImage[]>(query)
-    return images
+    return await client.fetch<SanityImage[]>(query)
   } catch (error) {
     console.error('獲取 Sanity 圖片時發生錯誤:', error)
     return []

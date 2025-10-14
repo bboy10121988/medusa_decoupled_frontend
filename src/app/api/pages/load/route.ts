@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     // 從 Sanity 查詢頁面 - 嘗試多種查詢方式
     let page = await client.fetch(
-      `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+      `*[_type == "dynamicPage" && slug.current == $slug][0] {
         _id,
         title,
         slug,
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     // 如果沒找到，嘗試處理後的 slug
     if (!page && pageId !== slug) {
       page = await client.fetch(
-        `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+        `*[_type == "dynamicPage" && slug.current == $slug][0] {
           _id,
           title,
           slug,

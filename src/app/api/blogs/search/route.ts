@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
       const characters = Array.from(query);
       
       // 構建更寬鬆的搜尋條件
-      let searchConditions = characters
+      const searchConditions = characters
         .filter(char => isChinese(char))
         .map(char => `title match "*${char}*" || pt::text(body) match "*${char}*"`)
         .join(' || ');

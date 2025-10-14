@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // 檢查是否已存在相同 slug 的頁面
     const existingPage = await client.fetch(
-      `*[_type == "grapesJSPageV2" && slug.current == $slug][0]`,
+      `*[_type == "dynamicPage" && slug.current == $slug][0]`,
       { slug }
     )
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // 創建新頁面
     const newPage = await client.create({
-      _type: 'grapesJSPageV2',
+      _type: 'dynamicPage',
       title,
       slug: {
         _type: 'slug',

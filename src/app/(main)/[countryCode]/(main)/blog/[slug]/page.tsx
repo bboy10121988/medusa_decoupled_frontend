@@ -21,11 +21,9 @@ async function getCategories() {
     if (!categories) return []
     
     // 確保分類是唯一的（以標題為基準）
-    const uniqueCategories = Array.from(
+    return Array.from(
       new Map(categories.map(cat => [cat.title, cat])).values()
     )
-    
-    return uniqueCategories
   } catch (error) {
     console.error("Error fetching categories:", error)
     return []

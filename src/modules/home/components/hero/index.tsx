@@ -43,7 +43,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
     return () => clearInterval(interval)
   }, [slides?.length, settings?.autoplay, settings?.autoplaySpeed])
 
-  if (!slides || !slides.length) return null
+  if (!slides?.length) return null
 
   const slide = slides[currentSlide]
   
@@ -96,7 +96,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
     if (touchStartXRef.current === null) return
     
     // 確保有 changedTouches
-    if (!e.changedTouches || e.changedTouches.length === 0) return
+    if (e.changedTouches?.length === 0) return
     
     const touchEndX = e.changedTouches[0].clientX
     const diffX = touchStartXRef.current - touchEndX

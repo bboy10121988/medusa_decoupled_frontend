@@ -182,7 +182,7 @@ export function applyZhTW(editor: grapesjs.Editor) {
             // 父屬性標籤
             prop.set('label', label)
             // 子屬性集合可能為集合或陣列
-            const children = (prop.get && prop.get('properties')) || (prop as any).properties
+            const children = (prop.get?.('properties')) || (prop as any).properties
             const each = (list: any) => {
               if (!list) return
               if (typeof list.each === 'function') {

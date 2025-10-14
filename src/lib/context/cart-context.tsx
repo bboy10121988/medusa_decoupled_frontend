@@ -1,7 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { HttpTypes } from '@medusajs/types'
+import React, { createContext, useContext, useState } from 'react'
 import { Cart } from "../../types/global"
 
 interface CartItem {

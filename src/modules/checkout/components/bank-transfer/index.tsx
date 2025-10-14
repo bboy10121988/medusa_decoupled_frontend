@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { Heading, Text, Button } from "@medusajs/ui"
+import { Heading, Text } from "@medusajs/ui"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { placeOrder } from "@lib/data/cart"
 import ErrorMessage from "../error-message/index"

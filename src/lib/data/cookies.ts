@@ -3,7 +3,10 @@ import { cookies as nextCookies } from "next/headers"
 
 // Optional cookie domain (set this to ".timsfantasyworld.com" in production if you
 // need the cookie to be shared across subdomains). If not set, cookies remain host-only.
-const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined
+// ⚠️ 在開發環境中不設置 domain，避免 localhost cookie 問題
+const COOKIE_DOMAIN = process.env.NODE_ENV === "production" 
+  ? process.env.NEXT_PUBLIC_COOKIE_DOMAIN 
+  : undefined
 
 export const getAuthHeaders = async (): Promise<
   { authorization: string; 'x-publishable-api-key'?: string } | { 'x-publishable-api-key'?: string }

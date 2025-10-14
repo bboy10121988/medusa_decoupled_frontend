@@ -3,8 +3,6 @@
 import "server-only"
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getAffiliateStoreApiUrl } from '../affiliate-config'
-import { getPublishableKeyForBackend } from '../medusa-publishable-key'
 
 type AffiliateSession = {
   id: string
@@ -39,8 +37,7 @@ export async function retrieveAffiliate(): Promise<AffiliateSession | null> {
     const token = cookieStore.get(COOKIE_NAME)?.value
     if (!token) return null
     const json = Buffer.from(token, 'base64').toString()
-    const session = JSON.parse(json) as AffiliateSession
-    return session
+    return JSON.parse(json) as AffiliateSession
   } catch {
     return null
   }

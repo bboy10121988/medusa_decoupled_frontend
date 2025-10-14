@@ -47,11 +47,9 @@ export const getRelatedProducts = async (
     )
 
     // 過濾掉購物車中已有的商品
-    const filteredProducts = (response.products || [])
+    return (response.products || [])
       .filter((product: HttpTypes.StoreProduct) => !productIds.includes(product.id))
       .slice(0, limit)
-
-    return filteredProducts
   } catch (error) {
     if (process.env.NODE_ENV === 'development') console.error("Error fetching related products:", error)
     return []

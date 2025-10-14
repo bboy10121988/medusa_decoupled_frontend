@@ -54,10 +54,11 @@ const Review = ({ cart }: { cart: any }) => {
     currentPaymentProvider 
   })
 
+  // 檢查前面步驟是否完成：地址、配送、支付方式
   const previousStepsCompleted =
     cart.shipping_address &&
     cart.shipping_methods.length > 0 &&
-    (cart.payment_collection || paidByGiftcard)
+    (cart.metadata?.selected_payment_provider || cart.payment_collection || paidByGiftcard)
 
   return (
     <div className="bg-white">

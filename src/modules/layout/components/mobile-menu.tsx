@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect } from "react"
 import { XMarkIcon, Bars3Icon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -137,7 +137,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
             </div>
 
             {/* Navigation */}
-            {navigation && navigation.map(({ name, href }, index) => {
+            {navigation?.map(({ name, href }, index) => {
               // 判斷是否為外部連結
               const isExternal = /^(http|https|www)/.test(href)
               // 判斷是否為首頁連結 (支援 / 和 /home)

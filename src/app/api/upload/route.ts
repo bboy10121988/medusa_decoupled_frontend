@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const files = formData.getAll('files') as File[]
     
-    if (!files || files.length === 0) {
+    if (files?.length === 0) {
       return NextResponse.json({ error: '沒有找到文件' }, { status: 400 })
     }
 

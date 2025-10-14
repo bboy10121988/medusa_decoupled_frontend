@@ -20,7 +20,7 @@ export default async function ProductPreviewGrid({
     } as any
   })
 
-  if (!products || products.length === 0) {
+  if (products?.length === 0) {
     return null
   }
 

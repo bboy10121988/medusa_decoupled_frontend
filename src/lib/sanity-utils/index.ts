@@ -76,8 +76,7 @@ export async function getFooter() {
       }
     }`
     
-    const footer = await client.fetch(query)
-    return footer
+    return await client.fetch(query)
   } catch (error) {
     console.error('[getFooter] 從 Sanity 獲取頁腳資料時發生錯誤:', error)
     return null
@@ -99,8 +98,7 @@ export async function getHeader() {
       }
     }`
     
-    const header = await client.fetch(query)
-    return header
+    return await client.fetch(query)
   } catch (error) {
     console.error('[getHeader] 從 Sanity 獲取頭部資料時發生錯誤:', error)
     return null

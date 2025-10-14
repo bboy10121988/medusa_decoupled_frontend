@@ -2,28 +2,48 @@
 
 import { RadioGroup } from "@headlessui/react"
 import { isStripe as isStripeFunc, paymentInfoMap } from "../../../../constants"
-import { initiatePaymentSession } from "@lib/data/cart"
+import { updateCart, createPaymentCollectionForBankTransfer } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
 
 import ErrorMessage from "@modules/checkout/components/error-message"
-import PaymentContainer, { StripeCardContainer } from "@modules/checkout/components/payment-container"
+// import PaymentContainer, { StripeCardContainer } from "@modules/checkout/components/payment-container" // 🗑️ 未使用 - 已註解清理
 import Divider from "@modules/common/components/divider"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
-// 檢查是否為綠界支付方式
-const isEcpay = (providerId: string | undefined) => {
-  return providerId === "ecpay_credit_card";
-}
+// 🗑️ 檢查是否為綠界支付方式 - 未使用，已註解清理
+// const isEcpay = (providerId: string | undefined) => {
+//   return providerId === "ecpay_credit_card";
+// }
 
 
 const Payment = ({
   cart,
-  availablePaymentMethods,
+  // availablePaymentMethods, // 🗑️ 未使用參數 - 已註解清理
 }: {
-  cart: any
-  availablePaymentMethods: any[]
+  cart: {
+    id?: string
+    total?: number
+    gift_cards?: Array<{
+      id: string
+      code: string
+      balance: number
+    }>
+    metadata?: Record<string, unknown>
+    payment_collection?: {
+      payment_sessions?: Array<{
+        id: string
+        provider_id: string
+        status: string
+      }>
+    }
+    shipping_methods: Array<{
+      id: string
+      shipping_option_id: string
+    }>
+  }
+  // availablePaymentMethods: any[] // 🗑️ 未使用參數 - 已註解清理
 }) => {
 
   // 硬編碼支付方式 ID - 確保值不會是 undefined
@@ -31,15 +51,15 @@ const Payment = ({
   const payment_method_ecpay_credit = "ecpay_credit_card"
 
   const activeSession = cart.payment_collection?.payment_sessions?.find(
-    (paymentSession: any) => paymentSession.status === "pending"
+    (paymentSession) => paymentSession.status === "pending"
   )
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [cardBrand, setCardBrand] = useState<string | null>(null)
-  const [cardComplete, setCardComplete] = useState(false)
+  const [cardBrand] = useState<string | null>(null) // 📝 setter未使用，保留state供UI顯示
+  const [cardComplete] = useState(false) // 📝 setter未使用，保留state供按鈕狀態判斷
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id || payment_method_ecpay_credit
+    activeSession?.provider_id ?? payment_method_ecpay_credit // ✨ 使用 nullish coalescing
   )
 
   const searchParams = useSearchParams()
@@ -49,13 +69,13 @@ const Payment = ({
   const isOpen = searchParams.get("step") === "payment"
 
   const isStripe = isStripeFunc(selectedPaymentMethod)
-  const isEcpayMethod = isEcpay(selectedPaymentMethod)
+  // const isEcpayMethod = isEcpay(selectedPaymentMethod) // 🗑️ 未使用變數 - 已註解清理
 
   const setPaymentMethod = async (method: string) => {
     
-    const action: string = "setPaymentMethod"
+    // const action: string = "setPaymentMethod" // 🔇 未使用變數 - 已註解
     
-    console.log(action,"選擇支付方式：",method)
+    // console.log(action,"選擇支付方式：",method) // 🔇 移除console輸出
 
     // 確保方法不是 undefined 或 null
     if (method) {
@@ -66,8 +86,11 @@ const Payment = ({
   const paidByGiftcard =
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
+  // 支付就緒判斷：有選擇支付方式並且有配送方式，或者使用禮品卡付款
   const paymentReady =
-    (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard
+    ((selectedPaymentMethod && cart?.shipping_methods.length !== 0) || 
+     (activeSession && cart?.shipping_methods.length !== 0) || 
+     paidByGiftcard)
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -87,11 +110,11 @@ const Payment = ({
 
   const handleSubmit = async () => {
     
-    const action: string = "handleSubmit"
+    // const action: string = "handleSubmit" // 🔇 未使用變數 - 已註解
   
     setIsLoading(true)
 
-    console.log(action,"支付方式(providerID):",selectedPaymentMethod)
+    // console.log(action,"支付方式(providerID):",selectedPaymentMethod) // 🔇 移除console輸出
 
     try {
       // 檢查是否有必要的購物車數據
@@ -99,7 +122,7 @@ const Payment = ({
         throw new Error("購物車不存在，請重新刷新頁面")
       }
 
-      console.log(action,":保存選擇的支付方式到購物車")
+      // console.log(action,":保存選擇的支付方式到購物車") // 🔇 移除console輸出
 
       // 將選擇的支付方式保存到購物車 metadata 中
       await updateCart({
@@ -109,7 +132,11 @@ const Payment = ({
         }
       })
 
-      console.log(action, "支付方式已保存，進入審核步驟")
+      // 如果選擇銀行轉帳，創建 payment collection 以滿足 Medusa v2 要求
+      if (selectedPaymentMethod === payment_method_default) {
+        console.log("🏦 創建銀行轉帳 payment collection")
+        await createPaymentCollectionForBankTransfer(cart.id)
+      }
 
       return router.push(
         pathname + "?" + createQueryString("step", "review"),
@@ -118,9 +145,10 @@ const Payment = ({
         }
       )
       
-    } catch (err: any) {
-      console.log(action,"錯誤詳情:",err)
-      setError(err?.message || "設置支付方式時發生未知錯誤")
+    } catch (err: unknown) {
+      // console.log(action,"錯誤詳情:",err) // 🔇 移除console輸出
+      const errorMessage = err instanceof Error ? err.message : "設置支付方式時發生未知錯誤"
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -164,7 +192,7 @@ const Payment = ({
             <>
               {/* 只顯示兩個硬編碼選項：綠界支付（含刷卡）與銀行轉帳 */}
               <RadioGroup 
-                value={selectedPaymentMethod || payment_method_ecpay_credit} 
+                value={selectedPaymentMethod ?? payment_method_ecpay_credit} // ✨ 使用 nullish coalescing 
                 onChange={setPaymentMethod}
               >
                 <RadioGroup.Option value={payment_method_ecpay_credit}>
@@ -177,9 +205,9 @@ const Payment = ({
                 </RadioGroup.Option>
                 <RadioGroup.Option value={payment_method_default}>
                   {({ checked }) => (
-                    <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>
+                    <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
                       <Heading level="h3" className="text-base font-medium mb-1">銀行轉帳</Heading>
-                      <Text className="text-sm text-gray-600">手動銀行轉帳 (需要人工核帳)</Text>
+                      <Text className="text-sm text-gray-600 mb-2">手動銀行轉帳 (需要人工核帳)</Text>
                     </div>
                   )}
                 </RadioGroup.Option>
@@ -221,7 +249,7 @@ const Payment = ({
                 onClick={handleSubmit}
                 isLoading={isLoading}
                 disabled={
-                  (isStripe && !cardComplete) ||
+                  (isStripe && !cardComplete) ??
                   (!selectedPaymentMethod && !paidByGiftcard)
                 }
                 data-testid="submit-payment-button"
@@ -243,7 +271,7 @@ const Payment = ({
                   className="text-xs text-gray-600"
                   data-testid="payment-method-summary"
                 >
-                  {paymentInfoMap[activeSession?.provider_id]?.title ||
+                  {paymentInfoMap[activeSession?.provider_id]?.title ??
                     activeSession?.provider_id}
                 </Text>
               </div>

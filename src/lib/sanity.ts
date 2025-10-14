@@ -104,7 +104,7 @@ export async function getHomepage_old(): Promise<{ title: string; mainSections: 
   }, null)
   
   // 過濾掉未知類型的 sections 並記錄警告
-  if (result && result.mainSections) {
+  if (result?.mainSections) {
     result.mainSections = result.mainSections.filter((section: any) => {
       if (section?.isUnknownType) {
         if (isDev) console.warn("Unknown section type detected and filtered:", section._type)
@@ -343,8 +343,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
       }
     }`
 
-  const page = await safeFetch(query, { slug }, {}, null)
-  return page
+  return await safeFetch(query, { slug }, {}, null)
   } catch (error) {
     if (isDev) console.error('獲取頁面資料失敗:', error)
     return null

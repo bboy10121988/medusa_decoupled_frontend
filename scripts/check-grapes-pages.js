@@ -12,7 +12,7 @@ const client = createClient({
 async function checkGrapesPages() {
   try {
     const pages = await client.fetch(`
-      *[_type == "grapesJSPageV2"] | order(_createdAt desc) {
+      *[_type == "dynamicPage"] | order(_createdAt desc) {
         _id,
         title,
         slug,

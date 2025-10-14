@@ -1,48 +1,12 @@
 import { notFound } from 'next/navigation'
 import { client } from '@/sanity-client'
 import { Metadata } from 'next'
-import SimplePageRenderer from '@/components/grapesjs/SimplePageRenderer'
-import { urlForImage } from '@lib/sanity-utils/image'
+import { DynamicPageContent } from '@/components/dynamic-page/DynamicPageContent'
 
-// 導入模組組件
-import HeroSection from "@modules/home/components/hero-section"
-import ServiceCardsSection from "@modules/home/components/service-cards-section"
-import ImageTextBlock from "@modules/home/components/image-text-block"
-import FeaturedProducts from "@modules/home/components/featured-products"
-import BlogPosts from "@modules/blog/components/blog-posts"
-import YoutubeSection from "@modules/home/components/youtube-section"
-import ContentSection from "@modules/home/components/content-section"
-
-// 導入類型
-import type { 
-  MainBanner 
-} from '@lib/types/page-sections'
-import { listCollections } from '@lib/data/collections'
-import { getRegion } from '@lib/data/regions'
-import type { HttpTypes } from '@medusajs/types'
-
-// 已知的系統路由，這些路由不應該被 GrapesJS 頁面處理
+// 系統保留路由
 const SYSTEM_ROUTES = [
-  'account',
-  'affiliate',
-  'affiliate-admin', 
-  'blog',
-  'cart',
-  'categories',
-  'collections',
-  'login-affiliate',
-  'order',
-  'products',
-  'regitster-affiliate',
-  'store',
-  'test-footer',
-  // 管理相關路由
-  'pages-manager',
-  'cms',
-  // 其他系統路由
-  'checkout',
-  'admin',
-  'api'
+  'account', 'cart', 'checkout', 'login', 'register', 
+  'store', 'api', 'admin', 'cms', '_next', 'sitemap.xml', 'robots.txt'
 ]
 
 interface PageProps {
@@ -61,17 +25,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   
   try {
     const page = await client.fetch(
-      `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+      `*[_type == "dynamicPage" && slug.current == $slug][0] {
         title,
         status,
         seoTitle,
         seoDescription,
-        seoKeywords
+        seoKeywords,
+        ogTitle,
+        ogDescription,
+        "socialImage": socialImage {
+          "asset": asset->,
+          "alt": alt
+        },
+        twitterCard
       }`,
       { slug: slugString }
     )
 
-    if (!page || page.status !== 'published') {
+    if (page?.status !== 'published') {
       return {
         title: '頁面未找到',
         description: '請求的頁面不存在'
@@ -79,24 +50,50 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     return {
-      title: page.seoTitle || page.title || '頁面',
-      description: page.seoDescription || '使用 GrapesJS 編輯器創建的頁面',
-      keywords: page.seoKeywords ? page.seoKeywords.join(', ') : undefined,
+      title: page.seoTitle || page.title || '動態頁面',
+      description: page.seoDescription || '動態生成的頁面內容',
+      keywords: page.seoKeywords?.join(', ') || '',
+      
+      // Open Graph 社群媒體分享
+      openGraph: {
+        title: page.ogTitle || page.seoTitle || page.title || '動態頁面',
+        description: page.ogDescription || page.seoDescription || '動態生成的頁面內容',
+        type: 'website',
+        locale: 'zh_TW',
+        ...(page.socialImage?.asset?.url && {
+          images: [{
+            url: `${page.socialImage.asset.url}?w=1200&h=630&fit=crop&crop=center`,
+            width: 1200,
+            height: 630,
+            alt: page.socialImage.alt || page.title || '動態頁面'
+          }]
+        })
+      },
+      
+      // Twitter 卡片
+      twitter: {
+        card: page.twitterCard || 'summary_large_image',
+        title: page.ogTitle || page.seoTitle || page.title || '動態頁面',
+        description: page.ogDescription || page.seoDescription || '動態生成的頁面內容',
+        ...(page.socialImage?.asset?.url && {
+          images: [`${page.socialImage.asset.url}?w=1200&h=630&fit=crop&crop=center`]
+        })
+      }
     }
   } catch (error) {
-    console.error('生成頁面元數據失敗:', error)
+    console.error('生成元數據時出錯:', error)
     return {
-      title: '頁面',
-      description: '頁面內容'
+      title: '頁面未找到',
+      description: '請求的頁面不存在'
     }
   }
 }
 
-// 主頁面組件
-export default async function CountryCodeCatchAllPage({ params }: PageProps) {
-  const { countryCode, slug } = await params
+// 頁面組件
+export default async function DynamicPage({ params }: PageProps) {
+  const { slug, countryCode } = await params
   
-  // 將 slug 數組轉換為字符串
+  // 將 slug 數組轉換為字符串，處理多層路由
   const slugString = slug.join('/')
   
   // 檢查第一個路由段是否為系統路由
@@ -108,59 +105,20 @@ export default async function CountryCodeCatchAllPage({ params }: PageProps) {
   try {
     // 從 Sanity 獲取頁面數據
     const page = await client.fetch(
-      `*[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+      `*[_type == "dynamicPage" && slug.current == $slug][0] {
         _id,
         title,
         slug,
         status,
-        grapesHtml,
-        grapesCss,
-        grapesComponents,
-        grapesStyles,
-        "homeModules": homeModules[] {
-          _type,
-          moduleType,
-          isActive,
-          order,
-          _type == "mainBannerModule" => {
-            _type,
-            moduleType,
-            isActive,
-            order,
-            "slides": settings.slides[] {
-              heading,
-              subheading,
-              "desktopImage": desktopImage.asset->url,
-              "desktopImageAlt": desktopImage.alt,
-              "mobileImage": mobileImage.asset->url,
-              "mobileImageAlt": mobileImage.alt,
-              buttonText,
-              buttonLink
-            },
-            "bannerSettings": settings.settings {
-              autoplay,
-              autoplaySpeed,
-              showArrows,
-              showDots
-            }
-          },
-          _type == "contentSectionModule" => {
-            _type,
-            moduleType,
-            isActive,
-            order,
-            "settings": {
-              "title": settings.title,
-              "hideTitle": settings.hideTitle,
-              "content": settings.content
-            }
-          },
-          _type != "mainBannerModule" && _type != "contentSectionModule" => {
-            settings
-          }
-        },
-        createdAt,
-        updatedAt
+        description,
+        pageContent,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        customCSS,
+        customJS,
+        _createdAt,
+        _updatedAt
       }`,
       { slug: slugString }
     )
@@ -172,73 +130,51 @@ export default async function CountryCodeCatchAllPage({ params }: PageProps) {
 
     // 檢查頁面發布狀態 - 只有已發布的頁面可以在前端顯示
     if (page.status !== 'published') {
-      console.log(`頁面未發布，靜默返回404: /${countryCode}/${slugString}`, { 
+      console.log(`頁面未發布: /${countryCode}/${slugString}`, { 
         pageId: page._id, 
         status: page.status,
         title: page.title 
       })
-      // 使用 notFound() 是 Next.js 的標準做法，錯誤信息是正常的內部機制
       notFound()
     }
 
-    console.log(`載入頁面: /${countryCode}/${slugString}`, { 
+    console.log(`載入動態頁面: /${countryCode}/${slugString}`, { 
       pageId: page._id, 
       title: page.title,
       status: page.status,
-      hasHomeModules: !!page.homeModules?.length,
-      hasGrapesHtml: !!page.grapesHtml 
+      hasContent: !!page.pageContent?.length
     })
-
-    // 檢查是否有模組配置
-    const hasModules = page.homeModules && Array.isArray(page.homeModules) && page.homeModules.length > 0
-    
-    // 如果有模組配置，需要獲取額外的數據
-    let collections: HttpTypes.StoreCollection[] | null = null
-    let region: HttpTypes.StoreRegion | null = null
-    
-    if (hasModules) {
-      // 檢查是否需要商品收藏數據
-      const needsCollections = page.homeModules.some((module: any) => 
-        module.moduleType === 'featuredProducts'
-      )
-      
-      if (needsCollections) {
-        try {
-          const collectionsData = await listCollections()
-          collections = collectionsData.collections
-          region = await getRegion(countryCode) || null
-        } catch (error) {
-          console.error('獲取商品數據失敗:', error)
-        }
-      }
-    }
 
     // 渲染頁面內容
     return (
-      <div>
-        {/* 渲染模組設定 */}
-        {hasModules && (
-          <div className="space-y-8">
-            {page.homeModules
-              .filter((module: any) => module.isActive !== false)
-              .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-              .map((module: any, index: number) => renderModule(module, index, collections, region))}
+      <div className="dynamic-page">
+        {/* 頁面標題區塊 */}
+        {page.title && (
+          <div className="page-header bg-gray-50 py-8">
+            <div className="container mx-auto px-4">
+              <h1 className="text-3xl font-bold text-gray-900">{page.title}</h1>
+              {page.description && (
+                <p className="text-lg text-gray-600 mt-2">{page.description}</p>
+              )}
+            </div>
           </div>
         )}
         
-        {/* 渲染 GrapesJS HTML 內容 */}
-        {page.grapesHtml && (
-          <SimplePageRenderer 
-            htmlContent={page.grapesHtml} 
-            cssContent={page.grapesCss}
-          />
-        )}
-        
-        {/* 如果沒有任何內容 */}
-        {!hasModules && !page.grapesHtml && (
+        {/* 頁面內容區塊 */}
+        <div className="page-content">
           <div className="container mx-auto px-4 py-8">
-            <p>頁面內容為空</p>
+            <DynamicPageContent content={page.pageContent || []} />
           </div>
+        </div>
+
+        {/* 自定義 CSS */}
+        {page.customCSS && (
+          <style dangerouslySetInnerHTML={{ __html: page.customCSS }} />
+        )}
+        
+        {/* 自定義 JavaScript */}
+        {page.customJS && (
+          <script dangerouslySetInnerHTML={{ __html: page.customJS }} />
         )}
       </div>
     )
@@ -247,231 +183,3 @@ export default async function CountryCodeCatchAllPage({ params }: PageProps) {
     notFound()
   }
 }
-
-// 拆分模組渲染為更小的函數
-// 渲染主橫幅模組
-function renderMainBanner(module: any, index: number) {
-  const slides = module.slides || []
-  const bannerSettings = module.bannerSettings || {}
-  
-  console.log('🎯 MainBanner data:', { 
-    slides, 
-    bannerSettings, 
-    moduleType: module._type,
-  })
-  
-  if (!slides || !Array.isArray(slides) || slides.length === 0) {
-    console.error("Invalid mainBanner module - no slides:", module)
-    return null
-  }
-  
-  // 構建正確的 MainBanner 對象
-  const banner: MainBanner = {
-    _type: "mainBanner",
-    isActive: true,
-    slides: slides.map((slide: any) => ({
-      heading: slide.heading || '',
-      subheading: slide.subheading || '',
-      desktopImage: slide.desktopImage || '',
-      desktopImageAlt: slide.desktopImageAlt || '',
-      mobileImage: slide.mobileImage || '',
-      mobileImageAlt: slide.mobileImageAlt || '',
-      imageLink: slide.imageLink || ''
-    })),
-    settings: {
-      autoplay: bannerSettings.autoplay ?? true,
-      autoplaySpeed: bannerSettings.autoplaySpeed ?? 5,
-      showArrows: bannerSettings.showArrows ?? true,
-      showDots: bannerSettings.showDots ?? true
-    }
-  }
-  
-  return (
-    <HeroSection
-      key={`module-banner-${index}`}
-      banner={banner}
-    />
-  )
-}
-
-// 渲染服務卡片模組
-function renderServiceCardSection(settings: any, index: number) {
-  const processedCards = settings.cards?.map((card: any) => ({
-    ...card,
-    stylists: card.stylists?.map((stylist: any) => ({
-      ...stylist,
-      cardImage: stylist.cardImage ? {
-        url: urlForImage(stylist.cardImage) || '',
-        alt: stylist.cardImage?.alt || ''
-      } : undefined
-    }))
-  })) || []
-  
-  return (
-    <ServiceCardsSection
-      key={`module-service-${index}`}
-      heading={settings.heading || ''}
-      cardsPerRow={settings.cardsPerRow || 3}
-      cards={processedCards}
-    />
-  )
-}
-
-// 渲染圖文區塊模組
-function renderImageTextBlock(settings: any, index: number) {
-  return (
-    <ImageTextBlock
-      key={`module-image-${index}`}
-      heading={settings.heading || ''}
-      content={settings.content || ''}
-      image={settings.image ? {
-        url: urlForImage(settings.image) || '',
-        alt: settings.image?.alt || ''
-      } : undefined}
-      layout={settings.layout || 'left'}
-      leftImage={settings.leftImage ? {
-        url: urlForImage(settings.leftImage) || '',
-        alt: settings.leftImage?.alt || ''
-      } : undefined}
-      rightImage={settings.rightImage ? {
-        url: urlForImage(settings.rightImage) || '',
-        alt: settings.rightImage?.alt || ''
-      } : undefined}
-      leftContent={settings.leftContent || ''}
-      rightContent={settings.rightContent || ''}
-      hideTitle={settings.hideTitle || false}
-    />
-  )
-}
-
-// 渲染精選商品模組
-function renderFeaturedProducts(
-  settings: any, 
-  index: number, 
-  collections: HttpTypes.StoreCollection[] | null,
-  region: HttpTypes.StoreRegion | null
-) {
-  if (!settings.collection_id) {
-    console.error("Invalid featuredProducts module:", settings)
-    return null
-  }
-
-  // 安全檢查 collections
-  if (!collections || !Array.isArray(collections)) {
-    console.warn("Featured products skipped - collections not available")
-    return null
-  }
-
-  try {
-    const featuredCollections = collections.filter((c: any) =>
-      settings.collection_id === c.id
-    )
-
-    if (featuredCollections.length === 0) {
-      console.log("No matching collection found for featured products")
-      return null
-    }
-
-    return (
-      <FeaturedProducts
-        key={`module-featured-${index}`}
-        collections={featuredCollections}
-        region={region!}
-        settings={settings}
-      />
-    )
-  } catch (error) {
-    console.error("Featured products rendering error:", error)
-    return null
-  }
-}
-
-// 渲染內容區塊模組
-function renderContentSection(settings: any, index: number) {
-  // 檢查是否有內容
-  if (!settings.content || !Array.isArray(settings.content)) {
-    console.warn("Invalid contentSection module - missing content array:", settings)
-    return null
-  }
-  
-  return (
-    <ContentSection
-      key={`module-content-${index}`}
-      heading={settings.hideTitle ? undefined : settings.title}
-      content={settings.content}
-    />
-  )
-}
-
-// 主要模組渲染函數
-function renderModule(
-  module: any, 
-  index: number, 
-  collections: HttpTypes.StoreCollection[] | null,
-  region: HttpTypes.StoreRegion | null
-) {
-  if (!module || module.isActive === false) return null
-
-  const settings = module.settings || {}
-  const moduleType = module.moduleType
-
-  try {
-    console.log(`🎯 Rendering module ${index}: ${moduleType}`, { isActive: module.isActive })
-    
-    switch (moduleType) {
-      case "mainBanner":
-        return renderMainBanner(module, index)
-      
-      case "serviceCardSection":
-        return renderServiceCardSection(settings, index)
-      
-      case "imageTextBlock":
-        return renderImageTextBlock(settings, index)
-      
-      case "featuredProducts":
-        return renderFeaturedProducts(settings, index, collections, region)
-      
-      case "blogSection":
-        return (
-          <BlogPosts 
-            key={`module-blog-${index}`}
-            title={settings.title || ''}
-            category={settings.category || ''}
-            limit={settings.limit || 2}
-            postsPerRow={settings.postsPerRow || 3}
-          />
-        )
-      
-      case "youtubeSection":
-        return (
-          <YoutubeSection
-            key={`module-youtube-${index}`}
-            _type="youtubeSection"
-            isActive={true}
-            heading={settings.heading}
-            description={settings.description}
-            videoUrl={settings.videoUrl}
-            videoMode={settings.videoMode}
-            youtubeSettings={settings.youtubeSettings}
-            uploadSettings={settings.uploadSettings}
-            videoSettings={settings.videoSettings}
-            fullWidth={settings.fullWidth ?? true}
-          />
-        )
-      
-      case "contentSection":
-        return renderContentSection(settings, index)
-      
-      default:
-        console.warn(`Unknown module type: ${moduleType}`)
-        return null
-    }
-  } catch (error) {
-    console.error(`Error rendering module ${moduleType}:`, error)
-    return null
-  }
-}
-
-// 生成靜態路徑（可選，用於預渲染）
-// 移除預產生的靜態參數，避免影響其他動態路由的建置
-// export async function generateStaticParams() { /* removed to force dynamic */ }

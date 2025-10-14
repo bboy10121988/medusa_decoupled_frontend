@@ -9,7 +9,7 @@ type ProductDisplayProps = {
 }
 
 export default function ProductDisplay({ products, region }: ProductDisplayProps) {
-  if (!products || products.length === 0) {
+  if (products?.length === 0) {
     return (
       <div className="w-full py-8 text-center text-gray-500">
         此分類暫無商品

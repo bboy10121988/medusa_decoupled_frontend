@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { retrieveAffiliate } from '../../../../lib/data/affiliate-auth'
 import { getAllStats } from '../../../../lib/data/affiliate-stats'
-import { ClickRecord } from '../../../../types/affiliate'
 
 // 訂單類型定義
 type AffiliateOrder = {
@@ -27,7 +26,7 @@ export async function GET() {
     const stats = await getAllStats()
     
     // 獲取聯盟連結資料（用於獲取連結名稱）
-    let linkNames: { [linkId: string]: string } = {}
+    const linkNames: { [linkId: string]: string } = {}
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/affiliate/links`, {
         headers: {

@@ -61,8 +61,7 @@ export async function affiliateAdminLogin(_s: unknown, form: FormData) {
       token: String(adminToken),
     })
   } catch (e: any) {
-    const msg = e?.message || '登入失敗，請檢查帳號密碼'
-    return msg
+    return e?.message || '登入失敗，請檢查帳號密碼'
   }
   redirect(`/${countryCode}/affiliate-admin`)
 }

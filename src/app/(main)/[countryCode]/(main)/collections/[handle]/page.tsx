@@ -1,9 +1,8 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { getCollectionByHandle, listCollections } from "@lib/data/collections"
-import { listRegions } from "@lib/data/regions"
-import { StoreCollection, StoreRegion } from "@medusajs/types"
+import { getCollectionByHandle } from "@lib/data/collections"
+import { StoreCollection } from "@medusajs/types"
 import CollectionTemplate from "@modules/collections/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
@@ -31,12 +30,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
-  const metadata = {
+  return {
     title: `${collection.title} | Medusa Store`,
     description: `${collection.title} collection`,
   } as Metadata
-
-  return metadata
 }
 
 export default async function CollectionPage(props: Props) {

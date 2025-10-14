@@ -1,4 +1,3 @@
-import { HttpTypes } from "@medusajs/types"
 
 // 簡化的促銷標籤類型
 export type PromotionLabelType = 
@@ -170,7 +169,7 @@ export async function applyPromotion(cartId: string, code: string) {
                               code.toLowerCase().includes('滿額') ||
                               code.toLowerCase().includes('滿') ||
                               // 根據測試結果，包含 order 關鍵字的是滿額折扣
-                              (promotion.rules && promotion.rules.some((rule: any) => 
+                              (promotion.rules?.some((rule: any) => 
                                 rule.attribute === 'total' || rule.attribute === 'subtotal'
                               ))
           

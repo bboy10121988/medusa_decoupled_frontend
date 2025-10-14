@@ -39,11 +39,10 @@ function corsHeaders(origin: string | null) {
 }
 
 function sanitizePath(segments: string[]): string {
-  const safe = segments
+  return segments
     .filter((s) => !!s && s !== '.' && s !== '..')
     .join('/')
     .replace(/^\/+|\/+$/g, '')
-  return safe
 }
 
 function isAllowedPath(path: string): boolean {
@@ -89,8 +88,7 @@ async function proxyFetch(method: 'GET' | 'POST' | 'DELETE', req: NextRequest, p
     const text = await resp.text()
     const isJson = resp.headers.get('content-type')?.includes('application/json')
     const body = isJson ? (text ? JSON.parse(text) : {}) : { data: text }
-    const res = NextResponse.json(body, { status: resp.status, headers: corsHeaders(origin) })
-    return res
+    return NextResponse.json(body, { status: resp.status, headers: corsHeaders(origin) })
   } catch (e: any) {
     if (process.env.NODE_ENV === 'development') console.error('Medusa proxy error:', e)
     return NextResponse.json({ error: 'Upstream fetch failed' }, { status: 502, headers: corsHeaders(origin) })

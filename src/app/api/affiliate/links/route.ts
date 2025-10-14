@@ -5,7 +5,7 @@ import path from 'path'
 import type { AffiliateLink } from '../../../../types/affiliate'
 
 // 記憶體儲存 (開發模式)
-let memoryStorage: { [affiliateId: string]: AffiliateLink[] } = {}
+const memoryStorage: { [affiliateId: string]: AffiliateLink[] } = {}
 
 // 檔案儲存設定
 const STORAGE_MODE = process.env.AFFILIATE_STORAGE_MODE || 'memory' // 'memory' | 'json'

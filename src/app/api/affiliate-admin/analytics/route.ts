@@ -5,8 +5,7 @@ import {
   AffiliateStatsData, 
   AffiliateSettingsData, 
   AffiliatePerformance, 
-  ProductPerformance, 
-  AnalyticsResponse 
+  ProductPerformance 
 } from '../../../../types/affiliate-admin'
 
 const dataDir = path.join(process.cwd(), 'data')

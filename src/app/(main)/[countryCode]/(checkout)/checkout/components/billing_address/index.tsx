@@ -4,16 +4,16 @@ import React, { useState } from "react"
 import CountrySelect from "../country-select"
 
 const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
-  const [formData, setFormData] = useState<any>({
-    "billing_address.first_name": cart?.billing_address?.first_name || "",
-    "billing_address.last_name": cart?.billing_address?.last_name || "",
-    "billing_address.address_1": cart?.billing_address?.address_1 || "",
-    "billing_address.company": cart?.billing_address?.company || "",
-    "billing_address.postal_code": cart?.billing_address?.postal_code || "",
-    "billing_address.city": cart?.billing_address?.city || "",
-    "billing_address.country_code": cart?.billing_address?.country_code || "",
-    "billing_address.province": cart?.billing_address?.province || "",
-    "billing_address.phone": cart?.billing_address?.phone || "",
+  const [formData, setFormData] = useState<Record<string, string>>({
+    "billing_address.first_name": cart?.billing_address?.first_name ?? "",
+    "billing_address.last_name": cart?.billing_address?.last_name ?? "",
+    "billing_address.address_1": cart?.billing_address?.address_1 ?? "",
+    "billing_address.company": cart?.billing_address?.company ?? "",
+    "billing_address.postal_code": cart?.billing_address?.postal_code ?? "",
+    "billing_address.city": cart?.billing_address?.city ?? "",
+    "billing_address.country_code": cart?.billing_address?.country_code ?? "",
+    "billing_address.province": cart?.billing_address?.province ?? "",
+    "billing_address.phone": cart?.billing_address?.phone ?? "",
   })
 
   const handleChange = (

@@ -4,6 +4,8 @@ import { HttpTypes } from "@medusajs/types"
 import { useEffect, useMemo, useState } from "react"
 import { decodeToken } from "react-jwt"
 import { sdk } from "@/lib/config"
+import { authenticatedSDK } from "@/lib/authenticated-sdk"
+import { waitForAuthentication } from "@/lib/client-auth"
 
 // 檢查 JWT token 有效性的工具函數
 const isValidJWT = (token: string): boolean => {
@@ -25,8 +27,8 @@ const isValidJWT = (token: string): boolean => {
     if (payload.exp < now) return false
     
     return true
-  } catch (e) {
-    console.error("JWT 驗證失敗:", e)
+  } catch (_e) { // 🔇 使用 _ 前綴標記未使用參數
+    // JWT 解析失敗，返回無效
     return false
   }
 }
@@ -127,8 +129,10 @@ export default function GoogleCallback() {
     console.log("createCustomer 被調用 - 檢查客戶狀態")
     
     try {
-      console.log("檢查是否已經存在客戶...")
-      const { customer: existingCustomer } = await sdk.store.customer.retrieve()
+      console.log("使用 AuthenticatedSDK 檢查是否已經存在客戶...")
+      
+      // 🔧 使用認證感知的 SDK
+      const existingCustomer = await authenticatedSDK.getCustomer()
       
       if (existingCustomer) {
         console.log("找到現有客戶:", existingCustomer.email)
@@ -245,7 +249,7 @@ export default function GoogleCallback() {
               const { getGoogleIdentityByCustomerId } = await import('@/lib/data/google-identity');
               const googleIdentityResult = await getGoogleIdentityByCustomerId(customerData.id);
               
-              if (googleIdentityResult.success && googleIdentityResult.data && googleIdentityResult.data.email) {
+              if (googleIdentityResult.success && googleIdentityResult.data?.email) {
                 email = googleIdentityResult.data.email;
                 console.log("✅ 從數據庫成功獲取 Google 身份電子郵件:", email);
                 
@@ -281,16 +285,20 @@ export default function GoogleCallback() {
           // 注意：Medusa v2 不需要額外的 /store/auth/google/me API 調用
           // 用戶資料應該已經從 token 或數據庫查詢中獲取
           
-          // 3. 如果仍未獲取電子郵件，嘗試使用標準 SDK 方法（可能會獲取到預設電子郵件）
+          // 3. 如果仍未獲取電子郵件，嘗試使用認證感知 SDK 獲取用戶資料
           if (!email) {
-            console.log("嘗試使用標準 Medusa SDK 獲取用戶資料...");
-            const { customer: customerData } = await sdk.store.customer.retrieve();
-            
-            if (customerData && customerData.email && customerData.email !== "example@medusajs.com") {
-              email = customerData.email;
-              console.log("✅ 從 SDK 成功獲取非預設電子郵件:", email);
-            } else {
-              console.log("從 SDK 獲取到預設或空電子郵件:", customerData?.email);
+            console.log("嘗試使用 AuthenticatedSDK 獲取用戶資料...");
+            try {
+              const customerData = await authenticatedSDK.getCustomer();
+              
+              if (customerData && customerData.email && customerData.email !== "example@medusajs.com") {
+                email = customerData.email;
+                console.log("✅ 從 AuthenticatedSDK 成功獲取非預設電子郵件:", email);
+              } else {
+                console.log("從 AuthenticatedSDK 獲取到預設或空電子郵件:", customerData?.email);
+              }
+            } catch (sdkError) {
+              console.log("AuthenticatedSDK 獲取用戶資料失敗:", sdkError);
               
               // 4. 最後嘗試，嘗試從數據庫中獲取所有 Google 身份並尋找最新的一個
               console.log("嘗試從數據庫獲取所有 Google 身份資料...");
@@ -362,14 +370,18 @@ export default function GoogleCallback() {
           console.log(`嘗試獲取客戶資料... (第 ${attempt}/${maxAttempts} 次)`)
           
           try {
-            // 檢查 SDK 認證狀態
-            console.log(`檢查 SDK 認證狀態 (嘗試 ${attempt})...`)
+            // 🔧 使用客戶端認證 API 檢查狀態
+            console.log(`使用客戶端認證 API 檢查狀態 (嘗試 ${attempt})...`)
             
-            // 嘗試使用服務器端函數來檢查認證狀態
-            const { retrieveCustomer } = await import('@/lib/data/customer')
-            customerData = await retrieveCustomer()
+            // 使用 waitForAuthentication 等待認證穩定
+            const authResult = await waitForAuthentication(1, 500) // 每次只嘗試1次，500ms間隔
             
-            console.log(`服務器端客戶獲取結果 (嘗試 ${attempt}):`, {
+            if (authResult.authenticated && authResult.customer) {
+              customerData = authResult.customer
+            }
+            
+            console.log(`客戶端認證 API 結果 (嘗試 ${attempt}):`, {
+              authenticated: authResult.authenticated,
               hasCustomer: !!customerData,
               customerId: customerData?.id,
               customerEmail: customerData?.email
@@ -440,7 +452,7 @@ export default function GoogleCallback() {
                     }
                     
                     // 克隆客戶對象並更新郵箱
-                    const updatedCustomer = {
+                    return {
                       ...freshCustomer,
                       email: googleIdentityResult.data.email,
                       // 如果 Google 數據中有名字，也可以更新
@@ -456,7 +468,6 @@ export default function GoogleCallback() {
                         }
                       }
                     }
-                    return updatedCustomer
                   } else {
                     console.log("❌ 無法從 Google Identity 獲取真實郵箱:", googleIdentityResult.error)
                   }

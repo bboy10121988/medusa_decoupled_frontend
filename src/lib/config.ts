@@ -32,10 +32,14 @@ export const SITE_URL = requiredEnv(
 
 // -------------------- SDK 初始化 --------------------
 
+// 創建一個支援動態認證的 SDK 實例
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
   publishableKey: getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
+  auth: {
+    type: "session"
+  },
 })
 
 // -------------------- API Config --------------------

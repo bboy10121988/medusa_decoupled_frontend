@@ -11,7 +11,7 @@ export class PaymentData {
   
   getDataParams(): URLSearchParams {
 
-    let dstData = this.data;
+    const dstData = this.data;
     
     dstData.set('CheckMacValue', this.getCheckMacValue());
 
@@ -124,7 +124,7 @@ export class PaymentData {
 
   getCheckMacValue():string{
     
-    let originParam = this.data;
+    const originParam = this.data;
 
     // step1. 將傳遞參數依照第一個英文字母，由A到Z的順序來排序(遇到第一個英文字母相同時，以第二個英文字母來比較，以此類推)，並且以&方式將所有參數串連。
     // step2. 參數最前面加上HashKey、最後面加上HashIV

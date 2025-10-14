@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // 驗證頁面是否存在
     const existingPage = await client.fetch(
-      `*[_type == "grapesJSPageV2" && _id == $id][0]`,
+      `*[_type == "dynamicPage" && _id == $id][0]`,
       { id: pageData._id }
     ).catch(err => {
       console.error('查詢頁面失敗:', err)

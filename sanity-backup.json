@@ -1,0 +1,1350 @@
+{
+  "timestamp": "2025-10-14T07:55:56.025Z",
+  "documents": [
+    {
+      "_createdAt": "2025-09-24T08:56:38Z",
+      "_id": "63ff06ac-2e35-4325-b8b7-387f2f25eeb7",
+      "_rev": "S9Le43eXTMF66hXwiNqbDC",
+      "_system": {
+        "base": {
+          "id": "63ff06ac-2e35-4325-b8b7-387f2f25eeb7",
+          "rev": "85XkzPiajwX97WMxQqlnYG"
+        }
+      },
+      "_type": "grapesJSPageV2",
+      "_updatedAt": "2025-10-07T05:52:18Z",
+      "homeModules": [
+        {
+          "_key": "506e418b1170",
+          "_type": "contentSectionModule",
+          "isActive": true,
+          "moduleType": "contentSection",
+          "settings": {
+            "_type": "contentSection",
+            "content": [
+              {
+                "_key": "a2539c6e30d2",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "0ac65065799d",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "一、適用範圍"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h2"
+              },
+              {
+                "_key": "ad87a99f567b",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "146a01aea950",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "本退換貨規則依據《消費者保護法》及相關規範制定，適用於本公司所販售之所有商品，並保障消費者於合理範圍內享有七日鑑賞期（猶豫期）之權益。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "4f4111b80fd5",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "d2d6b43717fe",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "二、七日鑑賞期（猶豫期）"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h2"
+              },
+              {
+                "_key": "0d8084a8564e",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "58e59d8b60ad",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "消費者透過網路或其他通訊交易方式購買商品，自收受商品次日起 "
+                  },
+                  {
+                    "_key": "6adb8ec6f910",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "七日內（含例假日）"
+                  },
+                  {
+                    "_key": "e5e5da2ed486",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "，享有退貨或換貨之權利，無需說明理由及負擔任何費用或對價。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "07c92d02de4d",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "5e238214a43b",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "七日鑑賞期並非試用期，商品須保持完整性，否則將不符合退換貨條件。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "3e1cc899902d",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "b41694a2efad",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "三、退換貨不適用情況"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h2"
+              },
+              {
+                "_key": "c38939ee397d",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "3ff64e7c1c62",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "依《通訊交易解除權合理例外情事適用準則》，下列情形恕無法退換貨："
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "444b1b7d5ab8",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "4f9c022ffe14",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "已拆封之個人衛生或美容護理用品（如洗髮精、護髮素、造型品等），基於衛生安全考量，不得退換貨。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "0925709d96da",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "ad034fbae463",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "已使用、試用或因個人因素導致商品毀損、缺件、失去再販售價值者。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "259f1264e321",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "af9bed2f61c4",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "超過七日鑑賞期後提出退換貨要求者。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "8e9a85e28c64",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "73f6073b13ee",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "其他依法規不適用退換貨之情形。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "d3848de0ae3c",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "56ed4098353a",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "四、退換貨條件"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h2"
+              },
+              {
+                "_key": "bee6f6235247",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "8d04baa229f5",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "申請退換貨時，商品需保持完整包裝，包括：商品本體、配件、贈品、內外包裝、發票或購買證明。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "02c2dcb1ffa8",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "b33c411f0e46",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "若因商品本身瑕疵（如破損、漏液、標示錯誤等）或出貨錯誤，本公司將負擔退換貨運費。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "5d174aedf214",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "aa5bd88ea070",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "若因個人因素（如不喜歡、不適合等）要求退貨，則需消費者自行負擔退貨運費。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "188e92d7dae0",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "d7d371b31adf",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "五、退換貨流程"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h2"
+              },
+              {
+                "_key": "318c7531b48b",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "70009b1d8587",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "請於七日鑑賞期內，透過客服信箱或客服電話提出退換貨申請，並提供訂單編號與商品照片。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "a92a802ca169",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "491018d26255",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "經客服確認符合退換貨條件後，請將商品連同完整包裝寄回。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "94dd90b0a9e8",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "d3f37e16b84d",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "本公司收到並檢查商品無誤後，將於 "
+                  },
+                  {
+                    "_key": "00bd3f7411f9",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "7 個工作天內"
+                  },
+                  {
+                    "_key": "6d94cf3571ff",
+                    "_type": "span",
+                    "marks": [],
+                    "text": " 辦理退款或寄出更換商品。退款方式依原付款方式辦理。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "b1363945222a",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "5714bfc29fd6",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "六、客服聯絡方式"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h2"
+              },
+              {
+                "_key": "f4c745441443",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "40a75986e4ca",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "點擊右下角幫助"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              }
+            ],
+            "hideTitle": false,
+            "isActive": true,
+            "title": "退換貨規則"
+          }
+        }
+      ],
+      "slug": {
+        "_type": "slug",
+        "current": "return"
+      },
+      "status": "published",
+      "title": "退換貨規則",
+      "version": 1,
+      "viewport": "responsive"
+    },
+    {
+      "_createdAt": "2025-09-21T04:09:11Z",
+      "_id": "86e405b2-c89d-4c54-b00e-4054a7e3bd5b",
+      "_rev": "HbIY6zdPyb7oPx5PaxQtau",
+      "_system": {
+        "base": {
+          "id": "86e405b2-c89d-4c54-b00e-4054a7e3bd5b",
+          "rev": "D3NeUF1rFAGyZBJ30nCKUb"
+        }
+      },
+      "_type": "grapesJSPageV2",
+      "_updatedAt": "2025-09-25T15:36:01Z",
+      "editHistory": [
+        {
+          "_key": "e35JbV65I3hYivFZ35QJFx",
+          "action": "updated",
+          "changes": "HTML 內容已更新, CSS 樣式已更新, 頁面組件已更新",
+          "editor": "GrapesJS Editor",
+          "timestamp": "2025-09-21T04:35:53.351Z"
+        },
+        {
+          "_key": "e35JbV65I3hYivFZ35QJJs",
+          "action": "updated",
+          "changes": "HTML 內容已更新, CSS 樣式已更新, 頁面組件已更新",
+          "editor": "GrapesJS Editor",
+          "timestamp": "2025-09-21T04:39:37.776Z"
+        },
+        {
+          "_key": "72CnA24vS9SzSXSoN056Vd",
+          "action": "updated",
+          "changes": "HTML 內容已更新, CSS 樣式已更新, 頁面組件已更新",
+          "editor": "GrapesJS Editor",
+          "timestamp": "2025-09-24T09:25:57.613Z"
+        },
+        {
+          "_key": "72CnA24vS9SzSXSoN056Wt",
+          "action": "updated",
+          "changes": "頁面組件已更新",
+          "editor": "GrapesJS Editor",
+          "timestamp": "2025-09-24T09:27:58.610Z"
+        },
+        {
+          "action": "updated",
+          "changes": "頁面組件已更新",
+          "editor": "GrapesJS Editor",
+          "timestamp": "2025-09-25T15:33:26.877Z"
+        },
+        {
+          "action": "updated",
+          "changes": "頁面組件已更新",
+          "editor": "GrapesJS Editor",
+          "timestamp": "2025-09-25T15:36:01.266Z"
+        }
+      ],
+      "grapesComponents": "[]",
+      "grapesCss": "* { box-sizing: border-box; } body {margin: 0;}",
+      "grapesHtml": "",
+      "grapesStyles": "[]",
+      "homeModules": [
+        {
+          "_key": "5fbfe18cca9e",
+          "_type": "contentSectionModule",
+          "isActive": true,
+          "moduleType": "contentSection",
+          "settings": {
+            "_type": "contentSection",
+            "content": [
+              {
+                "_key": "fe138ffb588a",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "822ad1add28e",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "常見問題（FAQ）"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h1"
+              },
+              {
+                "_key": "1a6539ecb9f6",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "5afb1b7b1d5f",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "1. 需要提前預約嗎？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "271e8f2a8849",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "91a62cc670ed",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "我們建議顧客提前預約，以確保能安排到合適的設計師和時間。不過如果臨時來店，若現場有空檔我們也會盡量安排。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "8d5c466ec2bc",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "c84cd46929f1",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "2. 第一次來，不知道適合什麼髮型怎麼辦？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "a9abce760fa9",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "35907063b961",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "設計師會根據您的臉型、髮質、生活習慣，給予專業建議並與您溝通，確保找到最適合的造型。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "a671f8fcfbd4",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "03da177a8c44",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "3. 剪髮大約需要多久？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "fb6006977a09",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "d308fb4834e3",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "一般剪髮約 "
+                  },
+                  {
+                    "_key": "10df69961dbb",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "40 分鐘至 1 小時"
+                  },
+                  {
+                    "_key": "12fb5d201802",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "，如果包含洗髮與造型會更完整，建議保留足夠時間。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "e4f23c4aef77",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "c49e2a7c7550",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "4. 燙髮或染髮需要多久？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "df46b46668c5",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "5085083d9b4b",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "燙髮"
+                  },
+                  {
+                    "_key": "25dbb4898c59",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "：依捲度及髮長不同，約 2 至 3 小時。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "2ef3bac65811",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "ab55778da13e",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "染髮"
+                  },
+                  {
+                    "_key": "7aaa2c85dd0e",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "：一般單色染約 1.5 至 2 小時，設計染或挑染則需 3 小時以上。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "26af48f91c84",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "e6b5e5b8ef37",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "5. 有提供頭皮或護髮保養嗎？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "62b4d0e898df",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "6954b2141ef7",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "有的，我們提供多種護髮與頭皮養護課程，可以依照頭皮狀況或髮質需求選擇。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "7662872bfa8d",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "b00d558b90b6",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "6. 價位怎麼計算？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "1a12fd012d50",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "452166c64bfa",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "基本費用會依照「髮長、設計師資歷、服務內容」而有所不同，詳細價格可參考價目表，或提前向櫃檯詢問。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "b9da471ea0ac",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "ab3d5838e9ba",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "7. 使用的染劑或燙髮產品安全嗎？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "4ca8f5cddb6a",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "f2756ce8544b",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "我們使用專業級品牌，強調低刺激、護色與護髮，並有針對敏感頭皮的產品選擇。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "952e7291e559",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "215b55afdd45",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "8. 染後或燙後該如何保養？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "4958aaa22083",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "c21fbcc324a8",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "設計師會提供專屬居家護理建議，例如使用護色洗髮精、護髮素，並避免過熱吹整。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "78b49fc056b7",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "07cb6f94fb32",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "9. 是否有會員或集點優惠？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "3a917c9ea0c8",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "9ce90ca21a70",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "有，我們提供會員制度與集點卡，累積點數可折抵消費，還有專屬生日優惠。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "f156a21e7cb6",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "a3930b3ec1ab",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "10. 如果臨時不能來，可以改時間嗎？"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h3"
+              },
+              {
+                "_key": "b411a074d813",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "6bde6d1fc8a4",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "可以，請提前至少一天聯絡我們更改預約，以便我們重新安排。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              }
+            ],
+            "hideTitle": false,
+            "isActive": true
+          }
+        }
+      ],
+      "lastModified": "2025-09-25T15:36:01.266Z",
+      "slug": {
+        "_type": "slug",
+        "current": "FAQ"
+      },
+      "status": "published",
+      "title": "常見問題",
+      "version": 7,
+      "viewport": "responsive"
+    },
+    {
+      "_createdAt": "2025-09-21T04:50:12Z",
+      "_id": "cc2bf014-4711-4355-92cf-5de359992501",
+      "_rev": "D3NeUF1rFAGyZBJ30nCKvZ",
+      "_system": {
+        "base": {
+          "id": "cc2bf014-4711-4355-92cf-5de359992501",
+          "rev": "8zOK5U5ScprlNDd8j4TE7a"
+        }
+      },
+      "_type": "grapesJSPageV2",
+      "_updatedAt": "2025-09-24T10:47:21Z",
+      "homeModules": [
+        {
+          "_key": "653cd18bcdac",
+          "_type": "mainBannerModule",
+          "isActive": true,
+          "moduleType": "mainBanner",
+          "settings": {
+            "_type": "mainBanner",
+            "isActive": true,
+            "settings": {
+              "autoplay": true,
+              "autoplaySpeed": 5,
+              "showArrows": true,
+              "showDots": true
+            },
+            "slides": [
+              {
+                "_key": "2590da22d3c8",
+                "backgroundImage": {
+                  "_type": "image",
+                  "asset": {
+                    "_ref": "image-f00db2d740d344b5ff92b941a60b58c32d3aa383-1920x1036-jpg",
+                    "_type": "reference"
+                  }
+                },
+                "desktopImage": {
+                  "_type": "image",
+                  "asset": {
+                    "_ref": "image-47132e68e66ce7565a404ae91a9835bb8f5e5832-1920x1036-jpg",
+                    "_type": "reference"
+                  }
+                },
+                "mobileImage": {
+                  "_type": "image",
+                  "asset": {
+                    "_ref": "image-da1232e1169f1ea21d6bd559525758e347f8a58f-1000x1920-jpg",
+                    "_type": "reference"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "slug": {
+        "_type": "slug",
+        "current": "contact"
+      },
+      "status": "published",
+      "title": "聯絡我們",
+      "version": 1,
+      "viewport": "responsive"
+    },
+    {
+      "_createdAt": "2025-10-01T16:50:16Z",
+      "_id": "ce52a8e5-bc27-449f-aa3c-caccca4c42f6",
+      "_rev": "2ZCZmWzr17eTpCx3ktCKCu",
+      "_system": {
+        "base": {
+          "id": "ce52a8e5-bc27-449f-aa3c-caccca4c42f6",
+          "rev": "2ZCZmWzr17eTpCx3ktC5gY"
+        }
+      },
+      "_type": "grapesJSPageV2",
+      "_updatedAt": "2025-10-01T16:55:04Z",
+      "homeModules": [
+        {
+          "_key": "b25fa9d43308",
+          "_type": "contentSectionModule",
+          "isActive": true,
+          "moduleType": "contentSection",
+          "settings": {
+            "_type": "contentSection",
+            "content": [
+              {
+                "_key": "40a70c8f5769",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "28773aea334c",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "一、隱私權保護政策的適用範圍"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h4"
+              },
+              {
+                "_key": "36771ce6fdfd",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "51930fef65e6",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "隱私權保護政策內容，包括本網站如何處理在您使用網站服務時收集到的個人識別資料。隱私權保護政策不適用於本網站以外的相關連結網站，也不適用於非本網站所委託或參與管理的人員。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "6dfae5729bd0",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "fbbe1d37a531",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "二、個人資料的蒐集、處理及利用方式"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h4"
+              },
+              {
+                "_key": "879569132d6a",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "57ebf9619738",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "當您造訪本網站或使用本網站所提供之功能服務時，我們將視該服務功能性質，請您提供必要的個人資料，並在該特定目的範圍內處理及利用您的個人資料；非經您書面同意，本網站不會將個人資料用於其他用途。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "32bc23e4b752",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "c5eaa2e79d69",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "本網站在您使用服務信箱、問卷調查等互動性功能時，會保留您所提供的姓名、電子郵件地址、聯絡方式及使用時間等。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "69a8af9ebdcb",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "106c3bbab030",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "於一般瀏覽時，伺服器會自行記錄相關行徑，包括您使用連線設備的IP位址、使用時間、使用的瀏覽器、瀏覽及點選資料記錄等，做為我們增進網站服務的參考依據，此記錄為內部應用，決不對外公佈。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "b2ef07b803a5",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "7bf3062832cc",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "為提供精確的服務，我們會將收集的問卷調查內容進行統計與分析，分析結果之統計數據或說明文字呈現，除供內部研究外，我們會視需要公佈統計數據及說明文字，但不涉及特定個人之資料。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "53a51b0b398c",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "3de00fc39c52",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "三、資料之保護"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h4"
+              },
+              {
+                "_key": "9b76ad09e516",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "a451a93f59f0",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "只由經過授權的人員才能接觸您的個人資料，如因業務需要有必要委託其他單位提供服務時，本網站亦會嚴格要求其遵守保密義務，並且採取必要檢查程序以確定其將確實遵守。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "c4887b27b8e7",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "ec9a505c8f1d",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "四、網站對外的相關連結"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h4"
+              },
+              {
+                "_key": "16fe54b39a73",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "ce8dc9de51db",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "本網站的網頁提供其他網站的網路連結，您也可經由本網站所提供的連結，點選進入其他網站。但該連結網站不適用本網站的隱私權保護政策，您必須參考該連結網站中的隱私權保護政策。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "45daeb8c8861",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "359915f33c41",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "五、與第三人共用個人資料之政策"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h4"
+              },
+              {
+                "_key": "630f5db9b7e7",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "1e89f7377887",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "本網站絕不會提供、交換、出租或出售任何您的個人資料給其他個人、團體、私人企業或公務機關，但有法律依據或合約義務者，不在此限。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "01cca71ec6ba",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "d934fdb649ce",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "前項但書之情形包括不限於："
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "45b97373cb1a",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "cf22a507d395",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "經由您書面同意。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "6ab14ee3c097",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "6e838e1028a0",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "法律明文規定。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "f36658d356c3",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "ce53e1a7445c",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "為免除您生命、身體、自由或財產上之危險。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "77e236b7efdd",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "c3ac329ff0b0",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "與公務機關或學術研究機構合作，基於公共利益為統計或學術研究而有必要，且資料經過提供者處理或蒐集著依其揭露方式無從識別特定之當事人。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "6f327e7c498d",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "1f84f76ea7ca",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "當您在網站的行為，違反服務條款或可能損害或妨礙網站與其他使用者權益或導致任何人遭受損害時，經網站管理單位研析揭露您的個人資料是為了辨識、聯絡或採取法律行動所必要者。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "8116a92b33dc",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "cadff7e5daea",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "有利於您的權益。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "155db4c96dd1",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "d4c151ca17cb",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "本網站委託廠商協助蒐集、處理或利用您的個人資料時，將對委外廠商或個人善盡監督管理之責。"
+                  }
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "be3fd9fc036d",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "04d6b9208e80",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "六、Cookie之使用"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h4"
+              },
+              {
+                "_key": "b7347745e9a0",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "dcf25854d835",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "為了提供您最佳的服務，本網站會在您的電腦中放置並取用我們的Cookie，若您不願接受Cookie的寫入，您可在您使用的瀏覽器功能項中設定隱私權等級為高，即可拒絕Cookie的寫入，但可能會導至網站某些功能無法正常執行 。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              },
+              {
+                "_key": "38dd66c34366",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "475c306f5579",
+                    "_type": "span",
+                    "marks": [
+                      "strong"
+                    ],
+                    "text": "七、隱私權保護政策之修正"
+                  }
+                ],
+                "markDefs": [],
+                "style": "h4"
+              },
+              {
+                "_key": "7b130758d471",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "90f37ee6ef11",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "本網站隱私權保護政策將因應需求隨時進行修正，修正後的條款將刊登於網站上。"
+                  }
+                ],
+                "markDefs": [],
+                "style": "normal"
+              }
+            ],
+            "hideTitle": false,
+            "isActive": true,
+            "title": "隱私權政策"
+          }
+        }
+      ],
+      "slug": {
+        "_type": "slug",
+        "current": "privacy_policy"
+      },
+      "status": "published",
+      "title": "隱私權政策",
+      "version": 1,
+      "viewport": "responsive"
+    },
+    {
+      "_createdAt": "2025-10-14T06:17:50Z",
+      "_id": "drafts.8403a4b4-cc61-487f-ad50-eeaaeee1e59e",
+      "_rev": "1cadbd99-d9ce-43e8-a7a1-e68d053f95b3",
+      "_type": "grapesJSPageV2",
+      "_updatedAt": "2025-10-14T06:17:57Z",
+      "slug": {
+        "_type": "slug",
+        "current": "test"
+      },
+      "status": "draft",
+      "title": "test",
+      "version": 1,
+      "viewport": "responsive"
+    }
+  ]
+}

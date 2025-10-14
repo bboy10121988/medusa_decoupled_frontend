@@ -49,7 +49,7 @@ const CartDropdown = ({
           </button>
         )}
       </div>
-      {cartState && cartState.items?.length ? (
+      {cartState?.items?.length ? (
         <>
           <div className="overflow-y-scroll max-h-[350px] px-6 py-4 grid grid-cols-1 gap-y-6 no-scrollbar">
             {cartState.items

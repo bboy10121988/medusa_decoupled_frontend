@@ -7,7 +7,7 @@ import homePage from './homePage'
 import pages from './pages'
 import footer from './footer'
 import returnPolicy from './returnPolicy'
-import grapesJSPageV2 from './grapesJSPageV2'
+import dynamicPage from './dynamicPage'
 // import seoMeta from './seoMeta' // No longer needed - SEO fields are now flattened
 
 // Block schemas
@@ -25,7 +25,7 @@ export const schemaTypes = [
   // Documents
   homePage,
   pages,
-  grapesJSPageV2,
+  dynamicPage,
   post,
   author,
   category,

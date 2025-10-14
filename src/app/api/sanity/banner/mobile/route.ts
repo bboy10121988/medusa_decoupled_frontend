@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
     }
 
     const mime = file.type
-    if (!mime || !mime.startsWith('image/')) {
+    if (!mime?.startsWith('image/')) {
       return NextResponse.json({ 
         success: false, 
         error: '只允許上傳圖片文件' 

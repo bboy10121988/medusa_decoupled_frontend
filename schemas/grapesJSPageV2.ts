@@ -1,74 +1,16 @@
 import { defineType, defineField } from 'sanity'
 
 export default defineType({
-  name: 'grapesJSPageV2',
-  title: 'GrapesJS 頁面 V2',
+  name: 'dynamicPage',
+  title: '動態頁面',
   type: 'document',
   groups: [
     { name: 'content', title: '頁面內容', default: true },
-    { name: 'design', title: '設計數據' },
     { name: 'modules', title: '模組設定' },
     { name: 'seo', title: 'SEO 設定' },
-    { name: 'settings', title: '頁面設定' },
-    { name: 'editor', title: 'GrapesJS 編輯器' }
+    { name: 'settings', title: '頁面設定' }
   ],
   fields: [
-    // 一鍵開啟 GrapesJS 編輯器（按鈕）
-    defineField({
-      name: 'openGrapesEditor',
-      title: '開啟 GrapesJS 編輯器',
-      type: 'string',
-      group: 'editor',
-      readOnly: true,
-      components: {
-        input: function OpenGrapesEditorButton() {
-          const React = require('react')
-          const { useFormValue } = require('sanity')
-
-          const id = useFormValue(['_id']) as string | undefined
-          const publishedId = (id || '').replace(/^drafts\./, '')
-          const isReady = Boolean(publishedId)
-
-          const handleClick = () => {
-            if (!isReady) return
-            const url = `/cms/editor?docId=${encodeURIComponent(publishedId)}&type=grapesJSPageV2`
-            if (typeof window !== 'undefined') {
-              // 在同一個視窗中導航，保留 Sanity 頁首
-              window.location.href = url
-            }
-          }
-
-          return React.createElement(
-            'div',
-            { style: { padding: '12px 0' } },
-            React.createElement(
-              'button',
-              {
-                type: 'button',
-                onClick: handleClick,
-                disabled: !isReady,
-                style: {
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px 16px',
-                  cursor: isReady ? 'pointer' : 'not-allowed',
-                  opacity: isReady ? 1 : 0.6
-                }
-              },
-              'GrapesJS 編輯器'
-            ),
-            React.createElement(
-              'div',
-              { style: { marginTop: '8px', fontSize: '12px', opacity: 0.8 } },
-              isReady ? '於新視窗開啟 GrapesJS 編輯器' : '請先儲存或發布文件以取得 ID'
-            )
-          )
-        }
-      },
-      description: '點擊按鈕將在新視窗中開啟 GrapesJS 編輯器'
-    }),
     // 基本頁面資訊
     defineField({
       name: 'title',
@@ -79,14 +21,44 @@ export default defineType({
     }),
     defineField({
       name: 'slug',
-      title: '網址別名',
+      title: '網址別名 (URL Slug)',
       type: 'slug',
       group: 'content',
+      description: '頁面的網址路徑，例如：about-us, contact, services。會自動從頁面標題生成',
       options: {
         source: 'title',
-        maxLength: 96
+        maxLength: 96,
+        slugify: (input: string) => {
+          return input
+            .toLowerCase()
+            .replace(/\s+/g, '-')        // 空格變成連字符
+            .replace(/[^\w\-]+/g, '')     // 移除特殊字符
+            .replace(/\-\-+/g, '-')       // 多個連字符變成一個
+            .replace(/^-+/, '')           // 移除開頭的連字符
+            .replace(/-+$/, '')           // 移除結尾的連字符
+        }
       },
-      validation: (Rule) => Rule.required()
+      validation: (Rule) => Rule.required().custom((slug: any) => {
+        if (!slug?.current) return '請生成網址別名'
+        
+        // 檢查是否包含特殊字符
+        if (!/^[a-z0-9\-]+$/.test(slug.current)) {
+          return '網址別名只能包含小寫字母、數字和連字符'
+        }
+        
+        // 檢查長度
+        if (slug.current.length < 2) {
+          return '網址別名至少需要2個字符'
+        }
+        
+        // 檢查保留字
+        const reserved = ['admin', 'api', 'cms', 'editor', 'login', 'logout', 'account', 'cart', 'checkout']
+        if (reserved.includes(slug.current)) {
+          return '此網址別名為系統保留字，請選擇其他名稱'
+        }
+        
+        return true
+      })
     }),
     defineField({
       name: 'description',
@@ -94,6 +66,106 @@ export default defineType({
       type: 'text',
       group: 'content',
       rows: 3
+    }),
+    // 動態內容區塊
+    defineField({
+      name: 'pageContent',
+      title: '頁面內容區塊',
+      type: 'array',
+      group: 'content',
+      description: '可重複使用的內容區塊，支援多種類型',
+      of: [
+        // 文字內容區塊
+        {
+          type: 'object',
+          name: 'textBlock',
+          title: '文字區塊',
+          fields: [
+            { name: 'title', title: '區塊標題', type: 'string' },
+            { name: 'content', title: '內容', type: 'array', of: [{ type: 'block' }] },
+            { name: 'alignment', title: '對齊方式', type: 'string', options: {
+              list: [
+                { title: '置左', value: 'left' },
+                { title: '置中', value: 'center' },
+                { title: '置右', value: 'right' }
+              ]
+            }, initialValue: 'left' }
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare: ({ title }) => ({ title: `📝 ${title || '文字區塊'}` })
+          }
+        },
+        // 圖片區塊
+        {
+          type: 'object',
+          name: 'imageBlock',
+          title: '圖片區塊',
+          fields: [
+            { name: 'title', title: '區塊標題', type: 'string' },
+            { name: 'image', title: '圖片', type: 'image', options: { hotspot: true } },
+            { name: 'alt', title: '替代文字', type: 'string' },
+            { name: 'caption', title: '圖片說明', type: 'string' },
+            { name: 'layout', title: '佈局', type: 'string', options: {
+              list: [
+                { title: '全寬', value: 'full' },
+                { title: '置中', value: 'center' },
+                { title: '左浮動', value: 'float-left' },
+                { title: '右浮動', value: 'float-right' }
+              ]
+            }, initialValue: 'center' }
+          ],
+          preview: {
+            select: { title: 'title', media: 'image' },
+            prepare: ({ title, media }) => ({ title: `🖼️ ${title || '圖片區塊'}`, media })
+          }
+        },
+        // 影片區塊
+        {
+          type: 'object',
+          name: 'videoBlock',
+          title: '影片區塊',
+          fields: [
+            { name: 'title', title: '區塊標題', type: 'string' },
+            { name: 'videoUrl', title: '影片網址', type: 'url', description: '支援 YouTube、Vimeo 等' },
+            { name: 'thumbnail', title: '縮圖', type: 'image' },
+            { name: 'description', title: '影片描述', type: 'text' }
+          ],
+          preview: {
+            select: { title: 'title' },
+            prepare: ({ title }) => ({ title: `🎥 ${title || '影片區塊'}` })
+          }
+        },
+        // CTA 按鈕區塊
+        {
+          type: 'object',
+          name: 'ctaBlock',
+          title: 'CTA 按鈕區塊',
+          fields: [
+            { name: 'title', title: '區塊標題', type: 'string' },
+            { name: 'buttonText', title: '按鈕文字', type: 'string' },
+            { name: 'buttonUrl', title: '按鈕連結', type: 'url' },
+            { name: 'buttonStyle', title: '按鈕樣式', type: 'string', options: {
+              list: [
+                { title: '主要按鈕', value: 'primary' },
+                { title: '次要按鈕', value: 'secondary' },
+                { title: '外框按鈕', value: 'outline' }
+              ]
+            }, initialValue: 'primary' },
+            { name: 'alignment', title: '對齊方式', type: 'string', options: {
+              list: [
+                { title: '置左', value: 'left' },
+                { title: '置中', value: 'center' },
+                { title: '置右', value: 'right' }
+              ]
+            }, initialValue: 'center' }
+          ],
+          preview: {
+            select: { title: 'title', buttonText: 'buttonText' },
+            prepare: ({ title, buttonText }) => ({ title: `🔘 ${title || buttonText || 'CTA 區塊'}` })
+          }
+        }
+      ]
     }),
 
     // 狀態和發布設定
@@ -127,45 +199,13 @@ export default defineType({
       readOnly: true
     }),
 
-    // GrapesJS 設計數據
+    // 頁面模組配置
     defineField({
-      name: 'grapesHtml',
-      title: 'HTML 內容',
-      type: 'text',
-      group: 'design',
-      description: 'GrapesJS 生成的最終 HTML 代碼'
-    }),
-    defineField({
-      name: 'grapesCss',
-      title: 'CSS 樣式',
-      type: 'text',
-      group: 'design',
-      description: 'GrapesJS 生成的 CSS 代碼'
-    }),
-    defineField({
-      name: 'grapesComponents',
-      title: '組件結構數據',
-      type: 'text',
-      group: 'design',
-      description: 'GrapesJS 組件樹的完整 JSON 數據',
-      hidden: true
-    }),
-    defineField({
-      name: 'grapesStyles',
-      title: '樣式結構數據',
-      type: 'text',
-      group: 'design',
-      description: 'GrapesJS 樣式管理器的 JSON 數據',
-      hidden: true
-    }),
-
-    // 首頁模組配置（與現有的 homePage schema 相容）
-    defineField({
-      name: 'homeModules',
-      title: '首頁模組配置',
+      name: 'pageModules',
+      title: '頁面模組配置',
       type: 'array',
       group: 'modules',
-      description: '從 GrapesJS 編輯器提取的首頁模組設定',
+      description: '可重複使用的頁面模組，支援多種功能區塊',
       of: [
         // 主橫幅模組
         {

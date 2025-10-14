@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import * as fs from 'fs'
-import * as path from 'path'
 
 // 定義會員資料的類型
 type Member = {

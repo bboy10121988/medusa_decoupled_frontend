@@ -38,7 +38,6 @@ import React, { useState } from "react"
 import { Button } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
 import { PaymentData } from "@/internal/ecpayments"
-import { sub } from "date-fns"
 
 type Props = {
   cart: HttpTypes.StoreCart
@@ -115,7 +114,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
 
-  let data: PaymentData = new PaymentData();
+  const data: PaymentData = new PaymentData();
 
   data.setHashKey(hashKey)
 

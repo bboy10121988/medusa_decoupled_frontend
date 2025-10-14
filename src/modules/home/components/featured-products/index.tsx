@@ -1,6 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
 import type { FeaturedProductsSection } from "@lib/types/page-sections"
-import { Text } from "@medusajs/ui"
 import { Suspense } from "react"
 import ProductPreviewGrid from "./product-rail"
 import SkeletonProductPreview from "@modules/skeletons/components/skeleton-product-preview"

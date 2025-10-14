@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'File too large (max 6MB)' }, { status: 413 })
     }
     const mime = (file as any).type as string | undefined
-    if (!mime || !mime.startsWith('image/')) {
+    if (!mime?.startsWith('image/')) {
       return NextResponse.json({ success: false, error: 'Only image uploads are allowed' }, { status: 415 })
     }
 

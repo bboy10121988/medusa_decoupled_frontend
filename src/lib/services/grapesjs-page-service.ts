@@ -35,7 +35,7 @@ import { client as readClient } from '@/lib/sanity'
 
 export interface GrapesJSPageData {
   _id?: string
-  _type: 'grapesJSPageV2'
+  _type: 'dynamicPage'
   _createdAt?: string
   _updatedAt?: string
   title: string
@@ -93,7 +93,7 @@ class GrapesJSPageService {
   async getAllPages(): Promise<GrapesJSPageData[]> {
     try {
       const pages = await readClient.fetch(`
-        *[_type == "grapesJSPageV2"] | order(_createdAt desc) {
+        *[_type == "dynamicPage"] | order(_createdAt desc) {
           _id,
           _type,
           _createdAt,
@@ -140,7 +140,7 @@ class GrapesJSPageService {
       }
 
       const query = `
-        *[_type == "grapesJSPageV2" && _id == $id][0] {
+        *[_type == "dynamicPage" && _id == $id][0] {
           _id,
           _type,
           title,
@@ -185,7 +185,7 @@ class GrapesJSPageService {
       }
 
       const query = `
-        *[_type == "grapesJSPageV2" && slug.current == $slug][0] {
+        *[_type == "dynamicPage" && slug.current == $slug][0] {
           _id,
           _type,
           title,
@@ -227,7 +227,7 @@ class GrapesJSPageService {
       const now = new Date().toISOString()
       
       const pageData = {
-        _type: 'grapesJSPageV2',
+        _type: 'dynamicPage',
         title: params.title,
         slug: {
           current: params.slug
@@ -574,7 +574,7 @@ class GrapesJSPageService {
    */
   async getPublishedPages(): Promise<GrapesJSPageData[]> {
     const query = `
-      *[_type == "grapesJSPageV2" && status == "published"] | order(publishedAt desc) {
+      *[_type == "dynamicPage" && status == "published"] | order(publishedAt desc) {
         _id,
         _type,
         title,
@@ -601,7 +601,7 @@ class GrapesJSPageService {
    */
   async searchPages(searchTerm: string): Promise<GrapesJSPageData[]> {
     const query = `
-      *[_type == "grapesJSPageV2" && (
+      *[_type == "dynamicPage" && (
         title match $searchTerm ||
         description match $searchTerm ||
         seoTitle match $searchTerm ||
@@ -658,7 +658,7 @@ class GrapesJSPageService {
    * 檢查 slug 是否可用
    */
   async isSlugAvailable(slug: string, excludeId?: string): Promise<boolean> {
-    let query = `count(*[_type == "grapesJSPageV2" && slug.current == $slug`
+    let query = `count(*[_type == "dynamicPage" && slug.current == $slug`
     const params: any = { slug }
     
     if (excludeId) {

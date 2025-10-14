@@ -42,7 +42,7 @@ export const getProductPromotions = async (
       }
     )
 
-    if (!product.product || !product.product.variants?.[0]) {
+    if (!product.product?.variants?.[0]) {
       return {}
     }
 
@@ -145,7 +145,7 @@ export const getProductInventoryStatus = async (
       }
     )
 
-    if (!product.product || !product.product.variants?.[0]) {
+    if (!product.product?.variants?.[0]) {
       return { isOutOfStock: false, canBackorder: false }
     }
 

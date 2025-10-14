@@ -76,8 +76,8 @@ const StripePaymentButton = ({
           const pi = error.payment_intent
 
           if (
-            (pi && pi.status === "requires_capture") ||
-            (pi && pi.status === "succeeded")
+            (pi?.status === "requires_capture") ||
+            (pi?.status === "succeeded")
           ) {
             onPaymentCompleted()
           }
@@ -87,7 +87,7 @@ const StripePaymentButton = ({
         }
 
         if (
-          (paymentIntent && paymentIntent.status === "requires_capture") ||
+          (paymentIntent?.status === "requires_capture") ||
           paymentIntent.status === "succeeded"
         ) {
           return onPaymentCompleted()

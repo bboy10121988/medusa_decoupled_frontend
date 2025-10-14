@@ -13,17 +13,17 @@ interface GrapesEditorProps {
 
 export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
-  const [editor, setEditor] = useState<any>(null)
+  const [editor, setEditor] = useState<any>(null) // TODO: 添加 GrapesJS 類型定義
   const [currentPage, setCurrentPage] = useState<GrapesJSPageData | null>(null)
 
   // 保存頁面函數 - 使用 useCallback 確保引用穩定
   const handleSave = useCallback(async () => {
     if (!editor || !currentPage) {
-      console.warn('編輯器或當前頁面未準備好', { 
-        hasEditor: !!editor, 
-        hasPage: !!currentPage,
-        pageId: currentPage?._id 
-      })
+      // console.warn('編輯器或當前頁面未準備好', { 
+      //   hasEditor: !!editor, 
+      //   hasPage: !!currentPage,
+      //   pageId: currentPage?._id 
+      // }) // 🔇 移除console輸出
       return
     }
 
@@ -47,7 +47,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       }
       
       // 清理 HTML 內容，移除可能導致 hydration 問題的標籤
-      let finalHtml = html
+      const finalHtml = html
         .replace(/<\/?body[^>]*>/gi, '')
         .replace(/<\/?html[^>]*>/gi, '')
         .replace(/<\/?head[^>]*>/gi, '')
@@ -407,7 +407,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
 
       // 使用更強健的容器檢查
       const checkContainer = () => {
-        if (!editorRef || !editorRef.current) {
+        if (!editorRef?.current) {
           console.log('⏳ 編輯器 ref 尚未設置或為 null')
           return false
         }
@@ -756,7 +756,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                 
                 // 如果有選中的組件，並且是圖片組件，直接設置 src
                 const selected = editorInstance.getSelected()
-                if (selected && selected.is('image')) {
+                if (selected?.is('image')) {
                   selected.set('src', imageUrl)
                 }
                 
@@ -786,7 +786,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
           if (component.is('image')) {
             // 為圖片組件添加雙擊監聽器
             const view = component.getView()
-            if (view && view.el) {
+            if (view?.el) {
               view.el.ondblclick = () => {
                 editorInstance.Commands.run('open-sanity-assets')
               }
@@ -909,7 +909,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                 // 如果獲取失敗，至少包含當前頁面
                 allPages = [{
                   _id: pageId,
-                  _type: 'grapesJSPageV2',
+                  _type: 'dynamicPage',
                   title: '當前頁面',
                   slug: { current: 'current-page' },
                   status: 'draft' as const,
@@ -1110,7 +1110,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                                 
                                 // 跳轉到新頁面編輯器
                                 if (confirm('頁面建立成功！是否立即編輯新頁面？')) {
-                                  window.location.href = `/cms/editor?docId=${encodeURIComponent(newPage._id)}&type=grapesJSPageV2`
+                                  window.location.href = `/cms/editor?docId=${encodeURIComponent(newPage._id)}&type=dynamicPage`
                                 }
                                 
                               } catch (err) {
@@ -1143,7 +1143,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                         }
                         
                         if (confirm('⚠️ 確定要切換頁面嗎？\n\n未保存的更改將會丟失。')) {
-                          window.location.href = `/cms/editor?docId=${encodeURIComponent(selectedPageId)}&type=grapesJSPageV2`
+                          window.location.href = `/cms/editor?docId=${encodeURIComponent(selectedPageId)}&type=dynamicPage`
                         }
                         modal.close()
                       }

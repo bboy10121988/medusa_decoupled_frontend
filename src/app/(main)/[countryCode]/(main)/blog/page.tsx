@@ -101,11 +101,9 @@ async function getCategories() {
       return []
     }
     
-    const uniqueCategories = Array.from(
+    return Array.from(
       new Map(categories.map(cat => [cat.title, cat])).values()
     )
-    
-    return uniqueCategories
   } catch (error) {
     console.error("Error fetching categories:", error)
     return []

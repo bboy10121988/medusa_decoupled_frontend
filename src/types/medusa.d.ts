@@ -4,8 +4,7 @@
  */
 
 import type { 
-  StoreCart, 
-  StoreCartShippingOption,
+  StoreCart,
   StoreShippingOption,
   StoreProduct,
   StoreRegion,

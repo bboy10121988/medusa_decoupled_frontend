@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     // 從 Sanity 查詢所有 GrapesJS 頁面
     const pages = await client.fetch(
-      `*[_type == "grapesJSPageV2"] | order(updatedAt desc) {
+      `*[_type == "dynamicPage"] | order(updatedAt desc) {
         _id,
         title,
         slug,

@@ -139,7 +139,7 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
           
           // 監聽 PostMessage
           const handleMessage = (event: MessageEvent) => {
-            if (event.data && event.data.type === 'LOGISTICS_SELECTED') {
+            if (event.data?.type === 'LOGISTICS_SELECTED') {
               ;(window as any).onLogisticsSelected?.(event.data.data)
             }
           }

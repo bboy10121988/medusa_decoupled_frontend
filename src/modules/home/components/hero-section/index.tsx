@@ -8,7 +8,7 @@ type HeroSectionProps = {
 }
 
 const HeroSection = ({ banner }: HeroSectionProps) => {
-  if (!banner.slides || banner.slides.length === 0) {
+  if (banner.slides?.length === 0) {
     return null
   }
   

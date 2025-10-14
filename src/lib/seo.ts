@@ -290,7 +290,7 @@ export const mergeSEOMetadata = (
   const twitterCard = sanityMeta?.twitterCard || 'summary_large_image'
 
   // Robots 設定 - 符合 Google Search Essentials
-  let robotsDirectives: string[] = []
+  const robotsDirectives: string[] = []
   
   if (sanityMeta?.noIndex) {
     robotsDirectives.push('noindex')

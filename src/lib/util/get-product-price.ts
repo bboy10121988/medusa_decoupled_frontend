@@ -35,12 +35,12 @@ export function getProductPrice({
   product: HttpTypes.StoreProduct
   variantId?: string
 }) {
-  if (!product || !product.id) {
+  if (!product?.id) {
     throw new Error("No product provided")
   }
 
   const cheapestPrice = () => {
-    if (!product || !product.variants?.length) {
+    if (!product?.variants?.length) {
       return null
     }
 

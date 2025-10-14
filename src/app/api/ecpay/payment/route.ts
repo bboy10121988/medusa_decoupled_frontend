@@ -12,20 +12,19 @@ export async function POST(req: Request) {
     console.log('- cart total:', cart?.total)
     console.log('- cart items:', cart?.items?.length || 0)
     console.log('- customer ID:', customer?.id) 
-    console.log('- shippingAddress:', !!shippingAddress ? '✅ 有地址' : '❌ 無地址')
+    console.log('- shippingAddress:', shippingAddress ? '✅ 有地址' : '❌ 無地址')
     console.log('- shippingMethod:', shippingMethod)
-    console.log('- selectedStore:', !!selectedStore ? '✅ 有門市' : '❌ 無門市')
+    console.log('- selectedStore:', selectedStore ? '✅ 有門市' : '❌ 無門市')
 
     // 驗證必要資訊
-    if (!cart || !cart.id) {
+    if (!cart?.id) {
       return NextResponse.json(
         { success: false, message: "購物車資訊無效" },
         { status: 400 }
       )
     }
 
-    if (!shippingAddress ||
-        !shippingAddress.first_name || 
+    if (!shippingAddress?.first_name || 
         !shippingAddress.last_name ||
         !shippingAddress.address_1 ||
         !shippingAddress.city ||

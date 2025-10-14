@@ -312,6 +312,43 @@ export interface SanityQueryResult<T = any> {
   ms: number
 }
 
+// 動態頁面型別
+export interface SanityDynamicPage extends SanityDocument {
+  _type: "dynamicPage"
+  title: string
+  slug: {
+    current: string
+  }
+  status: 'draft' | 'preview' | 'published' | 'archived'
+  description?: string
+  
+  // 頁面內容
+  pageContent?: Array<{
+    _type: 'textBlock' | 'imageBlock' | 'videoBlock' | 'ctaBlock'
+    _key: string
+    [key: string]: any
+  }>
+  
+  // SEO 相關
+  seoTitle?: string
+  seoDescription?: string
+  seoKeywords?: string[]
+  ogImage?: SanityImage
+  
+  // 社群媒體分享
+  ogTitle?: string
+  ogDescription?: string
+  socialImage?: SanityImage
+  twitterCard?: 'summary' | 'summary_large_image' | 'app' | 'player'
+  
+  // 頁面設定
+  version?: number
+  publishedAt?: string
+  lastModified?: string
+  customCSS?: string
+  customJS?: string
+}
+
 // 聲明全域模組擴展
 declare global {
   namespace Sanity {

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { getAffiliateStats } from '../../../../lib/data/affiliate-stats'
 import { retrieveAffiliate } from '../../../../lib/data/affiliate-auth'
 

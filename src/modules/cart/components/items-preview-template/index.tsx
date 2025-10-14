@@ -9,7 +9,7 @@ type ItemsPreviewTemplateProps = {
 }
 
 const ItemsPreviewTemplate = ({ items }: ItemsPreviewTemplateProps) => {
-  if (!items || items.length === 0) {
+  if (items?.length === 0) {
     return (
       <div className="text-center text-ui-fg-subtle py-4">
         購物車是空的

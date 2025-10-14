@@ -159,11 +159,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // 預設不重導，必要時才建立 redirect 回應
-  let response = NextResponse.next()
+  const response = NextResponse.next()
 
-  let cacheIdCookie = request.cookies.get("_medusa_cache_id")
+  const cacheIdCookie = request.cookies.get("_medusa_cache_id")
 
-  let cacheId = cacheIdCookie?.value || crypto.randomUUID()
+  const cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
   const regionMap = await getRegionMap(cacheId)
 

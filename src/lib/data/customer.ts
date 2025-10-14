@@ -40,7 +40,7 @@ export const retrieveCustomer =
 
     try {
       console.log('📡 retrieveCustomer - 發送請求到 Medusa 後端')
-      const result = await sdk.client
+      return await sdk.client
         .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
           method: "GET",
           query: {
@@ -58,8 +58,6 @@ export const retrieveCustomer =
           })
           return customer
         })
-      
-      return result
     } catch (error) {
       // 檢查是否為認證錯誤（401 Unauthorized）
       const isAuthError = error instanceof Error && 

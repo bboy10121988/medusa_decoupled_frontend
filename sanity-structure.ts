@@ -2,8 +2,8 @@ export const structure = (S: any) =>
   S.list()
     .title('Content')
     .items([
-      // GrapesJS 頁面 V2 清單
-      S.documentTypeListItem('grapesJSPageV2').title('GrapesJS 頁面 V2'),
+      // 動態頁面清單
+      S.documentTypeListItem('dynamicPage').title('動態頁面'),
 
       // 其他文檔類型
       S.documentTypeListItem('homePage').title('首頁'),

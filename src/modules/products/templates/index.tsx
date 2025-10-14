@@ -4,7 +4,6 @@ import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductTabs from "@modules/products/components/product-tabs"
-import ProductInfoTab from "@modules/products/components/product-info-tab"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { ProductActionProvider } from "@lib/context/product-context"
 import StoreName from "../components/store-name"
@@ -20,7 +19,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   region,
   countryCode,
 }) => {
-  if (!product || !product.id) {
+  if (!product?.id) {
     return <div>產品未找到</div>
   }
 

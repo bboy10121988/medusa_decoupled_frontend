@@ -87,7 +87,7 @@ export default async function BlogPosts({
       }
     }
 
-    if (!validPosts || validPosts.length === 0) {
+    if (validPosts?.length === 0) {
       return (
         <div className={(showTitle && title) ? "py-8 md:py-12 bg-gray-50" : "py-0 bg-gray-50"}>
           <div className="container mx-auto px-4">

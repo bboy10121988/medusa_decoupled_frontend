@@ -11,7 +11,6 @@ import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 import { getHomepage } from "@lib/sanity"; // 使用 getHomepage 並移除 getServiceSection
 import type { MainBanner } from '@lib/types/page-sections'
-import type { HomePageData } from '@lib/types/pages'
 import type { ImageTextBlock as ImageTextBlockType } from '@lib/types/page-sections'
 import type { FeaturedProductsSection } from '@lib/types/page-sections'
 import type { BlogSection } from '@lib/types/page-sections'
@@ -131,7 +130,7 @@ export default async function Home({
     console.log('✅ Homepage data fetched:', { 
       title: homepageData?.title, 
       sectionsCount: homepageData?.mainSections?.length,
-      hasValidData: !!(homepageData && homepageData.mainSections && homepageData.mainSections.length > 0)
+      hasValidData: !!(homepageData?.mainSections && homepageData.mainSections.length > 0)
     })
   } catch (error) {
     console.error('❌ Failed to fetch homepage data:', error)
@@ -139,7 +138,7 @@ export default async function Home({
   }
 
   // 檢查是否有有效的Sanity數據
-  const hasSanityData = homepageData && homepageData.mainSections && homepageData.mainSections.length > 0
+  const hasSanityData = homepageData?.mainSections && homepageData.mainSections.length > 0
 
   console.log('🎯 Data check result:', {
     homepageData: !!homepageData,
@@ -268,7 +267,7 @@ export default async function Home({
                     }
 
                     // 安全檢查 collections
-                    if (!collections || !collections.collections || !Array.isArray(collections.collections)) {
+                    if (!collections?.collections || !Array.isArray(collections.collections)) {
                       console.warn("Featured products skipped - backend unavailable")
                       return null  // 安靜地跳過，不阻塞其他區塊
                     }
