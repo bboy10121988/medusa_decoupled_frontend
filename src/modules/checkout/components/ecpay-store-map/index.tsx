@@ -64,7 +64,7 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
         remark: `訂單編號: ${cart?.id || 'Unknown'}`,
         eshopMemberID: cart?.customer?.id || '',
         // 必要的回調 URL
-        serverReplyURL: `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/store/ecpay/logistics-callback`,
+        serverReplyURL: `${process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/store/ecpay/logistics-callback`,
         clientReplyURL: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000'}/api/ecpay/logistics/callback`
       }
       

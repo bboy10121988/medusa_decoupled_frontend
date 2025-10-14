@@ -11,8 +11,8 @@ const getBackendUrl = () => {
   }
   
   // 伺服器端渲染 - 直接訪問後端
-  return process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 
-         process.env.MEDUSA_BACKEND_URL || 
+  return process.env.MEDUSA_BACKEND_URL || 
+         process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 
          'http://localhost:9000'
 }
 
@@ -22,7 +22,7 @@ export const medusaFetch = async (endpoint: string, options: RequestInit = {}) =
   const baseUrl = getBackendUrl()
   const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
   const isProxy = baseUrl.startsWith('/api/medusa')
-  const backendUrl = typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000') : ''
+  const backendUrl = typeof window === 'undefined' ? (process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000') : ''
   const publishableKey = !isProxy
     ? (await import('./lib/medusa-publishable-key')).getPublishableKeyForBackend(backendUrl)
     : undefined

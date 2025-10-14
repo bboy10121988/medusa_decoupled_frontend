@@ -32,7 +32,7 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
   });
   
   return (
-    <section className={`w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden ${mobileHeightClass} md:min-h-0`}>
+    <section className={`w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}>
       <div className={`w-full h-auto ${mobileHeightClass} md:min-h-0`}>
         <Hero
           slides={banner.slides.map((slide: BannerSlide) => ({

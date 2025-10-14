@@ -73,7 +73,7 @@ export async function cachedFetch<T>(url: string, options?: RequestInit): Promis
 
 // Medusa API 呼叫助手 - 服務端版本
 export async function medusaFetchServer<T>(endpoint: string): Promise<T> {
-  const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
+  const backendUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
   const fullUrl = new URL(endpoint, backendUrl)
   
   const response = await fetch(fullUrl.toString(), {

@@ -56,7 +56,7 @@ const LABEL_PRIORITIES: Record<PromotionLabelType, number> = {
  * 只從 Medusa API 獲取真實的促銷折扣標籤
  */
 export async function applyPromotion(cartId: string, code: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || (process.env.NEXT_PUBLIC_ENV_MODE === 'local' ? 'http://localhost:9000' : 'https://timsfantasyworld.com')
+  const baseUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || (process.env.NEXT_PUBLIC_ENV_MODE === 'local' ? 'http://localhost:9000' : 'https://timsfantasyworld.com')
   const { MEDUSA_BACKEND_URL } = await import('./config')
   const { getPublishableKeyForBackend } = await import('./lib/medusa-publishable-key')
   const publishableKey = getPublishableKeyForBackend(MEDUSA_BACKEND_URL)

@@ -189,6 +189,18 @@ html {
   
   /* 字體顯示優化 */
   font-display: var(--font-display);
+  
+  /* 確保沒有溢出和白線 */
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
 /* ========== 3. 主要元素設定 ========== */
@@ -200,6 +212,8 @@ html {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .hero-container img, .banner-container img {
@@ -207,6 +221,8 @@ html {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* 修復可能的容器白線問題 */
@@ -214,6 +230,18 @@ html {
 .banner-image-container {
   line-height: 0; /* 消除內聯元素間距 */
   font-size: 0; /* 消除文字節點間距 */
+  overflow: hidden;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* 確保 section 元素也沒有白線 */
+section.hero-section {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow: hidden;
 }
 
 /* 標題元素 (h1-h6) 基本設定 */
