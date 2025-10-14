@@ -559,3 +559,66 @@ export async function listCartOptions() {
     return { shipping_options: [] }
   })
 }
+
+/**
+ * 初始化支付會話 - 為購物車設置支付方式
+ */
+export async function initiatePaymentSession(
+  cart: any,
+  data: { provider_id: string }
+) {
+  console.log("🔄 開始初始化支付會話:", { cartId: cart?.id, providerId: data.provider_id })
+
+  if (!cart?.id) {
+    throw new Error("購物車不存在")
+  }
+
+  if (!data.provider_id) {
+    throw new Error("支付方式不能為空")
+  }
+
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  try {
+    // 方法1：嘗試使用購物車更新來設置支付方式
+    console.log("🔄 嘗試方法1: 更新購物車支付方式")
+    
+    const updateResponse = await sdk.store.cart.update(
+      cart.id,
+      {
+        // 在 Medusa v2 中，可能需要透過其他方式來設置支付方式
+        metadata: {
+          preferred_payment_provider: data.provider_id
+        }
+      },
+      {},
+      headers
+    )
+
+    console.log("✅ 購物車更新成功:", updateResponse)
+
+    // 重新獲取購物車數據
+    const updatedCart = await retrieveCart(cart.id)
+
+    return {
+      payment_collection: updatedCart?.payment_collection || cart.payment_collection,
+      cart: updatedCart || cart,
+    }
+
+  } catch (error: any) {
+    console.error("❌ 初始化支付會話失敗:", error)
+    
+    // 提供更詳細的錯誤信息
+    let errorMessage = "設置支付方式時發生錯誤"
+    
+    if (error?.response?.data) {
+      errorMessage = error.response.data.message || JSON.stringify(error.response.data)
+    } else if (error?.message) {
+      errorMessage = error.message
+    }
+
+    throw new Error(errorMessage)
+  }
+}

@@ -29,18 +29,25 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
   }
   
+  // 從 metadata 或 payment_session 中獲取支付方式
+  const selectedPaymentProvider = cart.metadata?.selected_payment_provider
   const paymentSession = cart.payment_collection?.payment_sessions?.find(
     (s) => s.status === "pending"
   ) || cart.payment_collection?.payment_sessions?.[0]
 
-  console.log(action, "paymentSession:", paymentSession)
+  const providerId = selectedPaymentProvider || paymentSession?.provider_id
 
-  const providerId = paymentSession?.provider_id
+  console.log(action, "支付方式選擇:", { 
+    selectedPaymentProvider, 
+    paymentSessionProvider: paymentSession?.provider_id,
+    finalProviderId: providerId 
+  })
 
-  // return <ECPayPaymentButton cart={cart} notReady={notReady} data-testid={dataTestId} />;
+  // 根據支付方式渲染對應的按鈕
   switch(providerId){
-    case process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT:
+    case "ecpay_credit_card":
       return <ECPayPaymentButton cart={cart} notReady={notReady} data-testid={dataTestId} />;
+    case "manual_manual":
     default:
       return <BankTransferPaymentButton notReady={notReady} cart={cart} data-testid={dataTestId} />;
   }  

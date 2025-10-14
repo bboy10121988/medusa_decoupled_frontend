@@ -136,6 +136,10 @@ export async function getHeader() {
       "url": asset->url,
       alt
     },
+    favicon{
+      "url": asset->url,
+      alt
+    },
     storeName,
     logoHeight,
     logoSize{

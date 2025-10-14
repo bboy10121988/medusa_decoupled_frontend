@@ -65,42 +65,62 @@ const Hero = ({ slides, settings }: HeroProps) => {
     setCurrentSlide(index)
   }
 
-  // 觸摸手勢處理
+  // 觸摸手勢處理 - 增強版
   const handleTouchStart = (e: React.TouchEvent) => {
+    // 防止多點觸控干擾
+    if (e.touches.length !== 1) return
+    
     touchStartXRef.current = e.touches[0].clientX
     touchStartTimeRef.current = Date.now()
     isSwipingRef.current = false
+    
+    // 阻止預設行為，避免頁面滾動干擾
+    e.preventDefault()
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return
+    if (touchStartXRef.current === null || e.touches.length !== 1) return
     
     const touchCurrentX = e.touches[0].clientX
     const diffX = touchStartXRef.current - touchCurrentX
-
     
-    // 如果滑動距離超過 10px，則認為是在滑動
-    if (Math.abs(diffX) > 10) {
+    // 降低滑動檢測閾值，提高敏感度
+    if (Math.abs(diffX) > 5) {
       isSwipingRef.current = true
+      // 阻止頁面滾動
+      e.preventDefault()
     }
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null || !isSwipingRef.current) return
+    if (touchStartXRef.current === null) return
+    
+    // 確保有 changedTouches
+    if (!e.changedTouches || e.changedTouches.length === 0) return
     
     const touchEndX = e.changedTouches[0].clientX
     const diffX = touchStartXRef.current - touchEndX
     const diffTime = Date.now() - touchStartTimeRef.current
-    const minSwipeDistance = 50 // 最小滑動距離
-    const maxSwipeTime = 500 // 最大滑動時間（毫秒）
     
-    // 檢查是否為有效滑動：距離夠長且時間不太長
-    if (Math.abs(diffX) > minSwipeDistance && diffTime < maxSwipeTime) {
+    // 調整參數以提高手勢識別精度
+    const minSwipeDistance = 30 // 降低最小滑動距離
+    const maxSwipeTime = 800 // 增加最大滑動時間
+    const minSwipeSpeed = minSwipeDistance / maxSwipeTime * 1000 // 最小滑動速度 (px/s)
+    const actualSpeed = Math.abs(diffX) / diffTime * 1000
+    
+    // 只有在有輪播圖片且滑動有效時才切換
+    if (slides.length > 1 && 
+        Math.abs(diffX) > minSwipeDistance && 
+        diffTime < maxSwipeTime &&
+        actualSpeed > minSwipeSpeed) {
+      
       if (diffX > 0) {
         // 向左滑動 - 下一張
+        console.log('📱 手勢滑動: 下一張')
         goToNextSlide()
       } else {
         // 向右滑動 - 上一張
+        console.log('📱 手勢滑動: 上一張')  
         goToPrevSlide()
       }
     }
@@ -111,13 +131,19 @@ const Hero = ({ slides, settings }: HeroProps) => {
   }
 
   return (
-    <div className={`relative w-full ${mobileHeightClass} md:min-h-0`}>
+    <div className={`hero-container relative w-full ${mobileHeightClass} md:min-h-0`}>
       {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
       <div 
-        className={`relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}
+        className={`hero-image-container relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        style={{
+          touchAction: 'pan-y', // 允許垂直滾動，禁止水平滾動
+          userSelect: 'none', // 禁止選擇文字
+          WebkitUserSelect: 'none',
+          cursor: slides.length > 1 ? 'grab' : 'default'
+        }}
       >
         {slides.map((slideItem, index) => {
           return (
@@ -205,6 +231,43 @@ const Hero = ({ slides, settings }: HeroProps) => {
           )}
         </div>
       </div>
+
+      {/* 箭頭導航 - 只在有多張圖片且啟用箭頭時顯示 */}
+      {settings?.showArrows && slides.length > 1 && (
+        <>
+          {/* 上一張按鈕 */}
+          <button
+            onClick={goToPrevSlide}
+            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            aria-label="上一張圖片"
+          >
+            <svg 
+              className="w-4 h-4 sm:w-6 sm:h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* 下一張按鈕 */}
+          <button
+            onClick={goToNextSlide}
+            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            aria-label="下一張圖片"
+          >
+            <svg 
+              className="w-4 h-4 sm:w-6 sm:h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
 
       {/* 點點導航 - 適應動態高度 */}
       {settings?.showDots && slides.length > 1 && (

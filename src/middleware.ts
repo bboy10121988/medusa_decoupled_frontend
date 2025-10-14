@@ -152,6 +152,11 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/auth")) {
     return NextResponse.next()
   }
+  
+  // Skip middleware for reset-password routes (allow direct access without region routing)
+  if (request.nextUrl.pathname.includes("/reset-password")) {
+    return NextResponse.next()
+  }
 
   // 預設不重導，必要時才建立 redirect 回應
   let response = NextResponse.next()

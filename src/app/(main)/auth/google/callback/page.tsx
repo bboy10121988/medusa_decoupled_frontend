@@ -200,75 +200,6 @@ export default function GoogleCallback() {
           // 等待一小段時間確保 cookie 完全設置
           console.log("等待 cookie 同步...")
           await new Promise(resolve => setTimeout(resolve, 1000))
-          
-          // 🔧 登入成功後立即清除 Google OAuth 客戶端狀態，避免自動重新登入
-          try {
-            console.log("🧹 清除 Google OAuth 客戶端狀態以避免自動重新登入...")
-            
-            // 清除 Google Identity Services 相關的 localStorage 和 sessionStorage
-            if (typeof window !== 'undefined') {
-              const googleKeys = [
-                'g_state', 'google_oauth_state', 'gsi_callback_data',
-                'google_signin_token', 'google_oauth_token',
-                'oauth_state', 'google_auth_state', 'gapi_signin_state',
-                'g_enabled_idps', 'g_session_check', 'g_accounts_check'
-              ]
-              
-              googleKeys.forEach(key => {
-                try {
-                  localStorage.removeItem(key)
-                  sessionStorage.removeItem(key)
-                } catch (e) {
-                  // 忽略清除錯誤
-                }
-              })
-              
-              // 清除所有 Google 相關的 cookies
-              const googleCookies = [
-                'g_state', 'g_csrf_token', '1P_JAR', 'APISID', 'SAPISID', 
-                'HSID', 'SSID', 'SID', 'ACCOUNT_CHOOSER', 'LSOLH', 'LSID',
-                '__gads', '__gpi', '_gcl_au', 'g_enabled_idps', 'g_session_check'
-              ]
-              
-              const domains = [window.location.hostname, `.${window.location.hostname}`, '.google.com', '.accounts.google.com', '']
-              
-              googleCookies.forEach(cookieName => {
-                domains.forEach(domain => {
-                  const domainPart = domain ? `; domain=${domain}` : ""
-                  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/${domainPart}`
-                  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/tw${domainPart}`
-                })
-              })
-              
-              // 嘗試調用 Google Identity Services 的 signOut 方法
-              const googleWindow = window as any
-              if (typeof googleWindow.google !== 'undefined' && googleWindow.google.accounts) {
-                try {
-                  // 確保 Google Identity Services 登出當前會話
-                  if (googleWindow.google.accounts.id && typeof googleWindow.google.accounts.id.disableAutoSelect === 'function') {
-                    googleWindow.google.accounts.id.disableAutoSelect()
-                    console.log("✅ 已禁用 Google 自動選擇")
-                  }
-                  
-                  // 嘗試撤銷令牌
-                  if (googleWindow.google.accounts.oauth2 && typeof googleWindow.google.accounts.oauth2.revoke === 'function') {
-                    try {
-                      // 注意：這需要訪問令牌，可能不會總是有效
-                      console.log("🔒 嘗試撤銷 Google OAuth 令牌...")
-                    } catch (revokeError) {
-                      console.log("撤銷 Google OAuth 令牌失敗:", revokeError)
-                    }
-                  }
-                } catch (googleError) {
-                  console.log("Google Identity Services 操作失敗:", googleError)
-                }
-              }
-              
-              console.log("✅ Google OAuth 客戶端狀態已清除")
-            }
-          } catch (cleanupError) {
-            console.log("清除 Google OAuth 狀態時出錯:", cleanupError)
-          }
         }
       } catch (error) {
         console.error("調用 handleGoogleCallback 時出錯:", error)
@@ -346,54 +277,9 @@ export default function GoogleCallback() {
             console.error("從數據庫獲取 Google 身份時出錯:", dbError);
           }
           
-          // 2. 如果仍未獲取電子郵件，嘗試通過自定義 API 獲取
-          if (!email) {
-            console.log("嘗試從自定義的 Google API 端點獲取資料...");
-            try {
-              // 顯示嘗試訪問的 API URL
-              const apiUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/store/auth/google/me`;
-              console.log(`請求 API URL: ${apiUrl}`);
-              
-              // 使用更穩健的錯誤處理
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 8000);
-              
-              const response = await fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-                cache: 'no-store',
-                signal: controller.signal
-              }).catch(error => {
-                console.error(`API 請求過程中發生網絡錯誤:`, error.message);
-                return null;
-              });
-              
-              clearTimeout(timeoutId);
-              
-              if (!response) {
-                console.log("API 請求失敗，可能是網絡問題或後端未運行");
-              } else if (response.ok) {
-                const googleData = await response.json();
-                if (googleData && googleData.success && googleData.data && googleData.data.email) {
-                  email = googleData.data.email;
-                  console.log("✅ 從自定義 Google API 成功獲取電子郵件:", email);
-                } else {
-                  console.log("自定義 API 返回成功，但未包含電子郵件:", googleData);
-                }
-              } else {
-                console.log("自定義 API 請求失敗:", response.status, response.statusText);
-                // 如果是 404，表示 API 路由未正確配置
-                if (response.status === 404) {
-                  console.log("API 路由未找到，可能需要在後端配置 /store/auth/google/me 路由");
-                }
-              }
-            } catch (googleApiError) {
-              console.error("調用自定義 Google API 時出錯:", googleApiError);
-            }
-          }
+          // 2. 如果仍未獲取電子郵件，跳過不必要的 API 調用
+          // 注意：Medusa v2 不需要額外的 /store/auth/google/me API 調用
+          // 用戶資料應該已經從 token 或數據庫查詢中獲取
           
           // 3. 如果仍未獲取電子郵件，嘗試使用標準 SDK 方法（可能會獲取到預設電子郵件）
           if (!email) {

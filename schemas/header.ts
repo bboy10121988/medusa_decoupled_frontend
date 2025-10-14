@@ -27,6 +27,25 @@ export default defineType({
       ]
     }),
     defineField({
+      name: 'favicon',
+      title: 'Favicon (瀏覽器標籤圖標)',
+      type: 'image',
+      group: 'basic',
+      description: '建議使用 32x32 或 64x64 像素的正方形圖片 (支援 PNG、ICO、SVG)',
+      options: { 
+        hotspot: false,
+        accept: '.ico,.png,.svg'
+      },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: '替代文字',
+          type: 'string',
+          initialValue: '網站圖示'
+        })
+      ]
+    }),
+    defineField({
       name: 'storeName',
       title: '商店名稱',
       type: 'string',

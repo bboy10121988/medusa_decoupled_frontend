@@ -26,8 +26,9 @@ const Payment = ({
   availablePaymentMethods: any[]
 }) => {
 
-  const payment_method_default = process.env.NEXT_PUBLIC_PAYMENT_METHOD_DEFAULT
-  const payment_method_ecpay_credit = process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT
+  // 硬編碼支付方式 ID - 確保值不會是 undefined
+  const payment_method_default = "manual_manual"
+  const payment_method_ecpay_credit = "ecpay_credit_card"
 
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: any) => paymentSession.status === "pending"
@@ -38,7 +39,7 @@ const Payment = ({
   const [cardBrand, setCardBrand] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id ?? ""
+    activeSession?.provider_id || payment_method_ecpay_credit
   )
 
   const searchParams = useSearchParams()
@@ -56,8 +57,10 @@ const Payment = ({
     
     console.log(action,"選擇支付方式：",method)
 
-    setSelectedPaymentMethod(method)
-    
+    // 確保方法不是 undefined 或 null
+    if (method) {
+      setSelectedPaymentMethod(method)
+    }
   }
 
   const paidByGiftcard =
@@ -90,31 +93,34 @@ const Payment = ({
 
     console.log(action,"支付方式(providerID):",selectedPaymentMethod)
 
-
-
     try {
+      // 檢查是否有必要的購物車數據
+      if (!cart?.id) {
+        throw new Error("購物車不存在，請重新刷新頁面")
+      }
 
-        console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
+      console.log(action,":保存選擇的支付方式到購物車")
 
-        const initResp = await initiatePaymentSession(cart,{
-          provider_id: selectedPaymentMethod
-        })
+      // 將選擇的支付方式保存到購物車 metadata 中
+      await updateCart({
+        metadata: {
+          ...cart.metadata,
+          selected_payment_provider: selectedPaymentMethod
+        }
+      })
 
+      console.log(action, "支付方式已保存，進入審核步驟")
 
-        console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
-
-        
-
-        return router.push(
-          pathname + "?" + createQueryString("step", "review"),
-          {
-            scroll: false,
-          }
-        )
+      return router.push(
+        pathname + "?" + createQueryString("step", "review"),
+        {
+          scroll: false,
+        }
+      )
       
     } catch (err: any) {
-      console.log(action,"has error:",err)
-      setError(err.message)
+      console.log(action,"錯誤詳情:",err)
+      setError(err?.message || "設置支付方式時發生未知錯誤")
     } finally {
       setIsLoading(false)
     }
@@ -157,7 +163,10 @@ const Payment = ({
           {!paidByGiftcard && (
             <>
               {/* 只顯示兩個硬編碼選項：綠界支付（含刷卡）與銀行轉帳 */}
-              <RadioGroup value={selectedPaymentMethod} onChange={setPaymentMethod}>
+              <RadioGroup 
+                value={selectedPaymentMethod || payment_method_ecpay_credit} 
+                onChange={setPaymentMethod}
+              >
                 <RadioGroup.Option value={payment_method_ecpay_credit}>
                   {({ checked }) => (
                     <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>

@@ -192,6 +192,30 @@ html {
 }
 
 /* ========== 3. 主要元素設定 ========== */
+
+/* Hero/Banner 組件修復 - 消除白線問題 */
+.hero-container, .banner-container {
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.hero-container img, .banner-container img {
+  display: block;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 修復可能的容器白線問題 */
+.hero-image-container,
+.banner-image-container {
+  line-height: 0; /* 消除內聯元素間距 */
+  font-size: 0; /* 消除文字節點間距 */
+}
+
 /* 標題元素 (h1-h6) 基本設定 */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);

@@ -38,13 +38,21 @@ const Review = ({ cart }: { cart: any }) => {
   const paidByGiftcard =
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
-  // 判斷支付方式
+  // 判斷支付方式 - 優先從 metadata 讀取，再從 payment_session 讀取
+  const selectedPaymentProvider = cart.metadata?.selected_payment_provider
   const paymentSession = cart.payment_collection?.payment_sessions?.find(
     (s: any) => s.status === "pending"
   ) || cart.payment_collection?.payment_sessions?.[0]
 
-  const isECPayCredit = paymentSession?.provider_id === process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT
-  const isBankTransfer = paymentSession?.provider_id === process.env.NEXT_PUBLIC_PAYMENT_METHOD_DEFAULT
+  const currentPaymentProvider = selectedPaymentProvider || paymentSession?.provider_id
+  const isECPayCredit = currentPaymentProvider === "ecpay_credit_card"
+  const isBankTransfer = currentPaymentProvider === "manual_manual"
+  
+  console.log(action, "當前支付方式:", { 
+    selectedPaymentProvider, 
+    paymentSessionProvider: paymentSession?.provider_id,
+    currentPaymentProvider 
+  })
 
   const previousStepsCompleted =
     cart.shipping_address &&

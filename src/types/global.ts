@@ -91,6 +91,7 @@ export interface SanityHeader {
   title?: string
   navigation?: NavigationItem[]
   logo?: SanityImage
+  favicon?: SanityImage
   showSearch?: boolean
   storeName?: string
   logoWidth?: number

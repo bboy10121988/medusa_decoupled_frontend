@@ -116,29 +116,37 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       const maxRetries = 3
       let retryCount = 0
       
-      const attemptSave = async (): Promise<any> => {
+      const attemptSave = async (shouldPublish: boolean = false): Promise<any> => {
         try {
-          return await grapesJSPageService.updatePage({
+          const updateParams: any = {
             _id: currentPage._id!,
             grapesHtml: finalHtml,
             grapesCss: finalCss,
             grapesComponents: componentsJson,
             grapesStyles: stylesJson
-          })
+          }
+          
+          // 如果要求發布，則設置狀態為已發布
+          if (shouldPublish) {
+            updateParams.status = 'published'
+          }
+          
+          return await grapesJSPageService.updatePage(updateParams)
         } catch (error) {
           if (retryCount < maxRetries) {
             retryCount++
             console.log(`保存失敗，第 ${retryCount} 次重試...`)
             // 增加延遲時間，使用指數退避策略
             await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
-            return attemptSave()
+            return attemptSave(shouldPublish)
           }
           throw error
         }
       }
       
       try {
-        updatedPage = await attemptSave()
+        // 預設儲存時自動發布，讓用戶可以在前端看到變更
+        updatedPage = await attemptSave(true)
       } catch (networkError) {
         // 處理網路錯誤
         console.error('🌐 網路請求錯誤詳情:', {
