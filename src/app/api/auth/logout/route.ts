@@ -127,7 +127,16 @@ export async function GET(request: NextRequest) {
   await performLogout()
 
   const redirectParam = request.nextUrl.searchParams.get("redirect") || "/"
-  const redirectUrl = new URL(redirectParam, request.nextUrl.origin)
+  
+  // 確保在生產環境中使用正確的域名
+  let origin = request.nextUrl.origin
+  
+  // 如果在 VM 環境中（localhost:8000），使用生產域名
+  if (origin.includes('localhost:8000') && process.env.NEXT_PUBLIC_BASE_URL) {
+    origin = process.env.NEXT_PUBLIC_BASE_URL
+  }
+  
+  const redirectUrl = new URL(redirectParam, origin)
   
   // 添加一個查詢參數來強制頁面重新載入，清除任何殘留的 Google OAuth 狀態
   redirectUrl.searchParams.set('_logout', Date.now().toString())
