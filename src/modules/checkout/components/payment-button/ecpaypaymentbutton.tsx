@@ -1,9 +1,8 @@
 import React, { useState } from "react"
 import { Button } from "@medusajs/ui"
-import ErrorMessage from "../error-message"
 import { HttpTypes } from "@medusajs/types"
-import { placeOrder } from "@lib/data/cart"
 import { PaymentData } from "../../../../internal/ecpayments"
+import {sdk} from "@lib/config";
 import { removeCartIdClient } from "@/lib/data/cart-storage"
 
 type Props = {
@@ -18,24 +17,17 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   let defaultError:string | null = null
 
-  // 檢查是否選擇了 ECPay 支付方式
-  const selectedPaymentProvider = cart.metadata?.selected_payment_provider
-  if (selectedPaymentProvider !== "ecpay_credit_card") {
-    defaultError = "請先選擇綠界支付方式"
-  }
-
-  console.log(action,"selected payment provider:", selectedPaymentProvider)
-
-  // 支援舊版 payment sessions 檢查（向後兼容）
   const paymentSessions = cart.payment_collection?.payment_sessions
+
   let paymentSessionID = ""
 
-  if (paymentSessions && paymentSessions.length > 0) {
+  if (!paymentSessions || paymentSessions.length === 0){
+    defaultError = "尚未建立支付會話"
+  }else{
     paymentSessionID = paymentSessions[0].id
-    console.log(action,"payment session id found:",paymentSessionID)
-  } else {
-    console.log(action,"no payment sessions, using metadata approach")
   }
+
+  console.log(action,"payment session id",paymentSessionID)
 
   const [submitting, setSubmitting] = useState(false)
   let errorMessage: string|null = defaultError
@@ -133,38 +125,38 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   }
 
 
-  const submitHandler = async () => {
+  const submitHandler = () => {
 
     if (errorMessage){  
-      console.log(action,"blocking due to error:",errorMessage)
       return
     }
 
-    setSubmitting(true)
 
     try{
-      console.log("🏪 ECPay: 開始建立訂單...")
-      
-      // 使用改進的 placeOrder 函數
-      const orderResult = await placeOrder()
-      
-      if (orderResult?.id) {
 
-          console.log("✅ 訂單創建成功:", orderResult)
+      sdk.store.cart.complete(cart.id).then((data) => {
 
-          console.log("🔢 訂單 ID:", orderResult.id)
+        if (data.type === "cart" && data.cart) {
+          // 發生錯誤
+          console.error(data.error)
+        } else if (data.type === "order" && data.order) {
 
-          const orderID: string = orderResult.id
+          console.log("order pleaced : ",data.order)
+
+          console.log("order ID : ",data.order.id)
+
+          const orderID: string = data.order.id
 
           // 清除 cart id
           removeCartIdClient()
 
           // "使用者"付款完成後返回的網址
+
           const clientBackURL = `${window.location.origin}/order/${orderID}/confirmed`
 
           paymentData.setClientBackURL(clientBackURL)
 
-          paymentData.setCustomField4(orderID)
+          paymentData.setCustomField4(data.order.id)
 
           const params:URLSearchParams = paymentData.getDataParams();
 
@@ -191,53 +183,62 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
           // 移除表單
           document.body.removeChild(form)
           
-        } else {
-          console.error("❌ 訂單創建失敗: 無效的回應格式")
-          throw new Error("訂單創建失敗，請稍後再試")
         }
+
+
+
+
+        
+      })
       
-    } catch(error: any) {
-      console.error("❌ ECPay 訂單處理錯誤:", error)
-      
-      let errorMsg = "發生錯誤，請稍後再試"
-      if (error?.message) {
-        errorMsg = error.message
-      }
-      
-      alert(errorMsg)
-    } finally {
-      setSubmitting(false)
+    }catch(error){
+      console.log(action,"error:",error)
+      alert("發生錯誤，請稍後再試")
     }
 
+
+    
+
+    return
+    
+
+    
 
   }
   
 
-  return (
-    <>
-      <Button
-        onClick={submitHandler}
-        disabled={notReady || submitting || !!errorMessage}
-        size="large"
-        isLoading={submitting}
-        data-testid={dataTestId}
-      >
-        {submitting ? "處理中..." : "前往 ECPay 付款"}
-      </Button>
-      
-      {errorMessage && (
-        <ErrorMessage 
-          error={errorMessage} 
-          data-testid="ecpay-payment-error-message" 
-        />
-      )}
-    </>
-  )
+  return !errorMessage ? (
+    <Button
+          onClick={submitHandler}
+          disabled={notReady || submitting}
+          size="large"
+          isLoading={submitting}
+          data-testid={dataTestId}
+        >
+            {submitting ? "處理中..." : "前往 ECPay 付款"}
+        </Button>
         // <form 
         //   method="POST" 
         //   action={ecpayAPI}
         //   target="_blank"
         //   encType="application/x-www-form-urlencoded"
+        // >
+          
+        //   {Array.from(params.entries()).map(([key, value]) => (
+        //     <input key={key} type="hidden" name={key} value={value} />
+        //   ))}
+          
+        //   <Button
+        //     type="submit"
+        //     disabled={notReady || submitting}
+        //     size="large"
+        //     isLoading={submitting}
+        //     data-testid={dataTestId}
+        //   >
+        //     {submitting ? "處理中..." : "前往 ECPay 付款"}
+        //   </Button>
+        // </form>
+  ):null;
 }
 
 export default ECPayPaymentButton

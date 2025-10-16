@@ -131,15 +131,15 @@ const Hero = ({ slides, settings }: HeroProps) => {
   }
 
   return (
-    <div className={`hero-container relative w-full ${mobileHeightClass} md:min-h-0`}>
+    <div className={`hero-container relative w-full ${mobileHeightClass} md:min-h-0 m-0 p-0`}>
       {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
       <div 
-        className={`hero-image-container relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}
+        className={`hero-image-container relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0 m-0 p-0`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{
-          touchAction: 'pan-y', // 允許垂直滾動，禁止水平滾動
+          touchAction: 'pan-y', // 允許垂直滾動,禁止水平滾動
           userSelect: 'none', // 禁止選擇文字
           WebkitUserSelect: 'none',
           cursor: slides.length > 1 ? 'grab' : 'default'
@@ -149,20 +149,29 @@ const Hero = ({ slides, settings }: HeroProps) => {
           return (
             <div
               key={index}
-              className={`transition-opacity duration-1000 ease-in-out ${
+              className={`transition-opacity duration-1000 ease-in-out m-0 p-0 ${
                 index === currentSlide ? 'opacity-100' : 'opacity-0'
               } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
             >
               {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
               
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
-              <div className="hidden md:block w-full">
+              <div className="hidden md:block w-full m-0 p-0">
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
                   <img
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
                     src={slideItem.desktopImage}
                     alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                    className="w-full h-auto object-cover"
+                    className="w-full h-auto object-cover m-0 p-0 block"
+                    style={{
+                      transform: 'translateZ(0)',
+                      willChange: 'auto',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      display: 'block',
+                      margin: 0,
+                      padding: 0,
+                    }}
                     loading={index === 0 ? 'eager' : 'lazy'}
                   />
                 ) : (
@@ -173,13 +182,22 @@ const Hero = ({ slides, settings }: HeroProps) => {
               </div>
               
               {/* 手機版圖片容器 - 只在 md 以下顯示 */}
-              <div className="block md:hidden w-full">
+              <div className="block md:hidden w-full m-0 p-0">
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
                   <img
                     key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
                     src={slideItem.mobileImage}
                     alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                    className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover`}
+                    className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover m-0 p-0 block`}
+                    style={{
+                      transform: 'translateZ(0)',
+                      willChange: 'auto',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      display: 'block',
+                      margin: 0,
+                      padding: 0,
+                    }}
                     loading={index === 0 ? 'eager' : 'lazy'}
                   />
                 ) : (
@@ -191,9 +209,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
             </div>
           )
         })}
-      </div>
-      
-      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
+      </div>      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
       <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
         <div 
           key={`slide-${currentSlide}`}

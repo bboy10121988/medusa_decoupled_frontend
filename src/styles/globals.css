@@ -205,7 +205,7 @@ body {
 
 /* ========== 3. 主要元素設定 ========== */
 
-/* Hero/Banner 組件修復 - 消除白線問題 */
+/* Hero/Banner 組件修復 - 消除白線問題 + 防止縮放效果 */
 .hero-container, .banner-container {
   position: relative;
   overflow: hidden;
@@ -214,6 +214,8 @@ body {
   box-shadow: none !important;
   margin: 0 !important;
   padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .hero-container img, .banner-container img {
@@ -223,9 +225,20 @@ body {
   box-shadow: none !important;
   margin: 0 !important;
   padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  /* 防止圖片在滾動時縮放 */
+  transform: translateZ(0) scale(1) !important;
+  will-change: auto !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: opacity 1s ease-in-out !important;
+  /* 確保圖片不會有任何縮放效果 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
-/* 修復可能的容器白線問題 */
+/* 修復可能的容器白線問題 + 防止縮放 */
 .hero-image-container,
 .banner-image-container {
   line-height: 0; /* 消除內聯元素間距 */
@@ -234,6 +247,15 @@ body {
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  /* 防止容器內部的元素縮放 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* 固定容器，防止滾動時抖動 */
+  position: relative;
+  will-change: auto;
 }
 
 /* 確保 section 元素也沒有白線 */
@@ -242,6 +264,8 @@ section.hero-section {
   padding: 0 !important;
   border: none !important;
   overflow: hidden;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 /* 標題元素 (h1-h6) 基本設定 */

@@ -32,8 +32,8 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
   });
   
   return (
-    <section className={`w-full overflow-hidden ${mobileHeightClass} md:min-h-0`}>
-      <div className={`w-full h-auto ${mobileHeightClass} md:min-h-0`}>
+    <section className={`w-full overflow-hidden ${mobileHeightClass} md:min-h-0 m-0 p-0`}>
+      <div className={`w-full h-auto ${mobileHeightClass} md:min-h-0 m-0 p-0`}>
         <Hero
           slides={banner.slides.map((slide: BannerSlide) => ({
             heading: slide.heading,

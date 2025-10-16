@@ -35,10 +35,6 @@ const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
           {/* 登入/註冊表單 */}
           {currentView === "sign-in" ? (
             <>
-              <div className="w-full flex flex-col items-center mb-6">
-                <GoogleLoginButton />
-                <div className="text-gray-500 my-4">- 或使用電子郵件登入 -</div>
-              </div>
               <Login setCurrentView={setCurrentView} />
             </>
           ) : (

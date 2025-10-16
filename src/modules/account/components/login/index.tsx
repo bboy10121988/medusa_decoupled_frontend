@@ -4,8 +4,10 @@ import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import Input from "@modules/common/components/input"
 import { useActionState, useState, useEffect } from "react"
+import { useParams } from "next/navigation"
 import { useAccount } from "@lib/context/account-context"
 
+import GoogleLoginButton from "@modules/account/components/google-login-button"
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
 }
@@ -19,6 +21,8 @@ interface EmailCheckResult {
 const Login = ({ setCurrentView }: Props) => {
   const [result, formAction] = useActionState(login, null)
   const { refreshCustomer } = useAccount()
+  const params = useParams()
+  const countryCode = (params.countryCode as string) || 'tw'
 
   // 處理登入成功
   useEffect(() => {
@@ -30,20 +34,20 @@ const Login = ({ setCurrentView }: Props) => {
           await refreshCustomer()
           // 給 cookie 一點時間生效
           setTimeout(() => {
-            window.location.href = '/tw/account'
+            window.location.href = `/${countryCode}/account`
           }, 500)
         } catch (error) {
           console.error("刷新客戶狀態失敗:", error)
           // 即使刷新失敗，也嘗試重定向
           setTimeout(() => {
-            window.location.href = '/tw/account'
+            window.location.href = `/${countryCode}/account`
           }, 500)
         }
       }
       
       handleSuccess()
     }
-  }, [result, refreshCustomer])
+  }, [result, refreshCustomer, countryCode])
 
   // 錯誤訊息：如果不是成功狀態，就當作錯誤訊息
   const errorMessage = result && result !== "login_success" ? result : null
@@ -82,6 +86,16 @@ const Login = ({ setCurrentView }: Props) => {
       className="max-w-sm w-full flex flex-col items-center"
       data-testid="login-page"
     >
+      {/* Google 登入按鈕與分隔線 */}
+      <div className="w-full flex flex-col items-center mb-6">
+        <GoogleLoginButton />
+        <div className="w-full flex items-center gap-x-2 my-4">
+          <div className="flex-grow h-px bg-gray-200"></div>
+          <span className="text-ui-fg-base text-small-regular">或</span>
+          <div className="flex-grow h-px bg-gray-200"></div>
+        </div>
+      </div>
+
       {/* 移除重複的標題，因為在 LoginTemplate 中已經有了 */}
       <form className="w-full" action={formAction}>
         <div className="flex flex-col w-full gap-y-2">
