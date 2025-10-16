@@ -4,6 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import { PaymentData } from "../../../../internal/ecpayments"
 import {sdk} from "@lib/config";
 import { removeCartIdClient } from "@/lib/data/cart-storage"
+import ErrorMessage from "../../components/error-message"
 
 type Props = {
   cart: HttpTypes.StoreCart
@@ -13,71 +14,84 @@ type Props = {
 
 const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": dataTestId }) => {
     
-  const action:string = "ECPayPaymentButton"
-
-  let defaultError:string | null = null
-
-  const paymentSessions = cart.payment_collection?.payment_sessions
-
-  let paymentSessionID = ""
-
-  if (!paymentSessions || paymentSessions.length === 0){
-    defaultError = "尚未建立支付會話"
-  }else{
-    paymentSessionID = paymentSessions[0].id
+  if (notReady){
+    return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
   }
 
+  const action:string = "ECPayPaymentButton"
+
+  console.log(action,": cart:",cart)
+
+  const paymentCollection = cart.payment_collection
+
+  if (!paymentCollection){
+    return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
+  }
+
+  console.log(action,": paymentCollection:",paymentCollection)
+
+  const paymentSessions = paymentCollection.payment_sessions
+
+  if (!paymentSessions || paymentSessions.length === 0){
+    return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
+  } 
+
+  console.log(action,": paymentSessions:",paymentSessions)
+
+  const paymentSessionID = paymentSessions[0].id
+
   console.log(action,"payment session id",paymentSessionID)
-
-  const [submitting, setSubmitting] = useState(false)
-  let errorMessage: string|null = defaultError
-  // const [errorMessage, setErrorMessage] = useState<string | null>(defaultError)
-
 
   // 計算總金額（轉換為整數，ECPay 不接受小數）
   const totalAmount = Math.round(cart.total || 0)
 
   // 商品名稱（取購物車商品名稱，限制長度）
-  const itemName = cart.items?.map(item => item.product_title).join(',').substring(0, 200) || '購物車商品'
+  const itemName = cart.items?.map(item => item.product_title).join(',').substring(0, 200) ?? '購物車商品'
 
   // ecpay API URL
-  const ecpayAPI = process.env.NEXT_PUBLIC_ECPAY_ACTION_URL || "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5"
+  const ecpayAPI = process.env.NEXT_PUBLIC_ECPAY_ACTION_URL ?? "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5"
 
   // ecpay在完成付款後callback的網址，這裡要指向medusa ecpay 轉換器
-  const returnURL = process.env.NEXT_PUBLIC_ECPAY_RETURN_URL || ""
+  const returnURL = process.env.NEXT_PUBLIC_ECPAY_RETURN_URL ?? ""
   // const returnURL = ""
 
   // 特店代號
-  const merchantID = process.env.NEXT_PUBLIC_ECPAY_MERCHANT_ID || ""
+  const merchantID = process.env.NEXT_PUBLIC_ECPAY_MERCHANT_ID ?? ""
 
   // hash key
-  const hashKey = process.env.NEXT_PUBLIC_ECPAY_HASH_KEY || ""
+  const hashKey = process.env.NEXT_PUBLIC_ECPAY_HASH_KEY ?? ""
 
   // hash iv
-  const hashIV = process.env.NEXT_PUBLIC_ECPAY_HASH_IV || ""
+  const hashIV = process.env.NEXT_PUBLIC_ECPAY_HASH_IV ?? ""
+
+
+  let initError:Error|null = null
 
   if (returnURL === ""){
-    errorMessage = "missing ECPay return URL"
-    // setErrorMessage("missing ECPay return URL")
+    initError = new Error("missing ECPay return URL")
   }
 
   if (merchantID === ""){
-    errorMessage = "missing ECPay merchant ID"
+    initError = new Error("missing ECPay merchant ID")
   }
 
   if (hashKey === ""){
-    errorMessage = "missing ECPay hash key"
+    initError = new Error("missing ECPay hash key")
   }
 
   if (hashIV === ""){
-    errorMessage = "missing ECPay hash iv"
+    initError = new Error("missing ECPay hash iv")
   }
 
-  
+  if (initError){
+    console.error(action,initError)
+  }
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(initError?.message ?? null)
+  
   const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
 
-  let paymentData: PaymentData = new PaymentData();
+  const paymentData: PaymentData = new PaymentData();
 
   paymentData.setHashKey(hashKey)
 
@@ -108,29 +122,13 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   paymentData.setReturnURL(returnURL)
 
-  
-
-  paymentData.setChoosePayment("ALL")
+  paymentData.setChoosePayment("Credit")
   
   paymentData.setEncryptType("1")
 
-  paymentData.setCustomField3("order_id")
-
-  // data.setCustomField4(cart.id)
-
-  
-
-  if (errorMessage){
-    console.log(action,"error:",errorMessage)
-  }
-
+  paymentData.setNeedExtraPaidInfo("Y")
 
   const submitHandler = () => {
-
-    if (errorMessage){  
-      return
-    }
-
 
     try{
 
@@ -139,6 +137,8 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
         if (data.type === "cart" && data.cart) {
           // 發生錯誤
           console.error(data.error)
+          throw new Error(data.error?.message || "無法建立訂單，請稍後再試")
+
         } else if (data.type === "order" && data.order) {
 
           console.log("order pleaced : ",data.order)
@@ -156,7 +156,11 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
           paymentData.setClientBackURL(clientBackURL)
 
-          paymentData.setCustomField4(data.order.id)
+          paymentData.setCustomField2(data.order.id)
+
+          paymentData.setCustomField3(paymentCollection.id)
+
+          paymentData.setCustomField4(paymentSessionID)
 
           const params:URLSearchParams = paymentData.getDataParams();
 
@@ -164,7 +168,6 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
           const form = document.createElement('form')
           form.method = 'POST'
           form.action = ecpayAPI
-          // form.target = '_blank' // 開啟新視窗
           form.encType = 'application/x-www-form-urlencoded'
 
           // 添加所有參數作為隱藏輸入欄位
@@ -185,60 +188,20 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
           
         }
 
-
-
-
-        
       })
       
     }catch(error){
       console.log(action,"error:",error)
-      alert("發生錯誤，請稍後再試")
+      setErrorMessage("發生錯誤，請稍後再試")
     }
-
-
-    
-
-    return
-    
-
-    
 
   }
   
-
   return !errorMessage ? (
-    <Button
-          onClick={submitHandler}
-          disabled={notReady || submitting}
-          size="large"
-          isLoading={submitting}
-          data-testid={dataTestId}
-        >
-            {submitting ? "處理中..." : "前往 ECPay 付款"}
-        </Button>
-        // <form 
-        //   method="POST" 
-        //   action={ecpayAPI}
-        //   target="_blank"
-        //   encType="application/x-www-form-urlencoded"
-        // >
-          
-        //   {Array.from(params.entries()).map(([key, value]) => (
-        //     <input key={key} type="hidden" name={key} value={value} />
-        //   ))}
-          
-        //   <Button
-        //     type="submit"
-        //     disabled={notReady || submitting}
-        //     size="large"
-        //     isLoading={submitting}
-        //     data-testid={dataTestId}
-        //   >
-        //     {submitting ? "處理中..." : "前往 ECPay 付款"}
-        //   </Button>
-        // </form>
-  ):null;
+    <Button onClick={submitHandler} size="large" data-testid={dataTestId} >
+      前往 ECPay 付款
+    </Button>
+  ):<ErrorMessage error={errorMessage} data-testid="ecpay-error" />;
 }
 
 export default ECPayPaymentButton
