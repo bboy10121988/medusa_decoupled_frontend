@@ -48,7 +48,7 @@ export default [
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
-      'no-console': 'warn',
+      'no-console': 'off',
       'no-debugger': 'error',
       'no-alert': 'error',
       'no-var': 'error',
