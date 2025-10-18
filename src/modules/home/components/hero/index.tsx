@@ -236,7 +236,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
           {slide.buttonText && slide.buttonLink && (
             <Button asChild variant="secondary" 
               className="btn bg-white hover:bg-white/90 text-gray-900 px-4 sm:px-8 py-2 sm:py-3 text-sm sm:text-base md:text-lg font-medium rounded-lg 
-                shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                shadow-lg transition-all duration-300 hover:shadow-xl"
               style={{
                 letterSpacing: "var(--letter-spacing-wide)",
                 fontFamily: "var(--font-base)"
@@ -254,7 +254,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
           {/* 上一張按鈕 */}
           <button
             onClick={goToPrevSlide}
-            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="上一張圖片"
           >
             <svg 
@@ -270,7 +270,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
           {/* 下一張按鈕 */}
           <button
             onClick={goToNextSlide}
-            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="下一張圖片"
           >
             <svg 
@@ -294,8 +294,8 @@ const Hero = ({ slides, settings }: HeroProps) => {
               onClick={() => goToSlide(index)}
               className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide 
-                  ? "bg-white scale-110 shadow-lg" 
-                  : "bg-white/60 hover:bg-white/80 scale-100"
+                  ? "bg-white shadow-lg" 
+                  : "bg-white/60 hover:bg-white/80"
               }`}
               aria-label={`前往第 ${index + 1} 張圖片`}
             />

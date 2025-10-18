@@ -46,7 +46,7 @@ export default function BlogCard({ post, countryCode = "tw" }: { post: BlogPost;
                 src={imageUrl}
                 alt={post.title || "文章封面"}
                 fill
-                className="object-cover group-hover:scale-105 transition-all duration-1000"
+                className="object-cover transition-all duration-1000"
                 sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               />
               {/* 簡約漸層覆蓋層 */}

@@ -474,7 +474,7 @@ export default function ProductPreview({
                       }}
                       className={`w-3 h-3 rounded-full transition-all duration-200 border-2 ${
                         index === currentImageIndex 
-                          ? 'bg-white border-white shadow-lg scale-110' 
+                          ? 'bg-white border-white shadow-lg' 
                           : 'bg-white/50 border-white/70 hover:bg-white/80 hover:border-white shadow-md'
                       }`}
                     />

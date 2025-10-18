@@ -228,7 +228,7 @@ export default async function Nav() {
               <div className="flex items-center justify-center">
                 <LocalizedClientLink
                   href="/"
-                  className="txt-compact-xlarge-plus hover:text-ui-fg-base uppercase xsmall:text-lg cursor-pointer transition-transform duration-200 hover:scale-105"
+                  className="txt-compact-xlarge-plus hover:text-ui-fg-base uppercase xsmall:text-lg cursor-pointer transition-transform duration-200"
                   data-testid="nav-store-link"
                 >
                   {headerData?.logo?.url ? (

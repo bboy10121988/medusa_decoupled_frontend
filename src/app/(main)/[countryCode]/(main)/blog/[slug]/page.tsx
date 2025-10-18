@@ -185,7 +185,7 @@ export default async function BlogPost({
                       alt={post.title || "文章封面圖片"}
                       fill
                       priority
-                      className="object-cover hover:scale-105 transition-transform duration-500"
+                      className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
                       quality={95}
                     />

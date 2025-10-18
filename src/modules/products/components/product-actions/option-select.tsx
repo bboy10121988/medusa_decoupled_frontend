@@ -40,9 +40,9 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
                 "relative px-4 py-3 min-w-16 text-sm font-medium rounded-lg border-2 transition-all duration-300 ease-spring",
                 {
                   // 選中狀態 - 黑色主題
-                  "border-black bg-black text-white shadow-lg transform scale-105": isSelected,
+                  "border-black bg-black text-white shadow-lg": isSelected,
                   // 未選中狀態 - 簡潔風格
-                  "border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:scale-102": !isSelected && !disabled,
+                  "border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50": !isSelected && !disabled,
                   // 禁用狀態
                   "opacity-50 cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400": disabled,
                 }

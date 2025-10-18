@@ -46,7 +46,7 @@ const AccountNav = ({
 
   const { logout, isLoggingOut } = useLogout({
     countryCode,
-    onLoggedOut: onLogout,
+    ...(onLogout && { onLoggedOut: onLogout }),
   })
 
   const handleLogout = async () => {
@@ -61,25 +61,14 @@ const AccountNav = ({
       
       // 最後手段：強制重新加載頁面
       console.log('🔄 使用最後手段：強制重新加載')
-      window.location.href = `/${countryCode}/account?force_logout=1`
+      globalThis.location.href = `/${countryCode}/account?force_logout=1`
     }
   }
 
   return (
     <div>
       <div className="small:hidden" data-testid="mobile-account-nav">
-        {route !== `/${countryCode}/account` ? (
-          <LocalizedClientLink
-            href="/account"
-            className="flex items-center gap-x-2 text-small-regular py-2"
-            data-testid="account-main-link"
-          >
-            <>
-              <ChevronDown className="transform rotate-90" />
-              <span>帳戶</span>
-            </>
-          </LocalizedClientLink>
-        ) : (
+        {route === `/${countryCode}/account` ? (
           <>
             <div className="text-xl-semi mb-4 px-8">
               您好 {customer?.first_name}
@@ -147,6 +136,17 @@ const AccountNav = ({
               </ul>
             </div>
           </>
+        ) : (
+          <LocalizedClientLink
+            href="/account"
+            className="flex items-center gap-x-2 text-small-regular py-2"
+            data-testid="account-main-link"
+          >
+            <>
+              <ChevronDown className="transform rotate-90" />
+              <span>帳戶</span>
+            </>
+          </LocalizedClientLink>
         )}
       </div>
       <div className="hidden small:block" data-testid="account-nav">
@@ -159,7 +159,7 @@ const AccountNav = ({
               <li>
                 <AccountNavLink
                   href="/account"
-                  route={route!}
+                  route={route || ''}
                   data-testid="overview-link"
                 >
                   總覽
@@ -168,7 +168,7 @@ const AccountNav = ({
               <li>
                 <AccountNavLink
                   href="/account/profile"
-                  route={route!}
+                  route={route || ''}
                   data-testid="profile-link"
                 >
                   個人檔案
@@ -177,7 +177,7 @@ const AccountNav = ({
               <li>
                 <AccountNavLink
                   href="/account/addresses"
-                  route={route!}
+                  route={route || ''}
                   data-testid="addresses-link"
                 >
                   地址簿
@@ -186,7 +186,7 @@ const AccountNav = ({
               <li>
                 <AccountNavLink
                   href="/account/orders"
-                  route={route!}
+                  route={route || ''}
                   data-testid="orders-link"
                 >
                   訂單

@@ -297,7 +297,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
               src={cardImage.url}
               alt={cardImage.alt}
               fill
-              className="object-contain transition-all duration-1000 group-hover:scale-105"
+              className="object-contain transition-all duration-1000"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
             {/* 簡約漸層覆蓋層 */}
@@ -305,7 +305,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
 
             {/* 等級標籤 - 簡約設計 */}
             {getSelectedStylistLevel() && (
-              <div className="absolute top-3 left-3 md:top-6 md:left-6 transform group-hover:scale-105 transition-transform duration-300">
+              <div className="absolute top-3 left-3 md:top-6 md:left-6 transform transition-transform duration-300">
                 <div className="bg-stone-800/90 text-white px-2 py-1 shadow-sm text-[10px] md:text-xs font-medium tracking-widest uppercase inline-block">
                   {getSelectedStylistLevel()}
                 </div>
