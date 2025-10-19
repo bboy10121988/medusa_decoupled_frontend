@@ -7,11 +7,6 @@ import { useEffect, useMemo, useState } from "react"
 import Thumbnail from "../thumbnail/index"
 import ClientPreviewPrice from "./client-price"
 
-type ProductOption = {
-  title: string
-  values: string[]
-}
-
 type SelectedOptions = {
   [key: string]: string | null
 }
@@ -21,9 +16,9 @@ export default function ProductPreview({
   isFeatured,
   countryCode = "tw",
 }: {
-  product: HttpTypes.StoreProduct
-  isFeatured?: boolean
-  countryCode?: string
+  readonly product: HttpTypes.StoreProduct
+  readonly isFeatured?: boolean
+  readonly countryCode?: string
 }) {
   const { cheapestPrice } = getProductPrice({
     product,
@@ -36,7 +31,7 @@ export default function ProductPreview({
     }
 
     const allVariantsOutOfStock = product.variants.every(variant => {
-      return variant.manage_inventory && (variant.inventory_quantity || 0) === 0
+      return variant.manage_inventory && (variant.inventory_quantity ?? 0) === 0
     })
 
     const canPreorder = product.variants.some(variant => {
@@ -58,7 +53,6 @@ export default function ProductPreview({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isImageTransitioning, setIsImageTransitioning] = useState(false)
-  const [showVariantSelector, setShowVariantSelector] = useState(false)
   const [showMobileOptions, setShowMobileOptions] = useState(false)
 
   // 獲取所有可用圖片
@@ -68,11 +62,11 @@ export default function ProductPreview({
       images.push(product.thumbnail)
     }
     if (product.images && product.images.length > 0) {
-      product.images.forEach(img => {
+      for (const img of product.images) {
         if (img.url && img.url !== product.thumbnail) {
           images.push(img.url)
         }
-      })
+      }
     }
     return images
   }, [product.thumbnail, product.images])
@@ -103,7 +97,6 @@ export default function ProductPreview({
     const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length
     changeImage(newIndex, e)
   }
-  const [isHovered, setIsHovered] = useState(false)
 
   // 使用 useMemo 優化產品選項的計算
   const productOptions = useMemo(() => {
@@ -135,7 +128,7 @@ export default function ProductPreview({
       })
       .map(option => ({
         title: option.title,
-        values: option.values?.map(v => v.value) || []
+        values: option.values?.map(v => v.value) ?? []
       }))
   }, [product.options])
 
@@ -143,11 +136,11 @@ export default function ProductPreview({
   const autoSelectSingleOptions = useMemo(() => {
     const autoSelected: SelectedOptions = {}
     
-    productOptions.forEach(option => {
+    for (const option of productOptions) {
       if (option.values.length === 1) {
         autoSelected[option.title] = option.values[0]
       }
-    })
+    }
     
     return autoSelected
   }, [productOptions])
@@ -174,7 +167,7 @@ export default function ProductPreview({
     }
 
     // 檢查是否有選擇的選項
-    const selectedEntries = Object.entries(selectedOpts).filter(([_, value]) => value !== null)
+    const selectedEntries = Object.entries(selectedOpts).filter(([, value]) => value !== null)
     
     // 如果沒有選擇任何選項，返回 undefined
     if (selectedEntries.length === 0) return undefined
@@ -182,18 +175,27 @@ export default function ProductPreview({
     // 如果選項數量不完整，也返回 undefined
     if (selectedEntries.length < productOptions.length) return undefined
 
-    // 尋找匹配的變體
-    const matchedVariant = product.variants.find(variant => {
+    // 輔助函數：檢查單個選項是否匹配
+    const hasMatchingOption = (options: HttpTypes.StoreProductVariant['options'], optionTitle: string, selectedValue: string | null) => {
+      return options?.some(option => 
+        option.option?.title === optionTitle && option.value === selectedValue
+      ) ?? false
+    }
+
+    // 輔助函數：檢查變體選項是否匹配
+    const isVariantMatching = (variant: HttpTypes.StoreProductVariant, entries: [string, string | null][]) => {
       if (!variant.options) return false
+      if (variant.options.length !== entries.length) return false
       
-      // 檢查變體的選項是否與選擇的選項匹配
-      return selectedEntries.every(([optionTitle, selectedValue]) => {
-        return variant.options?.some(variantOption => 
-          variantOption.option?.title === optionTitle && 
-          variantOption.value === selectedValue
-        )
-      }) && variant.options.length === selectedEntries.length
-    })
+      return entries.every(([optionTitle, selectedValue]) => 
+        variant.options ? hasMatchingOption(variant.options, optionTitle, selectedValue) : false
+      )
+    }
+
+    // 尋找匹配的變體
+    const matchedVariant = product.variants.find(variant => 
+      isVariantMatching(variant, selectedEntries)
+    )
 
     return matchedVariant?.id
   }
@@ -258,13 +260,13 @@ export default function ProductPreview({
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || '加入購物車失敗')
+        throw new Error(result.error ?? '加入購物車失敗')
       }
       
       console.log("✅ ProductPreview 成功加入購物車:", result)
       
       // 如果 API 回傳 cartId，也在前端設定
-      if (result.cartId && typeof window !== 'undefined') {
+      if (result.cartId && globalThis.window !== undefined) {
         localStorage.setItem('_medusa_cart_id', result.cartId)
         document.cookie = `_medusa_cart_id=${result.cartId}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
         console.log("📱 前端儲存 Cart ID:", result.cartId)
@@ -272,8 +274,8 @@ export default function ProductPreview({
       
       setError(null)
       // 觸發購物車更新事件
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('cartUpdate'))
+      if (globalThis.window !== undefined) {
+        globalThis.dispatchEvent(new CustomEvent('cartUpdate'))
       }
       setShowSuccessMessage(true)
       setTimeout(() => {
@@ -293,7 +295,7 @@ export default function ProductPreview({
     e.stopPropagation()
 
     // 檢查是否需要選擇選項
-    const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
+    const hasMultipleOptions = productOptions.some(option => option.values.length > 1)
     const variantId = findVariantId(selectedOptions)
 
     if (hasMultipleOptions && !variantId) {
@@ -322,9 +324,15 @@ export default function ProductPreview({
       {showMobileOptions && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center md:hidden p-4">
           {/* 背景遮罩 */}
-          <div 
+          <button 
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowMobileOptions(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape' || e.key === 'Enter') {
+                setShowMobileOptions(false)
+              }
+            }}
+            aria-label="關閉選項彈窗"
           />
           
           {/* 彈窗內容 */}
@@ -402,8 +410,11 @@ export default function ProductPreview({
               disabled={isAdding || !findVariantId(selectedOptions)}
               className="w-full px-4 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-500"
             >
-              {isAdding ? "處理中..." : 
-               productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+              {(() => {
+                if (isAdding) return "處理中..."
+                if (productStockStatus.canPreorder) return "預訂"
+                return "加入購物車"
+              })()}
             </button>
           </div>
         </div>
@@ -412,18 +423,6 @@ export default function ProductPreview({
       <div className="relative">
         <div 
           className="relative w-full pb-[133.33%] overflow-hidden bg-white"
-          onMouseEnter={() => {
-            setIsHovered(true)
-            // 如果有多張圖片，hover時使用淡出淡入切換到第二張圖片
-            if (allImages.length > 1) {
-              changeImage(1)
-            }
-          }}
-          onMouseLeave={() => {
-            setIsHovered(false)
-            // 離開hover時使用淡出淡入恢復到主圖
-            changeImage(0)
-          }}
         >
           {/* 商品圖片區塊 */}
           <LocalizedClientLink href={`/products/${product.handle}`} className="block absolute inset-0">
@@ -464,9 +463,9 @@ export default function ProductPreview({
                 
                 {/* 圖片指示器 */}
                 <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex space-x-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                  {allImages.map((_, index) => (
+                  {allImages.map((imageUrl, index) => (
                     <button
-                      key={index}
+                      key={`image-${imageUrl}-${index}`}
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
@@ -518,7 +517,7 @@ export default function ProductPreview({
                 {productOptions
                   .filter(option => option.values.length > 1) // 只顯示有多個選擇的選項
                   .map((option, index) => (
-                  <div key={index} className="flex flex-col border-t first:border-t-0 border-black/[0.06]">
+                  <div key={`mobile-option-${option.title}-${index}`} className="flex flex-col border-t first:border-t-0 border-black/[0.06]">
                     <div className="text-xs text-black/60 px-2 md:px-8 py-1 border-b border-black/[0.06]">
                       {option.title}
                     </div>
@@ -530,7 +529,7 @@ export default function ProductPreview({
                     >
                       {option.values.map((value, valueIndex) => (
                         <button
-                          key={valueIndex}
+                          key={`option-value-${option.title}-${value}-${valueIndex}`}
                           onClick={(e) => {
                             e.preventDefault()
                             handleOptionSelect(option.title, value)
@@ -551,11 +550,14 @@ export default function ProductPreview({
                 <div>
                   <button
                     onClick={handleAddToCart}
-                    disabled={isAdding || (productOptions.filter(option => option.values.length > 1).length > 0 && !findVariantId(selectedOptions))}
+                    disabled={isAdding || (productOptions.some(option => option.values.length > 1) && !findVariantId(selectedOptions))}
                     className="w-full px-4 py-3 border border-black text-sm hover:bg-black hover:text-white transition-colors disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 min-h-[40px]"
                   >
-                    {isAdding ? "處理中..." : 
-                     productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+                    {(() => {
+                      if (isAdding) return "處理中..."
+                      if (productStockStatus.canPreorder) return "預訂"
+                      return "加入購物車"
+                    })()}
                   </button>
                 </div>
                 {error && (
@@ -588,7 +590,7 @@ export default function ProductPreview({
                     aria-label={
                       (() => {
                         if (isAdding) return "處理中..."
-                        const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
+                        const hasMultipleOptions = productOptions.some(option => option.values.length > 1)
                         const variantId = findVariantId(selectedOptions)
                         if (hasMultipleOptions && !variantId) return "選擇選項"
                         return productStockStatus.canPreorder ? "預訂" : "加入購物車"

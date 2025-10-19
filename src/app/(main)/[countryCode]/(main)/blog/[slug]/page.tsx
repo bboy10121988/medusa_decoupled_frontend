@@ -33,7 +33,8 @@ async function getCategories() {
 // 取得最新文章
 async function getLatestPosts(excludeSlug?: string) {
   try {
-    const query = `*[_type == "post" ${excludeSlug ? `&& slug.current != "${excludeSlug}"` : ''}] | order(publishedAt desc)[0...4] {
+    const excludeFilter = excludeSlug ? `&& slug.current != "${excludeSlug}"` : ''
+    const query = `*[_type == "post" ${excludeFilter}] | order(publishedAt desc)[0...4] {
       _id,
       title,
       slug {
@@ -47,7 +48,7 @@ async function getLatestPosts(excludeSlug?: string) {
       }
     }`
     const posts = await client.fetch(query)
-    return posts || []
+    return posts ?? []
   } catch (error) {
     console.error("Error fetching latest posts:", error)
     return []
@@ -117,7 +118,7 @@ export default async function BlogPost({
                     本文分類
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {post.categories.map((cat: any) => (
+                    {post.categories.map((cat: { title: string }) => (
                       <Link
                         key={cat.title}
                         href={`/${countryCode}/blog?category=${encodeURIComponent(cat.title)}`}
@@ -137,7 +138,7 @@ export default async function BlogPost({
                     最新文章
                   </h3>
                   <div className="space-y-3">
-                    {latestPosts.map((article: any) => (
+                    {latestPosts.map((article: { _id: string; slug?: { current: string }; title: string; publishedAt: string; mainImage?: { asset?: { url: string } } }) => (
                       <Link
                         key={article._id}
                         href={`/${countryCode}/blog/${article.slug?.current}`}
@@ -213,7 +214,7 @@ export default async function BlogPost({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
                         <div className="flex flex-wrap gap-1">
-                          {post.categories.map((cat: any) => (
+                          {post.categories.map((cat: { title: string }) => (
                             <span key={cat.title} className="bg-gray-100 px-2 py-1 rounded-md text-xs font-medium">
                               {cat.title}
                             </span>

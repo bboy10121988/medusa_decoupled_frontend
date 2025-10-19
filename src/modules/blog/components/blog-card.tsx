@@ -14,7 +14,7 @@ export type BlogPost = {
   body?: unknown
 }
 
-export default function BlogCard({ post, countryCode = "tw" }: { post: BlogPost; countryCode?: string }) {
+export default function BlogCard({ post, countryCode = "tw" }: { readonly post: BlogPost; readonly countryCode?: string }) {
   // 創建一個安全的slug
   const createSlug = (title: string, id: string) => {
     if (!title || !id) return 'no-slug'
@@ -22,19 +22,19 @@ export default function BlogCard({ post, countryCode = "tw" }: { post: BlogPost;
     // 將中文標題轉換為拼音或使用ID
     const safeTitle = title
       .toLowerCase()
-      .replace(/[^\w\s]/gi, '')
-      .replace(/\s+/g, '-')
+      .replaceAll(/[^\w\s]/gi, '')
+      .replaceAll(/\s+/g, '-')
       .slice(0, 30)
     
-    const shortId = id.replace(/-/g, '').slice(0, 8)
+    const shortId = id.replaceAll('-', '').slice(0, 8)
     return safeTitle || `post-${shortId}`
   }
   
   // 使用slug.current，如果沒有則根據標題和ID創建slug
-  const slug = post?.slug?.current || createSlug(post?.title || '', post?._id || '')
+  const slug = post?.slug?.current ?? createSlug(post?.title ?? '', post?._id ?? '')
   const href = `/${countryCode}/blog/${slug}`
   const imageUrl = post?.mainImage?.asset?.url
-  const date = post?.publishedAt || post?._createdAt
+  const date = post?.publishedAt ?? post?._createdAt
 
   return (
     <li className="group bg-white overflow-hidden transition-all duration-700 hover:-translate-y-2 hover:shadow-xl">

@@ -37,7 +37,7 @@ function DesignerSelectorCard({
   selectedDesigner, 
   onDesignerChange, 
   isMounted 
-}: DesignerSelectorCardProps) {
+}: Readonly<DesignerSelectorCardProps>) {
   if (!isMounted || allStylists.length === 0) return null
 
   return (
@@ -100,7 +100,7 @@ interface ServiceCardProps {
   selectedDesigner: string
 }
 
-function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
+function ServiceCard({ card, selectedDesigner }: Readonly<ServiceCardProps>) {
   if (!card) return null
 
   const getCardPrice = (card: Card): string => {
@@ -151,58 +151,82 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
     }
   }
 
+  // 輔助函數：獲取特定設計師的圖片
+  const getSelectedStylistImage = () => {
+    if (selectedDesigner === "all" || !Array.isArray(card?.stylists)) return null
+    const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
+    if (stylist?.cardImage?.url) {
+      return {
+        url: stylist.cardImage.url,
+        alt: stylist.cardImage.alt ?? `${stylist.stylistName} - ${card.title}`
+      }
+    }
+    return null
+  }
+
+  // 輔助函數：獲取預設設計師的圖片
+  const getDefaultStylistImage = () => {
+    if (!Array.isArray(card?.stylists) || card.stylists.length === 0) return null
+    const defaultStylist = card.stylists.find(s => s.isDefault === true)
+    if (defaultStylist?.cardImage?.url) {
+      return {
+        url: defaultStylist.cardImage.url,
+        alt: defaultStylist.cardImage.alt ?? `${defaultStylist.stylistName ?? '預設設計師'} - ${card.title}`
+      }
+    }
+    return null
+  }
+
+  // 輔助函數：獲取非通用設計師的圖片
+  const getNonGenericStylistImage = () => {
+    if (!Array.isArray(card?.stylists) || card.stylists.length === 0) return null
+    const stylistWithImage = card.stylists.find(s => {
+      const hasImage = s?.cardImage?.url
+      const isNotGeneric = s?.stylistName && 
+        !s.stylistName.toLowerCase().includes('all') &&
+        !s.stylistName.toLowerCase().includes('指定')
+      return hasImage && isNotGeneric
+    })
+    
+    if (stylistWithImage?.cardImage?.url) {
+      return {
+        url: stylistWithImage.cardImage.url,
+        alt: stylistWithImage.cardImage.alt ?? `${stylistWithImage.stylistName} - ${card.title}`
+      }
+    }
+    return null
+  }
+
+  // 輔助函數：獲取任意設計師的圖片
+  const getAnyStylistImage = () => {
+    if (!Array.isArray(card?.stylists) || card.stylists.length === 0) return null
+    const anyWithImage = card.stylists.find(s => s?.cardImage?.url)
+    if (anyWithImage?.cardImage?.url) {
+      return {
+        url: anyWithImage.cardImage.url,
+        alt: anyWithImage.cardImage.alt ?? card.title
+      }
+    }
+    return null
+  }
+
   const getCardImage = (): { url: string; alt: string } => {
     try {
       // 優先級 1: 如果選擇了特定設計師，使用該設計師的專用圖片
-      if (selectedDesigner !== "all" && Array.isArray(card?.stylists) && card.stylists.length) {
-        const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
-        if (stylist?.cardImage?.url) {
-          return {
-            url: stylist.cardImage.url,
-            alt: stylist.cardImage.alt ?? `${stylist.stylistName} - ${card.title}`
-          }
-        }
-      }
+      const selectedImage = getSelectedStylistImage()
+      if (selectedImage) return selectedImage
       
       // 優先級 2: 當選擇 "all" 時，使用標示為預設的設計師圖片
-      if (Array.isArray(card?.stylists) && card.stylists.length > 0) {
-        const defaultStylist = card.stylists.find(s => s.isDefault === true)
-        if (defaultStylist?.cardImage?.url) {
-          return {
-            url: defaultStylist.cardImage.url,
-            alt: defaultStylist.cardImage.alt ?? `${defaultStylist.stylistName || '預設設計師'} - ${card.title}`
-          }
-        }
-      }
+      const defaultImage = getDefaultStylistImage()
+      if (defaultImage) return defaultImage
       
       // 優先級 3: 使用第一位有圖片的設計師（排除通用標籤）
-      if (Array.isArray(card?.stylists) && card.stylists.length > 0) {
-        const stylistWithImage = card.stylists.find(s => {
-          const hasImage = s?.cardImage?.url
-          const isNotGeneric = s?.stylistName && 
-            !s.stylistName.toLowerCase().includes('all') &&
-            !s.stylistName.toLowerCase().includes('指定')
-          return hasImage && isNotGeneric
-        })
-        
-        if (stylistWithImage?.cardImage?.url) {
-          return {
-            url: stylistWithImage.cardImage.url,
-            alt: stylistWithImage.cardImage.alt ?? `${stylistWithImage.stylistName} - ${card.title}`
-          }
-        }
-      }
+      const nonGenericImage = getNonGenericStylistImage()
+      if (nonGenericImage) return nonGenericImage
       
       // 優先級 4: 使用任意有圖片的設計師（包含通用）
-      if (Array.isArray(card?.stylists) && card.stylists.length > 0) {
-        const anyWithImage = card.stylists.find(s => s?.cardImage?.url)
-        if (anyWithImage?.cardImage?.url) {
-          return {
-            url: anyWithImage.cardImage.url,
-            alt: anyWithImage.cardImage.alt ?? card.title
-          }
-        }
-      }
+      const anyImage = getAnyStylistImage()
+      if (anyImage) return anyImage
       
       // 最後備選：使用預設圖片
       const defaultImageUrl = getDefaultServiceImage(card.title)
@@ -222,7 +246,8 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
 
   const getDefaultServiceImage = (serviceTitle: string): string => {
     // 根據服務類型返回適合的預設圖片 - 暫時使用透明圖片避免 404 錯誤
-    return 'data:image/svg+xml,%3Csvg width="600" height="450" xmlns="http://www.w3.org/2000/svg"%3E%3Crect width="100%25" height="100%25" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="20" fill="%236b7280" text-anchor="middle" dy=".3em"%3E服務圖片%3C/text%3E%3C/svg%3E'
+    const encodedTitle = encodeURIComponent(serviceTitle)
+    return `data:image/svg+xml,%3Csvg width="600" height="450" xmlns="http://www.w3.org/2000/svg"%3E%3Crect width="100%25" height="100%25" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="20" fill="%236b7280" text-anchor="middle" dy=".3em"%3E${encodedTitle}%3C/text%3E%3C/svg%3E`
   }
 
   const getSelectedStylistName = (): string | null => {
@@ -381,7 +406,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
               
               return (
                 <span className="text-xs md:text-sm font-light text-stone-600 tracking-wide">
-                  {stylistName || "所有設計師"}
+                  {stylistName ?? "所有設計師"}
                 </span>
               )
             })()}
@@ -402,10 +427,9 @@ interface ServiceCardsSectionProps {
 }
 
 export default function ServiceCardsSection({
-  heading,
   cardsPerRow = 4,
   cards = [],
-}: ServiceCardsSectionProps) {
+}: Readonly<Omit<ServiceCardsSectionProps, 'heading'>>) {
   const [selectedDesigner, setSelectedDesigner] = useState<string>("all")
   const [isMounted, setIsMounted] = useState(false)
 
@@ -427,7 +451,7 @@ export default function ServiceCardsSection({
       Array.isArray(card?.stylists) 
         ? card.stylists
             .filter((s): s is Stylist => s !== null && s !== undefined && typeof s.stylistName === 'string')
-            .map(s => s.stylistName!)
+            .map(s => s.stylistName as string)
             .filter(name => {
               const lowercaseName = name.toLowerCase()
               // 過濾掉通用設計師標籤（包含更多變體）
@@ -439,7 +463,7 @@ export default function ServiceCardsSection({
             })
         : []
     )
-  )).sort()
+  )).sort((a, b) => a.localeCompare(b, 'zh-TW'))
 
   if (!validCards.length) {
     return null

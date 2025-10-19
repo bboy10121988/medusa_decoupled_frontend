@@ -2,7 +2,6 @@ import { Suspense } from "react"
 import Image from "next/image"
 
 import { listRegions } from "../../../../lib/data/regions"
-import { listCollections } from "../../../../lib/data/collections"
 import { listCategories } from "../../../../lib/data/categories"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "../../../common/components/localized-client-link"
@@ -15,13 +14,8 @@ import MobileMenu from "../../components/mobile-menu"
 import SearchBarClient from "../../components/search-bar-client"
 import HeaderHeightSetter from "../../components/header-height-setter"
 
-export default async function Nav() {
-  const regions = await listRegions().then((regions: StoreRegion[]) => regions)
-  const collections = await listCollections().then((res) => res.collections)
-  const categories = await listCategories()
-  const headerData = await getHeader() as SanityHeader
-
-  // 從 Sanity 獲取跑馬燈資料
+// 輔助函數：處理跑馬燈文字
+function getMarqueeTexts(headerData: SanityHeader) {
   const enabledTexts = headerData?.marquee?.enabled 
     ? [
         ...(headerData.marquee.text1?.enabled && headerData.marquee.text1?.content?.trim() 
@@ -33,7 +27,16 @@ export default async function Nav() {
       ]
     : []
 
-  const marqueeTexts = enabledTexts.map(item => String(item.content)).filter(text => text.trim())
+  return enabledTexts.map(item => String(item.content)).filter(text => text.trim())
+}
+
+export default async function Nav() {
+  const regions = await listRegions().then((regions: StoreRegion[]) => regions)
+  const categories = await listCategories()
+  const headerData = await getHeader() as SanityHeader
+
+  // 從 Sanity 獲取跑馬燈資料
+  const marqueeTexts = getMarqueeTexts(headerData)
   const textCount = marqueeTexts.length
 
   const textDisplayTime = 3
@@ -60,7 +63,7 @@ export default async function Nav() {
   ]
 
   // 計算主導覽列高度
-  const logoHeight = headerData?.logoSize?.desktop || headerData?.logoHeight || 36
+  const logoHeight = headerData?.logoSize?.desktop ?? headerData?.logoHeight ?? 36
   const mainNavHeight = Math.max(48, logoHeight + 24)
   
   // 計算總 header 高度
@@ -97,7 +100,7 @@ export default async function Nav() {
                   >
                     {marqueeTexts.map((text, index) => (
                       <div 
-                        key={`marquee-link-${index}`} 
+                        key={`marquee-link-${text}-${index}`} 
                         className="flex-none h-9 flex items-center justify-center text-xs text-white hover:underline"
                       >
                         {text}
@@ -114,7 +117,7 @@ export default async function Nav() {
                 >
                   {marqueeTexts.map((text, index) => (
                     <div 
-                      key={`marquee-nolink-${index}`} 
+                      key={`marquee-nolink-${text}-${index}`} 
                       className="flex-none h-9 flex items-center justify-center text-xs text-white"
                     >
                       {text}
@@ -129,7 +132,7 @@ export default async function Nav() {
             <div className="relative h-full">
               <div className="absolute inset-x-0 flex flex-col animate-marquee">
                 {defaultAnnouncements.map((text, index) => (
-                  <div key={`default-${index}`} className="flex-none h-9 flex items-center justify-center text-xs text-white">
+                  <div key={`default-${text.slice(0, 10)}-${index}`} className="flex-none h-9 flex items-center justify-center text-xs text-white">
                     {text}
                   </div>
                 ))}
@@ -159,14 +162,14 @@ export default async function Nav() {
                 <div className="block lg:hidden">
                   <MobileMenu 
                     regions={regions} 
-                    navigation={headerData?.navigation}
+                    navigation={headerData?.navigation ?? []}
                     categories={categories}
                     headerData={headerData}
                   />
                 </div>
                 {/* 桌機版導航選單 - 螢幕寬度大於等於1024px時顯示 */}
                 <div className="hidden lg:flex items-center gap-x-6">
-                  {headerData?.navigation?.filter((item: {name: string; href: string}, index: number) => {
+                  {headerData?.navigation?.filter((item: {name: string; href: string}) => {
                     // 擴展的左側項目關鍵字：首頁、商品、Blog、關於我們、商店等
                     const leftSideItems = [
                       'home', 'homes', '首頁', '主頁',
@@ -183,22 +186,27 @@ export default async function Nav() {
                       name.includes(keyword.toLowerCase()) ||
                       href.includes(keyword.toLowerCase())
                     );
-                  }).map(({ name, href }: {name: string; href: string}, index: number) => {
+                  }).map((item: {name: string; href: string}, index: number) => {
+                    const { name, href } = item
                     if (typeof name !== 'string' || typeof href !== 'string') {
                       return null
                     }
 
                     const isExternal = /^(http|https|www)/.test(href)
                     const isHome = href === '/' || href === '/home'
-                    const processedHref = isExternal 
-                      ? href 
-                      : isHome 
-                        ? '/' 
-                        : href.startsWith('/') 
-                          ? href 
-                          : `/${href}`
+                    
+                    let processedHref: string
+                    if (isExternal) {
+                      processedHref = href
+                    } else if (isHome) {
+                      processedHref = '/'
+                    } else if (href.startsWith('/')) {
+                      processedHref = href
+                    } else {
+                      processedHref = `/${href}`
+                    }
 
-                    const uniqueKey = `nav-left-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}`
+                    const uniqueKey = `nav-left-${index}-${name.replaceAll(/[^a-zA-Z0-9]/g, '')}`
 
                     return isExternal ? (
                       <a
@@ -235,31 +243,31 @@ export default async function Nav() {
                     <>
                       {/* Desktop Logo */}
                       <Image
-                        src={headerData.logo.url!}
-                        alt={headerData.logo.alt || "Store logo"}
+                        src={headerData.logo.url ?? ''}
+                        alt={headerData.logo.alt ?? "Store logo"}
                         width={200}
                         height={logoHeight}
                         className="w-auto object-contain transition-all duration-300 hidden md:block"
                         style={{ 
-                          height: `${headerData?.logoSize?.desktop || logoHeight}px`,
+                          height: `${headerData?.logoSize?.desktop ?? logoHeight}px`,
                           width: 'auto'
                         }}
                       />
                       {/* Mobile Logo */}
                       <Image
-                        src={headerData.logo.url!}
-                        alt={headerData.logo.alt || "Store logo"}
+                        src={headerData.logo.url ?? ''}
+                        alt={headerData.logo.alt ?? "Store logo"}
                         width={200}
-                        height={headerData?.logoSize?.mobile || 28}
+                        height={headerData?.logoSize?.mobile ?? 28}
                         className="w-auto object-contain transition-all duration-300 md:hidden"
                         style={{ 
-                          height: `${headerData?.logoSize?.mobile || 28}px`,
+                          height: `${headerData?.logoSize?.mobile ?? 28}px`,
                           width: 'auto'
                         }}
                       />
                     </>
                   ) : (
-                    headerData?.storeName || "Medusa Store"
+                    headerData?.storeName ?? "Medusa Store"
                   )}
                 </LocalizedClientLink>
               </div>
@@ -303,7 +311,7 @@ export default async function Nav() {
                 {/* 桌機版導航項目和功能按鈕 - 在手機版隱藏 */}
                 <div className="hidden lg:flex items-center gap-x-4">
                   {/* 剩餘的導航項目 - 右側項目 */}
-                  {headerData?.navigation?.filter((item: {name: string; href: string}, index: number) => {
+                  {headerData?.navigation?.filter((item: {name: string; href: string}) => {
                     // 擴展的左側項目關鍵字（需要與上面保持一致）
                     const leftSideItems = [
                       'home', 'homes', '首頁', '主頁',
@@ -337,22 +345,27 @@ export default async function Nav() {
                     
                     // 返回右側項目：明確的右側項目，或者不是左側項目的其他項目
                     return isRightSideItem || (!isLeftSideItem && !isRightSideItem);
-                  }).map(({ name, href }: {name: string; href: string}, index: number) => {
+                  }).map((item: {name: string; href: string}, index: number) => {
+                    const { name, href } = item
                     if (typeof name !== 'string' || typeof href !== 'string') {
                       return null
                     }
 
                     const isExternal = /^(http|https|www)/.test(href)
                     const isHome = href === '/' || href === '/home'
-                    const processedHref = isExternal 
-                      ? href 
-                      : isHome 
-                        ? '/' 
-                        : href.startsWith('/') 
-                          ? href 
-                          : `/${href}`
+                    
+                    let processedHref: string
+                    if (isExternal) {
+                      processedHref = href
+                    } else if (isHome) {
+                      processedHref = '/'
+                    } else if (href.startsWith('/')) {
+                      processedHref = href
+                    } else {
+                      processedHref = `/${href}`
+                    }
 
-                    const uniqueKey = `nav-right-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}`
+                    const uniqueKey = `nav-right-${index}-${name.replaceAll(/[^a-zA-Z0-9]/g, '')}`
 
                     return isExternal ? (
                       <a

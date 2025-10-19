@@ -95,8 +95,8 @@ const SearchBarClient = () => {
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    globalThis.addEventListener('keydown', handleKeyDown)
+    return () => globalThis.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   const isChinese = (str: string): boolean => /[\u4e00-\u9fa5]/.test(str)
@@ -105,17 +105,16 @@ const SearchBarClient = () => {
     if (!text || !query || query.trim() === '') return <>{text}</>
 
     const highlightClass = type === 'title' ? 'text-red-600 font-extrabold text-xl' : 'text-red-600 text-sm'
-    const lowerText = text.toLowerCase()
     const lowerQuery = query.toLowerCase()
     const hasChinese = isChinese(query)
 
     let queryUnits: string[] = []
     if (hasChinese) {
-      Array.from(lowerQuery).forEach((char) => {
+      for (const char of Array.from(lowerQuery)) {
         if (char.trim() !== '') queryUnits.push(char)
-      })
+      }
       if (lowerQuery.match(/[a-z0-9]+/g)) {
-        const englishWords = lowerQuery.match(/[a-z0-9]+/g) || []
+        const englishWords = lowerQuery.match(/[a-z0-9]+/g) ?? []
         queryUnits = [...queryUnits, ...englishWords]
       }
     } else {
@@ -123,7 +122,7 @@ const SearchBarClient = () => {
     }
 
     if (queryUnits.length === 0) return <>{text}</>
-    const patterns = queryUnits.map((u) => u.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    const patterns = queryUnits.map((u) => u.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`))
     const regex = new RegExp(`(${patterns.join('|')})`, 'gi')
     const parts = text.split(regex)
 
@@ -131,7 +130,7 @@ const SearchBarClient = () => {
       <>
         {parts.map((part, i) => {
           const isMatch = queryUnits.some((u) => part.toLowerCase() === u.toLowerCase())
-          return isMatch ? <span key={i} className={highlightClass}>{part}</span> : <span key={i}>{part}</span>
+          return isMatch ? <span key={`highlight-${part}-${i}`} className={highlightClass}>{part}</span> : <span key={`text-${part}-${i}`}>{part}</span>
         })}
       </>
     )
@@ -144,11 +143,11 @@ const SearchBarClient = () => {
     try {
       let products: ProductResult[] = []
       const productsJson = await safeFetchGlobal(`/api/products/search?q=${encodeURIComponent(query)}&format=simple`, undefined, null)
-      if (productsJson && typeof productsJson === 'object') products = (productsJson as any).products || []
+      if (productsJson && typeof productsJson === 'object') products = (productsJson as {products?: ProductResult[]}).products ?? []
 
       let blogs: BlogResult[] = []
       const blogsJson = await safeFetchGlobal(`/api/blogs/search?q=${encodeURIComponent(query)}`, undefined, null)
-      if (blogsJson && typeof blogsJson === 'object') blogs = (blogsJson as any).posts || []
+      if (blogsJson && typeof blogsJson === 'object') blogs = (blogsJson as {posts?: BlogResult[]}).posts ?? []
 
       setResults({ products, blogs, isLoading: false })
     } catch (error) {
@@ -208,7 +207,7 @@ const SearchBarClient = () => {
               <h3 className="text-base font-semibold text-gray-800 mb-3">商品</h3>
               <div>
                 {products.map((product) => (
-                  <div key={product.id} className="flex items-center p-2.5 my-1 hover:bg-gray-50 rounded cursor-pointer transition-colors duration-150" onClick={() => handleProductClick(product.handle)}>
+                  <button key={product.id} className="flex items-center p-2.5 my-1 hover:bg-gray-50 rounded cursor-pointer transition-colors duration-150 w-full text-left" onClick={() => handleProductClick(product.handle)}>
                     {product.thumbnail ? (
                       <div className="w-10 h-10 relative mr-3 flex-shrink-0 border border-gray-100 rounded overflow-hidden"><Image src={product.thumbnail} alt={product.title} fill className="object-cover rounded"/></div>
                     ) : (
@@ -218,10 +217,10 @@ const SearchBarClient = () => {
                       <p className="text-xl font-extrabold text-gray-900">{highlightMatches(product.title, searchQuery, 'title')}</p>
                       {product.price && (<p className="text-sm font-medium text-gray-700 mt-1">{product.price.original_price && product.price.original_price !== product.price.calculated_price && (<span className="line-through text-gray-500 mr-2">{product.price.original_price}</span>)}{product.price.calculated_price}</p>)}
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
-              {products.length > 10 && (<div className="text-center mt-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer hover:bg-gray-50 rounded" onClick={() => { router.push(`/${countryCode}/search?q=${encodeURIComponent(searchQuery)}&type=products`); setShowDropdown(false); }}>查看全部 {products.length} 個商品結果 →</div>)}
+              {products.length > 10 && (<button className="w-full text-center mt-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer hover:bg-gray-50 rounded border-0 bg-transparent" onClick={() => { router.push(`/store?q=${encodeURIComponent(searchQuery)}`); setShowDropdown(false); }}>查看所有產品結果</button>)}
             </div>
           )}
 
@@ -230,16 +229,16 @@ const SearchBarClient = () => {
               <h3 className="text-base font-semibold text-gray-800 mb-3">部落格文章</h3>
               <div>
                 {blogs.map((blog) => (
-                  <div key={blog.id} className="flex p-2.5 my-1 hover:bg-gray-50 rounded cursor-pointer transition-colors duration-150" onClick={() => handleBlogClick(blog.slug)}>
+                  <button key={blog.id} className="flex p-2.5 my-1 hover:bg-gray-50 rounded cursor-pointer transition-colors duration-150 border-0 bg-transparent w-full text-left" onClick={() => handleBlogClick(blog.slug)}>
                     {blog.image ? (<div className="w-10 h-10 relative mr-3 flex-shrink-0 border border-gray-100 rounded overflow-hidden"><Image src={blog.image} alt={blog.title} fill className="object-cover rounded"/></div>) : (<div className="w-10 h-10 bg-gray-100 mr-3 rounded flex-shrink-0 flex items-center justify-center"><svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg></div>)}
                     <div className="flex-1">
                       <p className="text-xl font-extrabold text-gray-900">{highlightMatches(blog.title, searchQuery, 'title')}</p>
-                      {(blog.excerpt || blog.bodyText) && (<p className="text-sm text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{highlightMatches((blog.excerpt || blog.bodyText?.substring(0, 150)) || '', searchQuery, 'content')}</p>)}
+                      {(blog.excerpt ?? blog.bodyText) && (<p className="text-sm text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{highlightMatches((blog.excerpt ?? blog.bodyText?.substring(0, 150)) ?? '', searchQuery, 'content')}</p>)}
                       <div className="flex items-center justify-between mt-1">{blog.publishedAt && (<p className="text-xs text-gray-500">{new Date(blog.publishedAt).toLocaleDateString('zh-TW')}</p>)}{blog.categories && blog.categories.length > 0 && (<div className="flex gap-1">{blog.categories.slice(0, 2).map((category, index) => (<span key={`${blog.id}-cat-${index}`} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">{category}</span>))}{blog.categories.length > 2 && (<span className="text-xs text-gray-500">+{blog.categories.length - 2}</span>)}</div>)}</div>
                     </div>
-                  </div>
+                  </button>
                 ))}
-                {blogs.length > 10 && (<div className="text-center mt-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer hover:bg-gray-50 rounded" onClick={() => { router.push(`/${countryCode}/search?q=${encodeURIComponent(searchQuery)}&type=blogs`); setShowDropdown(false); }}>查看全部 {blogs.length} 篇文章結果 →</div>)}
+                {blogs.length > 10 && (<button className="w-full text-center mt-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer hover:bg-gray-50 rounded border-0 bg-transparent" onClick={() => { router.push(`/${countryCode}/search?q=${encodeURIComponent(searchQuery)}&type=blogs`); setShowDropdown(false); }}>查看全部 {blogs.length} 篇文章結果 →</button>)}
               </div>
             </div>
           )}

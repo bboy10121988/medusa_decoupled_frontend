@@ -3,6 +3,7 @@
 import { Button, Heading } from "@medusajs/ui"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 
 type Slide = {
   heading: string
@@ -148,20 +149,21 @@ const Hero = ({ slides, settings }: HeroProps) => {
         {slides.map((slideItem, index) => {
           return (
             <div
-              key={index}
+              key={`slide-${slideItem.desktopImage ?? slideItem.mobileImage ?? index}`}
               className={`transition-opacity duration-1000 ease-in-out m-0 p-0 ${
                 index === currentSlide ? 'opacity-100' : 'opacity-0'
-              } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
+              } ${index === currentSlide ? '' : 'absolute inset-0'}`}
             >
               {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
               
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
               <div className="hidden md:block w-full m-0 p-0">
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
-                  <img
+                  <Image
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
                     src={slideItem.desktopImage}
-                    alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                    alt={slideItem.desktopImageAlt ?? slideItem.heading ?? `桌面版輪播圖片 ${index + 1}`}
+                    fill
                     className="w-full h-auto object-cover m-0 p-0 block"
                     style={{
                       transform: 'translateZ(0)',
@@ -184,10 +186,11 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 手機版圖片容器 - 只在 md 以下顯示 */}
               <div className="block md:hidden w-full m-0 p-0">
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
-                  <img
+                  <Image
                     key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
                     src={slideItem.mobileImage}
-                    alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                    alt={slideItem.mobileImageAlt ?? slideItem.heading ?? `手機版輪播圖片 ${index + 1}`}
+                    fill
                     className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover m-0 p-0 block`}
                     style={{
                       transform: 'translateZ(0)',
@@ -288,9 +291,9 @@ const Hero = ({ slides, settings }: HeroProps) => {
       {/* 點點導航 - 適應動態高度 */}
       {settings?.showDots && slides.length > 1 && (
         <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 sm:gap-3">
-          {slides.map((_, index) => (
+          {slides.map((slide, index) => (
             <button
-              key={`dot-${index}`}
+              key={`dot-${slide.desktopImage ?? slide.mobileImage ?? index}`}
               onClick={() => goToSlide(index)}
               className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide 
