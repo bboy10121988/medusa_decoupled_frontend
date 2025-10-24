@@ -261,3 +261,20 @@ export const getProductsByIds = async ({
       throw medusaError(error)
     })
 }
+
+/**
+ * 從產品資料中提取詳細內容（從 metadata.detail_content）
+ */
+export const getProductDetailContent = async (product: HttpTypes.StoreProduct): Promise<string | null> => {
+  try {
+    // 檢查產品 metadata 中是否有 detail_content
+    if (product?.metadata && typeof product.metadata === 'object') {
+      const metadata = product.metadata as Record<string, any>
+      return metadata.detail_content || null
+    }
+    return null
+  } catch (error) {
+    console.error(`提取產品 ${product?.id} 詳細內容失敗:`, error)
+    return null
+  }
+}

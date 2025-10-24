@@ -8,6 +8,7 @@ import pages from './pages'
 import footer from './footer'
 import returnPolicy from './returnPolicy'
 import dynamicPage from './dynamicPage'
+// import medusaProductContent from './medusaProductContent'
 // import seoMeta from './seoMeta' // No longer needed - SEO fields are now flattened
 
 // Block schemas
@@ -23,6 +24,7 @@ import googleMapsSection from './blocks/googleMapsSection'
 
 export const schemaTypes = [
   // Documents
+  // medusaProductContent,
   homePage,
   pages,
   dynamicPage,

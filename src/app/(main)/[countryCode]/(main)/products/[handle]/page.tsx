@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getProduct } from "@lib/data/products"
+import { getProduct, getProductDetailContent } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { generateProductKeywords } from "@lib/seo"
 import ProductTemplate from "@modules/products/templates"
@@ -90,11 +90,15 @@ export default async function ProductPage({ params }: Props) {
         notFound()
       }
 
+      // 從產品資料中提取詳細內容
+      const detailContent = await getProductDetailContent(pricedProduct)
+
       return (
         <ProductTemplate
           product={pricedProduct}
           region={region}
           countryCode={countryCode}
+          detailContent={detailContent}
         />
       )
     } catch (error) {
