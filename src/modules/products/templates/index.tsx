@@ -111,24 +111,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         </div>
       </div>
 
-      {/* 詳情圖容器 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-testid="product-details-images-container">
-        {/* <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">商品詳情</h2>
-          <p className="text-gray-600">更多關於此商品的圖片</p>
-        </div> */}
-        {/* 在這裡顯示詳情內容 */}
-        {detailContent ? (
+      {/* 詳情圖容器 - 只有在有詳情內容時才顯示 */}
+      {detailContent && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-testid="product-details-images-container">
+          {/* <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">商品詳情</h2>
+            <p className="text-gray-600">更多關於此商品的圖片</p>
+          </div> */}
+          {/* 在這裡顯示詳情內容 */}
           <div 
             className="product-detail-content max-w-none mx-auto"
             dangerouslySetInnerHTML={{ __html: detailContent }}
           />
-        ) : (
-          <div className="bg-gray-100 h-96 flex items-center justify-center rounded-lg">
-            <p className="text-gray-500">暫無詳情內容</p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 相關商品區塊 */}
       <div className="bg-gray-50 py-16 mt-16">
