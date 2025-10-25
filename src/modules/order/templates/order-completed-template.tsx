@@ -27,35 +27,19 @@ export default async function OrderCompletedTemplate({
 
   let msg = "您的訂單已成功建立。"
 
-  switch (order.status){
-    case "canceled":
-      msg = "您的訂單已取消。如有任何疑問，請聯繫商店客服。"
-      break
-    case "not_paid":
-      msg = "您的訂單尚未付款。請盡快完成付款以確保訂單有效。"
-      break
-    case "partially_authorized":
-      msg = "您的訂單部分授權。請檢查付款詳情以了解更多資訊。"
-      break
-    case "partially_captured":
-      msg = "您的訂單部分已扣款。請檢查付款詳情以了解更多資訊。"
-      break
-    case "partially_refunded":
-      msg = "您的訂單部分已退款。請檢查退款詳情以了解更多資訊。"
-      break
-    case "refunded":
-      msg = "您的訂單已全額退款。如有任何疑問，請聯繫商店客服。"
-      break
-    case "requires_action":
-      msg = "您的訂單需要進一步的操作才能完成付款。請按照指示完成相關步驟。"
-      break
-
-    default:
-      // authorized
-      // captured
-      msg = "您的訂單已成功建立。"
-      break
+  if (order.status == "canceled"){
+    msg = "您的訂單因錯誤(付款失敗或是尚未完成)已取消。如有任何疑問，請聯繫商店客服。"
   }
+
+  // 可能有的狀態
+  // switch (order.status){
+  //   case "pending":
+  //   case "completed":
+  //   case "draft":
+  //   case "archived":
+  //   case "canceled":
+  //   case "requires_action":
+  // }
 
   console.log("payment status message:", msg)
 
