@@ -22,6 +22,8 @@ export default async function OrderCompletedTemplate({
 
   const isOnboarding = cookies.get("_medusa_onboarding")?.value === "true"
 
+  console.log("order:" ,order)
+  console.log("payment collections",order.payment_collections)
 
   let msg = "您的訂單已成功建立。"
 
