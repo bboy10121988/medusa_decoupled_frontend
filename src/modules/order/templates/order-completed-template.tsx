@@ -57,6 +57,8 @@ export default async function OrderCompletedTemplate({
       break
   }
 
+  console.log("payment status message:", msg)
+
 
   return (
     <div className="py-6 min-h-[calc(100vh-64px)]">
