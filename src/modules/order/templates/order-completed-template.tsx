@@ -27,7 +27,7 @@ export default async function OrderCompletedTemplate({
 
   let msg = "您的訂單已成功建立。"
 
-  switch (order.payment_status){
+  switch (order.status){
     case "canceled":
       msg = "您的訂單已取消。如有任何疑問，請聯繫商店客服。"
       break
