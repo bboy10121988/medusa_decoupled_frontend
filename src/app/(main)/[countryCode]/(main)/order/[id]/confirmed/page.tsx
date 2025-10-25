@@ -19,5 +19,12 @@ export default async function OrderConfirmedPage(props: Props) {
     return notFound()
   }
 
+  console.log("訂單資訊：",order)
+
+  console.log("payment collections", order.payment_collections)
+
+
+  
+
   return <OrderCompletedTemplate order={order} />
 }

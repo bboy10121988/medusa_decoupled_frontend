@@ -38,9 +38,17 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   console.log(action,": paymentSessions:",paymentSessions)
 
-  const paymentSessionID = paymentSessions[0].id
+  const paymentSession = paymentSessions[0]
+
+  console.log(action,": paymentSession:",paymentSession)
+
+  const paymentSessionID = paymentSession.id
 
   console.log(action,"payment session id",paymentSessionID)
+
+  const tradeNo: string = paymentSession.data?.trade_no ?? ""
+
+  console.log(action, "trade_no:", tradeNo)
 
   // 計算總金額（轉換為整數，ECPay 不接受小數）
   const totalAmount = Math.round(cart.total || 0)
@@ -83,13 +91,17 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     initError = new Error("missing ECPay hash iv")
   }
 
+  if (tradeNo === ""){
+    initError = new Error("missing ECPay trade no")
+  }
+
   if (initError){
     console.error(action,initError)
   }
 
   const [errorMessage, setErrorMessage] = useState<string | null>(initError?.message ?? null)
   
-  const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
+  // const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
 
   const paymentData: PaymentData = new PaymentData();
 
@@ -99,7 +111,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   paymentData.setMerchantID(merchantID);
 
-  paymentData.setMerchantTradeNo(tradeNo.toString())
+  paymentData.setMerchantTradeNo(tradeNo)
 
   paymentData.setMerchantTradeDate(new Date().toLocaleDateString('zh-TW', { 
     year: 'numeric', 
