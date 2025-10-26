@@ -6,27 +6,76 @@ import { HttpTypes } from "@medusajs/types"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 
 export const retrieveOrder = async (id: string) => {
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
 
-  const next = {
-    ...(await getCacheOptions("orders")),
-  }
+  const fieldList: string[] = [
+    "id",
+    "created_at",
+    "email",
+    "display_id",
+    "metadata",
+    "currency_code",
+    "total",
+    "original_total",
+    "subtotal",
+    "tax_total",
+    "shipping_total",
+    "discount_total",
+    "gift_card_total",
+    "shipping_subtotal",
+    "status",
+    "shipping_methods",
+    "shipping_address.*",
+    "billing_address",
+    "*payment_collections.payments",
+    "*items",
+    "items.metadata",
+    "*items.variant",
+    "*items.product",
+  ]
 
-  return sdk.client
-    .fetch<HttpTypes.StoreOrderResponse>(`/store/orders/${id}`, {
-      method: "GET",
-      query: {
-        fields:
-          "*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product,*metadata",
-      },
-      headers,
-      next,
-      cache: "force-cache",
-    })
-    .then(({ order }) => order)
-    .catch((err) => medusaError(err))
+  return sdk.store.order.retrieve(id,{
+      fields: fieldList.join(",")
+  })
+  .then(({order}) => {
+
+    console.log("retrieve order heyhey:", order)
+    console.log("retrieve order metadata:", order.metadata)
+
+    return order
+  })
+  .catch((err) => medusaError(err))
+
+  
+  
+
+  // 已經有現成的sdk方法可以用，不需要自己fetch
+  // const headers = {
+  //   ...(await getAuthHeaders()),
+  // }
+
+  // const next = {
+  //   ...(await getCacheOptions("orders")),
+  // }
+
+  // return sdk.client
+  //   .fetch<HttpTypes.StoreOrderResponse>(`/store/orders/${id}`, {
+  //     method: "GET",
+  //     query: {
+  //       fields:
+  //         // "*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product",
+  //         "*items"
+  //     },
+  //     headers,
+  //     next,
+  //     cache: "force-cache",
+  //   })
+  //   .then(({ order }) => {
+
+  //       console.log("retrieve order:", order.id)
+  //       console.log("retrieve order metadata:", order.metadata)
+  //     return order
+  //   })
+  //   .catch((err) => medusaError(err))
 }
 
 export const listOrders = async (

@@ -22,15 +22,30 @@ export default async function OrderCompletedTemplate({
 
   const isOnboarding = cookies.get("_medusa_onboarding")?.value === "true"
 
-  console.log("order:" ,order)
-  console.log("payment collections",order.payment_collections)
-
   let msg = "您的訂單已成功建立。"
 
   if (order.status == "canceled"){
     msg = "您的訂單因錯誤(付款失敗或是尚未完成)已取消。如有任何疑問，請聯繫商店客服。"
   }
 
+
+  if (order.metadata){
+    const orderMetadata = order.metadata as Record<string, string>
+
+    if (orderMetadata.payment_type === 'ecpayment'){
+      if (orderMetadata.payment_status === 'failed'){
+        msg = "您的訂單因付款失敗已取消。如有任何疑問，請聯繫商店客服。"
+      }
+    }
+  }
+
+
+  // metadata: {
+  //   payment_msg: '付款失敗',
+  //   payment_code: '10800003',
+  //   payment_type: 'ecpayment',
+  //   payment_status: 'failed'
+  // },
   // 可能有的狀態
   // switch (order.status){
   //   case "pending":

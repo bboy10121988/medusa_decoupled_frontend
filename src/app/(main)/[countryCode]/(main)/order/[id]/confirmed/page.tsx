@@ -18,17 +18,11 @@ export default async function OrderConfirmedPage(props: Props) {
   
   const order = await retrieveOrder(orderID).catch(() => null)
 
+  console.log("訂單資訊：",order)
 
   if (!order) {
     return notFound()
-  }
-
-  console.log("訂單資訊：",order)
-
-  console.log("payment collections", order.payment_collections)
-
-
-  
+  }  
 
   return <OrderCompletedTemplate order={order} />
 }
