@@ -46,7 +46,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   console.log(action,"payment session id",paymentSessionID)
 
-  const tradeNo: string = paymentSession.data?.trade_no ?? ""
+  const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
 
   console.log(action, "trade_no:", tradeNo)
 
