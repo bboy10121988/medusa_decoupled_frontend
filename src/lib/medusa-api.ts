@@ -24,8 +24,21 @@ export const medusaFetch = async (endpoint: string, options: RequestInit = {}) =
   const isProxy = baseUrl.startsWith('/api/medusa')
   const backendUrl = typeof window === 'undefined' ? (process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000') : ''
   const publishableKey = !isProxy
-    ? (await import('./lib/medusa-publishable-key')).getPublishableKeyForBackend(backendUrl)
+    ? (await import('./medusa-publishable-key')).getPublishableKeyForBackend(backendUrl)
     : undefined
+  
+  // 開發環境除錯
+  if (__isDev) {
+    console.log('🌐 medusaFetch debug:', {
+      endpoint,
+      baseUrl,
+      url,
+      isProxy,
+      backendUrl,
+      publishableKey: publishableKey ? `${publishableKey.slice(0, 10)}...` : 'undefined',
+      windowDefined: typeof window !== 'undefined'
+    })
+  }
   
   // 預設 headers
   const defaultHeaders: HeadersInit = {
@@ -81,14 +94,14 @@ export const medusaAPI = {
     medusaFetch(endpoint, {
       ...options,
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data ? { body: JSON.stringify(data) } : {}),
     }),
     
   put: (endpoint: string, data?: any, options?: RequestInit) =>
     medusaFetch(endpoint, {
       ...options,
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data ? { body: JSON.stringify(data) } : {}),
     }),
     
   delete: (endpoint: string, options?: RequestInit) =>
@@ -98,7 +111,7 @@ export const medusaAPI = {
 // CORS 檢查工具
 export const checkCORS = async () => {
   try {
-    const response = await medusaAPI.get('/store/products', {
+    await medusaAPI.get('/store/products', {
       mode: 'cors',
     })
     
@@ -110,12 +123,12 @@ export const checkCORS = async () => {
   }
 }
 
-// 開發環境下自動檢查 CORS
-if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-  // 延遲檢查，等待頁面載入完成
-  setTimeout(() => {
-    checkCORS()
-  }, 2000)
-}
+// 開發環境下自動檢查 CORS（暫時禁用以除錯 publishable key 問題）
+// if (process.env.NODE_ENGINE === 'development' && typeof window !== 'undefined') {
+//   // 延遲檢查，等待頁面載入完成
+//   setTimeout(() => {
+//     checkCORS()
+//   }, 2000)
+// }
 
 export default medusaAPI

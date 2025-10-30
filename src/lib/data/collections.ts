@@ -1,7 +1,6 @@
 "use server"
 
-import { sdk, MEDUSA_BACKEND_URL } from "../config"
-import { getPublishableKeyForBackend } from "../medusa-publishable-key"
+import { sdk } from "../config"
 import { HttpTypes } from "@medusajs/types"
 import { getCacheOptions } from "./cookies"
 
@@ -37,9 +36,6 @@ export const listCollections = async (
         },
         next: { revalidate: 0 }, // 禁用快取，每次都重新獲取
         cache: "no-store", // 禁用儲存快取
-        headers: {
-          "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
-        },
       }
     )
     .then(({ collections }) => ({ collections, count: collections.length }))

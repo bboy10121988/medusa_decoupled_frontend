@@ -201,11 +201,24 @@ body {
   padding: 0;
   overflow-x: hidden;
   min-height: 100vh;
+  /* 確保沒有預設的邊框或外邊距 */
+  border: none;
+  outline: none;
+}
+
+/* 移除所有可能的預設樣式 */
+* {
+  box-sizing: border-box;
+}
+
+*:before,
+*:after {
+  box-sizing: border-box;
 }
 
 /* ========== 3. 主要元素設定 ========== */
 
-/* Hero/Banner 組件修復 - 消除白線問題 + 防止縮放效果 */
+/* Hero/Banner 組件修復 - 消除白線問題 + 防止縮放效果 - 加強版 */
 .hero-container, .banner-container {
   position: relative;
   overflow: hidden;
@@ -216,6 +229,31 @@ body {
   padding: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
+  line-height: 0;
+  font-size: 0;
+  display: block;
+}
+
+/* 強制移除所有可能的白線來源 */
+.hero-container *,
+.banner-container *,
+.hero-section *,
+.hero-section-inner *,
+.hero-image-container * {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 特別針對圖片元素 */
+.hero-container img,
+.banner-container img,
+.hero-section img,
+.hero-image-container img {
+  display: block !important;
+  line-height: 0 !important;
 }
 
 .hero-container img, .banner-container img {
@@ -258,14 +296,75 @@ body {
   will-change: auto;
 }
 
-/* 確保 section 元素也沒有白線 */
-section.hero-section {
+/* 確保 section 元素也沒有白線 - 加強版 */
+section.hero-section,
+.hero-section,
+.hero-section-inner {
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
   overflow: hidden;
   width: 100% !important;
   max-width: 100% !important;
+  line-height: 0;
+  font-size: 0;
+  /* 防止子元素產生間距 */
+  display: block;
+  position: relative;
+}
+
+/* 手機版特別強化 - 消除所有可能的白線來源 */
+@media (max-width: 768px) {
+  .hero-container,
+  .banner-container,
+  .hero-section,
+  .hero-section-inner,
+  .hero-image-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    display: block !important;
+  }
+  
+  .hero-container img,
+  .banner-container img,
+  .hero-section img,
+  .hero-image-container img {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    display: block !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    /* 強制消除任何可能的間距 */
+    float: none !important;
+    position: relative;
+    /* 防止圖片下方出現空隙 */
+    bottom: -1px;
+  }
+  
+  /* 強制移除任何可能導致白線的 div 間距 */
+  .hero-container > div,
+  .banner-container > div,
+  .hero-section > div,
+  .hero-section-inner > div,
+  .hero-image-container > div {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    display: block !important;
+  }
 }
 
 /* 標題元素 (h1-h6) 基本設定 */

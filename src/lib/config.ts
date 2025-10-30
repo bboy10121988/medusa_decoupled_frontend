@@ -33,10 +33,32 @@ export const SITE_URL = requiredEnv(
 // -------------------- SDK 初始化 --------------------
 
 // 創建一個支援動態認證的 SDK 實例
+const publishableKey = getPublishableKeyForBackend(MEDUSA_BACKEND_URL)
+
+// 開發環境除錯信息
+if (process.env.NODE_ENV === "development") {
+  console.log('🔧 SDK Configuration:', {
+    baseUrl: MEDUSA_BACKEND_URL,
+    publishableKey: publishableKey ? `${publishableKey.slice(0, 10)}...` : 'EMPTY',
+    keyLength: publishableKey?.length || 0
+  })
+}
+
+// 檢查 publishable key 是否有效
+if (!publishableKey || publishableKey.trim() === '') {
+  console.error('❌ Empty or invalid publishable key detected!')
+  console.error('Environment variables check:', {
+    NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY?.slice(0, 10) + '...',
+    NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_LOCAL: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_LOCAL?.slice(0, 10) + '...',
+    NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_REMOTE: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_REMOTE?.slice(0, 10) + '...',
+    MEDUSA_BACKEND_URL: MEDUSA_BACKEND_URL
+  })
+}
+
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
-  publishableKey: getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
+  publishableKey: publishableKey,
   auth: {
     type: "session"
   },

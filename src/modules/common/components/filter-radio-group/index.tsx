@@ -22,11 +22,11 @@ const FilterRadioGroup = ({
   return (
     <div className="flex flex-col">
       {title && <Text className="txt-compact-small-plus text-ui-fg-muted text-center mb-4">{title}</Text>}
-      <RadioGroup data-testid={dataTestId} onValueChange={handleChange} className="grid grid-cols-3 gap-x-2 w-full">
+      <RadioGroup data-testid={dataTestId} onValueChange={handleChange} className="grid grid-cols-1 md:grid-cols-3 gap-y-2 md:gap-y-0 md:gap-x-8 w-full">
         {items?.map((i) => (
           <div
             key={i.value}
-            className={clx("flex gap-x-2 items-center justify-center", {
+            className={clx("flex gap-x-2 items-center justify-center md:justify-center", {
               "ml-[-23px]": i.value === value,
             })}
           >

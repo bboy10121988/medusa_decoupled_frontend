@@ -4,7 +4,7 @@ import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-g
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import RefinementList from "@modules/store/components/refinement-list"
 
-import InfiniteScrollProducts from "./infinite-scroll-products"
+import PaginatedProducts from "./paginated-products"
 
 const StoreTemplate = ({
   sortBy,
@@ -16,6 +16,7 @@ const StoreTemplate = ({
   countryCode: string
 }) => {
   const sort = sortBy || "created_at"
+  const pageNumber = page ? parseInt(page) : 1
 
   return (
     <div className="pt-0 pb-8" data-testid="store-container">
@@ -35,9 +36,11 @@ const StoreTemplate = ({
       </div>
 
       <Suspense fallback={<SkeletonProductGrid />}>
-        <InfiniteScrollProducts
+        <PaginatedProducts
           sortBy={sort}
+          page={pageNumber}
           countryCode={countryCode}
+          hideRefinementList={true}
         />
       </Suspense>
     </div>
