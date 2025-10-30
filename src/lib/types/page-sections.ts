@@ -7,6 +7,8 @@ export type BannerSlide = {
   mobileImage: string
   mobileImageAlt?: string
   imageLink?: string
+  buttonText?: string
+  buttonLink?: string
 }
 
 export type BannerSettings = {

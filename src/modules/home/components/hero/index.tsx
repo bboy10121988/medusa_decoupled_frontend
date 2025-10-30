@@ -47,11 +47,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
 
   const slide = slides[currentSlide]
   
-  // 根據是否顯示指示點決定手機版高度行為
-  const shouldUseFixedHeight = settings?.showDots && slides.length > 1
-  const mobileHeightClass = shouldUseFixedHeight 
-    ? "min-h-hero-mobile" // 固定高度（扣掉 header）
-    : "min-h-fit" // 自適應內容高度
+  // 響應式高度：手機版全高度，桌面版自適應
 
   const goToNextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
@@ -131,24 +127,25 @@ const Hero = ({ slides, settings }: HeroProps) => {
   }
 
   return (
-    <div className={`hero-container relative w-full ${mobileHeightClass} md:min-h-0 m-0 p-0 border-0 outline-0`} 
-         style={{ lineHeight: 0, fontSize: 0 }}>
-      {/* 輪播圖片容器 - 根據設定決定手機版高度行為 */}
-      <div 
-        className={`hero-image-container relative w-full overflow-hidden ${mobileHeightClass} md:min-h-0 m-0 p-0 border-0 outline-0`}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          touchAction: 'pan-y', // 允許垂直滾動,禁止水平滾動
-          userSelect: 'none', // 禁止選擇文字
-          WebkitUserSelect: 'none',
-          cursor: slides.length > 1 ? 'grab' : 'default',
-          lineHeight: 0,
-          fontSize: 0,
-          display: 'block'
-        }}
-      >
+    <div 
+      className="hero-banner-wrapper relative w-full m-0 p-0"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      style={{
+        touchAction: 'pan-y',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        cursor: slides.length > 1 ? 'grab' : 'default',
+        lineHeight: 0,
+        fontSize: 0,
+        display: 'block',
+        margin: 0,
+        padding: 0,
+        border: 'none',
+        outline: 'none'
+      }}
+    >
         {slides.map((slideItem, index) => {
           return (
             <div
@@ -161,14 +158,13 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
               
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
-              <div className="hidden md:block w-full m-0 p-0 border-0 outline-0" 
-                   style={{ lineHeight: 0, fontSize: 0, display: 'block' }}>
+              <div className="hidden md:block w-full m-0 p-0">
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
                   <img
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
                     src={slideItem.desktopImage}
                     alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                    className="w-full h-auto object-cover m-0 p-0 block border-0 outline-0"
+                    className="w-full h-auto object-cover m-0 p-0 block"
                     style={{
                       transform: 'translateZ(0)',
                       willChange: 'auto',
@@ -177,10 +173,6 @@ const Hero = ({ slides, settings }: HeroProps) => {
                       display: 'block',
                       margin: 0,
                       padding: 0,
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      verticalAlign: 'top'
                     }}
                     loading={index === 0 ? 'eager' : 'lazy'}
                   />
@@ -192,14 +184,13 @@ const Hero = ({ slides, settings }: HeroProps) => {
               </div>
               
               {/* 手機版圖片容器 - 只在 md 以下顯示 */}
-              <div className="block md:hidden w-full m-0 p-0 border-0 outline-0" 
-                   style={{ lineHeight: 0, fontSize: 0, display: 'block' }}>
+              <div className="block md:hidden w-full m-0 p-0 border-0 outline-0" style={{ lineHeight: 0, fontSize: 0 }}>
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
                   <img
                     key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
                     src={slideItem.mobileImage}
                     alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                    className={`w-full ${shouldUseFixedHeight ? 'h-hero-mobile' : 'h-auto'} object-cover m-0 p-0 block border-0 outline-0`}
+                    className="w-full h-auto object-contain m-0 p-0 block border-0 outline-0"
                     style={{
                       transform: 'translateZ(0)',
                       willChange: 'auto',
@@ -211,12 +202,14 @@ const Hero = ({ slides, settings }: HeroProps) => {
                       border: 'none',
                       outline: 'none',
                       boxShadow: 'none',
-                      verticalAlign: 'top'
+                      verticalAlign: 'top',
+                      lineHeight: 0,
+                      fontSize: 0,
                     }}
                     loading={index === 0 ? 'eager' : 'lazy'}
                   />
                 ) : (
-                  <div className="w-full bg-gray-300 flex items-center justify-center h-32">
+                  <div className="w-full h-64 bg-gray-300 flex items-center justify-center">
                     <span className="text-gray-500 text-sm">手機版圖片未設定</span>
                   </div>
                 )}
@@ -224,9 +217,9 @@ const Hero = ({ slides, settings }: HeroProps) => {
             </div>
           )
         })}
-      </div>      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60"
-           style={{ pointerEvents: 'auto', fontSize: 'initial', lineHeight: 'initial' }}>
+
+      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
         <div 
           key={`slide-${currentSlide}`}
           className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"

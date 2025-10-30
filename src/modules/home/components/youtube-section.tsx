@@ -332,23 +332,26 @@ const YouTubeSection = memo(({
   }
 
   return (
-    <section className={`w-full ${fullWidth ? "" : "container mx-auto px-4"}`}>
-      <div className="max-w-none w-full">
+    <section className={`w-full ${fullWidth ? "" : "container mx-auto px-4"} m-0 p-0`}>
+      <div className="max-w-none w-full m-0 p-0">
         {heading && (
           <h2 className="h1 text-center mb-6">{heading}</h2>
         )}
         {/* YouTube Shorts 使用垂直全寬樣式，標準 YouTube 使用 16:9 */}
-        <div className={`group relative overflow-hidden ${
-          isShorts 
-            ? "pb-[177.78%] w-full md:max-w-sm md:mx-auto" // 9:16 比例，手機全寬，桌面居中
-            : "pb-[56.25%]" // 16:9 比例，標準 YouTube
-        }`}>
+        <div 
+          className={`group relative overflow-hidden m-0 p-0 border-0 outline-0 ${
+            isShorts 
+              ? "pb-[177.78%] w-full md:max-w-sm md:mx-auto" // 9:16 比例，手機全寬，桌面居中
+              : "pb-[56.25%]" // 16:9 比例，標準 YouTube
+          }`}
+          style={{ lineHeight: 0, fontSize: 0, display: 'block' }}
+        >
           {isUploadMode ? (
             // 上傳模式：使用 HTML5 video 元素
             <video
               ref={videoRef}
               key={`video-${videoId}-${isMobile}-${isShorts}`}
-              className="absolute top-0 left-0 w-full h-full border-0 object-cover"
+              className="absolute top-0 left-0 w-full h-full border-0 outline-0 object-cover block"
               src={videoSrc || undefined}
               autoPlay={isUploadMode ? uploadSettings?.autoplay : youtubeSettings?.autoplay}
               loop={isUploadMode ? uploadSettings?.loop : youtubeSettings?.loop}
@@ -356,6 +359,14 @@ const YouTubeSection = memo(({
               controls={isUploadMode ? uploadSettings?.showControls : youtubeSettings?.showControls}
               playsInline
               preload="metadata"
+              style={{
+                display: 'block',
+                margin: 0,
+                padding: 0,
+                border: 'none',
+                outline: 'none',
+                verticalAlign: 'top'
+              }}
               onPlay={() => {
                 console.log('🎬 Video started playing')
                 setIsPlaying(true)
@@ -373,11 +384,19 @@ const YouTubeSection = memo(({
             <iframe
               ref={iframeRef}
               key={`iframe-${videoId}-${isMobile}-${isShorts}`} // 當 videoId、isMobile 或 isShorts 改變時重新創建 iframe
-              className="absolute top-0 left-0 w-full h-full border-0"
+              className="absolute top-0 left-0 w-full h-full border-0 outline-0 block"
               src={videoSrc || undefined}
               title={heading || (isShorts ? "YouTube Shorts" : "YouTube video")}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen={false}
+              style={{
+                display: 'block',
+                margin: 0,
+                padding: 0,
+                border: 'none',
+                outline: 'none',
+                verticalAlign: 'top'
+              }}
             />
           )}
         </div>
