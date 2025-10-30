@@ -12,9 +12,62 @@ interface ReturnPageData {
   title: string
 }
 
+// 將 pageContent (Portable Text) 轉換為 HTML
+const convertPageContentToHtml = (pageContent: any[]): string => {
+  let html = ''
+  let currentList: string[] = []
+  // let currentListLevel = 0
+  
+  pageContent.forEach((item: any) => {
+    if (item._type === 'textBlock' && item.content) {
+      item.content.forEach((block: any) => {
+        if (block._type === 'block') {
+          const text = block.children?.map((child: any) => {
+            const childText = child.text || ''
+            if (child.marks?.includes('strong')) {
+              return `<strong>${childText}</strong>`
+            }
+            return childText
+          }).join('') || ''
+          
+          // 處理標題
+          if (block.style === 'h2') {
+            // 如果有未完成的列表，先結束它
+            if (currentList.length > 0) {
+              html += `<ol>\n${currentList.join('')}</ol>\n`
+              currentList = []
+            }
+            html += `<h2>${text}</h2>\n`
+          } 
+          // 處理列表項目
+          else if (block.style === 'normal' && block.listItem === 'number') {
+            currentList.push(`  <li>${text}</li>\n`)
+          }
+          // 處理普通段落
+          else if (block.style === 'normal') {
+            // 如果有未完成的列表，先結束它
+            if (currentList.length > 0) {
+              html += `<ol>\n${currentList.join('')}</ol>\n`
+              currentList = []
+            }
+            if (text.trim()) {
+              html += `<p>${text}</p>\n`
+            }
+          }
+        }
+      })
+    }
+  })
+  
+  // 處理最後可能未完成的列表
+  if (currentList.length > 0) {
+    html += `<ol>\n${currentList.join('')}</ol>\n`
+  }
+  
+  return html
+}
 
-
-const ShippingInfoTab = ({ product }: ShippingInfoTabProps) => {
+const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
   const [returnPageData, setReturnPageData] = useState<ReturnPageData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -23,81 +76,47 @@ const ShippingInfoTab = ({ product }: ShippingInfoTabProps) => {
       try {
         console.log('正在從 Sanity CMS 獲取退換貨規則內容...')
         
-        // 直接從 API 獲取純內容，不載入完整頁面
+        // 直接從動態頁面 API 獲取內容
         const response = await fetch('/api/pages/return')
         console.log('API 回應狀態:', response.status)
         
         if (response.ok) {
           const pageData = await response.json()
-          console.log('完整的頁面資料:', JSON.stringify(pageData, null, 2))
+          console.log('頁面資料:', pageData.title)
           
-          // 檢查數據結構並提取內容
-          let htmlContent = pageData.grapesHtml || pageData.html || pageData.content || ''
-          const cssContent = pageData.grapesCss || pageData.css || ''
-          const titleContent = pageData.title || '退換貨規則'
+          // 處理動態頁面內容
+          let htmlContent = pageData.grapesHtml || ''
           
-          // 如果沒有直接的 HTML 內容，但有 homeModules，處理結構化內容
-          if (!htmlContent && pageData.homeModules && pageData.homeModules.length > 0) {
-            console.log('🔄 處理 homeModules 結構化內容...')
-            
-            pageData.homeModules.forEach((module: any) => {
-              if (module.moduleType === 'contentSection' && module.settings?.content) {
-                module.settings.content.forEach((block: any) => {
-                  if (block._type === 'block' && block.children) {
-                    const text = block.children.map((child: any) => child.text || '').join('')
-                    
-                    if (block.style === 'h2') {
-                      htmlContent += `<h2>${text}</h2>\n`
-                    } else if (block.style === 'normal') {
-                      if (block.listItem === 'number') {
-                        htmlContent += `<li>${text}</li>\n`
-                      } else {
-                        htmlContent += `<p>${text}</p>\n`
-                      }
-                    }
-                  }
-                })
-              }
-            })
-            
-            // 將連續的 li 元素包裝在 ol 標籤中
-            htmlContent = htmlContent.replace(/(<li>.*?<\/li>\n)+/g, (match) => `<ol>\n${match}</ol>\n`)
+          // 如果沒有 grapesHtml 但有 pageContent，轉換 pageContent 為 HTML
+          if (!htmlContent && pageData.pageContent && pageData.pageContent.length > 0) {
+            console.log('🔄 轉換 pageContent 為 HTML...')
+            htmlContent = convertPageContentToHtml(pageData.pageContent)
           }
           
-          console.log('提取的內容:', {
-            html: htmlContent.substring(0, 200) + '...', // 只顯示前200個字符
-            htmlLength: htmlContent.length,
-            css: cssContent,
-            title: titleContent,
-            hasHomeModules: pageData.homeModules?.length > 0
-          })
-          
-          if (htmlContent) {
+          if (htmlContent || pageData.homeModules) {
             setReturnPageData({
               grapesHtml: htmlContent,
-              grapesCss: cssContent,
-              title: titleContent
+              grapesCss: pageData.grapesCss || '',
+              title: pageData.title || '退換貨規則'
             })
-            console.log('✅ 成功設置 returnPageData，HTML 長度:', htmlContent.length)
+            console.log('✅ 成功載入退換貨規則')
           } else {
-            console.warn('⚠️ 沒有找到有效的 HTML 內容')
-            // 使用預設內容
+            console.warn('⚠️ 動態頁面內容為空')
             setReturnPageData({
               grapesHtml: `
-                <div class="return-policy-default">
+                <div class="return-policy-fallback">
                   <h2>退換貨政策</h2>
-                  <p>抱歉，無法載入詳細的退換貨規則。請聯繫客服獲取完整資訊。</p>
+                  <p>請聯繫客服獲取詳細的退換貨規則資訊。</p>
                 </div>
               `,
-              grapesCss: '.return-policy-default { padding: 20px; }',
+              grapesCss: '.return-policy-fallback { padding: 20px; }',
               title: '退換貨規則'
             })
           }
         } else {
-          const errorData = await response.json().catch(() => null)
-          console.error('API 回應錯誤:', response.status, errorData)
+          console.error('API 回應錯誤:', response.status)
           
-          // 如果 API 失敗，提供預設的退換貨規則內容
+          // 提供預設的退換貨規則內容
           setReturnPageData({
             grapesHtml: `
               <div class="return-policy-content">

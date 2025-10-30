@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測試退換貨規則 API</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+        }
+        .loading { color: #666; }
+        .error { color: #e74c3c; }
+        .success { color: #27ae60; }
+        .api-response { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 3px; 
+            font-family: monospace; 
+            white-space: pre-wrap; 
+            max-height: 300px; 
+            overflow-y: auto; 
+        }
+        .converted-html { 
+            background: #fff; 
+            border: 1px solid #ccc; 
+            padding: 15px; 
+            border-radius: 3px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>測試退換貨規則 API 和轉換功能</h1>
+    
+    <div class="section">
+        <h2>API 測試狀態</h2>
+        <div id="apiStatus" class="loading">正在測試 API...</div>
+    </div>
+    
+    <div class="section">
+        <h2>API 原始回應</h2>
+        <div id="apiResponse" class="api-response">等待中...</div>
+    </div>
+    
+    <div class="section">
+        <h2>轉換後的 HTML 內容</h2>
+        <div id="convertedHtml" class="converted-html">等待中...</div>
+    </div>
+
+    <script>
+        // Portable Text 轉 HTML 函數
+        function convertPageContentToHtml(pageContent) {
+            let html = ''
+            let currentList = []
+            
+            pageContent.forEach((item) => {
+                if (item._type === 'textBlock' && item.content) {
+                    item.content.forEach((block) => {
+                        if (block._type === 'block') {
+                            const text = block.children?.map((child) => {
+                                const childText = child.text || ''
+                                if (child.marks?.includes('strong')) {
+                                    return `<strong>${childText}</strong>`
+                                }
+                                return childText
+                            }).join('') || ''
+                            
+                            // 處理標題
+                            if (block.style === 'h2') {
+                                // 如果有未完成的列表，先結束它
+                                if (currentList.length > 0) {
+                                    html += `<ol>\n${currentList.join('')}</ol>\n`
+                                    currentList = []
+                                }
+                                html += `<h2>${text}</h2>\n`
+                            } 
+                            // 處理列表項目
+                            else if (block.style === 'normal' && block.listItem === 'number') {
+                                currentList.push(`  <li>${text}</li>\n`)
+                            }
+                            // 處理普通段落
+                            else if (block.style === 'normal') {
+                                // 如果有未完成的列表，先結束它
+                                if (currentList.length > 0) {
+                                    html += `<ol>\n${currentList.join('')}</ol>\n`
+                                    currentList = []
+                                }
+                                if (text.trim()) {
+                                    html += `<p>${text}</p>\n`
+                                }
+                            }
+                        }
+                    })
+                }
+            })
+            
+            // 處理最後可能未完成的列表
+            if (currentList.length > 0) {
+                html += `<ol>\n${currentList.join('')}</ol>\n`
+            }
+            
+            return html
+        }
+
+        // 測試 API
+        async function testAPI() {
+            const statusEl = document.getElementById('apiStatus')
+            const responseEl = document.getElementById('apiResponse')
+            const convertedEl = document.getElementById('convertedHtml')
+            
+            try {
+                statusEl.textContent = '正在獲取資料...'
+                statusEl.className = 'loading'
+                
+                const response = await fetch('/api/pages/return')
+                console.log('API 回應狀態:', response.status)
+                
+                if (response.ok) {
+                    const data = await response.json()
+                    statusEl.textContent = '✅ API 測試成功！'
+                    statusEl.className = 'success'
+                    
+                    // 顯示原始 API 回應
+                    responseEl.textContent = JSON.stringify(data, null, 2)
+                    
+                    // 轉換並顯示 HTML
+                    if (data.pageContent && data.pageContent.length > 0) {
+                        const htmlContent = convertPageContentToHtml(data.pageContent)
+                        convertedEl.innerHTML = htmlContent
+                        console.log('轉換後的 HTML:', htmlContent)
+                    } else {
+                        convertedEl.innerHTML = '<p style="color: orange;">沒有 pageContent 資料可轉換</p>'
+                    }
+                } else {
+                    statusEl.textContent = `❌ API 錯誤: ${response.status}`
+                    statusEl.className = 'error'
+                    responseEl.textContent = await response.text()
+                }
+            } catch (error) {
+                statusEl.textContent = `❌ 測試失敗: ${error.message}`
+                statusEl.className = 'error'
+                responseEl.textContent = error.toString()
+                console.error('API 測試錯誤:', error)
+            }
+        }
+        
+        // 頁面載入時執行測試
+        window.addEventListener('load', testAPI)
+    </script>
+</body>
+</html>

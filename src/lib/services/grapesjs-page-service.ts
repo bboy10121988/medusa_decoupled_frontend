@@ -199,6 +199,7 @@ class GrapesJSPageService {
           grapesComponents,
           grapesStyles,
           homeModules,
+          pageContent,
           seoTitle,
           seoDescription,
           seoKeywords,
