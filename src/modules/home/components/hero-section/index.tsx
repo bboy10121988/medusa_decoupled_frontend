@@ -13,19 +13,21 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
   }
   
   return (
-    <Hero
-      slides={banner.slides.map((slide: BannerSlide) => ({
-        heading: slide.heading,
-        subheading: (slide as any).subheading,
-        desktopImage: slide.desktopImage,
-        desktopImageAlt: slide.desktopImageAlt || "",
-        mobileImage: slide.mobileImage,
-        mobileImageAlt: slide.mobileImageAlt || "",
-        buttonText: slide.buttonText || "",
-        buttonLink: slide.buttonLink || ""
-      }))}
-      settings={banner.settings}
-    />
+    <section className="hero-section">
+      <Hero
+        slides={banner.slides.map((slide: BannerSlide) => ({
+          heading: slide.heading,
+          subheading: (slide as any).subheading,
+          desktopImage: slide.desktopImage,
+          desktopImageAlt: slide.desktopImageAlt || "",
+          mobileImage: slide.mobileImage,
+          mobileImageAlt: slide.mobileImageAlt || "",
+          buttonText: slide.buttonText || "",
+          buttonLink: slide.buttonLink || ""
+        }))}
+        settings={banner.settings}
+      />
+    </section>
   )
 }
 
