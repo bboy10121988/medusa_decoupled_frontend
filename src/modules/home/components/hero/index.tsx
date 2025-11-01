@@ -161,8 +161,8 @@ const Hero = ({ slides, settings }: HeroProps) => {
             >
               {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
               
-              {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
-              <div className="hidden md:block w-full" style={{ margin: '-2px 0', overflow: 'hidden' }}>
+              {/* 桌面版圖片容器 - 只在 768px 以上顯示 */}
+              <div className="hidden lg:block w-full" style={{ margin: '-2px 0', overflow: 'hidden' }}>
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
                   <img
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
@@ -192,9 +192,9 @@ const Hero = ({ slides, settings }: HeroProps) => {
                 )}
               </div>
               
-              {/* 手機版圖片容器 - 只在 md 以下顯示 */}
+              {/* 手機版圖片容器 - 只在 1024px 以下顯示 */}
               <div 
-                className="block md:hidden w-full" 
+                className="block lg:hidden w-full" 
                 style={{
                   margin: '-2px 0',
                   padding: 0,
@@ -251,14 +251,14 @@ const Hero = ({ slides, settings }: HeroProps) => {
         })}
 
       {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 - 減少 padding 避免白線 */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center px-4 py-2 pb-8 md:pb-12 sm:px-8 md:px-12 lg:px-16 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
+      <div className="absolute inset-0 z-10 flex flex-col justify-center lg:justify-end items-center text-center px-4 py-2 pb-8 lg:pb-12 sm:px-8 lg:px-12 xl:px-16 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
         <div 
           key={`slide-${currentSlide}`}
           className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"
         >
           <Heading
             level="h1"
-            className="text-heading-1 text-white font-heading text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold tracking-tight mb-2 sm:mb-6"
+            className="text-heading-1 text-white font-heading text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-semibold tracking-tight mb-2 sm:mb-6"
             style={{
               textShadow: "0 2px 4px rgba(0,0,0,0.3)",
               letterSpacing: "var(--letter-spacing-tight)"
@@ -268,7 +268,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
           </Heading>
           {slide.subheading && (
             <p
-              className="text-white/95 text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-6 max-w-3xl mx-auto"
+              className="text-white/95 text-sm sm:text-base lg:text-lg xl:text-xl mb-3 sm:mb-6 max-w-3xl mx-auto"
               style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
             >
               {slide.subheading}
@@ -276,7 +276,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
           )}
           {slide.buttonText && slide.buttonLink && (
             <Button asChild variant="secondary" 
-              className="btn bg-white hover:bg-white/90 text-gray-900 px-4 sm:px-8 py-2 sm:py-3 text-sm sm:text-base md:text-lg font-medium rounded-lg 
+              className="btn bg-white hover:bg-white/90 text-gray-900 px-4 sm:px-8 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-medium rounded-lg 
                 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
               style={{
                 letterSpacing: "var(--letter-spacing-wide)",

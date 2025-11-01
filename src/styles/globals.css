@@ -260,6 +260,25 @@ body {
   object-fit: cover;
 }
 
+/* 確保響應式顯示正確工作 - 避免768px斷點衝突 */
+@media (max-width: 1023px) {
+  .hero-section .hidden.lg\:block {
+    display: none !important;
+  }
+  .hero-section .block.lg\:hidden {
+    display: block !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section .hidden.lg\:block {
+    display: block !important;
+  }
+  .hero-section .block.lg\:hidden {
+    display: none !important;
+  }
+}
+
 /* 標題元素 (h1-h6) 基本設定 */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
