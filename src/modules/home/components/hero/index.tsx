@@ -193,7 +193,26 @@ const Hero = ({ slides, settings }: HeroProps) => {
               </div>
               
               {/* 手機版圖片容器 - 只在 md 以下顯示 */}
-              <div className="block md:hidden w-full">
+              <div 
+                className="block md:hidden w-full" 
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  border: 'none',
+                  outline: 'none',
+                  lineHeight: 0,
+                  fontSize: 0,
+                  display: 'block',
+                  // 手機版容器強化
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  WebkitTransform: 'translateZ(0)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  width: '100%'
+                }}
+              >
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
                   <img
                     key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
@@ -209,11 +228,19 @@ const Hero = ({ slides, settings }: HeroProps) => {
                       display: 'block',
                       lineHeight: 0,
                       fontSize: 0,
-                      verticalAlign: 'top',
-                      // Chrome 特殊處理
+                      // 手機版特殊處理 - 強化版
                       transform: 'translateZ(0)',
                       backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden'
+                      WebkitBackfaceVisibility: 'hidden',
+                      WebkitTransform: 'translateZ(0)',
+                      WebkitFontSmoothing: 'antialiased',
+                      position: 'relative',
+                      width: '100%',
+                      height: 'auto',
+                      objectFit: 'cover',
+                      // 強制消除手機版白線
+                      bottom: '-1px',
+                      top: '-1px'
                     }}
                   />
                 ) : (

@@ -175,8 +175,8 @@
 
 /* ========== 2. 基礎文字渲染優化 + 白線消除 ========== */
 
-/* 強制重置所有可能導致白線的元素 - Chrome 特殊處理 */
-html, body, main, div, section, article, header, footer, nav {
+/* 強制重置基本元素 - 但保留 nav 和 footer 的正常樣式 */
+html, body, main {
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
@@ -343,8 +343,61 @@ section.hero-section,
   contain: layout style paint;
 }
 
-/* 手機版特別強化 - 消除所有可能的白線來源 */
+/* 手機版特別強化 - 消除所有可能的白線來源 + 移動設備特殊處理 */
 @media (max-width: 768px) {
+  /* 手機版重置基本容器 - 但保留 nav 和 footer 正常樣式 */
+  html, body, main {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    /* 手機版特殊處理 */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 只針對 hero section 相關的元素進行強制覆蓋 */
+  .hero-section .block,
+  .hero-section .md\\:hidden,
+  .hero-section .w-full,
+  .hero-section .h-auto,
+  .hero-section .object-cover,
+  .hero-section-inner .block,
+  .hero-section-inner .md\\:hidden,
+  .hero-section-inner .w-full,
+  .hero-section-inner .h-auto,
+  .hero-section-inner .object-cover {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+  }
+
+  /* 只針對 hero section 內的圖片進行強制樣式處理 */
+  .hero-section img,
+  .hero-section-inner img,
+  .hero-container img,
+  .banner-container img {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    display: block !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    position: relative !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+  }
+
   .hero-container,
   .banner-container,
   .hero-section,
@@ -358,6 +411,15 @@ section.hero-section,
     line-height: 0 !important;
     font-size: 0 !important;
     display: block !important;
+    /* 手機版強化處理 */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    position: relative;
+    overflow: hidden;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   
   .hero-container img,
@@ -375,8 +437,16 @@ section.hero-section,
     /* 強制消除任何可能的間距 */
     float: none !important;
     position: relative;
-    /* 防止圖片下方出現空隙 */
+    /* 防止圖片下方出現空隙 - 手機版加強 */
     bottom: -1px;
+    /* 手機版圖片特殊處理 */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
   }
   
   /* 強制移除任何可能導致白線的 div 間距 */
@@ -392,6 +462,12 @@ section.hero-section,
     line-height: 0 !important;
     font-size: 0 !important;
     display: block !important;
+    /* 手機版容器強化 */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    position: relative;
+    width: 100% !important;
+    overflow: hidden;
   }
 }
 
