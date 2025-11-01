@@ -128,7 +128,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
 
   return (
     <div 
-      className="hero-banner-wrapper relative w-full m-0 p-0"
+      className="relative w-full"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -136,44 +136,27 @@ const Hero = ({ slides, settings }: HeroProps) => {
         touchAction: 'pan-y',
         userSelect: 'none',
         WebkitUserSelect: 'none',
-        cursor: slides.length > 1 ? 'grab' : 'default',
-        lineHeight: 0,
-        fontSize: 0,
-        display: 'block',
-        margin: 0,
-        padding: 0,
-        border: 'none',
-        outline: 'none'
+        cursor: slides.length > 1 ? 'grab' : 'default'
       }}
     >
         {slides.map((slideItem, index) => {
           return (
             <div
               key={index}
-              className={`transition-opacity duration-1000 ease-in-out m-0 p-0 border-0 outline-0 ${
+              className={`transition-opacity duration-1000 ease-in-out ${
                 index === currentSlide ? 'opacity-100' : 'opacity-0'
               } ${index !== currentSlide ? 'absolute inset-0' : ''}`}
-              style={{ lineHeight: 0, fontSize: 0, display: 'block' }}
             >
               {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
               
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
-              <div className="hidden md:block w-full m-0 p-0">
+              <div className="hidden md:block w-full">
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
                   <img
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
                     src={slideItem.desktopImage}
                     alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                    className="w-full h-auto object-cover m-0 p-0 block"
-                    style={{
-                      transform: 'translateZ(0)',
-                      willChange: 'auto',
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden',
-                      display: 'block',
-                      margin: 0,
-                      padding: 0,
-                    }}
+                    className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
                   />
                 ) : (
@@ -184,28 +167,13 @@ const Hero = ({ slides, settings }: HeroProps) => {
               </div>
               
               {/* 手機版圖片容器 - 只在 md 以下顯示 */}
-              <div className="block md:hidden w-full m-0 p-0 border-0 outline-0" style={{ lineHeight: 0, fontSize: 0 }}>
+              <div className="block md:hidden w-full">
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
                   <img
                     key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
                     src={slideItem.mobileImage}
                     alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                    className="w-full h-auto object-contain m-0 p-0 block border-0 outline-0"
-                    style={{
-                      transform: 'translateZ(0)',
-                      willChange: 'auto',
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden',
-                      display: 'block',
-                      margin: 0,
-                      padding: 0,
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      verticalAlign: 'top',
-                      lineHeight: 0,
-                      fontSize: 0,
-                    }}
+                    className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
                   />
                 ) : (
