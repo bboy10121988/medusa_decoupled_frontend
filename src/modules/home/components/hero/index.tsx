@@ -162,7 +162,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
               
               {/* 桌面版圖片容器 - 只在 md 以上顯示 */}
-              <div className="hidden md:block w-full">
+              <div className="hidden md:block w-full" style={{ margin: '-2px 0', overflow: 'hidden' }}>
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
                   <img
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
@@ -171,7 +171,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
                     style={{
-                      margin: 0,
+                      margin: '-2px 0',
                       padding: 0,
                       border: 'none',
                       outline: 'none',
@@ -196,7 +196,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
               <div 
                 className="block md:hidden w-full" 
                 style={{
-                  margin: 0,
+                  margin: '-2px 0',
                   padding: 0,
                   border: 'none',
                   outline: 'none',
@@ -221,7 +221,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
                     style={{
-                      margin: 0,
+                      margin: '-2px 0',
                       padding: 0,
                       border: 'none',
                       outline: 'none',
@@ -237,10 +237,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                       position: 'relative',
                       width: '100%',
                       height: 'auto',
-                      objectFit: 'cover',
-                      // 強制消除手機版白線
-                      bottom: '-1px',
-                      top: '-1px'
+                      objectFit: 'cover'
                     }}
                   />
                 ) : (

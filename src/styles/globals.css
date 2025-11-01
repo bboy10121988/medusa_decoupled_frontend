@@ -238,237 +238,26 @@ body {
 
 /* ========== 3. 主要元素設定 ========== */
 
-/* Hero/Banner 組件修復 - 消除白線問題 + 防止縮放效果 - 加強版 */
-.hero-container, .banner-container {
-  position: relative;
+/* Hero Section - 簡化的白線修復 */
+.hero-section {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
   overflow: hidden;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  line-height: 0;
-  font-size: 0;
-  display: block;
-}
-
-/* 強制移除所有可能的白線來源 */
-.hero-container *,
-.banner-container *,
-.hero-section *,
-.hero-section-inner *,
-.hero-image-container * {
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* 特別針對圖片元素 */
-.hero-container img,
-.banner-container img,
-.hero-section img,
-.hero-image-container img {
-  display: block !important;
-  line-height: 0 !important;
-}
-
-.hero-container img, .banner-container img {
-  display: block;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  /* 防止圖片在滾動時縮放 */
-  transform: translateZ(0) scale(1) !important;
-  will-change: auto !important;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: opacity 1s ease-in-out !important;
-  /* 確保圖片不會有任何縮放效果 */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-/* 修復可能的容器白線問題 + 防止縮放 */
-.hero-image-container,
-.banner-image-container {
-  line-height: 0; /* 消除內聯元素間距 */
-  font-size: 0; /* 消除文字節點間距 */
-  overflow: hidden;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  /* 防止容器內部的元素縮放 */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  /* 固定容器，防止滾動時抖動 */
-  position: relative;
-  will-change: auto;
-}
-
-/* 確保 section 元素也沒有白線 - 針對 Chrome 加強版 */
-section.hero-section,
-.hero-section,
-.hero-section-inner {
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  overflow: hidden;
-  width: 100% !important;
-  max-width: 100% !important;
-  line-height: 0;
-  font-size: 0;
-  /* 防止子元素產生間距 */
+  width: 100%;
   display: block;
   position: relative;
-  /* Chrome 特殊處理 */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
-  /* 強制 Chrome 重新計算佈局 */
-  contain: layout style paint;
 }
 
-/* 手機版特別強化 - 消除所有可能的白線來源 + 移動設備特殊處理 */
-@media (max-width: 768px) {
-  /* 手機版重置基本容器 - 但保留 nav 和 footer 正常樣式 */
-  html, body, main {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    outline: none !important;
-    /* 手機版特殊處理 */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* 只針對 hero section 相關的元素進行強制覆蓋 */
-  .hero-section .block,
-  .hero-section .md\\:hidden,
-  .hero-section .w-full,
-  .hero-section .h-auto,
-  .hero-section .object-cover,
-  .hero-section-inner .block,
-  .hero-section-inner .md\\:hidden,
-  .hero-section-inner .w-full,
-  .hero-section-inner .h-auto,
-  .hero-section-inner .object-cover {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    outline: none !important;
-    line-height: 0 !important;
-    font-size: 0 !important;
-  }
-
-  /* 只針對 hero section 內的圖片進行強制樣式處理 */
-  .hero-section img,
-  .hero-section-inner img,
-  .hero-container img,
-  .banner-container img {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    outline: none !important;
-    display: block !important;
-    line-height: 0 !important;
-    font-size: 0 !important;
-    position: relative !important;
-    -webkit-transform: translateZ(0) !important;
-    transform: translateZ(0) !important;
-    -webkit-backface-visibility: hidden !important;
-    backface-visibility: hidden !important;
-  }
-
-  .hero-container,
-  .banner-container,
-  .hero-section,
-  .hero-section-inner,
-  .hero-image-container {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    line-height: 0 !important;
-    font-size: 0 !important;
-    display: block !important;
-    /* 手機版強化處理 */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    position: relative;
-    overflow: hidden;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-  
-  .hero-container img,
-  .banner-container img,
-  .hero-section img,
-  .hero-image-container img {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    display: block !important;
-    line-height: 0 !important;
-    font-size: 0 !important;
-    /* 強制消除任何可能的間距 */
-    float: none !important;
-    position: relative;
-    /* 防止圖片下方出現空隙 - 手機版加強 */
-    bottom: -1px;
-    /* 手機版圖片特殊處理 */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    width: 100% !important;
-    height: auto !important;
-    object-fit: cover !important;
-  }
-  
-  /* 強制移除任何可能導致白線的 div 間距 */
-  .hero-container > div,
-  .banner-container > div,
-  .hero-section > div,
-  .hero-section-inner > div,
-  .hero-image-container > div {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    outline: none !important;
-    line-height: 0 !important;
-    font-size: 0 !important;
-    display: block !important;
-    /* 手機版容器強化 */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    position: relative;
-    width: 100% !important;
-    overflow: hidden;
-  }
+.hero-section img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  object-fit: cover;
 }
 
 /* 標題元素 (h1-h6) 基本設定 */
