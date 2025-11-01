@@ -144,11 +144,11 @@ const Hero = ({ slides, settings }: HeroProps) => {
         lineHeight: 0,
         fontSize: 0,
         display: 'block',
-        // Chrome 特殊處理
-        transform: 'translateZ(0)',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        WebkitTransform: 'translateZ(0)'
+        // 移除可能導致層疊上下文問題的變換
+        // transform: 'translateZ(0)',
+        // backfaceVisibility: 'hidden',
+        // WebkitBackfaceVisibility: 'hidden',
+        // WebkitTransform: 'translateZ(0)'
       }}
     >
         {slides.map((slideItem, index) => {
@@ -162,7 +162,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 響應式圖片顯示邏輯 - 強制分離桌面和手機版 */}
               
               {/* 桌面版圖片容器 - 只在 768px 以上顯示 */}
-              <div className="hidden lg:block w-full" style={{ margin: '-2px 0', overflow: 'hidden' }}>
+              <div className="hidden lg:block w-full" style={{ overflow: 'hidden' }}>
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
                   <img
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
@@ -171,18 +171,14 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
                     style={{
-                      margin: '-2px 0',
+                      margin: 0,
                       padding: 0,
                       border: 'none',
                       outline: 'none',
                       display: 'block',
                       lineHeight: 0,
                       fontSize: 0,
-                      verticalAlign: 'top',
-                      // Chrome 特殊處理
-                      transform: 'translateZ(0)',
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden'
+                      verticalAlign: 'top'
                     }}
                   />
                 ) : (
@@ -196,18 +192,13 @@ const Hero = ({ slides, settings }: HeroProps) => {
               <div 
                 className="block lg:hidden w-full" 
                 style={{
-                  margin: '-2px 0',
+                  margin: 0,
                   padding: 0,
                   border: 'none',
                   outline: 'none',
                   lineHeight: 0,
                   fontSize: 0,
                   display: 'block',
-                  // 手機版容器強化
-                  transform: 'translateZ(0)',
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
-                  WebkitTransform: 'translateZ(0)',
                   position: 'relative',
                   overflow: 'hidden',
                   width: '100%'
@@ -221,18 +212,13 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
                     style={{
-                      margin: '-2px 0',
+                      margin: 0,
                       padding: 0,
                       border: 'none',
                       outline: 'none',
                       display: 'block',
                       lineHeight: 0,
                       fontSize: 0,
-                      // 手機版特殊處理 - 強化版
-                      transform: 'translateZ(0)',
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden',
-                      WebkitTransform: 'translateZ(0)',
                       WebkitFontSmoothing: 'antialiased',
                       position: 'relative',
                       width: '100%',
