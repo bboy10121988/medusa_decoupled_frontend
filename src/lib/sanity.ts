@@ -17,7 +17,7 @@ const client = createClient({
   // 設定重試機制
   maxRetries: 3,
   retryDelay: (attemptNumber) => Math.min(300 * attemptNumber, 2000),
-  // 移除無效的 token，只讀取公開數據
+  token: process.env.SANITY_API_TOKEN,
 })
 
 // Helper to handle AbortError / user-abort gracefully for sanity fetches
