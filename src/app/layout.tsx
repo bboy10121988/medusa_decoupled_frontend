@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" data-mode="light" suppressHydrationWarning>
       <body className="theme-lv">
-        <main className="relative">{children}</main>
+        <div className="relative" style={{ margin: 0, padding: 0, border: 'none', outline: 'none' }}>{children}</div>
       </body>
     </html>
   )
