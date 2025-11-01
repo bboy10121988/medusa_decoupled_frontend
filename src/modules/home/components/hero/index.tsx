@@ -128,7 +128,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
 
   return (
     <div 
-      className="relative w-full"
+      className="relative w-full hero-section-inner"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -136,7 +136,19 @@ const Hero = ({ slides, settings }: HeroProps) => {
         touchAction: 'pan-y',
         userSelect: 'none',
         WebkitUserSelect: 'none',
-        cursor: slides.length > 1 ? 'grab' : 'default'
+        cursor: slides.length > 1 ? 'grab' : 'default',
+        margin: 0,
+        padding: 0,
+        border: 'none',
+        outline: 'none',
+        lineHeight: 0,
+        fontSize: 0,
+        display: 'block',
+        // Chrome 特殊處理
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        WebkitTransform: 'translateZ(0)'
       }}
     >
         {slides.map((slideItem, index) => {
@@ -158,6 +170,20 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
                     className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      border: 'none',
+                      outline: 'none',
+                      display: 'block',
+                      lineHeight: 0,
+                      fontSize: 0,
+                      verticalAlign: 'top',
+                      // Chrome 特殊處理
+                      transform: 'translateZ(0)',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden'
+                    }}
                   />
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-64">
@@ -175,6 +201,20 @@ const Hero = ({ slides, settings }: HeroProps) => {
                     alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
                     className="w-full h-auto object-cover block"
                     loading={index === 0 ? 'eager' : 'lazy'}
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      border: 'none',
+                      outline: 'none',
+                      display: 'block',
+                      lineHeight: 0,
+                      fontSize: 0,
+                      verticalAlign: 'top',
+                      // Chrome 特殊處理
+                      transform: 'translateZ(0)',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden'
+                    }}
                   />
                 ) : (
                   <div className="w-full h-64 bg-gray-300 flex items-center justify-center">

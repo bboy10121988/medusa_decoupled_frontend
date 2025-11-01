@@ -296,7 +296,7 @@ body {
   will-change: auto;
 }
 
-/* 確保 section 元素也沒有白線 - 加強版 */
+/* 確保 section 元素也沒有白線 - 針對 Chrome 加強版 */
 section.hero-section,
 .hero-section,
 .hero-section-inner {
@@ -313,6 +313,14 @@ section.hero-section,
   /* 防止子元素產生間距 */
   display: block;
   position: relative;
+  /* Chrome 特殊處理 */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  /* 強制 Chrome 重新計算佈局 */
+  contain: layout style paint;
 }
 
 /* 手機版特別強化 - 消除所有可能的白線來源 */
