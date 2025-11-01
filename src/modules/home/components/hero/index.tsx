@@ -253,11 +253,22 @@ const Hero = ({ slides, settings }: HeroProps) => {
           )
         })}
 
-      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center p-4 pb-16 md:pb-16 sm:p-16 md:p-16 lg:p-32 gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60">
+      {/* 內容覆蓋層 - 手機版滿屏垂直居中，桌面版底部對齊 - 移除 padding 避免白線 */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-center md:justify-end items-center text-center gap-3 sm:gap-6 bg-gradient-to-b from-black/10 via-black/30 to-black/60"
+           style={{ 
+             margin: 0, 
+             padding: 0, 
+             border: 'none',
+             outline: 'none'
+           }}>
         <div 
           key={`slide-${currentSlide}`}
-          className="animate-fade-in-content max-w-[90%] sm:max-w-4xl"
+          className="animate-fade-in-content max-w-[90%] sm:max-w-4xl px-4 py-8 sm:px-8 md:px-16 lg:px-32 md:pb-16"
+          style={{
+            margin: 0,
+            border: 'none',
+            outline: 'none'
+          }}
         >
           <Heading
             level="h1"
