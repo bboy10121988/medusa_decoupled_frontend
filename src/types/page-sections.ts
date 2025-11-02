@@ -80,7 +80,59 @@ export type GoogleMapsSection = {
   mapHeight?: number
 }
 
+// 基本內容區塊類型
+export type TextBlock = {
+  _type: "textBlock"
+  title?: string
+  content: any[]
+  alignment?: "left" | "center" | "right"
+}
+
+export type ImageBlock = {
+  _type: "imageBlock"
+  title?: string
+  image: {
+    url?: string
+    alt?: string
+  }
+  alt?: string
+  caption?: string
+  layout?: "full" | "center" | "float-left" | "float-right"
+}
+
+export type VideoBlock = {
+  _type: "videoBlock"
+  title?: string
+  videoUrl?: string
+  thumbnail?: {
+    url?: string
+  }
+  description?: string
+}
+
+export type CTABlock = {
+  _type: "ctaBlock"
+  title?: string
+  buttonText?: string
+  buttonUrl?: string
+  buttonStyle?: "primary" | "secondary" | "outline"
+  alignment?: "left" | "center" | "right"
+}
+
 import type { ContactSection, ContentSection } from './sections'
 import type { ServiceCards } from './service-cards'
 
-export type MainSection = MainBanner | ImageTextBlock | FeaturedProductsSection | BlogSection | YoutubeSection | ContentSection | ContactSection | ServiceCards | GoogleMapsSection
+export type MainSection = 
+  | MainBanner 
+  | ImageTextBlock 
+  | FeaturedProductsSection 
+  | BlogSection 
+  | YoutubeSection 
+  | ContentSection 
+  | ContactSection 
+  | ServiceCards 
+  | GoogleMapsSection
+  | TextBlock
+  | ImageBlock
+  | VideoBlock
+  | CTABlock

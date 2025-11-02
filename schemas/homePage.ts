@@ -33,13 +33,6 @@ export default {
       group: 'basic'
     },
     {
-      name: 'focusKeyword',
-      title: '目標關鍵字',
-      type: 'string',
-      description: '此頁面主要優化的關鍵字（建議 1-3 個詞）',
-      group: 'basic'
-    },
-    {
       name: 'seoKeywords',
       title: '相關關鍵字',
       type: 'array',
@@ -110,68 +103,6 @@ export default {
       },
       initialValue: 'summary_large_image',
       group: 'social'
-    },
-    {
-      name: 'priority',
-      title: '頁面優先級',
-      type: 'number',
-      initialValue: 0.8,
-      group: 'advanced'
-    },
-    {
-      name: 'changeFrequency',
-      title: '更新頻率',
-      type: 'string',
-      options: {
-        list: [
-          { title: '每日 (Daily)', value: 'daily' },
-          { title: '每週 (Weekly)', value: 'weekly' },
-          { title: '每月 (Monthly)', value: 'monthly' },
-          { title: '每年 (Yearly)', value: 'yearly' },
-          { title: '從不 (Never)', value: 'never' }
-        ]
-      },
-      initialValue: 'weekly',
-      group: 'advanced'
-    },
-    {
-      name: 'structuredDataType',
-      title: '結構化資料類型',
-      type: 'string',
-      options: {
-        list: [
-          { title: '無', value: 'none' },
-          { title: '文章 (Article)', value: 'article' },
-          { title: '產品 (Product)', value: 'product' },
-          { title: '商店 (LocalBusiness)', value: 'local_business' },
-          { title: '常見問題 (FAQ)', value: 'faq' },
-          { title: '麵包屑 (BreadcrumbList)', value: 'breadcrumb' },
-          { title: '評論 (Review)', value: 'review' }
-        ]
-      },
-      initialValue: 'none',
-      group: 'structured'
-    },
-    {
-      name: 'articleType',
-      title: '文章類型',
-      type: 'string',
-      options: {
-        list: [
-          { title: '新聞文章 (NewsArticle)', value: 'news' },
-          { title: '部落格文章 (BlogPosting)', value: 'blog' },
-          { title: '技術文章 (TechArticle)', value: 'tech' }
-        ]
-      },
-  hidden: ({ parent }: any) => parent?.structuredDataType !== 'article',
-      group: 'structured'
-    },
-    {
-      name: 'customJsonLd',
-      title: '自訂 JSON-LD',
-      type: 'text',
-      rows: 8,
-      group: 'structured'
     },
     {
       name: 'mainSections',

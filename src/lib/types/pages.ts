@@ -20,11 +20,22 @@ export type SeoData = {
 }
 
 export type PageData = {
+  _type: string
   title: string
   slug: string
-  isActive: boolean
+  pageStatus: 'draft' | 'published'
+  seoDescription?: string
+  additionalKeywords?: string[]
+  noIndex?: boolean
+  canonicalUrl?: string
+  ogTitle?: string
+  ogDescription?: string
+  ogImage?: {
+    asset: { url: string }
+    alt: string
+  }
+  twitterCard?: string
   mainSections: MainSection[]
-  seo?: SeoData
 }
 
 export type HomePageData = {

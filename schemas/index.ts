@@ -4,7 +4,6 @@ import author from './author'
 import category from './category'
 import header from './header'
 import homePage from './homePage'
-import pages from './pages'
 import footer from './footer'
 import dynamicPage from './dynamicPage'
 import blogPage from './blogPage'
@@ -26,7 +25,6 @@ export const schemaTypes = [
   // Documents
   // medusaProductContent,
   homePage,
-  pages,
   dynamicPage,
   blogPage,
   post,

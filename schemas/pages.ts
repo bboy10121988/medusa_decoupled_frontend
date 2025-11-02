@@ -5,6 +5,21 @@ export default defineType({
   title: '動態頁面',
   type: 'document',
   icon: () => '📄',
+  groups: [
+    {
+      name: 'content',
+      title: '內容',
+      default: true
+    },
+    {
+      name: 'seo',
+      title: 'SEO'
+    },
+    {
+      name: 'social',
+      title: '社群分享'
+    }
+  ],
   fields: [
     defineField({
       name: 'title',
@@ -26,11 +41,19 @@ export default defineType({
       group: 'content'
     }),
     defineField({
-      name: 'isActive',
-      title: '啟用頁面',
-      type: 'boolean',
-      initialValue: false,
-      description: '勾選後此頁面才會顯示在網站上',
+      name: 'pageStatus',
+      title: '頁面狀態',
+      type: 'string',
+      options: {
+        list: [
+          { title: '草稿', value: 'draft' },
+          { title: '已發布', value: 'published' }
+        ],
+        layout: 'radio'
+      },
+      initialValue: 'draft',
+      description: '草稿不會顯示在網站上,只有已發布的頁面才會對外顯示',
+      validation: (Rule) => Rule.required(),
       group: 'content'
     }),
     defineField({
@@ -42,18 +65,11 @@ export default defineType({
       group: 'seo'
     }),
     defineField({
-      name: 'focusKeyword',
-      title: '主要關鍵字',
-      type: 'string',
-      description: '此頁面要優化的主要關鍵字',
-      group: 'seo'
-    }),
-    defineField({
       name: 'additionalKeywords',
-      title: '相關關鍵字',
+      title: 'SEO 關鍵字',
       type: 'array',
       of: [{ type: 'string' }],
-      description: '與此頁面相關的其他關鍵字',
+      description: '與此頁面相關的關鍵字,用於 meta keywords',
       group: 'seo'
     }),
     defineField({
@@ -114,51 +130,6 @@ export default defineType({
       group: 'social'
     }),
     defineField({
-      name: 'priority',
-      title: '頁面優先級',
-      type: 'number',
-      initialValue: 0.8,
-      group: 'advanced'
-    }),
-    defineField({
-      name: 'changeFrequency',
-      title: '更新頻率',
-      type: 'string',
-      options: {
-        list: [
-          { title: '每日 (Daily)', value: 'daily' },
-          { title: '每週 (Weekly)', value: 'weekly' },
-          { title: '每月 (Monthly)', value: 'monthly' },
-          { title: '每年 (Yearly)', value: 'yearly' },
-          { title: '從不 (Never)', value: 'never' }
-        ]
-      },
-      initialValue: 'weekly',
-      group: 'advanced'
-    }),
-    defineField({
-      name: 'structuredDataType',
-      title: '結構化資料類型',
-      type: 'string',
-      options: {
-        list: [
-          { title: '無', value: 'none' },
-          { title: '網頁 (WebPage)', value: 'webpage' },
-          { title: '常見問題 (FAQ)', value: 'faq' },
-          { title: '麵包屑 (BreadcrumbList)', value: 'breadcrumb' }
-        ]
-      },
-      initialValue: 'webpage',
-      group: 'structured'
-    }),
-    defineField({
-      name: 'customJsonLd',
-      title: '自訂 JSON-LD',
-      type: 'text',
-      rows: 8,
-      group: 'structured'
-    }),
-    defineField({
       name: 'mainSections',
       title: '頁面區塊',
       type: 'array',
@@ -175,40 +146,19 @@ export default defineType({
       group: 'content'
     }),
   ],
-  groups: [
-    {
-      name: 'content',
-      title: '內容',
-      default: true
-    },
-    {
-      name: 'seo',
-      title: 'SEO'
-    },
-    {
-      name: 'social',
-      title: '社群分享'
-    },
-    {
-      name: 'advanced',
-      title: '進階設定'
-    },
-    {
-      name: 'structured',
-      title: '結構化資料'
-    }
-  ],
   preview: {
     select: {
       title: 'title',
       slug: 'slug.current',
-      isActive: 'isActive',
+      pageStatus: 'pageStatus',
     },
-    prepare(selection: {title: string, slug: string, isActive: boolean}) {
-      const { title, slug, isActive } = selection
+    prepare(selection: {title: string, slug: string, pageStatus: string}) {
+      const { title, slug, pageStatus } = selection
+      const statusIcon = pageStatus === 'published' ? '✅' : '📝'
+      const statusText = pageStatus === 'published' ? '已發布' : '草稿'
       return {
         title: title || '未命名頁面',
-        subtitle: `/${slug || 'no-slug'} ${isActive ? '✅' : '❌'}`,
+        subtitle: `/${slug || 'no-slug'} • ${statusIcon} ${statusText}`,
       }
     },
   },

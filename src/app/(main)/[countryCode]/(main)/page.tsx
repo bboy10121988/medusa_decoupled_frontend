@@ -19,6 +19,73 @@ import type { ServiceCards } from '@lib/types/service-cards'
 import type { ContentSection as ContentSectionType } from '@lib/types/sections'
 import { getStoreName } from "@lib/store-name"
 
+// 生成 JSON-LD 結構化資料 (從 googleMapsSection 動態讀取)
+function generateJsonLd(homepageData: any) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://timsfantasyworld.com"
+  
+  // 從 mainSections 中尋找 googleMapsSection
+  const googleMapsSection = homepageData?.mainSections?.find(
+    (section: any) => section._type === 'googleMapsSection'
+  )
+  
+  // 如果沒有 googleMapsSection 或資料不完整,使用預設值
+  const businessName = googleMapsSection?.businessName || "Tim's fantasy World 男士理髮廳"
+  const telephone = googleMapsSection?.telephone || "+886-2-2755-8828"
+  const streetAddress = googleMapsSection?.streetAddress || "信義路四段265巷12弄14號"
+  const addressLocality = googleMapsSection?.addressLocality || "台北市"
+  const addressRegion = googleMapsSection?.addressRegion || "大安區"
+  const postalCode = googleMapsSection?.postalCode || "106"
+  const latitude = googleMapsSection?.latitude || 25.030775
+  const longitude = googleMapsSection?.longitude || 121.527158
+  const priceRange = googleMapsSection?.priceRange || "$$"
+  
+  // 處理營業時間
+  const openingHours = googleMapsSection?.openingHours?.map((schedule: any) => ({
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": schedule.days || ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "opens": schedule.opens || "11:00",
+    "closes": schedule.closes || "20:00"
+  })) || [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "11:00",
+      "closes": "20:00"
+    }
+  ]
+  
+  // HairSalon schema - 從 CMS 動態讀取資料
+  return {
+    "@context": "https://schema.org",
+    "@type": "HairSalon",
+    "name": businessName,
+    "description": homepageData?.seoDescription || "專業男士理髮服務，提供剪髮、染髮、燙髮等專業美髮服務。銷售優質美髮造型產品。",
+    "url": baseUrl,
+    "telephone": telephone,
+    "priceRange": priceRange,
+    "image": homepageData?.ogImage?.asset?.url || `${baseUrl}/images/store.jpg`,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": streetAddress,
+      "addressLocality": addressLocality,
+      "addressRegion": addressRegion,
+      "postalCode": postalCode,
+      "addressCountry": "TW"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": latitude,
+      "longitude": longitude
+    },
+    "openingHoursSpecification": openingHours,
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "150"
+    }
+  }
+}
+
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -31,14 +98,20 @@ export async function generateMetadata(): Promise<Metadata> {
     const ogTitle = homepageData?.ogTitle || pageTitle
     const ogDescription = homepageData?.ogDescription || pageDescription
     
+    // 使用 Sanity 的關鍵字設定，如果沒有則使用預設值
+    const defaultKeywords = [
+      '美髮沙龍', '剪髮', '染髮', '燙髮', '造型', 
+      '洗髮精', '護髮乳', '造型產品', '美髮用品',
+      'Tim\'s Fantasy World', '專業美髮', '髮型設計'
+    ]
+    const keywords = homepageData?.seoKeywords && homepageData.seoKeywords.length > 0 
+      ? homepageData.seoKeywords 
+      : defaultKeywords
+    
     return {
       title: pageTitle,
       description: pageDescription,
-      keywords: [
-        '美髮沙龍', '剪髮', '染髮', '燙髮', '造型', 
-        '洗髮精', '護髮乳', '造型產品', '美髮用品',
-        'Tim\'s Fantasy World', '專業美髮', '髮型設計'
-      ].join(', '),
+      keywords: keywords.join(', '),
       openGraph: {
         title: ogTitle,
         description: ogDescription,
@@ -51,7 +124,7 @@ export async function generateMetadata(): Promise<Metadata> {
         }] : undefined
       },
       twitter: {
-        card: 'summary_large_image',
+        card: (homepageData?.twitterCard as 'summary' | 'summary_large_image' | 'app' | 'player') || 'summary_large_image',
         title: ogTitle,
         description: ogDescription,
         images: homepageData?.ogImage?.asset?.url ? [homepageData.ogImage.asset.url] : undefined
@@ -106,11 +179,11 @@ export default async function Home({
     })
   ])
 
-  // 處理數據獲取結果
-  const collections = collectionsData.status === 'fulfilled' && collectionsData.value ? 
-    collectionsData.value : { collections: [], count: 0 }
-  const regionData = region.status === 'fulfilled' && region.value ? 
-    region.value : null
+  // 處理數據獲取結果並確保類型正確
+  const collections = (collectionsData.status === 'fulfilled' && collectionsData.value) ? 
+    collectionsData.value : { collections: [], count: 0 } as any
+  const regionData = (region.status === 'fulfilled' && region.value) ? 
+    region.value : null as any
 
   // 添加調試資訊
   if (process.env.NODE_ENV === 'development') console.log('🔍 Data fetch results:', {
@@ -185,8 +258,19 @@ export default async function Home({
 
     console.log("🎨 Rendering Sanity content - mainSections:", JSON.stringify(mainSections, null, 2))
 
+    // 生成 JSON-LD 結構化資料
+    const jsonLd = generateJsonLd(homepageData)
+
     return (
       <>
+        {/* JSON-LD 結構化資料 */}
+        {jsonLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+        )}
+
         {/* 動態區塊（如果存在） */}
         {mainSections && mainSections.length > 0 ? (
           mainSections
@@ -221,7 +305,7 @@ export default async function Home({
                     return (
                       <ServiceCardsSection
                         key={`service-${index}`}
-                        heading={serviceSection.heading}
+                        heading={serviceSection.heading || ""}
                         cardsPerRow={serviceSection.cardsPerRow}
                         cards={serviceSection.cards}
                       />
@@ -242,20 +326,21 @@ export default async function Home({
                   }
                   case "imageTextBlock": {
                     const imageBlock = section as ImageTextBlockType
-                    return (
-                      <ImageTextBlock
-                        key={index}
-                        heading={imageBlock.heading}
-                        content={imageBlock.content}
-                        image={imageBlock.image}
-                        layout={imageBlock.layout}
-                        leftImage={imageBlock.leftImage}
-                        rightImage={imageBlock.rightImage}
-                        leftContent={imageBlock.leftContent}
-                        rightContent={imageBlock.rightContent}
-                        hideTitle={imageBlock.hideTitle}
-                      />
-                    )
+                    // 只傳遞存在的屬性,避免 undefined
+                    const props: any = {
+                      key: index,
+                      heading: imageBlock.heading,
+                      content: imageBlock.content,
+                      image: imageBlock.image,
+                      layout: imageBlock.layout,
+                      hideTitle: imageBlock.hideTitle
+                    }
+                    if (imageBlock.leftImage) props.leftImage = imageBlock.leftImage
+                    if (imageBlock.rightImage) props.rightImage = imageBlock.rightImage
+                    if (imageBlock.leftContent) props.leftContent = imageBlock.leftContent
+                    if (imageBlock.rightContent) props.rightContent = imageBlock.rightContent
+                    
+                    return <ImageTextBlock {...props} />
                   }
                   case "featuredProducts": {
                     const featuredBlock = section as FeaturedProductsSection
@@ -302,16 +387,16 @@ export default async function Home({
                   }
                   case "blogSection": {
                     const blogSection = section as BlogSection
-                    return (
-                      <BlogPosts 
-                        key={index}
-                        title={blogSection.title}
-                        category={blogSection.category}
-                        limit={blogSection.limit || 2}
-                        postsPerRow={blogSection.postsPerRow || 3}
-                        showTitle={!!blogSection.title}
-                      />
-                    )
+                    const props: any = {
+                      key: index,
+                      limit: blogSection.limit || 4,
+                      postsPerRow: blogSection.postsPerRow || 3,
+                      showTitle: true
+                    }
+                    if (blogSection.title) props.title = blogSection.title
+                    if (blogSection.category) props.category = blogSection.category
+                    
+                    return <BlogPosts {...props} />
                   }
                   case "youtubeSection": {
                     const youtubeBlock = section as YoutubeSectionType
@@ -333,21 +418,22 @@ export default async function Home({
                       console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
                       return null
                     }
-                    return (
-                      <YoutubeSection
-                        key={index}
-                        _type="youtubeSection"
-                        isActive={true}
-                        heading={youtubeBlock.heading}
-                        description={youtubeBlock.description}
-                        videoUrl={youtubeBlock.videoUrl}
-                        videoMode={youtubeBlock.videoMode}
-                        youtubeSettings={youtubeBlock.youtubeSettings}
-                        uploadSettings={youtubeBlock.uploadSettings}
-                        videoSettings={youtubeBlock.videoSettings}
-                        fullWidth={youtubeBlock.fullWidth}
-                      />
-                    )
+                    
+                    const youtubeProps: any = {
+                      key: index,
+                      _type: "youtubeSection" as const,
+                      isActive: true,
+                      heading: youtubeBlock.heading || "",
+                      fullWidth: youtubeBlock.fullWidth
+                    }
+                    if (youtubeBlock.description) youtubeProps.description = youtubeBlock.description
+                    if (youtubeBlock.videoUrl) youtubeProps.videoUrl = youtubeBlock.videoUrl
+                    if (youtubeBlock.videoMode) youtubeProps.videoMode = youtubeBlock.videoMode
+                    if (youtubeBlock.youtubeSettings) youtubeProps.youtubeSettings = youtubeBlock.youtubeSettings
+                    if (youtubeBlock.uploadSettings) youtubeProps.uploadSettings = youtubeBlock.uploadSettings
+                    if (youtubeBlock.videoSettings) youtubeProps.videoSettings = youtubeBlock.videoSettings
+                    
+                    return <YoutubeSection {...youtubeProps} />
                   }
                   case "contentSection": {
                     const contentBlock = section as ContentSectionType

@@ -32,7 +32,7 @@ export default async function Footer() {
                   <Image
                     src={footerData?.logo?.url || "/images/44dto-bmpua.webp"}
                     alt={footerData?.logo?.alt || "SALON"}
-                    width={160}
+                    width={footerData?.logoWidth || 160}
                     height={60}
                     className="w-full"
                   />

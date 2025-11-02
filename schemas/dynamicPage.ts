@@ -6,7 +6,6 @@ export default defineType({
   type: 'document',
   groups: [
     { name: 'content', title: '頁面內容', default: true },
-    { name: 'modules', title: '模組設定' },
     { name: 'seo', title: 'SEO 設定' },
     { name: 'social', title: '社群媒體分享' },
     { name: 'settings', title: '頁面設定' }
@@ -74,8 +73,19 @@ export default defineType({
       title: '內容編輯器',
       type: 'array',
       group: 'content',
-      description: '拖拉排序的動態內容編輯器，支援文字、圖片、影片、按鈕等多種區塊類型',
+      description: '拖拉排序的動態內容編輯器，支援所有首頁模組的功能區塊',
       of: [
+        // === 首頁模組 Section 類型 ===
+        { type: 'mainBanner' },
+        { type: 'imageTextBlock' },
+        { type: 'featuredProducts' },
+        { type: 'blogSection' },
+        { type: 'youtubeSection' },
+        { type: 'contentSection' },
+        { type: 'serviceCardSection' },
+        { type: 'googleMapsSection' },
+        
+        // === 基本內容區塊 ===
         // 文字內容區塊
         {
           type: 'object',
@@ -198,104 +208,6 @@ export default defineType({
       group: 'settings',
       initialValue: 1,
       readOnly: true
-    }),
-
-    // 頁面模組配置
-    defineField({
-      name: 'pageModules',
-      title: '頁面模組配置',
-      type: 'array',
-      group: 'modules',
-      description: '可重複使用的頁面模組，支援多種功能區塊',
-      of: [
-        // 主橫幅模組
-        {
-          type: 'object',
-          name: 'mainBannerModule',
-          title: '主橫幅模組',
-          fields: [
-            { name: 'moduleType', type: 'string', initialValue: 'mainBanner', hidden: true },
-            { name: 'isActive', title: '啟用', type: 'boolean', initialValue: true },
-            { name: 'order', title: '排序', type: 'number' },
-            { name: 'settings', title: '輪播設定', type: 'mainBanner' }
-          ]
-        },
-        // 服務卡片模組
-        {
-          type: 'object',
-          name: 'serviceCardsModule',
-          title: '服務卡片模組',
-          fields: [
-            { name: 'moduleType', type: 'string', initialValue: 'serviceCardSection', hidden: true },
-            { name: 'isActive', title: '啟用', type: 'boolean', initialValue: true },
-            { name: 'order', title: '排序', type: 'number' },
-            { name: 'settings', title: '服務設定', type: 'serviceCardSection' }
-          ]
-        },
-        // 圖文區塊模組
-        {
-          type: 'object',
-          name: 'imageTextModule',
-          title: '圖文區塊模組',
-          fields: [
-            { name: 'moduleType', type: 'string', initialValue: 'imageTextBlock', hidden: true },
-            { name: 'isActive', title: '啟用', type: 'boolean', initialValue: true },
-            { name: 'order', title: '排序', type: 'number' },
-            { name: 'settings', title: '圖文設定', type: 'imageTextBlock' }
-          ]
-        },
-        // 精選商品模組
-        {
-          type: 'object',
-          name: 'featuredProductsModule',
-          title: '精選商品模組',
-          fields: [
-            { name: 'moduleType', type: 'string', initialValue: 'featuredProducts', hidden: true },
-            { name: 'isActive', title: '啟用', type: 'boolean', initialValue: true },
-            { name: 'order', title: '排序', type: 'number' },
-            { name: 'settings', title: '商品設定', type: 'featuredProducts' }
-          ]
-        },
-        // 部落格文章模組
-        {
-          type: 'object',
-          name: 'blogSectionModule',
-          title: '部落格文章模組',
-          fields: [
-            { name: 'moduleType', type: 'string', initialValue: 'blogSection', hidden: true },
-            { name: 'isActive', title: '啟用', type: 'boolean', initialValue: true },
-            { name: 'order', title: '排序', type: 'number' },
-            { name: 'settings', title: '文章設定', type: 'blogSection' }
-          ]
-        },
-        // YouTube 影片模組
-        {
-          type: 'object',
-          name: 'youtubeSectionModule',
-          title: 'YouTube 影片模組',
-          fields: [
-            { name: 'moduleType', type: 'string', initialValue: 'youtubeSection', hidden: true },
-            { name: 'isActive', title: '啟用', type: 'boolean', initialValue: true },
-            { name: 'order', title: '排序', type: 'number' },
-            { name: 'settings', title: '影片設定', type: 'youtubeSection' }
-          ]
-        },
-        // 內容區塊模組
-        {
-          type: 'object',
-          name: 'contentSectionModule',
-          title: '內容區塊模組',
-          fields: [
-            { name: 'moduleType', type: 'string', initialValue: 'contentSection', hidden: true },
-            { name: 'isActive', title: '啟用', type: 'boolean', initialValue: true },
-            { name: 'order', title: '排序', type: 'number' },
-            { name: 'settings', title: '內容設定', type: 'contentSection' }
-          ]
-        }
-      ],
-      options: {
-        sortable: true
-      }
     }),
 
     // SEO 設定

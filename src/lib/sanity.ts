@@ -130,6 +130,19 @@ export async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
   }, [])) as FeaturedProduct[]
 }
 
+// 從首頁的 featuredProducts 區塊獲取標題配置
+export async function getFeaturedProductsHeading(collectionId: string) {
+  const query = `*[_type == "homePage"][0]{
+    "featuredSection": mainSections[_type == "featuredProducts" && collection_id == $collectionId][0]{
+      heading,
+      showHeading
+    }
+  }.featuredSection`
+  return await safeFetch(query, { collectionId }, { 
+    next: { revalidate: 300 }
+  }, null)
+}
+
 export async function getHeader() {
   const query = `*[_type == "header"][0]{
     logo{
@@ -175,17 +188,17 @@ export async function getHeader() {
 
 export async function getPageBySlug(slug: string): Promise<PageData | null> {
   try {
-    const query = `*[_type == "pages" && slug.current == $slug][0]{
+    // 動態頁面使用 dynamicPage type,狀態為 published
+    const query = `*[_type == "dynamicPage" && slug.current == $slug && status == "published"][0]{
       _type,
       title,
       "slug": slug.current,
-      isActive,
       seo {
         metaTitle,
         metaDescription,
         canonicalUrl
       },
-      mainSections[] {
+      "mainSections": pageContent[] {
         _type,
         ...select(
           _type == "mainBanner" => {
@@ -257,7 +270,6 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
               autoplay,
               loop,
               muted,
-              muted,
               showControls
             },
             "uploadSettings": uploadSettings {
@@ -283,7 +295,6 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
               muted,
               showControls
             },
-            // 向後兼容
             "videoSettings": videoSettings {
               desktopVideoUrl,
               mobileVideoUrl,
@@ -295,7 +306,6 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
             title,
             content[] {
               ...,
-              // 如果內容區塊包含參考類型，也展開它們
               _type == "image" => {
                 "url": asset->url,
                 "altText": alt
@@ -338,12 +348,55 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
               url
             },
             googleMapsUrl
+          },
+          _type == "googleMapsSection" => {
+            isActive,
+            heading,
+            description,
+            googleMapsUrl,
+            mapHeight,
+            showDirections
+          },
+          _type == "textBlock" => {
+            title,
+            content[] {
+              ...,
+              _type == "image" => {
+                "url": asset->url,
+                "altText": alt
+              }
+            }
+          },
+          _type == "imageBlock" => {
+            title,
+            "image": image {
+              "url": asset->url,
+              "alt": alt
+            },
+            alt,
+            caption,
+            layout
+          },
+          _type == "videoBlock" => {
+            title,
+            videoUrl,
+            "thumbnail": thumbnail {
+              "url": asset->url
+            },
+            description
+          },
+          _type == "ctaBlock" => {
+            title,
+            buttonText,
+            buttonUrl,
+            buttonStyle,
+            alignment
           }
         )
       }
     }`
 
-  return await safeFetch(query, { slug }, {}, null)
+    return await safeFetch(query, { slug }, {}, null)
   } catch (error) {
     if (isDev) console.error('獲取頁面資料失敗:', error)
     return null
@@ -469,17 +522,18 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 }
 export async function getAllPages(): Promise<PageData[]> {
   try {
-    const query = `*[_type == "pages" && isActive == true] {
+    // 使用 dynamicPage type,狀態為 published
+    const query = `*[_type == "dynamicPage" && status == "published"] | order(_createdAt desc) {
       _type,
       title,
       "slug": slug.current,
-      isActive,
+      status,
       seo {
         metaTitle,
         metaDescription,
         canonicalUrl
       },
-      mainSections[] {
+      "mainSections": pageContent[] {
         _type,
         ...select(
           _type == "mainBanner" => {
@@ -617,12 +671,6 @@ export async function getAllPages(): Promise<PageData[]> {
               link
             }
           },
-              link {
-                text,
-                url
-              }
-            }
-          },
           _type == "contactSection" => {
             isActive,
             title,
@@ -657,7 +705,6 @@ export async function getHomepage(): Promise<{
   mainSections: MainSection[];
   seoTitle?: string;
   seoDescription?: string;
-  focusKeyword?: string;
   seoKeywords?: string[];
   canonicalUrl?: string;
   noIndex?: boolean;
@@ -673,7 +720,6 @@ export async function getHomepage(): Promise<{
     title,
     seoTitle,
     seoDescription,
-    focusKeyword,
     seoKeywords,
     canonicalUrl,
     noIndex,
@@ -838,7 +884,21 @@ export async function getHomepage(): Promise<{
           heading,
           description,
           googleMapsUrl,
-          mapHeight
+          mapHeight,
+          businessName,
+          telephone,
+          streetAddress,
+          addressLocality,
+          addressRegion,
+          postalCode,
+          latitude,
+          longitude,
+          priceRange,
+          "openingHours": openingHours[] {
+            days,
+            opens,
+            closes
+          }
         },
         // Default case - 包含 _type 以便識別未處理的 section 類型
         {

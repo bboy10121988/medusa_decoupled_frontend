@@ -13,7 +13,7 @@ export const structure = (S: any) =>
       // 部落格相關
       S.listItem()
         .id('blog-section')
-        .title('📝 部落格')
+        .title('部落格')
         .child(
           S.list()
             .id('blog-list')
