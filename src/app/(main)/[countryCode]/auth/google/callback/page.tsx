@@ -44,10 +44,11 @@ export default function GoogleCallback() {
         
         // console.log("正在發送 Google 授權碼到後端...")
         
-        // 將 code 和 state 發送到後端，後端會處理所有與 Google 的通訊和使用者建立/登入邏輯
-        // 成功後，後端會設定 httpOnly cookie，SDK 會自動感知到認證狀態
+        // 將 code 和 state 發送到後端,後端會處理所有與 Google 的通訊和使用者建立/登入邏輯
+        // 成功後,後端會設定 httpOnly cookie,SDK 會自動感知到認證狀態
         const res = await sdk.auth.callback("customer", "google", {
-          query: { code, state }  // 注意：必須使用 query 物件包裝
+          code,
+          state
         })
         
         console.log("✅ 後端已成功處理回調:", res)
