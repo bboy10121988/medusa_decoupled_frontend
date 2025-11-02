@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 /**
@@ -13,7 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation"
  * Google → /auth/google/callback?code=xxx&state=xxx
  * → Redirect to → /tw/auth/google/callback?code=xxx&state=xxx
  */
-export default function GoogleCallbackRedirect() {
+function GoogleCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -56,5 +56,20 @@ export default function GoogleCallbackRedirect() {
         <p className="text-gray-600">正在處理 Google 登入...</p>
       </div>
     </div>
+  )
+}
+
+export default function GoogleCallbackRedirect() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+          <p className="text-gray-600">正在處理 Google 登入...</p>
+        </div>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   )
 }
