@@ -10,7 +10,7 @@ import { useCallback } from "react"
 
 const Review = ({ cart }: { cart: any }) => {
 
-  const action:string = "Review"
+  // const action:string = "Review"
 
   // console.log(action,"購物車資料：",cart);
 
@@ -49,13 +49,18 @@ const Review = ({ cart }: { cart: any }) => {
   const ecpayProvider = process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT
 
   const currentPaymentProvider = selectedPaymentProvider || paymentSession?.provider_id
+  
   const isECPayCredit = currentPaymentProvider === ecpayProvider
-  const isBankTransfer = currentPaymentProvider === !isECPayCredit
+
+  const isBankTransfer = !isECPayCredit
   
   // console.log(action, "當前支付方式:", {
-    // selectedPaymentProvider,
-    // paymentSessionProvider: paymentSession?.provider_id,
-    // currentPaymentProvider
+  //   ecpayProvider,
+  //   currentPaymentProvider,
+  //   selectedPaymentProvider,
+  //   paymentSessionProvider: paymentSession?.provider_id,
+  //   isECPayCredit,
+  //   isBankTransfer
   // })
 
   // 檢查前面步驟是否完成：地址、配送、支付方式
@@ -108,9 +113,9 @@ const Review = ({ cart }: { cart: any }) => {
                       帳號：216-087-069-471<br/>
                       戶名：提姆的髮藝沙龍
                     </Text>
-                    <Text className="txt-xs text-gray-600 mt-2">
+                    {/* <Text className="txt-xs text-gray-600 mt-2">
                       轉帳備註請填寫：訂單編號 {cart.display_id || 'PENDING'}
-                    </Text>
+                    </Text> */}
                   </div>
                   <Text className="txt-small text-red-600">
                     • 請於 3 個工作日內完成轉帳<br/>
