@@ -14,6 +14,7 @@ import { SanityHeader } from "../../../../types/global"
 import MobileMenu from "../../components/mobile-menu"
 import SearchBarClient from "../../components/search-bar-client"
 import HeaderHeightSetter from "../../components/header-height-setter"
+import HelpButtonWrapper from "../../components/help-button-wrapper"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
@@ -424,25 +425,8 @@ export default async function Nav() {
         </div>
       </div>
 
-      {/* LINE 懸浮按鈕 */}
-      <a
-        href="https://page.line.me/timsfantasyworld?fbclid=PARlRTSAMmHoRleHRuA2FlbQIxMAABp_nJitfDUH8W4pRlcRgKeusvIELFdTvXpbu791GiXgPIOarBh8LO2Hg2YJrV_aem_9pdT5ans7oJyF7F17iQPHw"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 bg-gray-900 hover:bg-gray-800 text-white border border-white/20 rounded-full px-6 py-3 shadow-lg transition-all duration-200 hover:-translate-y-0.5 z-[9999] flex items-center gap-3"
-        aria-label="加入 LINE 好友"
-      >
-        <svg 
-          className="w-5 h-5"
-          viewBox="0 0 24 24" 
-          fill="none"
-          stroke="white"
-          strokeWidth="2"
-        >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-        <span className="text-white text-xs font-medium tracking-wide">幫助</span>
-      </a>
+      {/* LINE 懸浮按鈕 - 包裝在客戶端組件中處理顯示邏輯 */}
+      <HelpButtonWrapper />
     </>
   )
 }

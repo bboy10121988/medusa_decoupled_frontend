@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react"
 import { Button, clx } from "@medusajs/ui"
-import React, { Fragment, useMemo } from "react"
+import React, { Fragment, useMemo, useEffect } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
 import ChevronDown from "@modules/common/icons/chevron-down"
@@ -36,6 +36,15 @@ const MobileActions: React.FC<MobileActionsProps> = ({
 }) => {
   const { state, open, close } = useToggleState()
 
+  // 廣播 mobile-actions 的顯示狀態
+  useEffect(() => {
+    // 當底部欄或彈窗顯示時,觸發自定義事件
+    const isVisible = show || state
+    window.dispatchEvent(new CustomEvent('mobile-actions-visibility', { 
+      detail: { visible: isVisible } 
+    }))
+  }, [show, state])
+
   const price = getProductPrice({
     product: product,
     variantId: variant?.id,
@@ -55,7 +64,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   return (
     <>
       <div
-        className={clx("lg:hidden inset-x-0 bottom-0 fixed", {
+        className={clx("lg:hidden inset-x-0 bottom-0 fixed z-[10000]", {
           "pointer-events-none": !show,
         })}
       >
@@ -134,7 +143,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
         </Transition>
       </div>
       <Transition appear show={state} as={Fragment}>
-        <Dialog as="div" className="relative z-[75]" onClose={close}>
+        <Dialog as="div" className="relative z-[10001]" onClose={close}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"

@@ -403,29 +403,37 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {    
-  // 先嘗試用slug.current查詢
-  let query = `*[_type == "post" && slug.current == $slug][0]{
-    _id,
-    title,
-    slug {
-      current
-    },
-    publishedAt,
-    body,
-    "author": author->{name, bio, "image": image.asset->url},
-    mainImage {
-      asset-> {
-        url
-      }
-    },
-    "categories": categories[]->{title}
-  }`
-  
-  let result = await safeFetch(query, { slug }, {}, null)
-  
-  // 如果用slug沒找到，嘗試根據標題匹配
-  if (!result) {
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    console.log(`🔍 [getPostBySlug] 正在查詢文章: ${slug}`)
+    
+    // 先嘗試用slug.current查詢
+    let query = `*[_type == "post" && slug.current == $slug][0]{
+      _id,
+      title,
+      slug {
+        current
+      },
+      publishedAt,
+      body,
+      "author": author->{name, bio, "image": image.asset->url},
+      mainImage {
+        asset-> {
+          url
+        }
+      },
+      "categories": categories[]->{title}
+    }`
+    
+    let result = await safeFetch(query, { slug }, {}, null)
+    
+    if (result) {
+      console.log(`✅ [getPostBySlug] 找到文章: ${result.title}`)
+      return result
+    }
+    
+    // 如果用slug沒找到，嘗試根據標題匹配
+    console.log(`⚠️ [getPostBySlug] 使用 slug 沒找到，嘗試標題匹配: ${slug}`)
     query = `*[_type == "post" && title match "*" + $title + "*" || _id match $slug + "*"][0]{
       _id,
       title,
@@ -446,9 +454,18 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     // 嘗試從slug反推標題或使用ID
     const searchTerm = slug.includes('post-') ? slug.split('post-')[1] : slug.replace(/-/g, ' ')
     result = await safeFetch(query, { slug, title: searchTerm }, {}, null)
+    
+    if (result) {
+      console.log(`✅ [getPostBySlug] 透過標題匹配找到文章: ${result.title}`)
+    } else {
+      console.log(`❌ [getPostBySlug] 找不到文章: ${slug}`)
+    }
+    
+    return result
+  } catch (error) {
+    console.error(`❌ [getPostBySlug] 查詢文章時發生錯誤: ${slug}`, error)
+    return null
   }
-  
-  return result
 }
 export async function getAllPages(): Promise<PageData[]> {
   try {

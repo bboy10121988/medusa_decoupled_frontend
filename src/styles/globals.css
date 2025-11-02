@@ -368,6 +368,68 @@ h6 {
   }
 }
 
+/* Blog 手機版優化樣式 */
+@media (max-width: 767px) {
+  /* Blog 列表頁面 */
+  .blog-list-container {
+    padding: 0 1rem;
+  }
+  
+  /* Blog 卡片手機版優化 */
+  .blog-card-mobile {
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Blog 分類標籤橫向滾動 */
+  .blog-categories-mobile {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .blog-categories-mobile::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Blog 文章詳情頁手機版 */
+  .blog-article-mobile {
+    padding: 1rem;
+  }
+  
+  .blog-article-mobile h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+  
+  .blog-article-mobile .prose {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  
+  .blog-article-mobile .prose h2 {
+    font-size: 1.25rem;
+    margin: 1.5rem 0 0.75rem;
+  }
+  
+  .blog-article-mobile .prose h3 {
+    font-size: 1.125rem;
+    margin: 1.25rem 0 0.5rem;
+  }
+  
+  .blog-article-mobile .prose p {
+    margin-bottom: 1rem;
+  }
+  
+  .blog-article-mobile .prose img {
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+  }
+}
+
 /* ========== 4. 工具類 (Utilities) ========== */
 /* 字體家族工具類 */
 .font-base {

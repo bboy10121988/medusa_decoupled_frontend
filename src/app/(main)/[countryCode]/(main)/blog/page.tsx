@@ -34,7 +34,7 @@ async function getAllPosts(category?: string) {
     noStore()
     
     const query = category 
-      ? `*[_type == "post" && "${category}" in categories[]->title] | order(publishedAt desc) {
+      ? `*[_type == "post" && !(_id in path("drafts.**")) && defined(slug.current) && "${category}" in categories[]->title] | order(publishedAt desc) {
           _id,
           title,
           slug {
@@ -51,7 +51,7 @@ async function getAllPosts(category?: string) {
           },
           body
         }`
-      : `*[_type == "post"] | order(publishedAt desc) {
+      : `*[_type == "post" && !(_id in path("drafts.**")) && defined(slug.current)] | order(publishedAt desc) {
           _id,
           title,
           slug {
@@ -164,12 +164,123 @@ async function getSiteInfo() {
   }
 }
 
+// 取得部落格頁面設定
+async function getBlogPageSettings() {
+  try {
+    noStore()
+    const query = `*[_type == "blogPage"][0] {
+      title,
+      subtitle,
+      showTitle,
+      showSubtitle,
+      postsPerPage,
+      showCategories,
+      categoryTitle,
+      allCategoriesLabel,
+      showSidebar,
+      showLatestPosts,
+      latestPostsTitle,
+      latestPostsCount,
+      gridColumns,
+      mobileColumns,
+      layout,
+      cardStyle,
+      showExcerpt,
+      excerptLength,
+      showReadMore,
+      readMoreText,
+      showPublishDate,
+      showAuthor,
+      showCategoryTags,
+      categoryTagLimit,
+      enablePagination,
+      enableSearch,
+      seoTitle,
+      seoDescription,
+      seoKeywords,
+      ogImage {
+        asset->{
+          url
+        }
+      }
+    }`
+    const settings = await client.fetch(query)
+    console.log('Fetched blog page settings:', settings)
+    return settings || {
+      title: '部落格文章',
+      subtitle: '探索我們的最新消息與文章',
+      showTitle: false,
+      showSubtitle: false,
+      postsPerPage: 9,
+      showCategories: true,
+      categoryTitle: '文章分類',
+      allCategoriesLabel: '全部文章',
+      showSidebar: true,
+      showLatestPosts: true,
+      latestPostsTitle: '最新文章',
+      latestPostsCount: 4,
+      gridColumns: 3,
+      mobileColumns: 2,
+      layout: 'grid',
+      cardStyle: 'card',
+      showExcerpt: true,
+      excerptLength: 80,
+      showReadMore: true,
+      readMoreText: '閱讀更多',
+      showPublishDate: true,
+      showAuthor: false,
+      showCategoryTags: true,
+      categoryTagLimit: 2,
+      enablePagination: true,
+      enableSearch: false
+    }
+  } catch (error) {
+    console.error("Error fetching blog page settings:", error)
+    return {
+      title: '部落格文章',
+      subtitle: '探索我們的最新消息與文章',
+      showTitle: false,
+      showSubtitle: false,
+      postsPerPage: 9,
+      showCategories: true,
+      categoryTitle: '文章分類',
+      allCategoriesLabel: '全部文章',
+      showSidebar: true,
+      showLatestPosts: true,
+      latestPostsTitle: '最新文章',
+      latestPostsCount: 4,
+      gridColumns: 3,
+      mobileColumns: 2,
+      layout: 'grid',
+      cardStyle: 'card',
+      showExcerpt: true,
+      excerptLength: 80,
+      showReadMore: true,
+      readMoreText: '閱讀更多',
+      showPublishDate: true,
+      showAuthor: false,
+      showCategoryTags: true,
+      categoryTagLimit: 2,
+      enablePagination: true,
+      enableSearch: false
+    }
+  }
+}
+
 // 動態生成metadata
 export async function generateMetadata() {
-  const siteInfo = await getSiteInfo()
+  const [siteInfo, blogSettings] = await Promise.all([
+    getSiteInfo(),
+    getBlogPageSettings()
+  ])
+  
   return {
-    title: `部落格 | ${siteInfo.seoTitle || 'Fantasy World Barber Shop'}`,
-    description: siteInfo.seoDescription || '最新消息與文章'
+    title: blogSettings.seoTitle || `部落格 | ${siteInfo.seoTitle || 'Fantasy World Barber Shop'}`,
+    description: blogSettings.seoDescription || siteInfo.seoDescription || '最新消息與文章',
+    keywords: blogSettings.seoKeywords,
+    openGraph: blogSettings.ogImage?.asset?.url ? {
+      images: [{ url: blogSettings.ogImage.asset.url }]
+    } : undefined
   }
 }
 
@@ -183,51 +294,102 @@ export default async function BlogListPage({
   try {
     const { countryCode } = await params
     const { category } = await searchParams
-    const [posts, categories, siteInfo, latestPosts] = await Promise.all([
+    const [posts, categories, , latestPosts, blogSettings] = await Promise.all([
       getAllPosts(category),
       getCategories(),
       getSiteInfo(),
-      getLatestPosts()
+      getLatestPosts(),
+      getBlogPageSettings()
     ])
 
     return (
       <div className="bg-white min-h-[80vh] mt-[72px]">
         <div className="mx-auto">
-          <div className="grid grid-cols-12">
-            {/* 左側分類側邊欄 */}
-            <aside className="col-span-12 md:col-span-3">
-              <nav className="bg-white pl-6 md:pl-12 xl:pl-16 2xl:pl-20 pr-6 py-6 sticky top-[96px]">
-                <h2 className="text-xl font-semibold border-b pb-2">文章分類</h2>
-                <ul className="space-y-3 mt-4">
-                  <li>
-                    <a 
-                      href={`/${countryCode}/blog`}
-                      className={`text-sm hover:text-blue-600 block w-full py-1 transition-colors duration-200 ${
-                        !category ? 'text-blue-600 font-medium' : 'text-gray-500'
+          {/* 頁面標題區 - 根據 blogSettings 顯示 */}
+          {(blogSettings.showTitle || blogSettings.showSubtitle) && (
+            <div className="px-4 pt-6 pb-4 md:px-6 lg:px-12 xl:px-16 2xl:px-20">
+              {blogSettings.showTitle && (
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  {blogSettings.title || '部落格文章'}
+                </h1>
+              )}
+              {blogSettings.showSubtitle && (
+                <p className="text-gray-600 text-lg">
+                  {blogSettings.subtitle || '探索我們的最新消息與文章'}
+                </p>
+              )}
+            </div>
+          )}
+          
+          <div className="flex flex-col md:grid md:grid-cols-12">
+            {/* 左側分類側邊欄 - 根據 blogSettings.showSidebar 和 showCategories 控制 */}
+            {(blogSettings.showSidebar !== false && blogSettings.showCategories !== false) && (
+              <aside className="col-span-12 md:col-span-3 order-2 md:order-1">
+                <nav className="bg-white px-4 py-4 md:pl-6 md:pr-6 lg:pl-12 lg:pr-6 xl:pl-16 xl:pr-6 2xl:pl-20 2xl:pr-6 md:py-6 md:sticky md:top-[96px]">
+                  {/* 手機版分類選單 */}
+                  <div className="block md:hidden mb-4">
+                    <h2 className="text-lg font-semibold mb-3">{blogSettings.categoryTitle || '文章分類'}</h2>
+                    <div className="flex overflow-x-auto pb-2 space-x-3">
+                      <a 
+                        href={`/${countryCode}/blog`}
+                        className={`flex-shrink-0 px-4 py-2 text-sm rounded-full border transition-colors duration-200 ${
+                        !category 
+                          ? 'bg-blue-600 text-white border-blue-600' 
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-blue-600 hover:text-blue-600'
                       }`}
                     >
-                      全部文章
+                      {blogSettings.allCategoriesLabel || '全部文章'}
                     </a>
-                  </li>
-                  {categories.map((cat) => (
-                    <li key={cat._id}>
+                    {categories.map((cat) => (
                       <a 
+                        key={cat._id}
                         href={`/${countryCode}/blog?category=${encodeURIComponent(cat.title)}`}
-                        className={`text-sm hover:text-blue-600 block w-full py-1 transition-colors duration-200 ${
-                          category === cat.title ? 'text-blue-600 font-medium' : 'text-gray-500'
+                        className={`flex-shrink-0 px-4 py-2 text-sm rounded-full border transition-colors duration-200 ${
+                          category === cat.title 
+                            ? 'bg-blue-600 text-white border-blue-600' 
+                            : 'bg-white text-gray-600 border-gray-300 hover:border-blue-600 hover:text-blue-600'
                         }`}
                       >
                         {cat.title}
                       </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 桌面版分類選單 */}
+                <div className="hidden md:block">
+                  <h2 className="text-xl font-semibold border-b pb-2">{blogSettings.categoryTitle || '文章分類'}</h2>
+                  <ul className="space-y-3 mt-4">
+                    <li>
+                      <a 
+                        href={`/${countryCode}/blog`}
+                        className={`text-sm hover:text-blue-600 block w-full py-1 transition-colors duration-200 ${
+                          !category ? 'text-blue-600 font-medium' : 'text-gray-500'
+                        }`}
+                      >
+                        {blogSettings.allCategoriesLabel || '全部文章'}
+                      </a>
                     </li>
-                  ))}
-                </ul>
+                    {categories.map((cat) => (
+                      <li key={cat._id}>
+                        <a 
+                          href={`/${countryCode}/blog?category=${encodeURIComponent(cat.title)}`}
+                          className={`text-sm hover:text-blue-600 block w-full py-1 transition-colors duration-200 ${
+                            category === cat.title ? 'text-blue-600 font-medium' : 'text-gray-500'
+                          }`}
+                        >
+                          {cat.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
                 {/* 最新文章四則 */}
-                {latestPosts && latestPosts.length > 0 && (
+                {blogSettings.showLatestPosts !== false && latestPosts && latestPosts.length > 0 && (
                   <div className="mt-8 pt-6 border-t border-gray-200">
                     <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                      最新文章
+                      {blogSettings.latestPostsTitle || '最新文章'}
                     </h3>
                     <div className="space-y-3">
                       {latestPosts.map((article: any) => (
@@ -271,27 +433,31 @@ export default async function BlogListPage({
                 )}
               </nav>
             </aside>
+            )}
 
             {/* 右側主要內容區 */}
-            <main className="col-span-12 md:col-span-9 pr-6 md:pr-12 xl:pr-16 2xl:pr-20">
-              {/* 隱藏頁面標題和副標題
-              <header className="bg-white p-8">
-                <h1 className="text-3xl font-bold">
+            <main className={`col-span-12 order-1 md:order-2 px-4 md:pr-6 lg:pr-12 xl:pr-16 2xl:pr-20 ${
+              (blogSettings.showSidebar !== false && blogSettings.showCategories !== false) ? 'md:col-span-9' : 'md:col-span-12'
+            }`}>
+              {/* 頁面標題和副標題 - 完全隱藏
+              <header className="hidden md:block mb-8 pt-4">
+                <h1 className="text-3xl font-bold text-gray-900 mb-3">
                   {category 
                     ? `${category}`
                     : '部落格文章'}
                 </h1>
-                <p className="text-gray-500 mt-2">探索我們的最新消息與文章</p>
+                <p className="text-gray-600 text-base">探索我們的最新消息與文章</p>
               </header>
               */}
 
               {/* 文章列表 */}
-              <section className="bg-white -mt-8">
+              <section className="bg-white">
                 {Array.isArray(posts) && posts.length > 0 ? (
                   <BlogList 
                     initialPosts={posts} 
                     categories={categories}
                     countryCode={countryCode}
+                    blogSettings={blogSettings}
                   />
                 ) : (
                   <div className="text-center py-12 bg-white">

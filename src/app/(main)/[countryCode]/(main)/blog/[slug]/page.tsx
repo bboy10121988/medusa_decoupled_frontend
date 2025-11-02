@@ -61,6 +61,9 @@ export default async function BlogPost({
 }) {
   try {
     const { slug, countryCode } = await params
+    
+    console.log(`📖 [BlogPost] 正在載入文章頁面: ${slug}`)
+    
     const [post, categories, latestPosts] = await Promise.all([
       getPostBySlug(slug),
       getCategories(),
@@ -68,15 +71,18 @@ export default async function BlogPost({
     ])
 
     if (!post) {
+      console.log(`❌ [BlogPost] 文章不存在，返回 404: ${slug}`)
       notFound()
     }
+    
+    console.log(`✅ [BlogPost] 成功載入文章: ${post.title}`)
 
   return (
     <div className="bg-white min-h-screen mt-[72px]">
       <div className="mx-auto">
-        <div className="grid grid-cols-12 gap-0">
-          {/* 左側分類側邊欄 */}
-          <aside className="col-span-12 md:col-span-3">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-0">
+          {/* 左側分類側邊欄 - 手機版隱藏，桌面版顯示 */}
+          <aside className="hidden lg:block col-span-12 lg:col-span-3 order-2 lg:order-1">
             <nav className="bg-white px-6 md:px-12 xl:px-16 2xl:px-20 py-6 sticky top-[96px] shadow-sm border-r border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-4">
                 文章分類
@@ -174,12 +180,48 @@ export default async function BlogPost({
             </nav>
           </aside>
 
-          {/* 右側主要內容區 */}
-          <main className="col-span-12 md:col-span-9">
+          {/* 主要內容區 */}
+          <main className="col-span-12 lg:col-span-9 order-1 lg:order-2">
+            {/* 手機版返回按鈕 */}
+            <div className="block lg:hidden bg-white border-b border-gray-200 px-4 py-3">
+              <Link 
+                href={`/${countryCode}/blog`}
+                className="inline-flex items-center text-sm text-gray-600 hover:text-blue-600 transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                返回部落格
+              </Link>
+            </div>
+
             <article className="bg-white">
-              <div className="max-w-4xl mx-auto px-4 md:px-8 xl:px-12 2xl:px-16 py-8 md:py-12">
+              <div className="max-w-4xl mx-auto px-4 md:px-8 xl:px-12 2xl:px-16 py-6 md:py-8 lg:py-12">
+                <header className="mb-6 md:mb-8">
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                    {post.title}
+                  </h1>
+                  
+                  {/* 手機版分類標籤 */}
+                  {post.categories && post.categories.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {post.categories
+                        .filter((cat: any) => cat && cat.title) // 過濾掉 null 或沒有 title 的分類
+                        .map((cat: any) => (
+                          <Link
+                            key={cat.title}
+                            href={`/${countryCode}/blog?category=${encodeURIComponent(cat.title)}`}
+                            className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors duration-200"
+                          >
+                            {cat.title}
+                          </Link>
+                        ))}
+                    </div>
+                  )}
+                </header>
+
                 {post.mainImage?.asset?.url && (
-                  <div className="aspect-[4/3] relative mb-10 rounded-xl overflow-hidden shadow-lg">
+                  <div className="aspect-[4/3] md:aspect-[16/9] relative mb-6 md:mb-10 rounded-lg md:rounded-xl overflow-hidden shadow-sm md:shadow-lg">
                     <Image 
                       src={post.mainImage.asset.url} 
                       alt={post.title || "文章封面圖片"}
@@ -192,43 +234,43 @@ export default async function BlogPost({
                   </div>
                 )}
                 
-                <header className="mb-8">
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                    {post.title}
-                  </h1>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                    {post.publishedAt && (
-                      <span className="flex items-center space-x-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span>
-                          {new Date(post.publishedAt).toLocaleDateString("zh-TW")}
-                        </span>
+                {/* 發布日期資訊 */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-8">
+                  {post.publishedAt && (
+                    <span className="flex items-center space-x-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>
+                        {new Date(post.publishedAt).toLocaleDateString("zh-TW", {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
                       </span>
-                    )}
-                    {post.categories && post.categories.length > 0 && (
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                        <div className="flex flex-wrap gap-1">
-                          {post.categories.map((cat: any) => (
-                            <span key={cat.title} className="bg-gray-100 px-2 py-1 rounded-md text-xs font-medium">
-                              {cat.title}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </header>
+                    </span>
+                  )}
+                </div>
 
+                {/* 文章內容 */}
                 {post.body && (
-                  <div className="prose prose-lg max-w-none space-y-6">
+                  <div className="prose prose-gray prose-lg md:prose-xl max-w-none">
                     <SanityContent content={post.body} />
                   </div>
                 )}
+
+                {/* 手機版返回按鈕 */}
+                <div className="block lg:hidden mt-8 pt-8 border-t border-gray-200">
+                  <Link 
+                    href={`/${countryCode}/blog`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    返回部落格列表
+                  </Link>
+                </div>
               </div>
             </article>
           </main>
