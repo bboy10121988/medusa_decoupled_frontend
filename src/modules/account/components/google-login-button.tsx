@@ -5,11 +5,31 @@ import { useState } from "react"
 export default function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     setIsLoading(true)
-    // 直接導向後端,由後端處理所有 OAuth 流程
-    // 後端會自動處理 Google 授權並返回到正確的 callback URL
-    window.location.href = 'https://admin.timsfantasyworld.com/auth/customer/google'
+    try {
+      // 向後端請求 Google OAuth URL
+      const response = await fetch('https://admin.timsfantasyworld.com/auth/customer/google', {
+        credentials: 'include'
+      })
+      
+      if (!response.ok) {
+        throw new Error('無法獲取 Google 登入 URL')
+      }
+      
+      const data = await response.json()
+      
+      if (data.location) {
+        // 跳轉到 Google OAuth 頁面
+        window.location.href = data.location
+      } else {
+        throw new Error('後端未返回 Google OAuth URL')
+      }
+    } catch (error) {
+      console.error('Google 登入錯誤:', error)
+      alert('登入失敗,請稍後再試')
+      setIsLoading(false)
+    }
   }
 
   return (
