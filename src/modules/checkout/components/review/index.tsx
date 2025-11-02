@@ -44,9 +44,13 @@ const Review = ({ cart }: { cart: any }) => {
     (s: any) => s.status === "pending"
   ) || cart.payment_collection?.payment_sessions?.[0]
 
+
+  // ecpay_provider_id
+  const ecpayProvider = process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT
+
   const currentPaymentProvider = selectedPaymentProvider || paymentSession?.provider_id
-  const isECPayCredit = currentPaymentProvider === "ecpay_credit_card"
-  const isBankTransfer = currentPaymentProvider === "manual_manual"
+  const isECPayCredit = currentPaymentProvider === ecpayProvider
+  const isBankTransfer = currentPaymentProvider === !isECPayCredit
   
   // console.log(action, "當前支付方式:", {
     // selectedPaymentProvider,
@@ -100,9 +104,9 @@ const Review = ({ cart }: { cart: any }) => {
                   </Text>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <Text className="txt-small font-medium text-gray-800">
-                      銀行：玉山銀行 (808)<br/>
-                      帳號：0532-968-123456<br/>
-                      戶名：您的店家名稱有限公司
+                      銀行：國泰世華銀行 福和分行 (813)<br/>
+                      帳號：216-087-069-471<br/>
+                      戶名：提姆的髮藝沙龍
                     </Text>
                     <Text className="txt-xs text-gray-600 mt-2">
                       轉帳備註請填寫：訂單編號 {cart.display_id || 'PENDING'}
