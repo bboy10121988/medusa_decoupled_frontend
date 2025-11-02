@@ -163,26 +163,9 @@ export default async function Nav() {
                     headerData={headerData}
                   />
                 </div>
-                {/* 桌機版導航選單 - 螢幕寬度大於等於1024px時顯示 */}
+                {/* 桌機版導航選單 - 螢幕寬度大於等於1024px時顯示 - 所有選單都在左側 */}
                 <div className="hidden lg:flex items-center gap-x-6">
-                  {headerData?.navigation?.filter((item: {name: string; href: string}) => {
-                    // 擴展的左側項目關鍵字：首頁、商品、Blog、關於我們、商店等
-                    const leftSideItems = [
-                      'home', 'homes', '首頁', '主頁',
-                      'product', 'products', 'shop', 'shopping', '商品', '產品', '購物',
-                      'blog', 'blogs', 'article', 'articles', 'news', '部落格', '文章', '新聞', '資訊',
-                      'about', 'about-us', 'aboutus', '關於', '關於我們', '公司簡介',
-                      'store', 'stores', '商店', '門市', '店面', '分店'
-                    ];
-                    
-                    const name = item.name.toLowerCase();
-                    const href = item.href.toLowerCase();
-                    
-                    return leftSideItems.some(keyword => 
-                      name.includes(keyword.toLowerCase()) ||
-                      href.includes(keyword.toLowerCase())
-                    );
-                  }).map(({ name, href }: {name: string; href: string}, index: number) => {
+                  {headerData?.navigation?.map(({ name, href }: {name: string; href: string}, index: number) => {
                     if (typeof name !== 'string' || typeof href !== 'string') {
                       return null
                     }
@@ -197,13 +180,13 @@ export default async function Nav() {
                           ? href 
                           : `/${href}`
 
-                    const uniqueKey = `nav-left-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}`
+                    const uniqueKey = `nav-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}`
 
                     return isExternal ? (
                       <a
                         key={uniqueKey}
                         href={processedHref}
-                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 whitespace-nowrap"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -213,7 +196,7 @@ export default async function Nav() {
                       <LocalizedClientLink
                         key={uniqueKey}
                         href={processedHref}
-                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
+                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 whitespace-nowrap"
                         data-testid={`${name.toLowerCase()}-link`}
                       >
                         <span className="!text-xs !font-medium !leading-none">{name}</span>
@@ -263,7 +246,7 @@ export default async function Nav() {
                 </LocalizedClientLink>
               </div>
               
-              {/* 右側區塊 - 1/3 */}
+              {/* 右側區塊 - 1/3 - 只放功能按鈕 */}
               <div className="flex items-center justify-end gap-x-6">
                 {/* 漢堡選單模式 - 只顯示圖標的帳戶和購物車 (小於1024px) */}
                 <div className="flex lg:hidden items-center gap-x-3">
@@ -299,83 +282,9 @@ export default async function Nav() {
                   </Suspense>
                 </div>
 
-                {/* 桌機版導航項目和功能按鈕 - 在手機版隱藏 */}
+                {/* 桌機版功能按鈕 - 在手機版隱藏 */}
                 <div className="hidden lg:flex items-center gap-x-4">
-                  {/* 剩餘的導航項目 - 右側項目 */}
-                  {headerData?.navigation?.filter((item: {name: string; href: string}) => {
-                    // 擴展的左側項目關鍵字（需要與上面保持一致）
-                    const leftSideItems = [
-                      'home', 'homes', '首頁', '主頁',
-                      'product', 'products', 'shop', 'shopping', '商品', '產品', '購物',
-                      'blog', 'blogs', 'article', 'articles', 'news', '部落格', '文章', '新聞', '資訊',
-                      'about', 'about-us', 'aboutus', '關於', '關於我們', '公司簡介',
-                      'store', 'stores', '商店', '門市', '店面', '分店'
-                    ];
-                    
-                    // 右側項目關鍵字：服務、聯絡、幫助等
-                    const rightSideItems = [
-                      'service', 'services', '服務', '服務項目',
-                      'contact', 'contact-us', 'contactus', '聯絡', '聯絡我們', '聯繫',
-                      'help', 'support', 'faq', '幫助', '支援', '客服', '常見問題'
-                    ];
-                    
-                    const name = item.name.toLowerCase();
-                    const href = item.href.toLowerCase();
-                    
-                    // 檢查是否為左側項目
-                    const isLeftSideItem = leftSideItems.some(keyword => 
-                      name.includes(keyword.toLowerCase()) ||
-                      href.includes(keyword.toLowerCase())
-                    );
-                    
-                    // 檢查是否為明確的右側項目
-                    const isRightSideItem = rightSideItems.some(keyword => 
-                      name.includes(keyword.toLowerCase()) ||
-                      href.includes(keyword.toLowerCase())
-                    );
-                    
-                    // 返回右側項目：明確的右側項目，或者不是左側項目的其他項目
-                    return isRightSideItem || (!isLeftSideItem && !isRightSideItem);
-                  }).map(({ name, href }: {name: string; href: string}, index: number) => {
-                    if (typeof name !== 'string' || typeof href !== 'string') {
-                      return null
-                    }
-
-                    const isExternal = /^(http|https|www)/.test(href)
-                    const isHome = href === '/' || href === '/home'
-                    const processedHref = isExternal 
-                      ? href 
-                      : isHome 
-                        ? '/' 
-                        : href.startsWith('/') 
-                          ? href 
-                          : `/${href}`
-
-                    const uniqueKey = `nav-right-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}`
-
-                    return isExternal ? (
-                      <a
-                        key={uniqueKey}
-                        href={processedHref}
-                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <span className="!text-xs !font-medium !leading-none">{name}</span>
-                      </a>
-                    ) : (
-                      <LocalizedClientLink
-                        key={uniqueKey}
-                        href={processedHref}
-                        className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
-                        data-testid={`${name.toLowerCase()}-link`}
-                      >
-                        <span className="!text-xs !font-medium !leading-none">{name}</span>
-                      </LocalizedClientLink>
-                    )
-                  })}
-                  
-                  {/* 功能按鈕 */}
+                  {/* 功能按鈕：國家選擇、帳戶、購物車 */}
                   {regions && <CountrySelect regions={regions} />}
                   <AccountButton />
                   <Suspense
