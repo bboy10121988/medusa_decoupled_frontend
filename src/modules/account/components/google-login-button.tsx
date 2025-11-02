@@ -27,10 +27,13 @@ export default function GoogleLoginButton() {
       }
       
       const data = await response.json()
+      console.log('收到的 data:', data)
       
       if (!data.location) {
         throw new Error('No OAuth URL received')
       }
+      
+      console.log('準備跳轉到:', data.location)
       
       // 2. 重定向到 Google (保持同一個 session)
       window.location.href = data.location
