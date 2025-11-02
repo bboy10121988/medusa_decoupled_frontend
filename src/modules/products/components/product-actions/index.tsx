@@ -39,13 +39,13 @@ export default function ProductActions({
     if (product.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
-      console.log("🔧 自動預選單一變體:", {
-        productTitle: product.title,
-        variantId: product.variants[0].id,
-        variantTitle: product.variants[0].title,
-        options: variantOptions,
-        calculated_price: product.variants[0].calculated_price
-      })
+      // console.log("🔧 自動預選單一變體:", {
+        // productTitle: product.title,
+        // variantId: product.variants[0].id,
+        // variantTitle: product.variants[0].title,
+        // options: variantOptions,
+        // calculated_price: product.variants[0].calculated_price
+      // })
     }
   }, [product.variants])
 
@@ -59,14 +59,14 @@ export default function ProductActions({
       return isEqual(variantOptions, options)
     })
 
-    console.log("🔍 變體選擇檢查:", {
-      productTitle: product.title,
-      totalVariants: product.variants.length,
-      currentOptions: options,
-      selectedVariantId: variant?.id,
-      selectedVariantTitle: variant?.title,
-      hasCalculatedPrice: !!(variant as any)?.calculated_price?.calculated_amount
-    })
+    // console.log("🔍 變體選擇檢查:", {
+      // productTitle: product.title,
+      // totalVariants: product.variants.length,
+      // currentOptions: options,
+      // selectedVariantId: variant?.id,
+      // selectedVariantTitle: variant?.title,
+      // hasCalculatedPrice: !!(variant as any)?.calculated_price?.calculated_amount
+    // })
 
     return variant
   }, [product.variants, options])
@@ -119,13 +119,13 @@ export default function ProductActions({
     
     // 檢查是否有 calculated_price - 支援多種價格結構
     const variant = selectedVariant as any
-    console.log("🔍 價格檢查:", {
-      variantId: selectedVariant.id,
-      calculated_price: variant.calculated_price,
-      hasCalculatedAmount: !!(variant.calculated_price?.calculated_amount),
-      hasAmount: !!(variant.calculated_price?.amount),
-      fullVariant: variant
-    })
+    // console.log("🔍 價格檢查:", {
+      // variantId: selectedVariant.id,
+      // calculated_price: variant.calculated_price,
+      // hasCalculatedAmount: !!(variant.calculated_price?.calculated_amount),
+      // hasAmount: !!(variant.calculated_price?.amount),
+      // fullVariant: variant
+    // })
     
     return !!(
       variant.calculated_price?.calculated_amount || 
@@ -142,12 +142,12 @@ export default function ProductActions({
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return null
 
-    console.log("🛒 正在加入購物車:", {
-      variantId: selectedVariant.id,
-      quantity: 1,
-      countryCode,
-      selectedVariant
-    })
+    // console.log("🛒 正在加入購物車:", {
+      // variantId: selectedVariant.id,
+      // quantity: 1,
+      // countryCode,
+      // selectedVariant
+    // })
 
     setIsAdding(true)
 
@@ -171,24 +171,24 @@ export default function ProductActions({
         throw new Error(result.error || '加入購物車失敗')
       }
 
-      console.log("✅ 成功加入購物車:", result)
+      // console.log("✅ 成功加入購物車:", result)
       
       // 如果 API 回傳 cartId，也在前端設定
       if (result.cartId && typeof window !== 'undefined') {
         localStorage.setItem('_medusa_cart_id', result.cartId)
         document.cookie = `_medusa_cart_id=${result.cartId}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
-        console.log("📱 前端儲存 Cart ID:", result.cartId)
+        // console.log("📱 前端儲存 Cart ID:", result.cartId)
       }
       
-      console.log("💡 商品已加入購物車！")
+      // console.log("💡 商品已加入購物車！")
       
       // 觸發購物車更新事件
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('cartUpdate'))
-        console.log("🔄 已觸發購物車更新事件")
+        // console.log("🔄 已觸發購物車更新事件")
       }
     } catch (error) {
-      console.error("❌ 加入購物車失敗:", error)
+      // console.error("❌ 加入購物車失敗:", error)
       // 可以在這裡添加用戶友好的錯誤提示
     } finally {
       setIsAdding(false)

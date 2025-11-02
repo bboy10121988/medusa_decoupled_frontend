@@ -82,7 +82,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       }
     }
   } catch (error) {
-    console.error('生成元數據時出錯:', error)
+    // console.error('生成元數據時出錯:', error)
     return {
       title: '頁面未找到',
       description: '請求的頁面不存在'
@@ -106,14 +106,14 @@ export default async function DynamicPage({ params }: PageProps) {
     const page = await getPageBySlug(slugString)
 
     if (!page) {
-      console.log(`頁面未找到: /${countryCode}/${slugString}`)
+      // console.log(`頁面未找到: /${countryCode}/${slugString}`)
       notFound()
     }
 
-    console.log(`載入動態頁面: /${countryCode}/${slugString}`, { 
-      title: page.title,
-      sectionsCount: page.mainSections?.length || 0
-    })
+    // console.log(`載入動態頁面: /${countryCode}/${slugString}`, {
+      // title: page.title,
+      // sectionsCount: page.mainSections?.length || 0
+    // })
 
     // 獲取 region 和 collections 數據供 FeaturedProducts 使用
     const region = await getRegion(countryCode)
@@ -197,7 +197,7 @@ export default async function DynamicPage({ params }: PageProps) {
                                    youtubeBlock.videoUrl
                     
                     if (!hasVideo) {
-                      console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
+                      // console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
                       return null
                     }
                     
@@ -325,11 +325,11 @@ export default async function DynamicPage({ params }: PageProps) {
                     )
                   }
                   default:
-                    console.error("Unknown section type:", sectionType)
+                    // console.error("Unknown section type:", sectionType)
                     return null
                 }
               } catch (error) {
-                console.error("Error rendering section:", section._type, error)
+                // console.error("Error rendering section:", section._type, error)
                 return null
               }
             })
@@ -342,7 +342,7 @@ export default async function DynamicPage({ params }: PageProps) {
       </>
     )
   } catch (error) {
-    console.error('載入頁面失敗:', error)
+    // console.error('載入頁面失敗:', error)
     notFound()
   }
 }

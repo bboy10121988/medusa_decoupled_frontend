@@ -25,17 +25,17 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
   }
 
   if (!stripeKey) {
-    console.warn("Stripe 已停用：未設定 NEXT_PUBLIC_STRIPE_KEY 環境變數")
+    // console.warn("Stripe 已停用：未設定 NEXT_PUBLIC_STRIPE_KEY 環境變數")
     return <div>{children}</div>
   }
 
   if (!stripePromise) {
-    console.warn("Stripe 已停用：無法載入 Stripe")
+    // console.warn("Stripe 已停用：無法載入 Stripe")
     return <div>{children}</div>
   }
 
   if (!paymentSession?.data?.client_secret) {
-    console.warn("Stripe 客戶端密鑰遺失，無法初始化 Stripe")
+    // console.warn("Stripe 客戶端密鑰遺失，無法初始化 Stripe")
     return <div>{children}</div>
   }
 

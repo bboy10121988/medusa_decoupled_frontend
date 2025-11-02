@@ -72,7 +72,7 @@ export async function compressImage(
           compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6)
         }
 
-        console.log(`圖片壓縮完成: ${img.width}x${img.height} -> ${width}x${height}, 大小: ${getBase64SizeKB(compressedDataUrl).toFixed(1)}KB`)
+        // console.log(`圖片壓縮完成: ${img.width}x${img.height} -> ${width}x${height}, 大小: ${getBase64SizeKB(compressedDataUrl).toFixed(1)}KB`)
         resolve(compressedDataUrl)
       } catch (error) {
         reject(error)
@@ -143,7 +143,7 @@ export async function compressImagesInHtml(html: string): Promise<string> {
     return html
   }
 
-  console.log(`發現 ${matches.length} 張圖片需要處理`)
+  // console.log(`發現 ${matches.length} 張圖片需要處理`)
   
   let compressedHtml = html
 
@@ -156,7 +156,7 @@ export async function compressImagesInHtml(html: string): Promise<string> {
     }
 
     try {
-      console.log(`壓縮圖片: ${src.substring(0, 50)}...`)
+      // console.log(`壓縮圖片: ${src.substring(0, 50)}...`)
       const compressedSrc = await compressImage(src, {
         maxWidth: 1200,
         maxHeight: 800,
@@ -167,7 +167,7 @@ export async function compressImagesInHtml(html: string): Promise<string> {
       // 替換原始圖片 URL
       compressedHtml = compressedHtml.replace(src, compressedSrc)
     } catch (error) {
-      console.warn(`壓縮圖片失敗: ${src}`, error)
+      // console.warn(`壓縮圖片失敗: ${src}`, error)
       // 壓縮失敗時保留原始圖片
     }
   }

@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     })
     
   } catch (error: any) {
-    console.error('處理綠界付款請求時發生錯誤:', error)
+    // console.error('處理綠界付款請求時發生錯誤:', error)
     return NextResponse.json(
       { error: error.message || '處理付款時發生錯誤' },
       { status: 500 }

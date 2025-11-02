@@ -29,7 +29,7 @@ function EditorContent() {
   const docId = searchParams.get('docId')
 
   const handleSave = (pageData: GrapesJSPageData) => {
-    console.log('✅ 頁面已成功儲存到 Sanity!', pageData)
+    // console.log('✅ 頁面已成功儲存到 Sanity!', pageData)
     
     // 顯示成功通知
     if (typeof window !== 'undefined') {

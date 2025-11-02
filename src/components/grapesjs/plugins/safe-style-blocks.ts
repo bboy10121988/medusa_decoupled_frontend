@@ -92,7 +92,7 @@ export default function safeStyleBlocks(editor: any) {
     `
   })
 
-  console.log('✅ 安全樣式組件塊插件已載入')
+  // console.log('✅ 安全樣式組件塊插件已載入')
 }
 
 // 導出插件名稱用於配置

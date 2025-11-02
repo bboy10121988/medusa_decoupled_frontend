@@ -59,7 +59,7 @@ export async function GET() {
     })
 
   } catch (error: any) {
-    console.error('獲取 banner 數據錯誤:', error)
+    // console.error('獲取 banner 數據錯誤:', error)
     return NextResponse.json(
       { success: false, error: error?.message || '獲取失敗' },
       { status: 500 }
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: 'Unknown action' }, { status: 400 })
 
   } catch (error: any) {
-    console.error('測試更新錯誤:', error)
+    // console.error('測試更新錯誤:', error)
     return NextResponse.json(
       { success: false, error: error?.message || '測試失敗' },
       { status: 500 }

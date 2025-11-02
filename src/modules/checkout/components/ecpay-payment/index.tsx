@@ -46,7 +46,7 @@ const EcpayPayment: React.FC<EcpayPaymentProps> = ({
       onPaymentMethodChange(method)
     } catch (err: any) {
       setError(err.message)
-      console.error('支付方式變更錯誤:', err)
+      // console.error('支付方式變更錯誤:', err)
     }
   }
 

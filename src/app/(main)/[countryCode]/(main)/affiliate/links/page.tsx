@@ -35,10 +35,10 @@ export default async function AffiliateLinksPage({ params }: { params: Promise<{
       const json = await res.json()
       links = json?.links || []
     } else {
-      console.error('無法取得連結列表:', res.status, res.statusText)
+      // console.error('無法取得連結列表:', res.status, res.statusText)
     }
   } catch (error) {
-    console.error('取得連結列表時發生錯誤:', error)
+    // console.error('取得連結列表時發生錯誤:', error)
   }
 
   return (

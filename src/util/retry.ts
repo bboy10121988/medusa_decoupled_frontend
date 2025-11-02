@@ -108,7 +108,7 @@ export async function fetchWithRetry(
     {
       ...restOptions,
       onRetry: (attempt, error, delay) => {
-        console.log(`重試請求 (${attempt}/${restOptions?.retries || 3}), 延遲: ${delay}ms, 錯誤: ${error?.message || 'Unknown error'}`)
+        // console.log(`重試請求 (${attempt}/${restOptions?.retries || 3}), 延遲: ${delay}ms, 錯誤: ${error?.message || 'Unknown error'}`)
         onRetry?.(attempt, error, delay)
       }
     }

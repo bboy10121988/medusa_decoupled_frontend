@@ -29,7 +29,7 @@ export default function ClientAccountLayout({
           setCustomer(customerData)
         }
       } catch (error) {
-        console.error('獲取用戶資料失敗:', error)
+        // console.error('獲取用戶資料失敗:', error)
       } finally {
         setIsLoading(false)
       }

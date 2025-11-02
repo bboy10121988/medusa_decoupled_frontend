@@ -11,7 +11,7 @@ export async function PATCH(req: NextRequest) {
     const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
 
     if (!token) {
-      console.error('[Sanity Banner Mobile Update] 缺少 server-side Sanity token')
+      // console.error('[Sanity Banner Mobile Update] 缺少 server-side Sanity token')
       return NextResponse.json({ 
         success: false, 
         error: '更新功能需要設定 Sanity API Token' 
@@ -79,7 +79,7 @@ export async function PATCH(req: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('手機版 banner 圖片更新錯誤:', error)
+    // console.error('手機版 banner 圖片更新錯誤:', error)
     return NextResponse.json(
       { success: false, error: error?.message || '更新失敗' },
       { status: 500 }
@@ -218,7 +218,7 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('手機版 banner 圖片上傳更新錯誤:', error)
+    // console.error('手機版 banner 圖片上傳更新錯誤:', error)
     return NextResponse.json(
       { success: false, error: error?.message || '操作失敗' },
       { status: 500 }

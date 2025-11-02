@@ -52,7 +52,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ policies: defaultPolicies })
   } catch (error) {
-    console.error('Failed to fetch store policies from backend:', error)
+    // console.error('Failed to fetch store policies from backend:', error)
     
     // 發生錯誤時返回預設值
     const defaultPolicies = {

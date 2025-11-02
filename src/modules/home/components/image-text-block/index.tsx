@@ -29,11 +29,11 @@ const ImageWrapper = ({ imageConfig, className, sizes }: {
   sizes?: string 
 }) => {
   // 輸出圖片配置，幫助調試連結問題
-  console.log('ImageWrapper 處理圖片:', {
-    url: imageConfig.url,
-    alt: imageConfig.alt,
-    linkUrl: imageConfig.linkUrl
-  });
+  // console.log('ImageWrapper 處理圖片:', {
+    // url: imageConfig.url,
+    // alt: imageConfig.alt,
+    // linkUrl: imageConfig.linkUrl
+  // });
 
   const imageElement = (
     <Image

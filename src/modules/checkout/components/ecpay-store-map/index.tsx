@@ -43,7 +43,7 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
     setIsLoading(true)
     
     try {
-      console.log('� 開啟綠界物流選擇頁面...')
+      // console.log('� 開啟綠界物流選擇頁面...')
       
       // 從購物車中取得商品資訊
       const cartTotal = cart?.total || 500
@@ -68,7 +68,7 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
         clientReplyURL: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000'}/api/ecpay/logistics/callback`
       }
       
-      console.log('📦 物流參數:', logisticsParams)
+      // console.log('📦 物流參數:', logisticsParams)
       
       const response = await fetch('/api/ecpay/express-map', {
         method: 'POST',
@@ -103,7 +103,7 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
           
           // 設置全域回調函數來接收選擇結果
           ;(window as any).onLogisticsSelected = (data: any) => {
-            console.log('✅ 收到物流選擇結果:', data)
+            // console.log('✅ 收到物流選擇結果:', data)
             
             // 儲存物流選擇資訊到 localStorage
             if (data.tempLogisticsID) {
@@ -158,7 +158,7 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
       } else {
         // JSON 回應
         const result = await response.json()
-        console.log('✅ 物流選擇 API 回應:', result)
+        // console.log('✅ 物流選擇 API 回應:', result)
         
         if (result.success) {
           toast.success('物流選擇頁面已準備完成')
@@ -168,7 +168,7 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
       }
       
     } catch (error) {
-      console.error('❌ 開啟物流選擇頁面失敗:', error)
+      // console.error('❌ 開啟物流選擇頁面失敗:', error)
       toast.error(error instanceof Error ? error.message : '開啟物流選擇頁面失敗')
     } finally {
       setIsLoading(false)

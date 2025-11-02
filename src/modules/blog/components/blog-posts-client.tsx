@@ -93,7 +93,7 @@ export default function BlogPostsClient({
       </div>
     )
   } catch (error) {
-    console.error('顯示部落格文章時發生錯誤:', error)
+    // console.error('顯示部落格文章時發生錯誤:', error)
     return (
       <div className={(showTitle && title) ? "py-8 md:py-12 bg-gray-50" : "py-0 bg-gray-50"}>
         <div className="container mx-auto px-4">

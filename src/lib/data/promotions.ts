@@ -115,7 +115,7 @@ export const getProductPromotions = async (
     return promotionData
 
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error("Error fetching product promotions:", error)
+    // if (process.env.NODE_ENV === 'development') console.error("Error fetching product promotions:", error)
     return {}
   }
 }
@@ -158,7 +158,7 @@ export const getProductInventoryStatus = async (
     }
 
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error("Error fetching inventory status:", error)
+    // if (process.env.NODE_ENV === 'development') console.error("Error fetching inventory status:", error)
     return { isOutOfStock: false, canBackorder: false }
   }
 }

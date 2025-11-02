@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
       q,
     })
   } catch (error: any) {
-    console.error('Sanity assets list error:', error)
+    // console.error('Sanity assets list error:', error)
     return NextResponse.json({ success: false, error: error?.message || 'Failed to fetch assets' }, { status: 500 })
   }
 }

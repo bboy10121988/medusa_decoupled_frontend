@@ -74,7 +74,7 @@ const StoreSelector: React.FC = () => {
   const openLogisticsSelection = async () => {
     try {
       setIsLoading(true);
-      console.log('� 開啟物流選擇頁面:', selectedLogistics);
+      // console.log('� 開啟物流選擇頁面:', selectedLogistics);
 
       // 呼叫後端物流選擇 API
       const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
@@ -120,7 +120,7 @@ const StoreSelector: React.FC = () => {
       }
 
     } catch (error: any) {
-      console.error('❌ 開啟物流選擇頁面失敗:', error);
+      // console.error('❌ 開啟物流選擇頁面失敗:', error);
       alert(`開啟物流選擇頁面失敗: ${error.message}`);
     } finally {
       setIsLoading(false);

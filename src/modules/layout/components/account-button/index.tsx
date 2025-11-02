@@ -16,7 +16,7 @@ export default function AccountButton() {
           setCustomer((data as any).customer || null)
         }
       } catch (error) {
-        console.log('Customer not logged in')
+        // console.log('Customer not logged in')
         setCustomer(null)
       }
     }

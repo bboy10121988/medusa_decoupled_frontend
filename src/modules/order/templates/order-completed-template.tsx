@@ -56,7 +56,7 @@ export default async function OrderCompletedTemplate({
   //   case "requires_action":
   // }
 
-  console.log("payment status message:", msg)
+  // console.log("payment status message:", msg)
 
 
   return (

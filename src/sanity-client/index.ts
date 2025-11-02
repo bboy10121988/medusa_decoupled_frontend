@@ -6,8 +6,8 @@ const publicToken = process.env.NEXT_PUBLIC_SANITY_TOKEN
 const serverToken = process.env.SANITY_API_TOKEN
 
 if (typeof window === 'undefined' && !serverToken && process.env.NODE_ENV === 'development') {
-  console.warn('⚠️ [Sanity] 缺少 SANITY_API_TOKEN 環境變數，server-side 寫入功能將受限。')
-  console.warn('📝 請在 .env.local 中加入: SANITY_API_TOKEN=你的_sanity_寫入_token')
+  // console.warn('⚠️ [Sanity] 缺少 SANITY_API_TOKEN 環境變數，server-side 寫入功能將受限。')
+  // console.warn('📝 請在 .env.local 中加入: SANITY_API_TOKEN=你的_sanity_寫入_token')
 }
 
 export const client = createClient({
@@ -48,7 +48,7 @@ export async function getAllPosts(category?: string, limit: number = 50): Promis
     const posts = await client.fetch<BlogPostType[]>(query)
     return posts || []
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
     return []
   }
 }
@@ -63,7 +63,7 @@ export async function getCategories(): Promise<CategoryType[]> {
     const categories = await client.fetch<CategoryType[]>(query)
     return categories || []
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
     return []
   }
 }

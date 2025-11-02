@@ -14,11 +14,11 @@ const StoreName = () => {
           const data = await response.json()
           setStoreName(data.name)
         } else {
-          console.error('獲取店名失敗')
+          // console.error('獲取店名失敗')
           setStoreName("SALON")
         }
       } catch (error) {
-        console.error('獲取店名時出錯:', error)
+        // console.error('獲取店名時出錯:', error)
         setStoreName("SALON")
       }
     }

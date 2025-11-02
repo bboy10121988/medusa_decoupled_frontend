@@ -19,7 +19,7 @@ const GrapesJSInput = React.forwardRef<any, any>((props, ref) => {
 
         const grapesjs = (await import('grapesjs')).default
 
-        console.log('正在初始化 Sanity GrapesJS 編輯器...')
+        // console.log('正在初始化 Sanity GrapesJS 編輯器...')
 
         editorInstance.current = grapesjs.init({
           container: editorRef.current,
@@ -76,10 +76,10 @@ const GrapesJSInput = React.forwardRef<any, any>((props, ref) => {
           saveToSanity()
         })
 
-        console.log('Sanity GrapesJS 編輯器初始化成功')
+        // console.log('Sanity GrapesJS 編輯器初始化成功')
 
       } catch (error) {
-        console.error('Sanity GrapesJS 編輯器初始化失敗:', error)
+        // console.error('Sanity GrapesJS 編輯器初始化失敗:', error)
       }
     }
 
@@ -92,7 +92,7 @@ const GrapesJSInput = React.forwardRef<any, any>((props, ref) => {
         try {
           editorInstance.current.destroy()
         } catch (e) {
-          console.warn('編輯器銷毀時發生錯誤:', e)
+          // console.warn('編輯器銷毀時發生錯誤:', e)
         }
       }
     }
@@ -113,7 +113,7 @@ const GrapesJSInput = React.forwardRef<any, any>((props, ref) => {
       ])
 
     } catch (error) {
-      console.error('儲存到 Sanity 時發生錯誤:', error)
+      // console.error('儲存到 Sanity 時發生錯誤:', error)
     }
   }, [onChange])
 

@@ -33,14 +33,14 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     (s) => s.status === "pending"
   ) ?? cart.payment_collection?.payment_sessions?.[0]
 
-  console.log("paymentSession:",paymentSession)
+  // console.log("paymentSession:",paymentSession)
 
   const providerId = paymentSession?.provider_id
 
-  console.log(action, "支付方式選擇:", { 
-    paymentSessionProvider: paymentSession?.provider_id,
-    finalProviderId: providerId 
-  })
+  // console.log(action, "支付方式選擇:", {
+    // paymentSessionProvider: paymentSession?.provider_id,
+    // finalProviderId: providerId
+  // })
 
   // 根據支付方式渲染對應的按鈕
   switch(providerId){

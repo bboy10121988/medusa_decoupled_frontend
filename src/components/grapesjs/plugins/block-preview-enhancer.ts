@@ -489,7 +489,7 @@ class BlockPreviewEnhancer {
     this.config = { ...defaultPreviewConfig, ...config };
     this.generator = new BlockPreviewGenerator(this.config);
 
-    console.log('🚀 BlockPreviewEnhancer 構造函數被調用', { enabled: this.config.enabled });
+    // console.log('🚀 BlockPreviewEnhancer 構造函數被調用', { enabled: this.config.enabled });
     
     // 如果配置啟用，則初始化
     if (this.config.enabled) {
@@ -501,28 +501,28 @@ class BlockPreviewEnhancer {
    * 初始化預覽功能
    */
   init(): void {
-    console.log('� BlockPreviewEnhancer init() 被調用');
-    console.log('�🔍 正在初始化元件庫預覽功能...');
+    // console.log('� BlockPreviewEnhancer init() 被調用');
+    // console.log('�🔍 正在初始化元件庫預覽功能...');
     
     // 注入樣式
     this.injectStyles();
     
     // 等待編輯器完全載入
     this.editor.on('load', () => {
-      console.log('✅ GrapesJS 編輯器載入事件觸發');
+      // console.log('✅ GrapesJS 編輯器載入事件觸發');
       // 增加延遲，確保 BlockManager 完全初始化
       setTimeout(() => {
-        console.log('⏰ 開始設置預覽監聽器...');
+        // console.log('⏰ 開始設置預覽監聽器...');
         this.setupPreviewListenersWithRetry();
-        console.log('✅ 元件庫預覽功能初始化完成');
+        // console.log('✅ 元件庫預覽功能初始化完成');
       }, 2000); // 增加延遲到 2 秒
     });
 
     // 如果編輯器已經載入完成，立即設置監聽器
     if (this.editor?.getModel?.()) {
-      console.log('⚡ 編輯器已載入，立即設置監聽器');
+      // console.log('⚡ 編輯器已載入，立即設置監聽器');
       setTimeout(() => {
-        console.log('⏰ 立即設置預覽監聽器...');
+        // console.log('⏰ 立即設置預覽監聽器...');
         this.setupPreviewListeners();
       }, 2000);
     }
@@ -630,18 +630,18 @@ class BlockPreviewEnhancer {
   private setupPreviewListenersWithRetry(retryCount = 0, maxRetries = 5): void {
     if (!this.editor?.BlockManager) {
       if (retryCount < maxRetries) {
-        console.log(`⏱️ BlockManager 尚未準備就緒，${1000 * (retryCount + 1)}ms 後重試 (${retryCount + 1}/${maxRetries})`);
+        // console.log(`⏱️ BlockManager 尚未準備就緒，${1000 * (retryCount + 1)}ms 後重試 (${retryCount + 1}/${maxRetries})`);
         setTimeout(() => {
           this.setupPreviewListenersWithRetry(retryCount + 1, maxRetries);
         }, 1000 * (retryCount + 1)); // 逐漸增加延遲
         return;
       } else {
-        console.error('⚠️ BlockManager 在多次重試後仍未準備就緒');
+        // console.error('⚠️ BlockManager 在多次重試後仍未準備就緒');
         return;
       }
     }
 
-    console.log('✅ BlockManager 準備就緒，設置預覽監聽器');
+    // console.log('✅ BlockManager 準備就緒，設置預覽監聽器');
     this.setupPreviewListeners();
   }
 
@@ -650,7 +650,7 @@ class BlockPreviewEnhancer {
    */
   private setupPreviewListeners(): void {
     if (!this.editor?.BlockManager) {
-      console.warn('⚠️ 編輯器或 BlockManager 尚未準備就緒');
+      // console.warn('⚠️ 編輯器或 BlockManager 尚未準備就緒');
       return;
     }
     
@@ -669,25 +669,25 @@ class BlockPreviewEnhancer {
     for (const selector of possibleSelectors) {
       blockContainer = document.querySelector(selector);
       if (blockContainer) {
-        console.log(`✅ 找到元件容器: ${selector}`);
+        // console.log(`✅ 找到元件容器: ${selector}`);
         break;
       } else {
-        console.log(`❌ 未找到元件容器: ${selector}`);
+        // console.log(`❌ 未找到元件容器: ${selector}`);
       }
     }
     
     if (!blockContainer) {
-      console.warn('⚠️ 找不到元件容器，嘗試在 2 秒後重試...');
+      // console.warn('⚠️ 找不到元件容器，嘗試在 2 秒後重試...');
       setTimeout(() => this.setupPreviewListeners(), 2000);
       return;
     }
 
     // 檢查容器中的元件
     const blocks = blockContainer.querySelectorAll('.gjs-block');
-    console.log(`📦 找到 ${blocks.length} 個元件`);
+    // console.log(`📦 找到 ${blocks.length} 個元件`);
     
     if (blocks.length === 0) {
-      console.warn('⚠️ 元件容器中沒有找到任何元件，嘗試在 2 秒後重試...');
+      // console.warn('⚠️ 元件容器中沒有找到任何元件，嘗試在 2 秒後重試...');
       setTimeout(() => this.setupPreviewListeners(), 2000);
       return;
     }
@@ -707,7 +707,7 @@ class BlockPreviewEnhancer {
       }
     });
 
-    console.log('✅ 預覽監聽器設置完成');
+    // console.log('✅ 預覽監聽器設置完成');
   }
 
   /**
@@ -722,33 +722,33 @@ class BlockPreviewEnhancer {
     // 延遲顯示預覽
     this.hoverTimer = window.setTimeout(() => {
       const blockId = blockElement.getAttribute('title') || blockElement.textContent?.trim();
-      console.log(`🔍 懸停在元件上: ${blockId}`);
+      // console.log(`🔍 懸停在元件上: ${blockId}`);
       
       if (!blockId) {
-        console.warn('⚠️ 無法獲取元件ID');
+        // console.warn('⚠️ 無法獲取元件ID');
         return;
       }
 
       // 確保 blockManager 存在
       if (!blockManager) {
-        console.warn('⚠️ BlockManager 不存在');
+        // console.warn('⚠️ BlockManager 不存在');
         return;
       }
 
       // 從 BlockManager 獲取元件資料
       const block = blockManager.get(blockId) || this.findBlockByLabel(blockManager, blockId);
       if (!block) {
-        console.log(`❌ 找不到元件: ${blockId}`);
+        // console.log(`❌ 找不到元件: ${blockId}`);
         // 列出所有可用的元件來調試
         const allBlocks = blockManager.getAll();
-        console.log('📋 可用元件列表:', allBlocks.models ? 
-          allBlocks.models.map((b: any) => ({ id: b.get('id'), label: b.get('label') })) :
-          allBlocks.map((b: any) => ({ id: b.id, label: b.label }))
-        );
+        // console.log('📋 可用元件列表:', allBlocks.models ?
+          // allBlocks.models.map((b: any) => ({ id: b.get('id'), label: b.get('label') })) :
+          // allBlocks.map((b: any) => ({ id: b.id, label: b.label }))
+        // );
         return;
       }
 
-      console.log(`✅ 找到元件，準備顯示預覽: ${blockId}`);
+      // console.log(`✅ 找到元件，準備顯示預覽: ${blockId}`);
       this.showPreview(blockElement, block);
     }, this.config.delay);
   }
@@ -772,7 +772,7 @@ class BlockPreviewEnhancer {
         return blockData.label === label || blockData.id === label;
       });
     } catch (error) {
-      console.warn('⚠️ 查找元件時發生錯誤:', error);
+      // console.warn('⚠️ 查找元件時發生錯誤:', error);
       return null;
     }
   }
@@ -898,7 +898,7 @@ class BlockPreviewEnhancer {
       styleElement.remove();
     }
 
-    console.log('🗑️ 元件庫預覽功能已清理');
+    // console.log('🗑️ 元件庫預覽功能已清理');
   }
 
   /**

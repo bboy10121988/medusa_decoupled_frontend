@@ -7,7 +7,7 @@ export async function safeFetchGlobal<T = any>(input: RequestInfo, init?: Reques
   } catch (error: any) {
     const msg = String(error?.message || error)
     if (error?.name === 'AbortError' || msg.includes('The user aborted a request') || msg.includes('signal is aborted')) {
-      if (process.env.NODE_ENV === 'development') console.warn('Global fetch aborted (handled):', msg)
+      // if (process.env.NODE_ENV === 'development') console.warn('Global fetch aborted (handled):', msg)
       return fallback
     }
     throw error

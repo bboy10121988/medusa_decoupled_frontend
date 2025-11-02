@@ -11,7 +11,7 @@ class AuthenticatedSDK {
    */
   async getCustomer() {
     try {
-      console.log("🔍 AuthenticatedSDK: 獲取客戶資料...")
+      // console.log("🔍 AuthenticatedSDK: 獲取客戶資料...")
       
       // 首先嘗試使用伺服器端 API，它可以正確讀取 httpOnly cookies
       try {
@@ -24,34 +24,34 @@ class AuthenticatedSDK {
           const result = await response.json()
           
           if (result.authenticated && result.customer) {
-            console.log("✅ AuthenticatedSDK: 通過 API 獲取客戶資料成功", {
-              customerId: result.customer.id,
-              email: result.customer.email,
-              method: result.method
-            })
+            // console.log("✅ AuthenticatedSDK: 通過 API 獲取客戶資料成功", {
+              // customerId: result.customer.id,
+              // email: result.customer.email,
+              // method: result.method
+            // })
             
             return result.customer
           } else {
-            console.log("❌ AuthenticatedSDK: API 返回未認證狀態", result)
+            // console.log("❌ AuthenticatedSDK: API 返回未認證狀態", result)
           }
         }
       } catch (apiError) {
-        console.warn("⚠️ AuthenticatedSDK: API 調用失敗，嘗試直接 SDK", apiError)
+        // console.warn("⚠️ AuthenticatedSDK: API 調用失敗，嘗試直接 SDK", apiError)
       }
       
       // 備用方案：直接調用 SDK
-      console.log("🔄 AuthenticatedSDK: 嘗試直接 SDK 調用")
+      // console.log("🔄 AuthenticatedSDK: 嘗試直接 SDK 調用")
       const { customer } = await sdk.store.customer.retrieve()
       
-      console.log("✅ AuthenticatedSDK: 直接 SDK 調用成功", {
-        hasCustomer: !!customer,
-        customerId: customer?.id,
-        email: customer?.email
-      })
+      // console.log("✅ AuthenticatedSDK: 直接 SDK 調用成功", {
+        // hasCustomer: !!customer,
+        // customerId: customer?.id,
+        // email: customer?.email
+      // })
       
       return customer
     } catch (error) {
-      console.error("❌ AuthenticatedSDK: 客戶資料獲取失敗", error)
+      // console.error("❌ AuthenticatedSDK: 客戶資料獲取失敗", error)
       throw error
     }
   }
@@ -66,18 +66,18 @@ class AuthenticatedSDK {
     phone?: string
   }) {
     try {
-      console.log("📝 AuthenticatedSDK: 創建客戶", customerData.email)
+      // console.log("📝 AuthenticatedSDK: 創建客戶", customerData.email)
       
       const { customer } = await sdk.store.customer.create(customerData)
       
-      console.log("✅ AuthenticatedSDK: 客戶創建成功", {
-        customerId: customer?.id,
-        email: customer?.email
-      })
+      // console.log("✅ AuthenticatedSDK: 客戶創建成功", {
+        // customerId: customer?.id,
+        // email: customer?.email
+      // })
       
       return customer
     } catch (error) {
-      console.error("❌ AuthenticatedSDK: 客戶創建失敗", error)
+      // console.error("❌ AuthenticatedSDK: 客戶創建失敗", error)
       throw error
     }
   }
@@ -92,15 +92,15 @@ class AuthenticatedSDK {
     phone?: string
   }) {
     try {
-      console.log("📝 AuthenticatedSDK: 更新客戶資料")
+      // console.log("📝 AuthenticatedSDK: 更新客戶資料")
       
       const { customer } = await sdk.store.customer.update(customerData)
       
-      console.log("✅ AuthenticatedSDK: 客戶資料更新成功")
+      // console.log("✅ AuthenticatedSDK: 客戶資料更新成功")
       
       return customer
     } catch (error) {
-      console.error("❌ AuthenticatedSDK: 客戶資料更新失敗", error)
+      // console.error("❌ AuthenticatedSDK: 客戶資料更新失敗", error)
       throw error
     }
   }
@@ -110,25 +110,25 @@ class AuthenticatedSDK {
    */
   async checkAuthentication() {
     try {
-      console.log("🔍 AuthenticatedSDK: 檢查認證狀態...")
+      // console.log("🔍 AuthenticatedSDK: 檢查認證狀態...")
       
       // 嘗試獲取客戶資料來驗證認證
       const customer = await this.getCustomer()
       
-      console.log("✅ AuthenticatedSDK: 認證狀態檢查完成", {
-        authenticated: !!customer,
-        customerId: customer?.id
-      })
+      // console.log("✅ AuthenticatedSDK: 認證狀態檢查完成", {
+        // authenticated: !!customer,
+        // customerId: customer?.id
+      // })
       
       return {
         authenticated: !!customer,
         customer
       }
     } catch (error: any) {
-      console.log("❌ AuthenticatedSDK: 認證檢查失敗", {
-        error: error.message,
-        status: error.status || 'unknown'
-      })
+      // console.log("❌ AuthenticatedSDK: 認證檢查失敗", {
+        // error: error.message,
+        // status: error.status || 'unknown'
+      // })
       
       return {
         authenticated: false,
@@ -144,7 +144,7 @@ class AuthenticatedSDK {
    */
   async refreshAuthentication() {
     try {
-      console.log("🔄 AuthenticatedSDK: 通過 API 刷新認證狀態...")
+      // console.log("🔄 AuthenticatedSDK: 通過 API 刷新認證狀態...")
       
       // 通過 API 端點檢查認證（這會在伺服器端處理 cookies）
       const response = await fetch('/api/auth/customer', {
@@ -154,18 +154,18 @@ class AuthenticatedSDK {
       
       const result = await response.json()
       
-      console.log("🔑 AuthenticatedSDK: API 認證狀態", {
-        authenticated: result.authenticated,
-        hasCustomer: !!result.customer,
-        method: result.method
-      })
+      // console.log("🔑 AuthenticatedSDK: API 認證狀態", {
+        // authenticated: result.authenticated,
+        // hasCustomer: !!result.customer,
+        // method: result.method
+      // })
       
       return {
         authenticated: result.authenticated,
         customer: result.customer
       }
     } catch (error) {
-      console.error("❌ AuthenticatedSDK: 認證刷新失敗", error)
+      // console.error("❌ AuthenticatedSDK: 認證刷新失敗", error)
       return {
         authenticated: false,
         customer: null,

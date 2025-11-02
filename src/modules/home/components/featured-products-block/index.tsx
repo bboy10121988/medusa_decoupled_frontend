@@ -13,8 +13,8 @@ const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
   collections,
   region,
 }) => {
-  console.log("FeaturedProductsBlock - collectionId:", collectionId);
-  console.log("FeaturedProductsBlock - collections:", collections);
+  // console.log("FeaturedProductsBlock - collectionId:", collectionId);
+  // console.log("FeaturedProductsBlock - collections:", collections);
 
   const featuredCollections = collections.filter(
     (collection) => collection.id === collectionId

@@ -97,7 +97,7 @@ export const listProducts = async ({
       }
     })
     .catch((error) => {
-      console.error("產品列表獲取失敗:", error)
+      // console.error("產品列表獲取失敗:", error)
       throw medusaError(error)
     })
 }
@@ -257,7 +257,7 @@ export const getProductsByIds = async ({
     })
     .then(({ products }) => products)
     .catch((error) => {
-      console.error("批量產品獲取失敗:", error)
+      // console.error("批量產品獲取失敗:", error)
       throw medusaError(error)
     })
 }
@@ -274,7 +274,7 @@ export const getProductDetailContent = async (product: HttpTypes.StoreProduct): 
     }
     return null
   } catch (error) {
-    console.error(`提取產品 ${product?.id} 詳細內容失敗:`, error)
+    // console.error(`提取產品 ${product?.id} 詳細內容失敗:`, error)
     return null
   }
 }

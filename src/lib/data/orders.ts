@@ -38,8 +38,8 @@ export const retrieveOrder = async (id: string) => {
   })
   .then(({order}) => {
 
-    console.log("retrieve order heyhey:", order)
-    console.log("retrieve order metadata:", order.metadata)
+    // console.log("retrieve order heyhey:", order)
+    // console.log("retrieve order metadata:", order.metadata)
 
     return order
   })

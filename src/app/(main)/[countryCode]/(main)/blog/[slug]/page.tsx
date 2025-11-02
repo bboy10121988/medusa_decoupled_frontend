@@ -25,7 +25,7 @@ async function getCategories() {
       new Map(categories.map(cat => [cat.title, cat])).values()
     )
   } catch (error) {
-    console.error("Error fetching categories:", error)
+    // console.error("Error fetching categories:", error)
     return []
   }
 }
@@ -49,7 +49,7 @@ async function getLatestPosts(excludeSlug?: string) {
     const posts = await client.fetch(query)
     return posts || []
   } catch (error) {
-    console.error("Error fetching latest posts:", error)
+    // console.error("Error fetching latest posts:", error)
     return []
   }
 }
@@ -62,7 +62,7 @@ export default async function BlogPost({
   try {
     const { slug, countryCode } = await params
     
-    console.log(`📖 [BlogPost] 正在載入文章頁面: ${slug}`)
+    // console.log(`📖 [BlogPost] 正在載入文章頁面: ${slug}`)
     
     const [post, categories, latestPosts] = await Promise.all([
       getPostBySlug(slug),
@@ -71,11 +71,11 @@ export default async function BlogPost({
     ])
 
     if (!post) {
-      console.log(`❌ [BlogPost] 文章不存在，返回 404: ${slug}`)
+      // console.log(`❌ [BlogPost] 文章不存在，返回 404: ${slug}`)
       notFound()
     }
     
-    console.log(`✅ [BlogPost] 成功載入文章: ${post.title}`)
+    // console.log(`✅ [BlogPost] 成功載入文章: ${post.title}`)
 
   return (
     <div className="bg-white min-h-screen mt-[72px]">
@@ -279,7 +279,7 @@ export default async function BlogPost({
     </div>
   )
   } catch (error) {
-    console.error("Error in BlogPost:", error)
+    // console.error("Error in BlogPost:", error)
     return (
       <div className="bg-gray-50 min-h-screen mt-[72px]">
         <div className="mx-auto text-center py-12">

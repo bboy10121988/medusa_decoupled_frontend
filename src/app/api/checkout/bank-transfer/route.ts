@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       }
       
     } catch (orderError: any) {
-      console.error('創建訂單失敗:', orderError)
+      // console.error('創建訂單失敗:', orderError)
       return NextResponse.json({ 
         error: '創建訂單失敗，請稍後重試',
         details: orderError.message 
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('銀行轉帳API錯誤:', error)
+    // console.error('銀行轉帳API錯誤:', error)
     return NextResponse.json({ 
       error: '服務器錯誤',
       details: error.message 

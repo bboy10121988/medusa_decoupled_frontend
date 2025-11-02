@@ -70,17 +70,17 @@ async function getAllPosts(category?: string) {
         }`
     
     const posts = await client.fetch<Post[]>(query)
-    console.log('Fetched posts:', posts?.length)
-    console.log('First post data:', JSON.stringify(posts?.[0], null, 2))
+    // console.log('Fetched posts:', posts?.length)
+    // console.log('First post data:', JSON.stringify(posts?.[0], null, 2))
     
     if (!posts) {
-      console.warn("No posts found")
+      // console.warn("No posts found")
       return []
     }
     
     return posts
   } catch (error) {
-    console.error("Error fetching posts:", error)
+    // console.error("Error fetching posts:", error)
     return []
   }
 }
@@ -94,10 +94,10 @@ async function getCategories() {
       title
     }`
     const categories = await client.fetch<Category[]>(query)
-    console.log('Fetched categories:', categories?.length)
+    // console.log('Fetched categories:', categories?.length)
     
     if (!categories) {
-      console.warn("No categories found")
+      // console.warn("No categories found")
       return []
     }
     
@@ -105,7 +105,7 @@ async function getCategories() {
       new Map(categories.map(cat => [cat.title, cat])).values()
     )
   } catch (error) {
-    console.error("Error fetching categories:", error)
+    // console.error("Error fetching categories:", error)
     return []
   }
 }
@@ -130,7 +130,7 @@ async function getLatestPosts() {
     const posts = await client.fetch(query)
     return posts || []
   } catch (error) {
-    console.error("Error fetching latest posts:", error)
+    // console.error("Error fetching latest posts:", error)
     return []
   }
 }
@@ -146,7 +146,7 @@ async function getSiteInfo() {
       seoTitle
     }`
     const siteInfo = await client.fetch(query)
-    console.log('Fetched site info:', siteInfo)
+    // console.log('Fetched site info:', siteInfo)
     return siteInfo || { 
       title: "首頁", 
       description: "", 
@@ -154,7 +154,7 @@ async function getSiteInfo() {
       seoTitle: "Fantasy World Barber Shop" 
     }
   } catch (error) {
-    console.error("Error fetching site info:", error)
+    // console.error("Error fetching site info:", error)
     return { 
       title: "首頁", 
       description: "", 
@@ -205,7 +205,7 @@ async function getBlogPageSettings() {
       }
     }`
     const settings = await client.fetch(query)
-    console.log('Fetched blog page settings:', settings)
+    // console.log('Fetched blog page settings:', settings)
     return settings || {
       title: '部落格文章',
       subtitle: '探索我們的最新消息與文章',
@@ -235,7 +235,7 @@ async function getBlogPageSettings() {
       enableSearch: false
     }
   } catch (error) {
-    console.error("Error fetching blog page settings:", error)
+    // console.error("Error fetching blog page settings:", error)
     return {
       title: '部落格文章',
       subtitle: '探索我們的最新消息與文章',
@@ -475,7 +475,7 @@ export default async function BlogListPage({
       </div>
     )
   } catch (error) {
-    console.error("Error in BlogListPage:", error)
+    // console.error("Error in BlogListPage:", error)
     return (
       <div className="py-12 bg-white min-h-[80vh]">
         <div className="mx-auto text-center">

@@ -20,14 +20,14 @@ const BankTransferPaymentButton = ({ cart, notReady, "data-testid": dataTestId }
     setSubmitting(true)
     setErrorMessage(null)
     
-    console.log("🏦 開始銀行轉帳訂單處理")
+    // console.log("🏦 開始銀行轉帳訂單處理")
     
     try {
       const result = await placeOrder()
-      console.log("✅ 銀行轉帳訂單建立成功:", result)
+      // console.log("✅ 銀行轉帳訂單建立成功:", result)
       // placeOrder 成功會自動跳轉到 order confirmed 頁面
     } catch (err: any) {
-      console.error("❌ 銀行轉帳訂單建立失敗:", err)
+      // console.error("❌ 銀行轉帳訂單建立失敗:", err)
       
       // 設置錯誤訊息
       let displayMessage = "訂單建立失敗，請稍後再試"

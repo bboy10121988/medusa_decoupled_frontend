@@ -23,7 +23,7 @@ async function saveLinksToFile(allLinks: { [affiliateId: string]: AffiliateLink[
     await fs.mkdir(STORAGE_DIR, { recursive: true })
     await fs.writeFile(STORAGE_FILE, JSON.stringify(allLinks, null, 2), 'utf-8')
   } catch (error) {
-    console.error('儲存連結到檔案失敗:', error)
+    // console.error('儲存連結到檔案失敗:', error)
   }
 }
 
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('更新點擊數失敗:', error)
+    // console.error('更新點擊數失敗:', error)
     return NextResponse.json({ error: '更新點擊數失敗' }, { status: 500 })
   }
 }

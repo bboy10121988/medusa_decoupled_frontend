@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
 
     if (!token) {
-      console.error('[Sanity Upload] 缺少 server-side Sanity token。請在 .env.local 中加入 SANITY_API_TOKEN 或 SANITY_WRITE_TOKEN')
+      // console.error('[Sanity Upload] 缺少 server-side Sanity token。請在 .env.local 中加入 SANITY_API_TOKEN 或 SANITY_WRITE_TOKEN')
       return NextResponse.json({ 
         success: false, 
         error: '媒體上傳功能需要設定 Sanity API Token。請聯繫開發者設定 SANITY_API_TOKEN 環境變數。' 
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (error: any) {
-    console.error('Sanity image upload error:', error)
+    // console.error('Sanity image upload error:', error)
     return NextResponse.json(
       { success: false, error: error?.message || 'Upload failed' },
       { status: 500 }

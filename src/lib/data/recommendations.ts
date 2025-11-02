@@ -22,7 +22,7 @@ export const getFeaturedProducts = async (
 
     return response.products || []
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error("Error fetching featured products:", error)
+    // if (process.env.NODE_ENV === 'development') console.error("Error fetching featured products:", error)
     return []
   }
 }
@@ -51,7 +51,7 @@ export const getRelatedProducts = async (
       .filter((product: HttpTypes.StoreProduct) => !productIds.includes(product.id))
       .slice(0, limit)
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error("Error fetching related products:", error)
+    // if (process.env.NODE_ENV === 'development') console.error("Error fetching related products:", error)
     return []
   }
 }

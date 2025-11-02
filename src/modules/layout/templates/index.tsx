@@ -14,7 +14,7 @@ async function FaviconProvider() {
       />
     )
   } catch (error) {
-    console.warn('無法載入 favicon:', error)
+    // console.warn('無法載入 favicon:', error)
     return null
   }
 }

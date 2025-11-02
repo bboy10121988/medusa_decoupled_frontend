@@ -112,11 +112,11 @@ const Hero = ({ slides, settings }: HeroProps) => {
       
       if (diffX > 0) {
         // 向左滑動 - 下一張
-        console.log('📱 手勢滑動: 下一張')
+        // console.log('📱 手勢滑動: 下一張')
         goToNextSlide()
       } else {
         // 向右滑動 - 上一張
-        console.log('📱 手勢滑動: 上一張')  
+        // console.log('📱 手勢滑動: 上一張')
         goToPrevSlide()
       }
     }

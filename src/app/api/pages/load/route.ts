@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     // 將 pageId 轉換為 slug 格式（如果需要）
     const slug = pageId.toLowerCase().replace(/[^a-z0-9]/g, '-')
 
-    console.log('載入頁面查詢:', { originalPageId: pageId, processedSlug: slug })
+    // console.log('載入頁面查詢:', { originalPageId: pageId, processedSlug: slug })
 
     // 從 Sanity 查詢頁面 - 嘗試多種查詢方式
     let page = await client.fetch(
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('從 Sanity 載入頁面失敗:', error)
+    // console.error('從 Sanity 載入頁面失敗:', error)
     return NextResponse.json(
       { 
         success: false, 

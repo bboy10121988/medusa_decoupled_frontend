@@ -11,21 +11,21 @@ export default function SanityTestPage() {
     setResult('')
     
     try {
-      console.log('🔍 測試 Sanity Assets API...')
+      // console.log('🔍 測試 Sanity Assets API...')
       const response = await fetch('/api/sanity/assets?page=1&pageSize=5')
       const data = await response.json()
       
       if (response.ok) {
         setResult(JSON.stringify(data, null, 2))
-        console.log('✅ API 回應:', data)
+        // console.log('✅ API 回應:', data)
       } else {
         setResult(`❌ API 錯誤 (${response.status}): ${JSON.stringify(data, null, 2)}`)
-        console.error('API 錯誤:', data)
+        // console.error('API 錯誤:', data)
       }
     } catch (error) {
       const errorMsg = `❌ 網路錯誤: ${error}`
       setResult(errorMsg)
-      console.error('網路錯誤:', error)
+      // console.error('網路錯誤:', error)
     } finally {
       setLoading(false)
     }
@@ -36,7 +36,7 @@ export default function SanityTestPage() {
     setResult('')
     
     try {
-      console.log('🔍 測試上傳權限...')
+      // console.log('🔍 測試上傳權限...')
       // 創建一個小的測試圖片
       const canvas = document.createElement('canvas')
       canvas.width = 10
@@ -61,15 +61,15 @@ export default function SanityTestPage() {
       
       if (response.ok) {
         setResult(`✅ 上傳成功: ${JSON.stringify(data, null, 2)}`)
-        console.log('✅ 上傳成功:', data)
+        // console.log('✅ 上傳成功:', data)
       } else {
         setResult(`❌ 上傳失敗 (${response.status}): ${JSON.stringify(data, null, 2)}`)
-        console.error('上傳失敗:', data)
+        // console.error('上傳失敗:', data)
       }
     } catch (error) {
       const errorMsg = `❌ 上傳錯誤: ${error}`
       setResult(errorMsg)
-      console.error('上傳錯誤:', error)
+      // console.error('上傳錯誤:', error)
     } finally {
       setLoading(false)
     }

@@ -19,7 +19,7 @@ const LogisticsSelectionDisplay: React.FC<LogisticsSelectionDisplayProps> = ({ o
           const parsed = JSON.parse(saved)
           setLogisticsInfo(parsed)
         } catch (error) {
-          console.error('解析物流選擇資訊失敗:', error)
+          // console.error('解析物流選擇資訊失敗:', error)
         }
       }
     }

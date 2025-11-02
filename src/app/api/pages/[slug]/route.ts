@@ -30,7 +30,7 @@ export async function GET(
 
     return NextResponse.json(page)
   } catch (error) {
-    console.error('API 錯誤:', error)
+    // console.error('API 錯誤:', error)
     return NextResponse.json(
       { error: '伺服器錯誤' },
       { status: 500 }

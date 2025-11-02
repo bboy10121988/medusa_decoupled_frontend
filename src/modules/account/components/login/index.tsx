@@ -27,7 +27,7 @@ const Login = ({ setCurrentView }: Props) => {
   // 處理登入成功
   useEffect(() => {
     if (result === "login_success") {
-      console.log("🎉 登入成功，刷新客戶狀態並重定向")
+      // console.log("🎉 登入成功，刷新客戶狀態並重定向")
       
       const handleSuccess = async () => {
         try {
@@ -37,7 +37,7 @@ const Login = ({ setCurrentView }: Props) => {
             window.location.href = `/${countryCode}/account`
           }, 500)
         } catch (error) {
-          console.error("刷新客戶狀態失敗:", error)
+          // console.error("刷新客戶狀態失敗:", error)
           // 即使刷新失敗，也嘗試重定向
           setTimeout(() => {
             window.location.href = `/${countryCode}/account`
@@ -75,7 +75,7 @@ const Login = ({ setCurrentView }: Props) => {
         setEmailCheckResult(result)
       }
     } catch (error) {
-      console.error('檢查 email 失敗:', error)
+      // console.error('檢查 email 失敗:', error)
     } finally {
       setIsCheckingEmail(false)
     }

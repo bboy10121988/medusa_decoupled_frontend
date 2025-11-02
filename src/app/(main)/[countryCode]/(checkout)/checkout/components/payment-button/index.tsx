@@ -32,7 +32,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     (s) => s.status === "pending"
   ) || cart.payment_collection?.payment_sessions?.[0]
 
-  console.log(action, "paymentSession:", paymentSession)
+  // console.log(action, "paymentSession:", paymentSession)
 
   const providerId = paymentSession?.provider_id
 

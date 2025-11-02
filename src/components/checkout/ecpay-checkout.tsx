@@ -13,7 +13,7 @@ const EcpayCheckout: React.FC<EcpayCheckoutProps> = ({
 }) => {
   const handlePayment = () => {
     // ECPay 支付邏輯
-    console.log("Processing ECPay payment for cart:", cart?.id)
+    // console.log("Processing ECPay payment for cart:", cart?.id)
   }
 
   return (

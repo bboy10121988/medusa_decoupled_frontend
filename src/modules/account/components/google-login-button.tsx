@@ -33,7 +33,7 @@ export default function GoogleLoginButton() {
       alert("無法啟動 Google 登入，請聯繫管理員。")
       setIsLoading(false)
     } catch (error) {
-      console.error("Google 登入錯誤:", error)
+      // console.error("Google 登入錯誤:", error)
       alert("登入時發生錯誤，請稍後重試")
       setIsLoading(false)
     }

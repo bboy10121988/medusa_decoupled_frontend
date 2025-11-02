@@ -20,7 +20,7 @@ export async function GET(
 
     return NextResponse.json(page)
   } catch (error) {
-    console.error('預覽 API 錯誤:', error)
+    // console.error('預覽 API 錯誤:', error)
     return NextResponse.json(
       { error: '伺服器錯誤' },
       { status: 500 }
@@ -44,7 +44,7 @@ export async function POST(
     
     return NextResponse.json(updatedPage)
   } catch (error) {
-    console.error('更新預覽 API 錯誤:', error)
+    // console.error('更新預覽 API 錯誤:', error)
     return NextResponse.json(
       { error: '更新失敗' },
       { status: 500 }

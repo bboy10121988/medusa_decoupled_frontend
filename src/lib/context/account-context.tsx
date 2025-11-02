@@ -35,7 +35,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         setCustomer(null)
       }
     } catch (err) {
-      console.error('Failed to fetch customer:', err)
+      // console.error('Failed to fetch customer:', err)
       setCustomer(null)
     } finally {
       setLoading(false)

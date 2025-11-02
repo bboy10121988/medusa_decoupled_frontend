@@ -39,7 +39,7 @@ async function saveLinksToFile(allLinks: { [affiliateId: string]: AffiliateLink[
     await ensureStorageDir()
     await fs.writeFile(STORAGE_FILE, JSON.stringify(allLinks, null, 2), 'utf-8')
   } catch (error) {
-    console.error('儲存連結到檔案失敗:', error)
+    // console.error('儲存連結到檔案失敗:', error)
     throw error
   }
 }
@@ -107,11 +107,11 @@ export async function GET() {
 
   try {
     const links = await getAffiliateLinks(affiliate.id)
-    console.log(`取得聯盟會員 ${affiliate.id} 的 ${links.length} 個連結 (儲存模式: ${STORAGE_MODE})`)
+    // console.log(`取得聯盟會員 ${affiliate.id} 的 ${links.length} 個連結 (儲存模式: ${STORAGE_MODE})`)
     
     return NextResponse.json({ links })
   } catch (error) {
-    console.error('獲取連結失敗:', error)
+    // console.error('獲取連結失敗:', error)
     return NextResponse.json({ error: '伺服器錯誤' }, { status: 500 })
   }
 }
@@ -157,15 +157,15 @@ export async function POST(request: NextRequest) {
     // 儲存連結
     await addAffiliateLink(affiliate.id, newLink)
     
-    console.log('創建新的聯盟連結:', {
-      affiliateId: affiliate.id,
-      linkId: newLink.id,
-      name,
-      targetUrl,
-      finalUrl: newLink.url,
-      utmParams,
-      storageMode: STORAGE_MODE
-    })
+    // console.log('創建新的聯盟連結:', {
+      // affiliateId: affiliate.id,
+      // linkId: newLink.id,
+      // name,
+      // targetUrl,
+      // finalUrl: newLink.url,
+      // utmParams,
+      // storageMode: STORAGE_MODE
+    // })
 
     return NextResponse.json({ 
       success: true, 
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('創建連結失敗:', error)
+    // console.error('創建連結失敗:', error)
     return NextResponse.json(
       { error: '伺服器錯誤' },
       { status: 500 }
@@ -202,11 +202,11 @@ export async function DELETE(request: NextRequest) {
     // 刪除連結
     await removeAffiliateLink(affiliate.id, linkId)
     
-    console.log('刪除聯盟連結:', {
-      affiliateId: affiliate.id,
-      linkId,
-      storageMode: STORAGE_MODE
-    })
+    // console.log('刪除聯盟連結:', {
+      // affiliateId: affiliate.id,
+      // linkId,
+      // storageMode: STORAGE_MODE
+    // })
 
     return NextResponse.json({ 
       success: true,
@@ -214,7 +214,7 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('刪除連結失敗:', error)
+    // console.error('刪除連結失敗:', error)
     return NextResponse.json(
       { error: '伺服器錯誤' },
       { status: 500 }

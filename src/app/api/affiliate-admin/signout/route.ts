@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       throw error
     }
     
-    console.error('Affiliate admin signout error:', error)
+    // console.error('Affiliate admin signout error:', error)
     return Response.json({ error: '登出失敗' }, { status: 500 })
   }
 }

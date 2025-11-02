@@ -26,7 +26,7 @@ export default function ClientOverview() {
           setOrders(ordersData)
         }
       } catch (error) {
-        console.error('獲取資料失敗:', error)
+        // console.error('獲取資料失敗:', error)
       } finally {
         setIsLoading(false)
       }

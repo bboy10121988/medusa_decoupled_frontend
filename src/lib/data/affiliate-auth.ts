@@ -91,7 +91,7 @@ export async function affiliateLogin(
     return '電子郵件或密碼不正確'
   }
   
-  console.log('Login successful for affiliate:', affiliateId)
+  // console.log('Login successful for affiliate:', affiliateId)
   
   // 設定聯盟會員認證 token
   await setAffiliateAuthToken({
@@ -126,9 +126,9 @@ export async function affiliateSignup(
     // 在 Server Actions 中，環境變數可能不可用，使用VM地址
     const backendUrl = 'http://35.236.182.29:9000'
     const requestUrl = `${backendUrl}/affiliate-apply`
-    console.log('Submitting affiliate application to:', requestUrl)
-    console.log('Environment MEDUSA_BACKEND_URL:', process.env.MEDUSA_BACKEND_URL)
-    console.log('Request payload:', { name: displayName, email, password, website: website || undefined })
+    // console.log('Submitting affiliate application to:', requestUrl)
+    // console.log('Environment MEDUSA_BACKEND_URL:', process.env.MEDUSA_BACKEND_URL)
+    // console.log('Request payload:', { name: displayName, email, password, website: website || undefined })
     
     // 先測試後端連接
     let res: Response
@@ -147,22 +147,22 @@ export async function affiliateSignup(
         }),
         cache: 'no-store',
       })
-      console.log('Fetch completed, status:', res.status)
+      // console.log('Fetch completed, status:', res.status)
     } catch (fetchError: any) {
-      console.error('Fetch error details:', {
-        message: fetchError.message,
-        cause: fetchError.cause,
-        stack: fetchError.stack,
-        name: fetchError.name,
-        code: fetchError.code
-      })
+      // console.error('Fetch error details:', {
+        // message: fetchError.message,
+        // cause: fetchError.cause,
+        // stack: fetchError.stack,
+        // name: fetchError.name,
+        // code: fetchError.code
+      // })
       throw fetchError
     }
     
     if (!res.ok) {
       const errorResponse = await res.json().catch(() => ({}))
       const errorText = errorResponse.message || errorResponse.error || await res.text().catch(() => '')
-      console.error('Backend signup error:', res.status, errorResponse)
+      // console.error('Backend signup error:', res.status, errorResponse)
       
       // 根據不同錯誤返回不同訊息
       if (res.status === 400) {
@@ -175,7 +175,7 @@ export async function affiliateSignup(
     }
 
     const responseData = await res.json().catch(() => ({}))
-    console.log('Application submitted successfully:', responseData)
+    // console.log('Application submitted successfully:', responseData)
 
     // 申請成功後設置前端會話
     await setAffiliateAuthToken({
@@ -202,7 +202,7 @@ export async function affiliateSignup(
       throw error
     }
     
-    console.error('Network error during signup:', error)
+    // console.error('Network error during signup:', error)
     return '網路連線錯誤，請檢查網路連線後重試'
   }
 }

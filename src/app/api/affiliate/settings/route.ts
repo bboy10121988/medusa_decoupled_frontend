@@ -84,7 +84,7 @@ export async function GET() {
 
     return NextResponse.json(userSettings)
   } catch (error) {
-    console.error('獲取設定失敗:', error)
+    // console.error('獲取設定失敗:', error)
     return NextResponse.json({ error: '獲取設定失敗' }, { status: 500 })
   }
 }
@@ -121,14 +121,14 @@ export async function PUT(request: NextRequest) {
     settingsData.settings[session.id] = newSettings
     await saveSettingsData(settingsData)
 
-    console.log(`💾 聯盟會員 ${session.id} 更新設定`)
+    // console.log(`💾 聯盟會員 ${session.id} 更新設定`)
 
     return NextResponse.json({ 
       success: true,
       settings: newSettings
     })
   } catch (error) {
-    console.error('更新設定失敗:', error)
+    // console.error('更新設定失敗:', error)
     return NextResponse.json({ error: '更新設定失敗' }, { status: 500 })
   }
 }

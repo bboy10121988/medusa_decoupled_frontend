@@ -20,7 +20,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
   const action:string = "ECPayPaymentButton"
 
-  console.log(action,": cart:",cart)
+  // console.log(action,": cart:",cart)
 
   const paymentCollection = cart.payment_collection
 
@@ -28,7 +28,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
   }
 
-  console.log(action,": paymentCollection:",paymentCollection)
+  // console.log(action,": paymentCollection:",paymentCollection)
 
   const paymentSessions = paymentCollection.payment_sessions
 
@@ -36,19 +36,19 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
   } 
 
-  console.log(action,": paymentSessions:",paymentSessions)
+  // console.log(action,": paymentSessions:",paymentSessions)
 
   const paymentSession = paymentSessions[0]
 
-  console.log(action,": paymentSession:",paymentSession)
+  // console.log(action,": paymentSession:",paymentSession)
 
   const paymentSessionID = paymentSession.id
 
-  console.log(action,"payment session id",paymentSessionID)
+  // console.log(action,"payment session id",paymentSessionID)
 
   const tradeNo = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join("");
 
-  console.log(action, "trade_no:", tradeNo)
+  // console.log(action, "trade_no:", tradeNo)
 
   // 計算總金額（轉換為整數，ECPay 不接受小數）
   const totalAmount = Math.round(cart.total || 0)
@@ -96,7 +96,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   }
 
   if (initError){
-    console.error(action,initError)
+    // console.error(action,initError)
   }
 
   const [errorMessage, setErrorMessage] = useState<string | null>(initError?.message ?? null)
@@ -148,14 +148,14 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
 
         if (data.type === "cart" && data.cart) {
           // 發生錯誤
-          console.error(data.error)
+          // console.error(data.error)
           throw new Error(data.error?.message || "無法建立訂單，請稍後再試")
 
         } else if (data.type === "order" && data.order) {
 
-          console.log("order pleaced : ",data.order)
+          // console.log("order pleaced : ",data.order)
 
-          console.log("order ID : ",data.order.id)
+          // console.log("order ID : ",data.order.id)
 
           const orderID: string = data.order.id
 
@@ -203,7 +203,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
       })
       
     }catch(error){
-      console.log(action,"error:",error)
+      // console.log(action,"error:",error)
       setErrorMessage("發生錯誤，請稍後再試")
     }
 

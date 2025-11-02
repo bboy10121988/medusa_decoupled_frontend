@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('從 Sanity 載入頁面列表失敗:', error)
+    // console.error('從 Sanity 載入頁面列表失敗:', error)
     return NextResponse.json(
       { 
         success: false, 

@@ -7,7 +7,7 @@ export async function GET() {
     const name = await getStoreName()
     return NextResponse.json({ name })
   } catch (error) {
-    console.error('API 路由中獲取店名時出錯:', error)
+    // console.error('API 路由中獲取店名時出錯:', error)
     return NextResponse.json(
       { error: 'Failed to fetch store name' },
       { status: 500 }

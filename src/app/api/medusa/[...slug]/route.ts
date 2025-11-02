@@ -90,7 +90,7 @@ async function proxyFetch(method: 'GET' | 'POST' | 'DELETE', req: NextRequest, p
     const body = isJson ? (text ? JSON.parse(text) : {}) : { data: text }
     return NextResponse.json(body, { status: resp.status, headers: corsHeaders(origin) })
   } catch (e: any) {
-    if (process.env.NODE_ENV === 'development') console.error('Medusa proxy error:', e)
+    // if (process.env.NODE_ENV === 'development') console.error('Medusa proxy error:', e)
     return NextResponse.json({ error: 'Upstream fetch failed' }, { status: 502, headers: corsHeaders(origin) })
   }
 }

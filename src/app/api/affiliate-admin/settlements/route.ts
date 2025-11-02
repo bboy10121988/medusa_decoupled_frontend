@@ -42,7 +42,7 @@ export async function GET() {
 
     return NextResponse.json({ settlements: enrichedSettlements })
   } catch (error) {
-    console.error('獲取結算列表錯誤:', error)
+    // console.error('獲取結算列表錯誤:', error)
     return NextResponse.json(
       { error: '無法獲取結算列表' },
       { status: 500 }

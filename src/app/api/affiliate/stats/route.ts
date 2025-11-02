@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json(safeStats)
   } catch (error) {
-    console.error('獲取統計資料失敗:', error)
+    // console.error('獲取統計資料失敗:', error)
     
     // 返回空資料結構而不是錯誤
     const fallbackStats = {

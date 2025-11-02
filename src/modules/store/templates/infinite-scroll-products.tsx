@@ -14,22 +14,22 @@ export default async function InfiniteScrollProducts({
   sortBy: SortOptions
   countryCode: string
 }) {
-  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts called with:", {
-    sortBy,
-    countryCode
-  })
+  // if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts called with:", {
+    // sortBy,
+    // countryCode
+  // })
 
   const region = await getRegion(countryCode)
 
   if (!region) {
-    if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - No region found for:", countryCode)
+    // if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - No region found for:", countryCode)
     return null
   }
 
-  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Region found:", {
-    id: region.id,
-    name: region.name
-  })
+  // if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Region found:", {
+    // id: region.id,
+    // name: region.name
+  // })
 
   const {
     response: { products, count },
@@ -41,20 +41,20 @@ export default async function InfiniteScrollProducts({
     countryCode,
   })
 
-  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Products loaded:", {
-    count: products?.length,
-    totalCount: count,
-    productIds: products?.map(p => p.id)
-  })
+  // if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Products loaded:", {
+    // count: products?.length,
+    // totalCount: count,
+    // productIds: products?.map(p => p.id)
+  // })
 
   // 先排序再轉換類型
   const sortedLocalProducts = sortProducts(products, sortBy)
   const sortedProducts = convertToStandardProducts(sortedLocalProducts)
 
-  if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Products sorted:", {
-    sortBy,
-    sortedCount: sortedProducts?.length
-  })
+  // if (process.env.NODE_ENV === 'development') console.log("🏪 InfiniteScrollProducts - Products sorted:", {
+    // sortBy,
+    // sortedCount: sortedProducts?.length
+  // })
 
   return (
     <InfiniteProducts

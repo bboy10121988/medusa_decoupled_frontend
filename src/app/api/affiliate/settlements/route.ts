@@ -96,7 +96,7 @@ async function calculateSettlementSummary(affiliateId: string): Promise<{
       nextSettlementDate
     }
   } catch (error) {
-    console.error('計算結算摘要失敗:', error)
+    // console.error('計算結算摘要失敗:', error)
     return {
       totalEarned: 0,
       totalSettled: 0,
@@ -126,7 +126,7 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('獲取結算資料失敗:', error)
+    // console.error('獲取結算資料失敗:', error)
     return NextResponse.json({ error: '獲取結算資料失敗' }, { status: 500 })
   }
 }

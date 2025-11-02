@@ -56,7 +56,7 @@ export async function GET(
       
       if (!response.ok) {
         const errorText = await response.text()
-        if (process.env.NODE_ENV === 'development') console.error(`Error fetching variant: ${response.status} ${errorText}`)
+        // if (process.env.NODE_ENV === 'development') console.error(`Error fetching variant: ${response.status} ${errorText}`)
         throw new Error(`Failed to fetch variant: ${response.statusText}`)
       }
       
@@ -75,7 +75,7 @@ export async function GET(
       }
     })
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error("Error in variant API route:", error)
+    // if (process.env.NODE_ENV === 'development') console.error("Error in variant API route:", error)
     
     return NextResponse.json(
       { 

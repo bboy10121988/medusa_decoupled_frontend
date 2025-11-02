@@ -41,12 +41,12 @@ const buildDestination = (countryCode?: string, redirectPath?: string) => {
   
   // 調試日誌
   if (process.env.NODE_ENV === 'development') {
-    console.log('buildDestination (登出後重定向到登入頁面):', { 
-      countryCode, 
-      normalizedCode, 
-      isValidCountryCode, 
-      destination 
-    })
+    // console.log('buildDestination (登出後重定向到登入頁面):', {
+      // countryCode,
+      // normalizedCode,
+      // isValidCountryCode,
+      // destination
+    // })
   }
   
   return destination
@@ -71,12 +71,12 @@ export const useLogout = ({
     try {
       const destination = buildDestination(countryCode, redirectPath)
       
-      console.log('🔓 開始登出流程', { strategy, destination })
+      // console.log('🔓 開始登出流程', { strategy, destination })
 
       // 🔧 首先清除 Google OAuth 狀態（在 SDK 登出之前）
       if (typeof window !== "undefined") {
         try {
-          console.log('🔐 開始清除 Google OAuth 狀態...')
+          // console.log('🔐 開始清除 Google OAuth 狀態...')
           
           // 1. 嘗試撤銷 Google OAuth 授權（最重要的步驟）
           if ((window as any).google?.accounts) {
@@ -85,17 +85,17 @@ export const useLogout = ({
             // 禁用自動選擇
             if (google.accounts.id?.disableAutoSelect) {
               google.accounts.id.disableAutoSelect()
-              console.log('✅ 已停用 Google 自動選擇')
+              // console.log('✅ 已停用 Google 自動選擇')
             }
             
             // 撤銷所有 Google Identity Services 授權
             if (google.accounts.id?.revoke) {
               try {
                 google.accounts.id.revoke('', () => {
-                  console.log('✅ Google Identity Services 授權已撤銷')
+                  // console.log('✅ Google Identity Services 授權已撤銷')
                 })
               } catch (e) {
-                console.log('Google 授權撤銷失敗:', e)
+                // console.log('Google 授權撤銷失敗:', e)
               }
             }
             
@@ -103,10 +103,10 @@ export const useLogout = ({
             if (google.accounts.oauth2?.revoke) {
               try {
                 google.accounts.oauth2.revoke('', () => {
-                  console.log('✅ Google OAuth2 授權已撤銷')
+                  // console.log('✅ Google OAuth2 授權已撤銷')
                 })
               } catch (e) {
-                console.log('Google OAuth2 撤銷失敗:', e)
+                // console.log('Google OAuth2 撤銷失敗:', e)
               }
             }
           }
@@ -117,10 +117,10 @@ export const useLogout = ({
               const authInstance = (window as any).gapi.auth2.getAuthInstance()
               if (authInstance?.signOut) {
                 await authInstance.signOut()
-                console.log('✅ Google API 登出成功')
+                // console.log('✅ Google API 登出成功')
               }
             } catch (e) {
-              console.log('Google API 清除失敗:', e)
+              // console.log('Google API 清除失敗:', e)
             }
           }
 
@@ -137,7 +137,7 @@ export const useLogout = ({
               window.localStorage.removeItem(key)
               window.sessionStorage.removeItem(key)
             } catch (error) {
-              console.warn(`Failed to clear ${key}:`, error)
+              // console.warn(`Failed to clear ${key}:`, error)
             }
           })
           
@@ -193,14 +193,14 @@ export const useLogout = ({
           
 
           
-          console.log('🧹 已清除客戶端儲存和 cookies，並嘗試撤銷 Google 授權')
+          // console.log('🧹 已清除客戶端儲存和 cookies，並嘗試撤銷 Google 授權')
         } catch (storageError) {
-          console.warn("清除本地儲存時發生錯誤", storageError)
+          // console.warn("清除本地儲存時發生錯誤", storageError)
         }
       }
 
       // 等待 Google OAuth 撤銷操作完成
-      console.log('⏳ 等待 Google OAuth 撤銷操作完成...')
+      // console.log('⏳ 等待 Google OAuth 撤銷操作完成...')
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       // 執行回調
@@ -208,19 +208,19 @@ export const useLogout = ({
         try {
           onLoggedOut()
         } catch (callbackError) {
-          console.error("onLoggedOut 回呼執行失敗", callbackError)
+          // console.error("onLoggedOut 回呼執行失敗", callbackError)
         }
       }
 
       if (strategy === "server-redirect") {
         // 使用服務器重定向，讓 API 路由處理 Medusa SDK 登出
         const logoutUrl = `/api/auth/logout?redirect=${encodeURIComponent(destination)}&fast=1`
-        console.log('🔀 重定向到登出 API (使用 Medusa SDK):', logoutUrl)
+        // console.log('🔀 重定向到登出 API (使用 Medusa SDK):', logoutUrl)
         window.location.href = logoutUrl
         return
       } else {
         // 客戶端策略：調用 API 後手動重定向
-        console.log('📡 調用登出 API (client-fetch)')
+        // console.log('📡 調用登出 API (client-fetch)')
         const response = await fetch("/api/auth/logout", {
           method: "POST",
           credentials: "include",
@@ -230,22 +230,22 @@ export const useLogout = ({
         })
 
         if (!response.ok) {
-          console.warn("登出 API 回傳非成功狀態", response.status)
+          // console.warn("登出 API 回傳非成功狀態", response.status)
         } else {
-          console.log('✅ 登出 API 調用成功')
+          // console.log('✅ 登出 API 調用成功')
         }
 
-        console.log('🔀 客戶端重定向到:', destination)
+        // console.log('🔀 客戶端重定向到:', destination)
         
         // 強制重新載入頁面以確保所有狀態被清除，特別是 Google OAuth 狀態
-        console.log('🔄 強制重新載入頁面以清除所有狀態')
+        // console.log('🔄 強制重新載入頁面以清除所有狀態')
         window.location.href = destination
       }
     } catch (error) {
-      console.error("❌ 登出請求失敗", error)
+      // console.error("❌ 登出請求失敗", error)
       // 即使登出失敗，也嘗試重定向到登入頁面
       const fallbackDestination = buildDestination(countryCode, redirectPath)
-      console.log('❌ 登出失敗，重定向到:', fallbackDestination)
+      // console.log('❌ 登出失敗，重定向到:', fallbackDestination)
       window.location.href = fallbackDestination
     } finally {
       setIsLoggingOut(false)

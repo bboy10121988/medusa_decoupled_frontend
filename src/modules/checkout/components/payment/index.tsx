@@ -26,7 +26,7 @@ const Payment = ({
     (paymentSession: any) => paymentSession.status === "pending"
   )
 
-  console.log("activeSession:",activeSession)
+  // console.log("activeSession:",activeSession)
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -34,7 +34,7 @@ const Payment = ({
     activeSession?.provider_id ?? ""
   )
 
-  console.log("selectedPaymentMethod:",selectedPaymentMethod)
+  // console.log("selectedPaymentMethod:",selectedPaymentMethod)
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -46,7 +46,7 @@ const Payment = ({
     
     const action: string = "setPaymentMethod"
     
-    console.log(action,"選擇支付方式：",method)
+    // console.log(action,"選擇支付方式：",method)
 
     setSelectedPaymentMethod(method)
     
@@ -54,11 +54,11 @@ const Payment = ({
 
   const paidByGiftcard = cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
-  console.log("paidByGiftcard:",paidByGiftcard)
+  // console.log("paidByGiftcard:",paidByGiftcard)
 
   const paymentReady = (activeSession && cart?.shipping_methods.length !== 0) ?? paidByGiftcard
 
-  console.log("paymentReady:",paymentReady)
+  // console.log("paymentReady:",paymentReady)
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -82,20 +82,20 @@ const Payment = ({
   
     setIsLoading(true)
 
-    console.log(action,"支付方式(providerID):",selectedPaymentMethod)
+    // console.log(action,"支付方式(providerID):",selectedPaymentMethod)
 
 
 
     try {
 
-        console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
+        // console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
         const initResp = await initiatePaymentSession(cart,{
           provider_id: selectedPaymentMethod
         })
 
 
-        console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
+        // console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
 
         
 
@@ -107,7 +107,7 @@ const Payment = ({
         )
       
     } catch (err: any) {
-      console.log(action,"has error:",err)
+      // console.log(action,"has error:",err)
       setError(err.message)
     } finally {
       setIsLoading(false)

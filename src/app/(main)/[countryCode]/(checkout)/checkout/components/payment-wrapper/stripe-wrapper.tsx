@@ -25,12 +25,12 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
   }
 
   if (!stripeKey) {
-    console.info("ℹ️ Stripe 功能已暫時停用")
+    // console.info("ℹ️ Stripe 功能已暫時停用")
     return <div>{children}</div>
   }
 
   if (!stripePromise) {
-    console.info("ℹ️ Stripe 功能已暫時停用")
+    // console.info("ℹ️ Stripe 功能已暫時停用")
     return <div>{children}</div>
   }
 

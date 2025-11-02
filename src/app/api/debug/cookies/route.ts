@@ -10,14 +10,14 @@ export async function GET(_request: NextRequest) {
     const debugPreview = cookieStore.get("_debug_jwt_preview")
     const debugFull = cookieStore.get("_debug_jwt_full")
     
-    console.log("🍪 調試 Cookie 狀態:", {
-      totalCookies: allCookies.length,
-      hasJwtCookie: !!jwtCookie,
-      jwtValue: jwtCookie?.value ? `${jwtCookie.value.substring(0, 50)}...` : null,
-      hasDebugPreview: !!debugPreview,
-      hasDebugFull: !!debugFull,
-      allCookieNames: allCookies.map(c => c.name)
-    })
+    // console.log("🍪 調試 Cookie 狀態:", {
+      // totalCookies: allCookies.length,
+      // hasJwtCookie: !!jwtCookie,
+      // jwtValue: jwtCookie?.value ? `${jwtCookie.value.substring(0, 50)}...` : null,
+      // hasDebugPreview: !!debugPreview,
+      // hasDebugFull: !!debugFull,
+      // allCookieNames: allCookies.map(c => c.name)
+    // })
 
     return NextResponse.json({
       success: true,
@@ -40,7 +40,7 @@ export async function GET(_request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error("❌ 調試 Cookie 失敗:", error)
+    // console.error("❌ 調試 Cookie 失敗:", error)
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : String(error)

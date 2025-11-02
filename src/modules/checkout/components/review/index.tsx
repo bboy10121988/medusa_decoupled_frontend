@@ -12,7 +12,7 @@ const Review = ({ cart }: { cart: any }) => {
 
   const action:string = "Review"
 
-  console.log(action,"購物車資料：",cart);
+  // console.log(action,"購物車資料：",cart);
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -48,11 +48,11 @@ const Review = ({ cart }: { cart: any }) => {
   const isECPayCredit = currentPaymentProvider === "ecpay_credit_card"
   const isBankTransfer = currentPaymentProvider === "manual_manual"
   
-  console.log(action, "當前支付方式:", { 
-    selectedPaymentProvider, 
-    paymentSessionProvider: paymentSession?.provider_id,
-    currentPaymentProvider 
-  })
+  // console.log(action, "當前支付方式:", {
+    // selectedPaymentProvider,
+    // paymentSessionProvider: paymentSession?.provider_id,
+    // currentPaymentProvider
+  // })
 
   // 檢查前面步驟是否完成：地址、配送、支付方式
   const previousStepsCompleted =

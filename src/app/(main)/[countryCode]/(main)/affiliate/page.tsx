@@ -95,7 +95,7 @@ export default function AffiliateHomePage() {
       setLinksData(links?.links || [])
       setOrdersData(orders)
     } catch (error) {
-      console.error('載入資料失敗:', error)
+      // console.error('載入資料失敗:', error)
     } finally {
       setLoading(false)
     }

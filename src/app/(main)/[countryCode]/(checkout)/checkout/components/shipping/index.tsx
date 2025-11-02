@@ -125,7 +125,7 @@ const Shipping: React.FC<ShippingProps> = ({
     
     // 清除錯誤並跳轉到付款頁面
     setError(null)
-    console.log('✅ 跳轉到付款頁面，選中的配送方式:', shippingMethodId)
+    // console.log('✅ 跳轉到付款頁面，選中的配送方式:', shippingMethodId)
     router.push(pathname + "?step=payment", { scroll: false })
   }
 
@@ -143,7 +143,7 @@ const Shipping: React.FC<ShippingProps> = ({
       return
     }
     
-    console.log('🚚 設置配送方式:', { cartId: cart.id, shippingMethodId: id, variant })
+    // console.log('🚚 設置配送方式:', { cartId: cart.id, shippingMethodId: id, variant })
     setError(null)
 
     if (variant === "pickup") {
@@ -161,9 +161,9 @@ const Shipping: React.FC<ShippingProps> = ({
 
     try {
       await setShippingMethod({ cartId: cart.id, shippingMethodId: id })
-      console.log('✅ 配送方式設置成功')
+      // console.log('✅ 配送方式設置成功')
     } catch (err: any) {
-      console.error('❌ 配送方式設置錯誤:', err)
+      // console.error('❌ 配送方式設置錯誤:', err)
       setShippingMethodId(currentId)
       
       // 提供更友好的錯誤訊息

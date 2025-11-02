@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        console.log(`🖼️ API 處理上傳圖片: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
+        // console.log(`🖼️ API 處理上傳圖片: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
         
         // 壓縮圖片
         const compressedDataUrl = await compressImage(file, {
@@ -52,10 +52,10 @@ export async function POST(request: NextRequest) {
             width: uploadedImage.metadata.dimensions.width,
             name: uploadedImage.originalFilename || file.name
           })
-          console.log(`✅ API 圖片已上傳到 Sanity: ${file.name}`)
+          // console.log(`✅ API 圖片已上傳到 Sanity: ${file.name}`)
         }
       } catch (error) {
-        console.error(`❌ API 處理圖片失敗: ${file.name}`, error)
+        // console.error(`❌ API 處理圖片失敗: ${file.name}`, error)
       }
     }
 
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('上傳 API 錯誤:', error)
+    // console.error('上傳 API 錯誤:', error)
     return NextResponse.json(
       { error: '上傳失敗，請重試' }, 
       { status: 500 }

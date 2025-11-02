@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(posts)
   } catch (error) {
-    console.error('獲取文章時出錯:', error)
+    // console.error('獲取文章時出錯:', error)
     return NextResponse.json({ error: '獲取文章時出錯' }, { status: 500 })
   }
 }

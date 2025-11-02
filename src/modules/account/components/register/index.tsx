@@ -23,7 +23,7 @@ const Register = ({ setCurrentView }: Props) => {
   useEffect(() => {
     if (result && typeof result === 'object' && result.id) {
       // 註冊成功，result 是客戶對象
-      console.log("🎉 註冊成功，刷新客戶狀態並重定向")
+      // console.log("🎉 註冊成功，刷新客戶狀態並重定向")
       
       const handleSuccess = async () => {
         try {
@@ -33,7 +33,7 @@ const Register = ({ setCurrentView }: Props) => {
             window.location.href = '/tw/account'
           }, 500)
         } catch (error) {
-          console.error("刷新客戶狀態失敗:", error)
+          // console.error("刷新客戶狀態失敗:", error)
           // 即使刷新失敗，也嘗試重定向
           setTimeout(() => {
             window.location.href = '/tw/account'

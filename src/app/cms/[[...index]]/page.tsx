@@ -23,13 +23,13 @@ export default function CMSPage() {
   const [config, setConfig] = useState<any>(null)
 
   useEffect(() => {
-    console.log('Sanity CMS page loaded')
+    // console.log('Sanity CMS page loaded')
     
     // 動態導入配置
     import('../../../../sanity.config').then((module) => {
       setConfig(module.default)
     }).catch((error) => {
-      console.error('Failed to load Sanity config:', error)
+      // console.error('Failed to load Sanity config:', error)
     })
   }, [])
 

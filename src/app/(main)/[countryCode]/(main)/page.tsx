@@ -142,7 +142,7 @@ export async function generateMetadata(): Promise<Metadata> {
       }
     }
   } catch (error) {
-    console.error('生成metadata時發生錯誤:', error)
+    // console.error('生成metadata時發生錯誤:', error)
     const storeName = await getStoreName()
     
     return {
@@ -170,11 +170,11 @@ export default async function Home({
   
   const [collectionsData, region] = await Promise.allSettled([
     Promise.race([listCollections({}), timeoutPromise]).catch(err => {
-      console.warn('獲取商品集合時出錯:', err.message);
+      // console.warn('獲取商品集合時出錯:', err.message);
       return null;
     }),
     Promise.race([getRegion(countryCode), timeoutPromise]).catch(err => {
-      console.warn('獲取地區資訊時出錯:', err.message);
+      // console.warn('獲取地區資訊時出錯:', err.message);
       return null;
     })
   ])
@@ -186,43 +186,43 @@ export default async function Home({
     region.value : null as any
 
   // 添加調試資訊
-  if (process.env.NODE_ENV === 'development') console.log('🔍 Data fetch results:', {
-    countryCode,
-    collectionsCount: collections?.collections?.length || 0,
-    regionId: regionData?.id,
-    regionName: regionData?.name,
-    collectionsStatus: collectionsData.status,
-    regionStatus: region.status
-  })
+  // if (process.env.NODE_ENV === 'development') console.log('🔍 Data fetch results:', {
+    // countryCode,
+    // collectionsCount: collections?.collections?.length || 0,
+    // regionId: regionData?.id,
+    // regionName: regionData?.name,
+    // collectionsStatus: collectionsData.status,
+    // regionStatus: region.status
+  // })
 
   // 獲取首頁內容，並添加錯誤處理
   let homepageData
   try {
-    if (process.env.NODE_ENV === 'development') console.log('🔍 Fetching homepage data from Sanity...')
+    // if (process.env.NODE_ENV === 'development') console.log('🔍 Fetching homepage data from Sanity...')
     homepageData = await getHomepage()
-    console.log('✅ Homepage data fetched:', { 
-      title: homepageData?.title, 
-      sectionsCount: homepageData?.mainSections?.length,
-      hasValidData: !!(homepageData?.mainSections && homepageData.mainSections.length > 0)
-    })
+    // console.log('✅ Homepage data fetched:', {
+      // title: homepageData?.title,
+      // sectionsCount: homepageData?.mainSections?.length,
+      // hasValidData: !!(homepageData?.mainSections && homepageData.mainSections.length > 0)
+    // })
   } catch (error) {
-    console.error('❌ Failed to fetch homepage data:', error)
+    // console.error('❌ Failed to fetch homepage data:', error)
     homepageData = null
   }
 
   // 檢查是否有有效的Sanity數據
   const hasSanityData = homepageData?.mainSections && homepageData.mainSections.length > 0
 
-  console.log('🎯 Data check result:', {
-    homepageData: !!homepageData,
-    mainSections: homepageData?.mainSections?.length || 0,
-    hasSanityData,
-    willUseFallback: !hasSanityData
-  })
+  // console.log('🎯 Data check result:', {
+    // homepageData: !!homepageData,
+    // mainSections: homepageData?.mainSections?.length || 0,
+    // hasSanityData,
+    // willUseFallback: !hasSanityData
+  // })
 
   // 如果沒有數據或數據無效，顯示備用內容
   if (!hasSanityData) {
-    console.warn('⚠️ No valid Sanity data found, showing fallback content')
+    // console.warn('⚠️ No valid Sanity data found, showing fallback content')
     
     return (
       <>
@@ -256,7 +256,7 @@ export default async function Home({
       return null
     }
 
-    console.log("🎨 Rendering Sanity content - mainSections:", JSON.stringify(mainSections, null, 2))
+    // console.log("🎨 Rendering Sanity content - mainSections:", JSON.stringify(mainSections, null, 2))
 
     // 生成 JSON-LD 結構化資料
     const jsonLd = generateJsonLd(homepageData)
@@ -277,7 +277,7 @@ export default async function Home({
             .filter((section: any, index: number) => {
               // 過濾掉空物件或無效的 section
               if (!section || typeof section !== "object" || !("_type" in section) || !section._type) {
-                console.warn(`Filtering out invalid section at index ${index}:`, section);
+                // console.warn(`Filtering out invalid section at index ${index}:`, section);
                 return false;
               }
               // 過濾掉非作用中的 section
@@ -289,7 +289,7 @@ export default async function Home({
             .map((section: any, index: number) => {
               const sectionType = section._type;
               try {
-                console.log(`🎯 Rendering section ${index}: ${sectionType}`, { isActive: section.isActive })
+                // console.log(`🎯 Rendering section ${index}: ${sectionType}`, { isActive: section.isActive })
                 
                 switch (sectionType) {
                   case "serviceCardSection": {
@@ -297,7 +297,7 @@ export default async function Home({
                     
                     // 檢查是否被停用
                     if (serviceSection.isActive === false) {
-                      console.log("❌ ServiceCardSection 已被停用，跳過渲染");
+                      // console.log("❌ ServiceCardSection 已被停用，跳過渲染");
                       return null;
                     }
                     
@@ -314,7 +314,7 @@ export default async function Home({
                   case "mainBanner": {
                     const bannerSection = section as MainBanner
                     if (!bannerSection.slides || !Array.isArray(bannerSection.slides)) {
-                      console.error("Invalid mainBanner section:", bannerSection)
+                      // console.error("Invalid mainBanner section:", bannerSection)
                       return null
                     }
                     return (
@@ -344,34 +344,34 @@ export default async function Home({
                   }
                   case "featuredProducts": {
                     const featuredBlock = section as FeaturedProductsSection
-                    console.log("🎯 Processing featuredProducts section:", featuredBlock)
+                    // console.log("🎯 Processing featuredProducts section:", featuredBlock)
                     
                     if (!featuredBlock.collection_id) {
-                      console.error("Invalid featuredProducts section:", featuredBlock)
+                      // console.error("Invalid featuredProducts section:", featuredBlock)
                       return null
                     }
 
                     // 安全檢查 collections
                     if (!collections?.collections || !Array.isArray(collections.collections)) {
-                      console.warn("Featured products skipped - backend unavailable")
+                      // console.warn("Featured products skipped - backend unavailable")
                       return null  // 安靜地跳過，不阻塞其他區塊
                     }
 
-                    console.log("🔍 Looking for collection:", featuredBlock.collection_id, "in collections:", collections.collections.map((c: any) => c.id))
+                    // console.log("🔍 Looking for collection:", featuredBlock.collection_id, "in collections:", collections.collections.map((c: any) => c.id))
 
                     try {
                       const featuredCollections = collections.collections.filter((c: any) =>
                         featuredBlock.collection_id === c.id
                       )
 
-                      console.log("📦 Filtered collections:", featuredCollections.length, featuredCollections.map((c: any) => c.id))
+                      // console.log("📦 Filtered collections:", featuredCollections.length, featuredCollections.map((c: any) => c.id))
 
                       if (featuredCollections.length === 0) {
-                        console.log("No matching collection found for featured products")
+                        // console.log("No matching collection found for featured products")
                         return null
                       }
 
-                      console.log("✅ Rendering FeaturedProducts with collections:", featuredCollections.length)
+                      // console.log("✅ Rendering FeaturedProducts with collections:", featuredCollections.length)
                       return (
                         <FeaturedProducts
                           key={index}
@@ -381,7 +381,7 @@ export default async function Home({
                         />
                       )
                     } catch (error) {
-                      console.error("Featured products rendering error:", error)
+                      // console.error("Featured products rendering error:", error)
                       return null  // 安靜地跳過，不阻塞其他區塊
                     }
                   }
@@ -405,17 +405,17 @@ export default async function Home({
                                    youtubeBlock.videoSettings?.mobileVideoUrl || 
                                    youtubeBlock.videoUrl
                     
-                    console.log('🏠 Homepage YouTube section data:', {
-                      hasVideo,
-                      videoUrl: youtubeBlock.videoUrl,
-                      videoSettings: youtubeBlock.videoSettings,
-                      desktopUrl: youtubeBlock.videoSettings?.desktopVideoUrl,
-                      mobileUrl: youtubeBlock.videoSettings?.mobileVideoUrl,
-                      useSameVideo: youtubeBlock.videoSettings?.useSameVideo
-                    })
+                    // console.log('🏠 Homepage YouTube section data:', {
+                      // hasVideo,
+                      // videoUrl: youtubeBlock.videoUrl,
+                      // videoSettings: youtubeBlock.videoSettings,
+                      // desktopUrl: youtubeBlock.videoSettings?.desktopVideoUrl,
+                      // mobileUrl: youtubeBlock.videoSettings?.mobileVideoUrl,
+                      // useSameVideo: youtubeBlock.videoSettings?.useSameVideo
+                    // })
                     
                     if (!hasVideo) {
-                      console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
+                      // console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
                       return null
                     }
                     
@@ -447,15 +447,15 @@ export default async function Home({
                   }
                   case "googleMapsSection": {
                     // 地圖區塊在 Sanity 中可用但不在前端顯示
-                    console.log("🗺️ GoogleMapsSection found but skipped for frontend display")
+                    // console.log("🗺️ GoogleMapsSection found but skipped for frontend display")
                     return null
                   }
                   default:
-                    console.error("Unknown section type:", sectionType)
+                    // console.error("Unknown section type:", sectionType)
                     return null
                 }
               } catch (error) {
-                console.error("Error rendering section:", sectionType, error)
+                // console.error("Error rendering section:", sectionType, error)
                 return null
               }
             })

@@ -53,7 +53,7 @@ const Payment = ({
     
     const action: string = "setPaymentMethod"
     
-    console.log(action,"選擇支付方式：",method)
+    // console.log(action,"選擇支付方式：",method)
 
     setSelectedPaymentMethod(method)
     
@@ -87,20 +87,20 @@ const Payment = ({
   
     setIsLoading(true)
 
-    console.log(action,"支付方式(providerID):",selectedPaymentMethod)
+    // console.log(action,"支付方式(providerID):",selectedPaymentMethod)
 
 
 
     try {
 
-        console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
+        // console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
         const initResp = await initiatePaymentSession(cart,{
           provider_id: selectedPaymentMethod
         })
 
 
-        console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
+        // console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
 
         
 
@@ -112,7 +112,7 @@ const Payment = ({
         )
       
     } catch (err: any) {
-      console.log(action,"has error:",err)
+      // console.log(action,"has error:",err)
       setError(err.message)
     } finally {
       setIsLoading(false)

@@ -214,21 +214,21 @@ export default function ProductPreview({
 
     // 防止重複點擊
     if (isAdding) {
-      console.log("⚠️ 正在添加中，忽略重複點擊")
+      // console.log("⚠️ 正在添加中，忽略重複點擊")
       return
     }
 
-    console.log("🔍 ProductPreview 加入購物車檢查:", {
-      productTitle: product.title,
-      selectedOptions,
-      productOptions
-    })
+    // console.log("🔍 ProductPreview 加入購物車檢查:", {
+      // productTitle: product.title,
+      // selectedOptions,
+      // productOptions
+    // })
 
     const variantId = findVariantId(selectedOptions)
-    console.log("🔍 找到的變體 ID:", variantId)
+    // console.log("🔍 找到的變體 ID:", variantId)
     
     if (!variantId) {
-      console.log("❌ 沒有找到匹配的變體")
+      // console.log("❌ 沒有找到匹配的變體")
       setError("請選擇所有必要的選項")
       return
     }
@@ -236,11 +236,11 @@ export default function ProductPreview({
     try {
       setError(null)
       setIsAdding(true)
-      console.log("🛒 ProductPreview 開始加入購物車:", {
-        variantId,
-        quantity: 1,
-        countryCode
-      })
+      // console.log("🛒 ProductPreview 開始加入購物車:", {
+        // variantId,
+        // quantity: 1,
+        // countryCode
+      // })
       
       // 使用新的 API endpoint
       const response = await fetch('/api/cart/add', {
@@ -261,13 +261,13 @@ export default function ProductPreview({
         throw new Error(result.error || '加入購物車失敗')
       }
       
-      console.log("✅ ProductPreview 成功加入購物車:", result)
+      // console.log("✅ ProductPreview 成功加入購物車:", result)
       
       // 如果 API 回傳 cartId，也在前端設定
       if (result.cartId && typeof window !== 'undefined') {
         localStorage.setItem('_medusa_cart_id', result.cartId)
         document.cookie = `_medusa_cart_id=${result.cartId}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
-        console.log("📱 前端儲存 Cart ID:", result.cartId)
+        // console.log("📱 前端儲存 Cart ID:", result.cartId)
       }
       
       setError(null)
@@ -280,7 +280,7 @@ export default function ProductPreview({
         setShowSuccessMessage(false)
       }, 3000)
     } catch (error) {
-      console.error("❌ ProductPreview 添加到購物車失敗:", error)
+      // console.error("❌ ProductPreview 添加到購物車失敗:", error)
       setError("添加到購物車失敗，請稍後再試")
     } finally {
       setIsAdding(false)

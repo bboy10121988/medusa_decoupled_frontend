@@ -25,7 +25,7 @@ const isDev = process.env.NODE_ENV === 'development'
 async function safeFetch<T = any>(query: string, params: any = {}, options: any = {}, fallback: T | null = null): Promise<any> {
   try {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
-      console.error("Missing Sanity Project ID in environment variables")
+      // console.error("Missing Sanity Project ID in environment variables")
       return fallback
     }
     
@@ -43,14 +43,14 @@ async function safeFetch<T = any>(query: string, params: any = {}, options: any 
     return result
   } catch (error: any) {
     const msg = String(error?.message || error)
-    console.error("Sanity fetch error:", msg, "\nQuery:", query)
+    // console.error("Sanity fetch error:", msg, "\nQuery:", query)
     
     if (error?.name === 'AbortError' || msg.includes('abort') || msg.includes('timeout')) {
-      if (isDev) console.warn('Sanity fetch aborted/timed out:', msg)
+      // if (isDev) console.warn('Sanity fetch aborted/timed out:', msg)
       return fallback
     }
     
-    if (isDev) console.error('Sanity fetch error details:', error)
+    // if (isDev) console.error('Sanity fetch error details:', error)
     return fallback // 在生產環境中總是返回備用值，避免應用崩潰
   }
 }
@@ -85,7 +85,7 @@ function withCache<T>(key: string, fn: () => Promise<T>, ttl: number = CACHE_TTL
     } catch (error) {
       // 如果有快取資料但已過期，在錯誤時仍返回舊資料
       if (cached) {
-        if (isDev) console.warn(`API 調用失敗，使用快取資料: ${key}`, error)
+        // if (isDev) console.warn(`API 調用失敗，使用快取資料: ${key}`, error)
         return cached.data
       }
       throw error
@@ -107,7 +107,7 @@ export async function getHomepage_old(): Promise<{ title: string; mainSections: 
   if (result?.mainSections) {
     result.mainSections = result.mainSections.filter((section: any) => {
       if (section?.isUnknownType) {
-        if (isDev) console.warn("Unknown section type detected and filtered:", section._type)
+        // if (isDev) console.warn("Unknown section type detected and filtered:", section._type)
         return false
       }
       return section?._type // 只保留有 _type 的 sections
@@ -398,7 +398,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
 
     return await safeFetch(query, { slug }, {}, null)
   } catch (error) {
-    if (isDev) console.error('獲取頁面資料失敗:', error)
+    // if (isDev) console.error('獲取頁面資料失敗:', error)
     return null
   }
 }
@@ -435,7 +435,7 @@ export async function getAllPosts(category?: string, limit: number = 50): Promis
   const posts = await safeFetch<BlogPost[]>(query, {}, { next: { revalidate: 300 } }, [])
   return posts || []
   } catch (error) {
-    if (isDev) console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
+    // if (isDev) console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
     return []
   }
 }
@@ -451,14 +451,14 @@ export async function getCategories(): Promise<Category[]> {
   const categories = await safeFetch<Category[]>(query, {}, {}, [])
   return categories || []
   } catch (error) {
-    if (isDev) console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
+    // if (isDev) console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
     return []
   }
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
-    console.log(`🔍 [getPostBySlug] 正在查詢文章: ${slug}`)
+    // console.log(`🔍 [getPostBySlug] 正在查詢文章: ${slug}`)
     
     // 先嘗試用slug.current查詢
     let query = `*[_type == "post" && slug.current == $slug][0]{
@@ -481,12 +481,12 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     let result = await safeFetch(query, { slug }, {}, null)
     
     if (result) {
-      console.log(`✅ [getPostBySlug] 找到文章: ${result.title}`)
+      // console.log(`✅ [getPostBySlug] 找到文章: ${result.title}`)
       return result
     }
     
     // 如果用slug沒找到，嘗試根據標題匹配
-    console.log(`⚠️ [getPostBySlug] 使用 slug 沒找到，嘗試標題匹配: ${slug}`)
+    // console.log(`⚠️ [getPostBySlug] 使用 slug 沒找到，嘗試標題匹配: ${slug}`)
     query = `*[_type == "post" && title match "*" + $title + "*" || _id match $slug + "*"][0]{
       _id,
       title,
@@ -509,14 +509,14 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     result = await safeFetch(query, { slug, title: searchTerm }, {}, null)
     
     if (result) {
-      console.log(`✅ [getPostBySlug] 透過標題匹配找到文章: ${result.title}`)
+      // console.log(`✅ [getPostBySlug] 透過標題匹配找到文章: ${result.title}`)
     } else {
-      console.log(`❌ [getPostBySlug] 找不到文章: ${slug}`)
+      // console.log(`❌ [getPostBySlug] 找不到文章: ${slug}`)
     }
     
     return result
   } catch (error) {
-    console.error(`❌ [getPostBySlug] 查詢文章時發生錯誤: ${slug}`, error)
+    // console.error(`❌ [getPostBySlug] 查詢文章時發生錯誤: ${slug}`, error)
     return null
   }
 }
@@ -694,7 +694,7 @@ export async function getAllPages(): Promise<PageData[]> {
   const pages = await safeFetch<PageData[]>(query, {}, {}, [])
   return pages || []
   } catch (error) {
-    console.error('[getAllPages] 從 Sanity 獲取頁面時發生錯誤:', error)
+    // console.error('[getAllPages] 從 Sanity 獲取頁面時發生錯誤:', error)
     return []
   }
 }
@@ -714,7 +714,7 @@ export async function getHomepage(): Promise<{
   ogImage?: { asset: { url: string }; alt: string };
   twitterCard?: string;
 }> {
-  if (isDev) console.log('🔍 Starting getHomepage request to Sanity...')
+  // if (isDev) console.log('🔍 Starting getHomepage request to Sanity...')
   
   const query = `*[_type == "homePage"][0] {
     title,
@@ -914,18 +914,18 @@ export async function getHomepage(): Promise<{
       next: { revalidate: 300 } // 5 分鐘緩存
     }, { title: '', mainSections: [] })
     
-    if (isDev) console.log('✅ Sanity response received:', {
-      hasResult: !!result,
-      title: result?.title,
-      sectionsCount: result?.mainSections?.length || 0,
-      sections: result?.mainSections?.map((s: any) => ({ type: s._type, isActive: s.isActive })) || []
-    })
+    // if (isDev) console.log('✅ Sanity response received:', {
+      // hasResult: !!result,
+      // title: result?.title,
+      // sectionsCount: result?.mainSections?.length || 0,
+      // sections: result?.mainSections?.map((s: any) => ({ type: s._type, isActive: s.isActive })) || []
+    // })
     
     // 過濾掉未知類型的 sections 並記錄警告
     if (result?.mainSections) {
       result.mainSections = result.mainSections.filter((section: any) => {
         if (section?.isUnknownType) {
-          if (isDev) console.warn("Unknown section type detected and filtered:", section._type)
+          // if (isDev) console.warn("Unknown section type detected and filtered:", section._type)
           return false
         }
         return section?._type // 只保留有 _type 的 sections
@@ -934,7 +934,7 @@ export async function getHomepage(): Promise<{
     
     return result as { title: string; mainSections: MainSection[] }
   } catch (error) {
-    if (isDev) console.error('❌ Error fetching homepage from Sanity:', error)
+    // if (isDev) console.error('❌ Error fetching homepage from Sanity:', error)
     return { title: '', mainSections: [] }
   }
 }
@@ -971,10 +971,10 @@ export async function getServiceSection(): Promise<ServiceCards | null> {
       result._type = "serviceCardSection"
     }
     
-    if (isDev) console.log('[getServiceSection] 查詢結果:', result)
+    // if (isDev) console.log('[getServiceSection] 查詢結果:', result)
     return result || null
   } catch (error) {
-    if (isDev) console.error('[getServiceSection] 從 Sanity 獲取服務區塊時發生錯誤:', error)
+    // if (isDev) console.error('[getServiceSection] 從 Sanity 獲取服務區塊時發生錯誤:', error)
     return null
   }
 }

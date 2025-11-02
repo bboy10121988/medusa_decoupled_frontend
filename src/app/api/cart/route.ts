@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log("🛒 API Route 處理加入購物車:", { variantId, quantity, countryCode })
+    // console.log("🛒 API Route 處理加入購物車:", { variantId, quantity, countryCode })
 
     // 使用現有的 addToCart 函數
     await addToCart({
@@ -38,14 +38,14 @@ export async function POST(request: NextRequest) {
     // 重新獲取購物車資料
     const updatedCart = await getOrSetCart(countryCode)
     
-    console.log("✅ API Route 加入購物車成功")
+    // console.log("✅ API Route 加入購物車成功")
     return NextResponse.json({ 
       success: true, 
       cart: updatedCart,
       message: "Item added to cart successfully" 
     })
   } catch (error) {
-    console.error("❌ API Route 加入購物車失敗:", error)
+    // console.error("❌ API Route 加入購物車失敗:", error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : "Failed to add item to cart",

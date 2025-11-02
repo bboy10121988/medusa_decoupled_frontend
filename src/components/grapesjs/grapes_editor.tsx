@@ -28,7 +28,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
     }
 
     try {
-      console.log('🔄 開始保存頁面:', currentPage.title)
+      // console.log('🔄 開始保存頁面:', currentPage.title)
       
       // 顯示保存中狀態
       const saveButton = editor.Panels?.getButton?.('options', 'save-page')
@@ -43,7 +43,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       
       // 檢查內容是否為空
       if (!html || html.trim() === '') {
-        console.warn('警告: HTML 內容為空')
+        // console.warn('警告: HTML 內容為空')
       }
       
       // 清理 HTML 內容，移除可能導致 hydration 問題的標籤
@@ -56,13 +56,13 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       
       const finalCss = css
       
-      console.log('📊 最終內容統計:', {
-        originalHtmlLength: html.length,
-        finalHtmlLength: finalHtml.length,
-        originalCssLength: css.length,
-        finalCssLength: finalCss.length,
-        hasComponents: components.length > 0
-      })
+      // console.log('📊 最終內容統計:', {
+        // originalHtmlLength: html.length,
+        // finalHtmlLength: finalHtml.length,
+        // originalCssLength: css.length,
+        // finalCssLength: finalCss.length,
+        // hasComponents: components.length > 0
+      // })
       
       // 獲取樣式 - 使用正確的 API 並處理可能的 undefined
       const stylesManager = editor.StyleManager
@@ -75,7 +75,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         const componentsClone = JSON.parse(JSON.stringify(components))
         componentsJson = JSON.stringify(componentsClone)
       } catch (jsonError) {
-        console.error('組件序列化失敗:', jsonError)
+        // console.error('組件序列化失敗:', jsonError)
         // 嘗試使用替代方法
         componentsJson = JSON.stringify(
           components.map((comp: any) => ({
@@ -92,7 +92,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         const stylesClone = JSON.parse(JSON.stringify(styles))
         stylesJson = JSON.stringify(stylesClone)
       } catch (jsonError) {
-        console.error('樣式序列化失敗:', jsonError)
+        // console.error('樣式序列化失敗:', jsonError)
         // 使用基本樣式資訊
         stylesJson = JSON.stringify(
           styles.map((style: any) => ({
@@ -102,14 +102,14 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         )
       }
 
-      console.log('📄 頁面內容準備保存:', {
-        htmlLength: finalHtml.length,
-        cssLength: finalCss.length,
-        componentsJsonLength: componentsJson.length,
-        stylesJsonLength: stylesJson.length,
-        hasComponents: components.length > 0,
-        hasStyles: styles.length > 0
-      })
+      // console.log('📄 頁面內容準備保存:', {
+        // htmlLength: finalHtml.length,
+        // cssLength: finalCss.length,
+        // componentsJsonLength: componentsJson.length,
+        // stylesJsonLength: stylesJson.length,
+        // hasComponents: components.length > 0,
+        // hasStyles: styles.length > 0
+      // })
 
       // 更新頁面數據 - 使用增強的內容並添加網路錯誤處理
       let updatedPage
@@ -135,7 +135,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         } catch (error) {
           if (retryCount < maxRetries) {
             retryCount++
-            console.log(`保存失敗，第 ${retryCount} 次重試...`)
+            // console.log(`保存失敗，第 ${retryCount} 次重試...`)
             // 增加延遲時間，使用指數退避策略
             await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
             return attemptSave(shouldPublish)
@@ -149,13 +149,13 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         updatedPage = await attemptSave(true)
       } catch (networkError) {
         // 處理網路錯誤
-        console.error('🌐 網路請求錯誤詳情:', {
-          error: networkError,
-          message: networkError instanceof Error ? networkError.message : 'Unknown error',
-          name: networkError instanceof Error ? networkError.name : 'Unknown',
-          type: typeof networkError,
-          stack: networkError instanceof Error ? networkError.stack : undefined
-        })
+        // console.error('🌐 網路請求錯誤詳情:', {
+          // error: networkError,
+          // message: networkError instanceof Error ? networkError.message : 'Unknown error',
+          // name: networkError instanceof Error ? networkError.name : 'Unknown',
+          // type: typeof networkError,
+          // stack: networkError instanceof Error ? networkError.stack : undefined
+        // })
         
         if (networkError instanceof TypeError && networkError.message.includes('network')) {
           throw new Error('網路連接失敗，請檢查網路連接後重試')
@@ -170,7 +170,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         }
       }
 
-      console.log('✅ 頁面保存成功:', updatedPage._id)
+      // console.log('✅ 頁面保存成功:', updatedPage._id)
       
       // 更新當前頁面狀態
       setCurrentPage(updatedPage)
@@ -190,7 +190,7 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
       }
       
     } catch (error) {
-      console.error('❌ 保存頁面失敗:', error)
+      // console.error('❌ 保存頁面失敗:', error)
       
       // 在編輯器中顯示錯誤提示
       const saveButton = editor.Panels?.getButton?.('options', 'save-page')
@@ -221,22 +221,22 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
   useEffect(() => {
     const preventBrowserSave = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        console.log('🚫 全域攔截器：阻止瀏覽器儲存網頁行為')
+        // console.log('🚫 全域攔截器：阻止瀏覽器儲存網頁行為')
         e.preventDefault()
         e.stopPropagation()
         
         // 如果編輯器和當前頁面都已準備好，直接觸發保存
         if (editor && currentPage && handleSave) {
-          console.log('💾 全域攔截器：觸發編輯器保存')
+          // console.log('💾 全域攔截器：觸發編輯器保存')
           handleSave().catch(error => {
-            console.error('全域攔截器保存失敗:', error)
+            // console.error('全域攔截器保存失敗:', error)
           })
         } else {
-          console.log('⏳ 全域攔截器：編輯器或頁面尚未準備好', { 
-            hasEditor: !!editor, 
-            hasCurrentPage: !!currentPage,
-            hasHandleSave: !!handleSave
-          })
+          // console.log('⏳ 全域攔截器：編輯器或頁面尚未準備好', {
+            // hasEditor: !!editor,
+            // hasCurrentPage: !!currentPage,
+            // hasHandleSave: !!handleSave
+          // })
         }
         return false
       }
@@ -269,9 +269,9 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         e.preventDefault()
         e.stopPropagation()
         e.stopImmediatePropagation()
-        console.log('🔑 偵測到快捷鍵 Ctrl+S/Cmd+S，觸發保存')
+        // console.log('🔑 偵測到快捷鍵 Ctrl+S/Cmd+S，觸發保存')
         handleSave().catch(error => {
-          console.error('快捷鍵保存失敗:', error)
+          // console.error('快捷鍵保存失敗:', error)
         })
         return false
       }
@@ -343,16 +343,16 @@ export default function GrapesEditor({ pageId, onSave }: GrapesEditorProps) {
         const allCss = css + fullContent.css
         const allJs = fullContent.js
         
-        console.log('=== 基本 HTML ===')
-        console.log(html)
-        console.log('=== 完整 HTML（含組件內容）===')
-        console.log(fullContent.html)
-        console.log('=== 基本 CSS ===')
-        console.log(css)
-        console.log('=== 完整 CSS（含內聯樣式）===')
-        console.log(allCss)
-        console.log('=== JavaScript ===')
-        console.log(allJs)
+        // console.log('=== 基本 HTML ===')
+        // console.log(html)
+        // console.log('=== 完整 HTML（含組件內容）===')
+        // console.log(fullContent.html)
+        // console.log('=== 基本 CSS ===')
+        // console.log(css)
+        // console.log('=== 完整 CSS（含內聯樣式）===')
+        // console.log(allCss)
+        // console.log('=== JavaScript ===')
+        // console.log(allJs)
         
         const fullHtml = `
 <!DOCTYPE html>
@@ -375,14 +375,14 @@ ${allJs ? `<script>${allJs}</script>` : ''}
           newWindow.document.close()
         } else {
           // 如果彈出視窗被阻擋，顯示在控制台
-          console.log('完整 HTML 輸出:')
-          console.log(fullHtml)
+          // console.log('完整 HTML 輸出:')
+          // console.log(fullHtml)
           alert('完整 HTML 已輸出到控制台 (F12)')
         }
       }
     })
 
-    console.log('✅ 保存命令、快捷鍵和測試功能已註冊')
+    // console.log('✅ 保存命令、快捷鍵和測試功能已註冊')
     
     // 清理函數
     return () => {
@@ -395,37 +395,37 @@ ${allJs ? `<script>${allJs}</script>` : ''}
     const initEditor = async () => {
       // 首先檢查是否已經初始化過
       if (editor) {
-        console.log('📋 編輯器已存在，跳過初始化')
+        // console.log('📋 編輯器已存在，跳過初始化')
         return
       }
 
       // 等待 DOM 完全準備好
       if (typeof window === 'undefined') {
-        console.log('⏳ 服務器端渲染環境，等待客戶端...')
+        // console.log('⏳ 服務器端渲染環境，等待客戶端...')
         return
       }
 
       // 使用更強健的容器檢查
       const checkContainer = () => {
         if (!editorRef?.current) {
-          console.log('⏳ 編輯器 ref 尚未設置或為 null')
+          // console.log('⏳ 編輯器 ref 尚未設置或為 null')
           return false
         }
 
         // 檢查容器是否真的在頁面上
         try {
           if (!document.contains(editorRef.current)) {
-            console.log('⏳ 編輯器容器不在 DOM 中')
+            // console.log('⏳ 編輯器容器不在 DOM 中')
             return false
           }
         } catch (error) {
-          console.log('⏳ 檢查容器 DOM 狀態時出錯:', error)
+          // console.log('⏳ 檢查容器 DOM 狀態時出錯:', error)
           return false
         }
 
         // 檢查容器是否已連接（如果支援此屬性）
         if ('isConnected' in editorRef.current && !editorRef.current.isConnected) {
-          console.log('⏳ 編輯器容器尚未連接到 DOM')
+          // console.log('⏳ 編輯器容器尚未連接到 DOM')
           return false
         }
 
@@ -433,11 +433,11 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         try {
           const rect = editorRef.current.getBoundingClientRect()
           if (rect.width === 0 && rect.height === 0) {
-            console.log('⏳ 編輯器容器尺寸為 0，等待布局完成...', { width: rect.width, height: rect.height })
+            // console.log('⏳ 編輯器容器尺寸為 0，等待布局完成...', { width: rect.width, height: rect.height })
             return false
           }
         } catch (error) {
-          console.log('⏳ 獲取容器尺寸時出錯，但繼續初始化:', error)
+          // console.log('⏳ 獲取容器尺寸時出錯，但繼續初始化:', error)
           // 繼續，不阻止初始化
         }
 
@@ -447,21 +447,21 @@ ${allJs ? `<script>${allJs}</script>` : ''}
       // 容器檢查和重試邏輯
       const retryCount = (initEditor as any).retryCount || 0
       if (!checkContainer()) {
-        console.log(`⏳ 編輯器容器尚未準備好，等待中... (嘗試 ${retryCount + 1}/30)`)
+        // console.log(`⏳ 編輯器容器尚未準備好，等待中... (嘗試 ${retryCount + 1}/30)`)
         
         if (retryCount < 30) { // 增加重試次數到 30 次
           ;(initEditor as any).retryCount = retryCount + 1
           setTimeout(initEditor, 200) // 增加等待時間到 200ms
           return
         } else {
-          console.error('❌ 編輯器初始化失敗：容器在 30 次嘗試後仍未準備好')
+          // console.error('❌ 編輯器初始化失敗：容器在 30 次嘗試後仍未準備好')
           // 如果容器完全沒有，則直接返回，不再嘗試
           if (!editorRef.current) {
-            console.error('❌ 編輯器容器為 null，無法繼續')
+            // console.error('❌ 編輯器容器為 null，無法繼續')
             return
           }
           // 如果容器存在但檢查失敗，嘗試強制初始化
-          console.warn('⚠️ 嘗試強制初始化編輯器...')
+          // console.warn('⚠️ 嘗試強制初始化編輯器...')
         }
       }
 
@@ -469,19 +469,19 @@ ${allJs ? `<script>${allJs}</script>` : ''}
       ;(initEditor as any).retryCount = 0
 
       try {
-        console.log('🚀 開始初始化 GrapesJS 編輯器...')
+        // console.log('🚀 開始初始化 GrapesJS 編輯器...')
         
         // 網路連接測試
         if (typeof window !== 'undefined' && !navigator.onLine) {
-          console.warn('⚠️ 檢測到離線狀態，某些功能可能無法正常工作')
+          // console.warn('⚠️ 檢測到離線狀態，某些功能可能無法正常工作')
         }
         
-        console.log('✅ 編輯器容器已準備好:', {
-          container: editorRef.current,
-          isConnected: editorRef.current?.isConnected,
-          rect: editorRef.current?.getBoundingClientRect(),
-          id: editorRef.current?.id
-        })
+        // console.log('✅ 編輯器容器已準備好:', {
+          // container: editorRef.current,
+          // isConnected: editorRef.current?.isConnected,
+          // rect: editorRef.current?.getBoundingClientRect(),
+          // id: editorRef.current?.id
+        // })
 
         const grapesjs = (await import('grapesjs')).default
         const pluginWebpage = (await import('grapesjs-preset-webpage')).default
@@ -502,38 +502,38 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         const pluginCarousel = (await import('grapesjs-carousel-component')).default
         
  
-        console.log('📦 所有插件模組載入完成，包含代碼編輯器和 Carousel 插件')
+        // console.log('📦 所有插件模組載入完成，包含代碼編輯器和 Carousel 插件')
         
         // 獲取自定義插件
         const customPlugins = loadCustomPlugins()
-        console.log('🎯 已載入自定義插件:', customPlugins)
+        // console.log('🎯 已載入自定義插件:', customPlugins)
 
         // 最終的容器安全檢查，但提供更好的錯誤恢復
         let containerElement = editorRef.current
         
         if (!containerElement) {
-          console.error('❌ 編輯器容器在最終檢查時為 null')
-          console.error('📊 調試信息:', {
-            hasRef: !!editorRef,
-            currentValue: editorRef.current,
-            typeOfRef: typeof editorRef.current,
-            domElement: document.getElementById('grapesjs-editor-container')
-          })
+          // console.error('❌ 編輯器容器在最終檢查時為 null')
+          // console.error('📊 調試信息:', {
+            // hasRef: !!editorRef,
+            // currentValue: editorRef.current,
+            // typeOfRef: typeof editorRef.current,
+            // domElement: document.getElementById('grapesjs-editor-container')
+          // })
           
           // 嘗試通過 ID 找到容器作為備用方案
           const fallbackContainer = document.getElementById('grapesjs-editor-container')
           if (fallbackContainer) {
-            console.warn('⚠️ 使用備用容器方法初始化編輯器')
+            // console.warn('⚠️ 使用備用容器方法初始化編輯器')
             containerElement = fallbackContainer as HTMLDivElement
           } else {
-            console.error('❌ 無法找到編輯器容器，延遲重試')
+            // console.error('❌ 無法找到編輯器容器，延遲重試')
             // 延遲重試而不是拋出錯誤
             setTimeout(initEditor, 500)
             return
           }
         }
 
-        console.log('✅ 確認容器可用，開始初始化 GrapesJS...')
+        // console.log('✅ 確認容器可用，開始初始化 GrapesJS...')
 
         const editorInstance = grapesjs.init({
           container: containerElement,
@@ -618,8 +618,8 @@ ${allJs ? `<script>${allJs}</script>` : ''}
             toolbarIcon: '<i class="fa fa-code"></i>',
             modalTitle: '編輯組件腳本',
             buttonLabel: '保存腳本',
-            onRun: () => console.log('✅ 腳本語法正確'),
-            onError: (err: any) => console.error('❌ 腳本錯誤:', err),
+            // onRun: () => console.log('✅ 腳本語法正確'),
+            // onError: (err: any) => console.error('❌ 腳本錯誤:', err),
             codeViewOptions: {
               theme: 'hopscotch',
               lineNumbers: true,
@@ -727,7 +727,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                 size: data.image.size
               }
             } catch (error) {
-              console.error('Asset upload error:', error)
+              // console.error('Asset upload error:', error)
               throw error
             }
           },
@@ -737,7 +737,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         },
       })
 
-        console.log('✅ 編輯器初始化完成')
+        // console.log('✅ 編輯器初始化完成')
         
         // 設置自定義資產管理器行為
         const assetManager = editorInstance.AssetManager
@@ -760,10 +760,10 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                   selected.set('src', imageUrl)
                 }
                 
-                console.log('✅ 已選擇 Sanity 圖片:', imageUrl)
+                // console.log('✅ 已選擇 Sanity 圖片:', imageUrl)
               },
               onClose: () => {
-                console.log('📂 Sanity 圖片選擇器已關閉')
+                // console.log('📂 Sanity 圖片選擇器已關閉')
               },
               allowUpload: true
             })
@@ -799,15 +799,15 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         // 添加全域網路錯誤監聽器
         if (typeof window !== 'undefined') {
           const handleNetworkError = (event: Event) => {
-            console.error('🌐 網路錯誤事件:', event)
+            // console.error('🌐 網路錯誤事件:', event)
             // 可以在這裡添加用戶提示
           }
           
           const handleOnlineStatusChange = () => {
             if (navigator.onLine) {
-              console.log('✅ 網路連接已恢復')
+              // console.log('✅ 網路連接已恢復')
             } else {
-              console.warn('❌ 網路連接已斷開')
+              // console.warn('❌ 網路連接已斷開')
             }
           }
           
@@ -817,7 +817,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         }
 
         // 確保面板正確顯示
-        console.log('📋 設置面板可見性...')
+        // console.log('📋 設置面板可見性...')
         
         // 等一下讓編輯器完全加載後再配置面板
         setTimeout(() => {
@@ -827,25 +827,25 @@ ${allJs ? `<script>${allJs}</script>` : ''}
           // 打開組件庫面板
           if (commands.has('show-blocks')) {
             commands.run('show-blocks')
-            console.log('✅ 組件庫面板已打開')
+            // console.log('✅ 組件庫面板已打開')
           }
           
           // 打開圖層面板
           if (commands.has('show-layers')) {
             commands.run('show-layers') 
-            console.log('✅ 圖層面板已打開')
+            // console.log('✅ 圖層面板已打開')
           }
           
                     // 確保組件庫面板可見
           const blockManager = editorInstance.BlockManager
           if (blockManager) {
-            console.log('✅ 組件庫已載入，共', blockManager.getAll().length, '個組件')
+            // console.log('✅ 組件庫已載入，共', blockManager.getAll().length, '個組件')
           }
           
           // 確保圖層面板可見  
           const layerManager = editorInstance.LayerManager
           if (layerManager) {
-            console.log('✅ 圖層管理器已載入')
+            // console.log('✅ 圖層管理器已載入')
           }
           
           // 添加 script-editor 工具欄按鈕
@@ -859,7 +859,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                 attributes: { title: '編輯組件腳本' }
               }
             ])
-            console.log('✅ 腳本編輯器按鈕已添加')
+            // console.log('✅ 腳本編輯器按鈕已添加')
           }
 
           // 使用 GrapesJS API 添加頁面切換器到 options 面板
@@ -870,30 +870,30 @@ ${allJs ? `<script>${allJs}</script>` : ''}
               const existingButton = editorInstance.Panels.getButton('options', 'page-switcher')
               
               if (existingButton) {
-                console.log('頁面切換器已存在，跳過添加')
+                // console.log('頁面切換器已存在，跳過添加')
                 return
               }
               
               // 獲取所有可用頁面列表
               let allPages: GrapesJSPageData[] = []
               try {
-                console.log('🔍 開始獲取頁面清單...')
+                // console.log('🔍 開始獲取頁面清單...')
                 allPages = await grapesJSPageService.getAllPages()
                 
                 // 詳細記錄每個頁面狀態
-                console.log('✅ 成功獲取頁面清單:', {
-                  總數: allPages.length,
-                  頁面列表: allPages.map(p => ({ 
-                    id: p._id, 
-                    title: p.title,
-                    slug: p.slug,
-                    status: p.status,
-                    hasHtml: !!p.grapesHtml,
-                    hasCss: !!p.grapesCss,
-                    _createdAt: p._createdAt,
-                    _updatedAt: p._updatedAt
-                  }))
-                })
+                // console.log('✅ 成功獲取頁面清單:', {
+                  // 總數: allPages.length,
+                  // 頁面列表: allPages.map(p => ({
+                    // id: p._id,
+                    // title: p.title,
+                    // slug: p.slug,
+                    // status: p.status,
+                    // hasHtml: !!p.grapesHtml,
+                    // hasCss: !!p.grapesCss,
+                    // _createdAt: p._createdAt,
+                    // _updatedAt: p._updatedAt
+                  // }))
+                // })
                 
                 // 統計各種狀態的頁面數量
                 const statusCounts = allPages.reduce((counts, page) => {
@@ -902,10 +902,10 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                   return counts
                 }, {} as Record<string, number>)
                 
-                console.log('📊 頁面狀態統計:', statusCounts)
-                console.log('🔍 原始查詢返回數據:', allPages)
+                // console.log('📊 頁面狀態統計:', statusCounts)
+                // console.log('🔍 原始查詢返回數據:', allPages)
               } catch (error) {
-                console.error('❌ 載入頁面列表失敗:', error)
+                // console.error('❌ 載入頁面列表失敗:', error)
                 // 如果獲取失敗，至少包含當前頁面
                 allPages = [{
                   _id: pageId,
@@ -920,7 +920,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                   grapesComponents: '',
                   grapesStyles: ''
                 }]
-                console.log('⚠️ 使用備用頁面列表:', allPages)
+                // console.log('⚠️ 使用備用頁面列表:', allPages)
               }
 
               // 找到當前頁面資料以用於按鈕標題
@@ -963,21 +963,21 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                       const selectedAttr = isCurrentPage ? ' selected' : ''
                       const currentMark = isCurrentPage ? ' (當前)' : ''
                       const option = `<option value="${page._id}"${selectedAttr}>${statusText}${currentMark}</option>`
-                      console.log('📄 生成頁面選項:', { 
-                        pageId: page._id?.slice(-8), 
-                        title: page.title, 
-                        status: page.status,
-                        isCurrentPage, 
-                        option: option.substring(0, 120) 
-                      })
+                      // console.log('📄 生成頁面選項:', {
+                        // pageId: page._id?.slice(-8),
+                        // title: page.title,
+                        // status: page.status,
+                        // isCurrentPage,
+                        // option: option.substring(0, 120)
+                      // })
                       return option
                     })
                     .join('')
                     
-                  console.log(`📋 頁面選項生成完成: 當前頁面ID=${currentPageId?.slice(-8)}, 總選項數=${allPages.length}`)
-                  console.log('🔧 生成的HTML選項:', pageOptions)
+                  // console.log(`📋 頁面選項生成完成: 當前頁面ID=${currentPageId?.slice(-8)}, 總選項數=${allPages.length}`)
+                  // console.log('🔧 生成的HTML選項:', pageOptions)
                     
-                  console.log(`📋 顯示頁面清單: 共 ${allPages.length} 個頁面`)
+                  // console.log(`📋 顯示頁面清單: 共 ${allPages.length} 個頁面`)
                   
                   const modal = editorInstance.Modal
                   modal.setTitle('<span style="color: white;">🔄 切換編輯頁面</span>')
@@ -1114,7 +1114,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                                 }
                                 
                               } catch (err) {
-                                console.error('Error creating page:', err)
+                                // console.error('Error creating page:', err)
                                 const errorMessage = err instanceof Error ? err.message : '未知錯誤'
                                 alert(`建立頁面失敗: ${errorMessage}`)
                                 
@@ -1152,7 +1152,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
                 }
               })
 
-              console.log('✅ 頁面切換器已添加到 options 面板，共', allPages.length + 1, '個頁面')
+              // console.log('✅ 頁面切換器已添加到 options 面板，共', allPages.length + 1, '個頁面')
             }
           }
           
@@ -1163,7 +1163,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
           editorInstance.trigger('change:canvasOffset')
         }, 200)
 
-        console.log('📋 面板配置完成')
+        // console.log('📋 面板配置完成')
 
         // 等待編輯器完全初始化後再載入頁面
         setTimeout(() => {
@@ -1173,7 +1173,7 @@ ${allJs ? `<script>${allJs}</script>` : ''}
         }, 100)
         
       } catch (error) {
-        console.error('❌ 編輯器初始化失敗:', error)
+        // console.error('❌ 編輯器初始化失敗:', error)
       }
     }
 
@@ -1203,35 +1203,35 @@ ${allJs ? `<script>${allJs}</script>` : ''}
   // 載入頁面的輔助函數
   const loadPageWithEditor = async (editorInstance: any, pageIdToLoad: string) => {
     try {
-      console.log('🔄 載入頁面:', pageIdToLoad)
+      // console.log('🔄 載入頁面:', pageIdToLoad)
       const pageData = await grapesJSPageService.getPageById(pageIdToLoad)
       
       if (!pageData) {
-        console.warn('⚠️ 找不到頁面數據')
+        // console.warn('⚠️ 找不到頁面數據')
         return
       }
 
-      console.log('📄 找到頁面數據:', pageData.title)
+      // console.log('📄 找到頁面數據:', pageData.title)
       
       // 載入頁面內容
       loadPageContent(editorInstance, pageData)
       
       setCurrentPage(pageData)
-      console.log('✅ 頁面載入完成')
+      // console.log('✅ 頁面載入完成')
     } catch (error) {
-      console.error('❌ 載入頁面失敗:', error)
+      // console.error('❌ 載入頁面失敗:', error)
     }
   }
 
   // 載入頁面內容的輔助函數
   const loadPageContent = (editorInstance: any, pageData: any) => {
     if (pageData.grapesHtml) {
-      console.log('載入 HTML 內容')
+      // console.log('載入 HTML 內容')
       editorInstance.setComponents(pageData.grapesHtml)
     }
     
     if (pageData.grapesCss) {
-      console.log('載入 CSS 樣式')
+      // console.log('載入 CSS 樣式')
       editorInstance.setStyle(pageData.grapesCss)
     }
     
@@ -1245,10 +1245,10 @@ ${allJs ? `<script>${allJs}</script>` : ''}
     
     try {
       const components = JSON.parse(pageData.grapesComponents)
-      console.log('載入組件數據:', components.length, '個組件')
+      // console.log('載入組件數據:', components.length, '個組件')
       editorInstance.loadProjectData({ components })
     } catch (e) {
-      console.warn('無法解析組件數據:', e)
+      // console.warn('無法解析組件數據:', e)
     }
   }
 
@@ -1258,11 +1258,11 @@ ${allJs ? `<script>${allJs}</script>` : ''}
     
     try {
       const styles = JSON.parse(pageData.grapesStyles)
-      console.log('載入樣式數據:', styles.length, '個樣式')
+      // console.log('載入樣式數據:', styles.length, '個樣式')
       // 注意：GrapesJS 的樣式載入可能需要特殊處理
       // 這裡先跳過，主要依靠 CSS 和組件數據
     } catch (e) {
-      console.warn('無法解析樣式數據:', e)
+      // console.warn('無法解析樣式數據:', e)
     }
   }
 

@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: '非頁面發布事件' })
   } catch (error: any) {
-    console.error('Webhook 處理錯誤:', error)
+    // console.error('Webhook 處理錯誤:', error)
     return NextResponse.json({ 
       error: error.message 
     }, { 

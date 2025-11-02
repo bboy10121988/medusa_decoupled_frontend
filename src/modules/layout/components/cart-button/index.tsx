@@ -19,7 +19,7 @@ export default function CartButton() {
         setCart((data as any).cart || null)
       }
     } catch (error) {
-      console.error('Failed to fetch cart:', error)
+      // console.error('Failed to fetch cart:', error)
       setCart(null)
     }
   }, [])

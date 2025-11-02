@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       message: authProvider === "password" ? "此電子郵件可使用密碼登入" : `此電子郵件綁定 ${authProvider} 登入`,
     })
   } catch (error) {
-    console.error("檢查電子郵件時發生錯誤:", error)
+    // console.error("檢查電子郵件時發生錯誤:", error)
     return NextResponse.json({
       exists: false,
       authProvider: null,

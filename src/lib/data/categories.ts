@@ -49,7 +49,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
       )
       .then(({ product_categories }) => product_categories[0] || null)
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error(`Failed to fetch category by handle "${handle}":`, error)
+    // if (process.env.NODE_ENV === 'development') console.error(`Failed to fetch category by handle "${handle}":`, error)
     return null
   }
 }

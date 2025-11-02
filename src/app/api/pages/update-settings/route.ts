@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('更新頁面設定:', { pageId, settings })
+    // console.log('更新頁面設定:', { pageId, settings })
 
     // 更新頁面設定
     const result = await client
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       })
       .commit()
 
-    console.log('頁面設定已更新:', result)
+    // console.log('頁面設定已更新:', result)
 
     return NextResponse.json({
       success: true,
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('更新頁面設定失敗:', error)
+    // console.error('更新頁面設定失敗:', error)
     return NextResponse.json(
       { 
         success: false, 

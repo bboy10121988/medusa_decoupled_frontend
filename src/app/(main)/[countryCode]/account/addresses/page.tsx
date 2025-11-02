@@ -30,7 +30,7 @@ export default function Addresses() {
           setRegion(currentRegion || regions[0] || null)
         }
       } catch (err) {
-        console.error('獲取地址資料失敗:', err)
+        // console.error('獲取地址資料失敗:', err)
       } finally {
         setLoading(false)
       }

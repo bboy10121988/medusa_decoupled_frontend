@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function Cart() {
   const cart = await retrieveCart().catch((error) => {
-    console.error(error)
+    // console.error(error)
     return null // 返回 null 而不是 notFound()，讓 CartTemplate 處理空購物車的情況
   })
 

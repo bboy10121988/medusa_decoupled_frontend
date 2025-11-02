@@ -29,15 +29,15 @@ export const medusaFetch = async (endpoint: string, options: RequestInit = {}) =
   
   // 開發環境除錯
   if (__isDev) {
-    console.log('🌐 medusaFetch debug:', {
-      endpoint,
-      baseUrl,
-      url,
-      isProxy,
-      backendUrl,
-      publishableKey: publishableKey ? `${publishableKey.slice(0, 10)}...` : 'undefined',
-      windowDefined: typeof window !== 'undefined'
-    })
+    // console.log('🌐 medusaFetch debug:', {
+      // endpoint,
+      // baseUrl,
+      // url,
+      // isProxy,
+      // backendUrl,
+      // publishableKey: publishableKey ? `${publishableKey.slice(0, 10)}...` : 'undefined',
+      // windowDefined: typeof window !== 'undefined'
+    // })
   }
   
   // 預設 headers
@@ -74,7 +74,7 @@ export const medusaFetch = async (endpoint: string, options: RequestInit = {}) =
     
     return response
   } catch (error) {
-    if (__isDev) console.error('Medusa API 請求失敗:', error)
+    // if (__isDev) console.error('Medusa API 請求失敗:', error)
     
     // 提供有用的錯誤信息
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -115,10 +115,10 @@ export const checkCORS = async () => {
       mode: 'cors',
     })
     
-    if (__isDev) console.log('✅ CORS 設置正確，API 連接正常')
+    // if (__isDev) console.log('✅ CORS 設置正確，API 連接正常')
     return true
   } catch (error) {
-    if (__isDev) console.error('❌ CORS 設置有問題:', error)
+    // if (__isDev) console.error('❌ CORS 設置有問題:', error)
     return false
   }
 }

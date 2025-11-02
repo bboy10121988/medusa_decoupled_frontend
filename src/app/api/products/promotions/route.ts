@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error("Error fetching product promotions:", error)
+    // console.error("Error fetching product promotions:", error)
     return NextResponse.json(
       { error: "Failed to fetch promotions" },
       { status: 500 }
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error("Error calculating product discount:", error)
+    // console.error("Error calculating product discount:", error)
     return NextResponse.json(
       { error: "Failed to calculate discount" },
       { status: 500 }

@@ -12,11 +12,11 @@ const pool = new Pool({
 
 // 測試連接
 pool.on('connect', () => {
-  console.log('Connected to Medusa database')
+  // console.log('Connected to Medusa database')
 })
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err)
+  // console.error('Unexpected error on idle client', err)
   process.exit(-1)
 })
 

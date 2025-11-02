@@ -18,7 +18,7 @@ export default function GoogleAuthTest() {
     setStatus({ step: "開始 Google 登入測試", loading: true })
     
     try {
-      console.log("🔑 測試 Google OAuth 流程")
+      // console.log("🔑 測試 Google OAuth 流程")
       
       // 1. 測試 Google OAuth URL 生成
       const result = await sdk.auth.login("customer", "google", {
@@ -27,7 +27,7 @@ export default function GoogleAuthTest() {
         access_type: "offline"
       })
       
-      console.log("🔍 Google OAuth 結果:", result)
+      // console.log("🔍 Google OAuth 結果:", result)
       
       if (typeof result === "object" && result?.location) {
         setStatus({ 
@@ -57,7 +57,7 @@ export default function GoogleAuthTest() {
             result: { ...prev.result, customer }
           }))
         } catch (err) {
-          console.error("獲取客戶資料失敗:", err)
+          // console.error("獲取客戶資料失敗:", err)
         }
         
       } else {
@@ -69,7 +69,7 @@ export default function GoogleAuthTest() {
       }
       
     } catch (error: any) {
-      console.error("Google 登入錯誤:", error)
+      // console.error("Google 登入錯誤:", error)
       setStatus({
         step: "Google 登入失敗",
         loading: false,

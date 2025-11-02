@@ -61,7 +61,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     paymentSessionID = paymentSessions[0].id
   }
 
-  console.log(action,"payment session id",paymentSessionID)
+  // console.log(action,"payment session id",paymentSessionID)
 
   const [submitting] = useState(false)
   let errorMessage: string|null = defaultError
@@ -158,7 +158,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
   const params:URLSearchParams = data.getDataParams();
 
   if (errorMessage){
-    console.log(action,"error:",errorMessage)
+    // console.log(action,"error:",errorMessage)
   }
 
   const submitHandler = () => {

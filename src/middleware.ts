@@ -87,7 +87,7 @@ async function getRegionMap(cacheId: string) {
                             errMsg.includes('abort') || errMsg.includes('timeout');
       
       if (process.env.NODE_ENV === "development") {
-        console.warn(`Middleware.ts: ${isNetworkError ? '網絡錯誤' : '失敗'} - 使用預設區域:`, errMsg)
+        // console.warn(`Middleware.ts: ${isNetworkError ? '網絡錯誤' : '失敗'} - 使用預設區域:`, errMsg)
       }
     }
   }
@@ -126,9 +126,9 @@ async function getCountryCode(
     return countryCode
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
-      console.error(
-        "Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
-      )
+      // console.error(
+        // "Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
+      // )
     }
   }
 }
@@ -257,17 +257,17 @@ export async function middleware(request: NextRequest) {
     }
     
     // Log affiliate click tracking (in production, save to database)
-    console.log('Affiliate click tracked:', {
-      affiliateId: affiliateRef || affiliateId,
-      timestamp: Date.now(),
-      referrer: request.headers.get('referer'),
-      userAgent: request.headers.get('user-agent'),
-      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-      utmSource,
-      utmMedium,
-      utmCampaign,
-      path: url.pathname
-    })
+    // console.log('Affiliate click tracked:', {
+      // affiliateId: affiliateRef || affiliateId,
+      // timestamp: Date.now(),
+      // referrer: request.headers.get('referer'),
+      // userAgent: request.headers.get('user-agent'),
+      // ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+      // utmSource,
+      // utmMedium,
+      // utmCampaign,
+      // path: url.pathname
+    // })
     
     // Remove affiliate parameters from URL to keep it clean
     url.searchParams.delete('ref')

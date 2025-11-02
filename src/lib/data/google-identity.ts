@@ -65,11 +65,11 @@ export async function getGoogleIdentityByCustomerId(
         LIMIT 1
       `
     
-    console.log(`🔍 查詢客戶 ${customerId} 的 Google 身份資料`)
+    // console.log(`🔍 查詢客戶 ${customerId} 的 Google 身份資料`)
     const result = await client.query(query, [customerId])
     
     if (result.rows.length === 0) {
-      console.log(`⚠️ 未找到客戶 ${customerId} 的 Google 身份資料`)
+      // console.log(`⚠️ 未找到客戶 ${customerId} 的 Google 身份資料`)
       return {
         success: false,
         error: `未找到客戶 ${customerId} 的 Google 身份資料`
@@ -83,8 +83,8 @@ export async function getGoogleIdentityByCustomerId(
     
     // 只在開發環境中記錄數據
     if (process.env.NODE_ENV === 'development') {
-      console.log("完整的 user_metadata:", JSON.stringify(userMetadata, null, 2));
-      console.log("完整的 provider_metadata:", JSON.stringify(providerMetadata, null, 2));
+      // console.log("完整的 user_metadata:", JSON.stringify(userMetadata, null, 2));
+      // console.log("完整的 provider_metadata:", JSON.stringify(providerMetadata, null, 2));
     }
     
     const googleIdentity: GoogleIdentity = {
@@ -113,12 +113,12 @@ export async function getGoogleIdentityByCustomerId(
       raw_user_info: userMetadata
     }
     
-    console.log(`✅ 成功獲取 Google 身份資料:`, {
-      hasEmail: !!googleIdentity.email,
-      hasName: !!googleIdentity.name,
-      email: googleIdentity.email,
-      providerId: data.provider_user_id
-    })
+    // console.log(`✅ 成功獲取 Google 身份資料:`, {
+      // hasEmail: !!googleIdentity.email,
+      // hasName: !!googleIdentity.name,
+      // email: googleIdentity.email,
+      // providerId: data.provider_user_id
+    // })
     
     return {
       success: true,
@@ -126,7 +126,7 @@ export async function getGoogleIdentityByCustomerId(
     }
     
   } catch (error) {
-    console.error('❌ 獲取 Google 身份資料時出錯:', error)
+    // console.error('❌ 獲取 Google 身份資料時出錯:', error)
     return {
       success: false,
       error: `數據庫查詢失敗: ${error instanceof Error ? error.message : String(error)}`
@@ -171,7 +171,7 @@ export async function getAllGoogleIdentities(): Promise<{
         pi.created_at DESC
     `
     
-    console.log('🔍 查詢所有 Google 身份資料')
+    // console.log('🔍 查詢所有 Google 身份資料')
     const result = await client.query(query)
     
     const identities = result.rows.map(row => {
@@ -181,9 +181,9 @@ export async function getAllGoogleIdentities(): Promise<{
       
       // 只在開發環境中記錄數據
       if (process.env.NODE_ENV === 'development' && userMetadata.email) {
-        console.log(`✅ 找到 Google 帳戶 ${userMetadata.email} 的詳細資料`);
-        console.log("user_metadata 範例:", JSON.stringify(userMetadata, null, 2));
-        console.log("provider_metadata 範例:", JSON.stringify(providerMetadata, null, 2));
+        // console.log(`✅ 找到 Google 帳戶 ${userMetadata.email} 的詳細資料`);
+        // console.log("user_metadata 範例:", JSON.stringify(userMetadata, null, 2));
+        // console.log("provider_metadata 範例:", JSON.stringify(providerMetadata, null, 2));
       }
       
       return {
@@ -213,7 +213,7 @@ export async function getAllGoogleIdentities(): Promise<{
       } as GoogleIdentity;
     });
     
-    console.log(`✅ 成功獲取 ${identities.length} 筆 Google 身份資料`)
+    // console.log(`✅ 成功獲取 ${identities.length} 筆 Google 身份資料`)
     
     return {
       success: true,
@@ -221,7 +221,7 @@ export async function getAllGoogleIdentities(): Promise<{
     }
     
   } catch (error) {
-    console.error('❌ 獲取所有 Google 身份資料時出錯:', error)
+    // console.error('❌ 獲取所有 Google 身份資料時出錯:', error)
     return {
       success: false,
       error: `數據庫查詢失敗: ${error instanceof Error ? error.message : String(error)}`

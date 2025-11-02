@@ -207,7 +207,7 @@ export const DynamicPageContent: React.FC<DynamicPageContentProps> = ({ content 
             return <CtaBlockComponent key={key} block={block} />
           
           default:
-            console.warn(`Unknown block type: ${(block as any)._type}`)
+            // console.warn(`Unknown block type: ${(block as any)._type}`)
             return null
         }
       })}

@@ -37,7 +37,7 @@ const OrderDetails = ({ orderId, countryCode }: OrderDetailsProps) => {
         const data = await response.json()
         setOrder(data.order)
       } catch (error) {
-        console.error('載入訂單詳情失敗:', error)
+        // console.error('載入訂單詳情失敗:', error)
         setError('載入訂單詳情時發生錯誤')
       } finally {
         setLoading(false)

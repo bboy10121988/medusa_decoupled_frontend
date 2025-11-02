@@ -75,7 +75,7 @@ export function AuthDiagnostic() {
       })
 
     } catch (error) {
-      console.error('診斷失敗:', error)
+      // console.error('診斷失敗:', error)
     } finally {
       setIsLoading(false)
     }

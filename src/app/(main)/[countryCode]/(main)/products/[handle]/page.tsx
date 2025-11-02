@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         },
       }
     } catch (error) {
-      console.error(`無法獲取產品詳情: ${error instanceof Error ? error.message : "未知錯誤"}`)
+      // console.error(`無法獲取產品詳情: ${error instanceof Error ? error.message : "未知錯誤"}`)
       
       // 回退到基本元數據
       return {
@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       }
     }
   } catch (error) {
-    console.error(`生成商品頁面元數據時出錯: ${error instanceof Error ? error.message : "未知錯誤"}`)
+    // console.error(`生成商品頁面元數據時出錯: ${error instanceof Error ? error.message : "未知錯誤"}`)
     
     // 由於不知道是否能獲取 storeName，所以返回固定文字
     return {
@@ -102,11 +102,11 @@ export default async function ProductPage({ params }: Props) {
         />
       )
     } catch (error) {
-      console.error(`無法獲取產品資料: ${error instanceof Error ? error.message : "未知錯誤"}`)
+      // console.error(`無法獲取產品資料: ${error instanceof Error ? error.message : "未知錯誤"}`)
       notFound()
     }
   } catch (error) {
-    console.error(`獲取商品資料時出錯: ${error instanceof Error ? error.message : "未知錯誤"}`)
+    // console.error(`獲取商品資料時出錯: ${error instanceof Error ? error.message : "未知錯誤"}`)
     notFound()
   }
 }

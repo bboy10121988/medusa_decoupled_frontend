@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         await medusa.store.cart.transferCart(cartId, {}, {})
       }
     } catch (cartError) {
-      console.warn("登入後轉移購物車失敗:", cartError)
+      // console.warn("登入後轉移購物車失敗:", cartError)
     }
 
     try {
@@ -49,12 +49,12 @@ export async function POST(request: NextRequest) {
         revalidateTag(customerTag)
       }
     } catch (error) {
-      console.warn("重新驗證客戶快取失敗:", error)
+      // console.warn("重新驗證客戶快取失敗:", error)
     }
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error("登入 API 發生錯誤:", error)
+    // console.error("登入 API 發生錯誤:", error)
 
     const message =
       error?.message?.includes("unauthorized") || error?.message?.includes("401")

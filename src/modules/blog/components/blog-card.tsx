@@ -36,7 +36,7 @@ export default function BlogCard({
 }) {
   // 如果文章沒有標題或ID，不渲染
   if (!post?.title || !post?._id) {
-    console.warn('⚠️ BlogCard: 文章缺少必要資訊，跳過渲染', { title: post?.title, id: post?._id })
+    // console.warn('⚠️ BlogCard: 文章缺少必要資訊，跳過渲染', { title: post?.title, id: post?._id })
     return null
   }
   
@@ -67,7 +67,7 @@ export default function BlogCard({
       }
       return ''
     } catch (error) {
-      console.warn('⚠️ 提取文章內容失敗:', error)
+      // console.warn('⚠️ 提取文章內容失敗:', error)
       return ''
     }
   }

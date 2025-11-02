@@ -56,24 +56,24 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       
       if (approveResponse.ok) {
         const result = await approveResponse.json()
-        console.log('Application approved via backend API:', result)
+        // console.log('Application approved via backend API:', result)
         return NextResponse.json({ 
           success: true, 
           message: 'Application approved successfully',
           source: 'backend-api'
         })
       } else {
-        console.warn('Backend API not available, falling back to file system')
+        // console.warn('Backend API not available, falling back to file system')
         // 回退到檔案系統操作
       }
     } catch (fetchError) {
-      console.warn('Failed to approve via backend API, falling back to file system:', fetchError)
+      // console.warn('Failed to approve via backend API, falling back to file system:', fetchError)
       // 回退到檔案系統操作
     }
     
     // 直接操作 JSON 檔案（回退方案）
     const dataPath = '/Users/raychou/tim-web/medusa_decoupled/backend_vm/medusa-backend/src/data/affiliate.json'
-    console.log('Approving application directly in JSON:', dataPath, 'ID:', id)
+    // console.log('Approving application directly in JSON:', dataPath, 'ID:', id)
     
     // 讀取當前資料
     let store: StoreShape
@@ -81,19 +81,19 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       const fileContent = await fs.readFile(dataPath, 'utf8')
       store = JSON.parse(fileContent)
     } catch (error) {
-      console.error('Error reading JSON file:', error)
+      // console.error('Error reading JSON file:', error)
       return NextResponse.json({ error: 'Failed to read data file' }, { status: 500 })
     }
     
     // 找到要審核的申請
     const appIndex = store.applications.findIndex((a) => a.id === id)
     if (appIndex === -1) {
-      console.error('Application not found:', id)
+      // console.error('Application not found:', id)
       return NextResponse.json({ error: 'Application not found' }, { status: 404 })
     }
     
     const app = store.applications[appIndex]
-    console.log('Found application to approve:', app.email)
+    // console.log('Found application to approve:', app.email)
     
     // 從 applications 移除
     store.applications.splice(appIndex, 1)
@@ -115,7 +115,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     
     // 寫回檔案
     await fs.writeFile(dataPath, JSON.stringify(store, null, 2))
-    console.log('Application approved and moved to accounts:', newAccount.id)
+    // console.log('Application approved and moved to accounts:', newAccount.id)
     
     return NextResponse.json({ 
       success: true, 
@@ -129,7 +129,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     })
         
   } catch (error) {
-    console.error('Error approving application:', error)
+    // console.error('Error approving application:', error)
     return NextResponse.json({ 
       error: 'Failed to approve application',
       details: error instanceof Error ? error.message : 'Unknown error'

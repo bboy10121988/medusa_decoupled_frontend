@@ -74,22 +74,22 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
   useEffect(() => {
     const fetchReturnPage = async () => {
       try {
-        console.log('正在從 Sanity CMS 獲取退換貨規則內容...')
+        // console.log('正在從 Sanity CMS 獲取退換貨規則內容...')
         
         // 直接從動態頁面 API 獲取內容
         const response = await fetch('/api/pages/return')
-        console.log('API 回應狀態:', response.status)
+        // console.log('API 回應狀態:', response.status)
         
         if (response.ok) {
           const pageData = await response.json()
-          console.log('頁面資料:', pageData.title)
+          // console.log('頁面資料:', pageData.title)
           
           // 處理動態頁面內容
           let htmlContent = pageData.grapesHtml || ''
           
           // 如果沒有 grapesHtml 但有 pageContent，轉換 pageContent 為 HTML
           if (!htmlContent && pageData.pageContent && pageData.pageContent.length > 0) {
-            console.log('🔄 轉換 pageContent 為 HTML...')
+            // console.log('🔄 轉換 pageContent 為 HTML...')
             htmlContent = convertPageContentToHtml(pageData.pageContent)
           }
           
@@ -99,9 +99,9 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
               grapesCss: pageData.grapesCss || '',
               title: pageData.title || '退換貨規則'
             })
-            console.log('✅ 成功載入退換貨規則')
+            // console.log('✅ 成功載入退換貨規則')
           } else {
-            console.warn('⚠️ 動態頁面內容為空')
+            // console.warn('⚠️ 動態頁面內容為空')
             setReturnPageData({
               grapesHtml: `
                 <div class="return-policy-fallback">
@@ -114,7 +114,7 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
             })
           }
         } else {
-          console.error('API 回應錯誤:', response.status)
+          // console.error('API 回應錯誤:', response.status)
           
           // 提供預設的退換貨規則內容
           setReturnPageData({
@@ -153,7 +153,7 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
           })
         }
       } catch (error) {
-        console.error('獲取 return 頁面失敗:', error)
+        // console.error('獲取 return 頁面失敗:', error)
         
         // 錯誤時也提供預設內容
         setReturnPageData({

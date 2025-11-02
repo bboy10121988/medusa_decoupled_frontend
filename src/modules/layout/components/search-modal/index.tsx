@@ -121,7 +121,7 @@ function SearchModal({ isOpen, onClose, searchQuery, onSearchSubmit }: Props) {
 
       setResults({ products, blogs, isLoading: false })
     } catch (e) {
-      console.error('搜尋錯誤:', e)
+      // console.error('搜尋錯誤:', e)
       setResults({ products: [], blogs: [], isLoading: false })
     }
   }

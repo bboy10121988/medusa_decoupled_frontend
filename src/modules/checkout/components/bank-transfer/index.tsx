@@ -24,11 +24,11 @@ const BankTransfer: React.FC<BankTransferProps> = ({ cart }) => {
     
     setIsCreatingOrder(true)
     try {
-      console.log("Creating order for bank transfer, cart:", cart.id)
+      // console.log("Creating order for bank transfer, cart:", cart.id)
       const order = await placeOrder(cart.id)
       
       if (order) {
-        console.log("Order created successfully:", order)
+        // console.log("Order created successfully:", order)
         setOrderId(order.id)
         
         // 訂單創建成功後，跳轉到訂單確認步驟
@@ -37,13 +37,13 @@ const BankTransfer: React.FC<BankTransferProps> = ({ cart }) => {
         params.set('order_id', order.id)
         
         const newUrl = `${pathname}?${params.toString()}`
-        console.log("🚀 跳轉到訂單確認頁面:", newUrl)
+        // console.log("🚀 跳轉到訂單確認頁面:", newUrl)
         router.push(newUrl)
       } else {
         setError("訂單建立失敗，請重新嘗試")
       }
     } catch (err: any) {
-      console.error("Order creation failed:", err)
+      // console.error("Order creation failed:", err)
       setError("訂單建立失敗：" + err.message)
     } finally {
       setIsCreatingOrder(false)

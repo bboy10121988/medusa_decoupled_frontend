@@ -6,7 +6,7 @@
 import { Editor } from 'grapesjs'
 
 export default function safeTailwindComponents(editor: Editor) {
-  console.log('🎨 正在載入安全 Tailwind 組件...')
+  // console.log('🎨 正在載入安全 Tailwind 組件...')
 
   editor.on('load', () => {
     const blockManager = editor.Blocks
@@ -308,8 +308,8 @@ export default function safeTailwindComponents(editor: Editor) {
       blockManager.add(component.id, component)
     })
 
-    console.log('✅ Tailwind 組件已載入:', tailwindComponents.length, '個組件')
+    // console.log('✅ Tailwind 組件已載入:', tailwindComponents.length, '個組件')
   })
 
-  console.log('✅ 安全 Tailwind 組件插件載入完成')
+  // console.log('✅ 安全 Tailwind 組件插件載入完成')
 }

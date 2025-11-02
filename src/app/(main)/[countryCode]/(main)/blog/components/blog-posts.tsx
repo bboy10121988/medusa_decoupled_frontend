@@ -34,10 +34,10 @@ async function getBlogPosts(category?: string, limit: number = 6) {
 
     // 5. 執行查詢並傳入參數
     const posts = await client.fetch<BlogPost[]>(query, params)
-    console.log('BlogPosts - 查詢到的文章數量:', posts?.length)
+    // console.log('BlogPosts - 查詢到的文章數量:', posts?.length)
     return posts
   } catch (error) {
-    console.error('取得部落格文章時發生錯誤:', error)
+    // console.error('取得部落格文章時發生錯誤:', error)
     return []
   }
 }
@@ -134,7 +134,7 @@ export default async function BlogPosts({
       </div>
     )
   } catch (error) {
-    console.error('顯示部落格文章時發生錯誤:', error)
+    // console.error('顯示部落格文章時發生錯誤:', error)
     return (
       <div className={(showTitle && title) ? "py-8 md:py-12 bg-gray-50" : "py-0 bg-gray-50"}>
         <div className="container mx-auto px-4">

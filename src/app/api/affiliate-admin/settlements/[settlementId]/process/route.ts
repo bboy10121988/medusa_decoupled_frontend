@@ -63,7 +63,7 @@ export async function POST(
       message: '結算處理成功'
     })
   } catch (error) {
-    console.error('處理結算錯誤:', error)
+    // console.error('處理結算錯誤:', error)
     return NextResponse.json(
       { error: '無法處理結算' },
       { status: 500 }

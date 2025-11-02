@@ -40,7 +40,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     
     // 直接操作 JSON 檔案
     const dataPath = path.join(process.cwd(), '..', 'backend', 'data', 'affiliate.json')
-    console.log('Rejecting application directly in JSON:', dataPath, 'ID:', id)
+    // console.log('Rejecting application directly in JSON:', dataPath, 'ID:', id)
     
     // 讀取當前資料
     let store: StoreShape
@@ -48,19 +48,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const fileContent = await fs.readFile(dataPath, 'utf8')
       store = JSON.parse(fileContent)
     } catch (error) {
-      console.error('Error reading JSON file:', error)
+      // console.error('Error reading JSON file:', error)
       return NextResponse.json({ error: 'Failed to read data file' }, { status: 500 })
     }
     
     // 找到要拒絕的申請
     const appIndex = store.applications.findIndex((a) => a.id === id)
     if (appIndex === -1) {
-      console.error('Application not found:', id)
+      // console.error('Application not found:', id)
       return NextResponse.json({ error: 'Application not found' }, { status: 404 })
     }
     
     const app = store.applications[appIndex]
-    console.log('Found application to reject:', app.email)
+    // console.log('Found application to reject:', app.email)
     
     // 從 applications 移除
     store.applications.splice(appIndex, 1)
@@ -76,7 +76,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     
     // 寫回檔案
     await fs.writeFile(dataPath, JSON.stringify(store, null, 2))
-    console.log('Application rejected and moved to rejected list:', app.id)
+    // console.log('Application rejected and moved to rejected list:', app.id)
     
     return NextResponse.json({ 
       success: true, 
@@ -91,7 +91,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     })
     
   } catch (error) {
-    console.error('Error rejecting application:', error)
+    // console.error('Error rejecting application:', error)
     return NextResponse.json({ 
       error: 'Failed to reject application',
       details: error instanceof Error ? error.message : 'Unknown error'

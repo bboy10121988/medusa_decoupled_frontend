@@ -57,7 +57,7 @@ export async function getSanityImages(): Promise<SanityImage[]> {
     
     return await client.fetch<SanityImage[]>(query)
   } catch (error) {
-    console.error('獲取 Sanity 圖片時發生錯誤:', error)
+    // console.error('獲取 Sanity 圖片時發生錯誤:', error)
     return []
   }
 }
@@ -82,7 +82,7 @@ export async function uploadImageToSanity(file: File): Promise<SanityImage | nul
       _updatedAt: asset._updatedAt
     }
   } catch (error) {
-    console.error('上傳圖片到 Sanity 時發生錯誤:', error)
+    // console.error('上傳圖片到 Sanity 時發生錯誤:', error)
     return null
   }
 }

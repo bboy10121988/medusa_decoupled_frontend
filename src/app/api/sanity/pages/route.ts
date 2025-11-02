@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const { title, slug, status = 'draft' } = await request.json()
 
-    console.log('收到新頁面建立請求:', { title, slug, status })
+    // console.log('收到新頁面建立請求:', { title, slug, status })
 
     if (!title) {
       return NextResponse.json(
@@ -71,12 +71,12 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('新頁面已創建:', newPage._id)
+    // console.log('新頁面已創建:', newPage._id)
 
     return NextResponse.json(newPage)
 
   } catch (error) {
-    console.error('建立頁面失敗:', error)
+    // console.error('建立頁面失敗:', error)
     return NextResponse.json(
       { 
         success: false, 

@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { variantId, quantity = 1, countryCode = "tw" } = body
 
-    console.log("🛒 Add to Cart API called:", { variantId, quantity, countryCode })
+    // console.log("🛒 Add to Cart API called:", { variantId, quantity, countryCode })
 
     if (!variantId) {
       return NextResponse.json(
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       throw new Error("Failed to create or retrieve cart")
     }
 
-    console.log("📦 Cart 資訊:", { cartId: cart.id })
+    // console.log("📦 Cart 資訊:", { cartId: cart.id })
 
     await addToCart({
       variantId,
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       countryCode,
     })
 
-    console.log("✅ 商品成功加入購物車")
+    // console.log("✅ 商品成功加入購物車")
 
     // 建立 response 並設定 cookie
     const response = NextResponse.json({ 
@@ -47,11 +47,11 @@ export async function POST(request: NextRequest) {
       path: "/"
     })
 
-    console.log("🍪 API Response 設定 Cart ID cookie:", cart.id)
+    // console.log("🍪 API Response 設定 Cart ID cookie:", cart.id)
 
     return response
   } catch (error) {
-    console.error("❌ Add to cart API error:", error)
+    // console.error("❌ Add to cart API error:", error)
     return NextResponse.json(
       { 
         error: "Failed to add to cart",

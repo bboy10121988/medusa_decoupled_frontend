@@ -15,13 +15,13 @@ export const getAuthHeaders = async (): Promise<
     const cookies = await nextCookies()
     const token = cookies.get("_medusa_jwt")?.value
     
-    console.log('🔍 getAuthHeaders - 檢查 token:', {
-      hasToken: !!token,
-      tokenLength: token?.length || 0,
-      tokenPreview: token ? `${token.substring(0, 30)}...` : null,
-      cookieName: '_medusa_jwt',
-      allCookies: Array.from(cookies.getAll()).map(c => c.name)
-    })
+    // console.log('🔍 getAuthHeaders - 檢查 token:', {
+      // hasToken: !!token,
+      // tokenLength: token?.length || 0,
+      // tokenPreview: token ? `${token.substring(0, 30)}...` : null,
+      // cookieName: '_medusa_jwt',
+      // allCookies: Array.from(cookies.getAll()).map(c => c.name)
+    // })
     
     // 總是包含 publishable key
     const headers: { authorization?: string; 'x-publishable-api-key'?: string } = {}
@@ -32,15 +32,15 @@ export const getAuthHeaders = async (): Promise<
     }
 
     if (!token) {
-      console.log('❌ getAuthHeaders - 沒有找到 token，返回僅含 publishable key 的 headers')
+      // console.log('❌ getAuthHeaders - 沒有找到 token，返回僅含 publishable key 的 headers')
       return headers
     }
 
     headers.authorization = `Bearer ${token}`
-    console.log('✅ getAuthHeaders - 設置 authorization header')
+    // console.log('✅ getAuthHeaders - 設置 authorization header')
     return headers
   } catch (error) {
-    console.error('❌ getAuthHeaders 錯誤:', error)
+    // console.error('❌ getAuthHeaders 錯誤:', error)
     // 即使出錯也返回 publishable key
     if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
       return { 'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }
@@ -81,12 +81,12 @@ export const getCacheOptions = async (
 }
 
 export const setAuthToken = async (token: string) => {
-  console.log("📝 setAuthToken 開始", {
-    tokenLength: token?.length || 0,
-    tokenPreview: token ? token.substring(0, 50) + "..." : null,
-    env: process.env.NODE_ENV,
-    cookieDomain: COOKIE_DOMAIN
-  })
+  // console.log("📝 setAuthToken 開始", {
+    // tokenLength: token?.length || 0,
+    // tokenPreview: token ? token.substring(0, 50) + "..." : null,
+    // env: process.env.NODE_ENV,
+    // cookieDomain: COOKIE_DOMAIN
+  // })
   
   const cookies = await nextCookies()
   
@@ -101,7 +101,7 @@ export const setAuthToken = async (token: string) => {
     path: "/", // 確保 cookie 路徑一致
   })
   
-  console.log("✅ setAuthToken 完成 - _medusa_jwt cookie 已設置")
+  // console.log("✅ setAuthToken 完成 - _medusa_jwt cookie 已設置")
   
   // 🔍 調試用：額外設置一個可在瀏覽器中查看的 JWT cookie
   // 只在開發環境中設置，並截取 token 的前 100 字符以便查看
@@ -125,7 +125,7 @@ export const setAuthToken = async (token: string) => {
       path: "/", // 確保路徑一致
     })
     
-    console.log("✅ setAuthToken 完成 - Debug cookies 已設置 (_debug_jwt_preview, _debug_jwt_full)")
+    // console.log("✅ setAuthToken 完成 - Debug cookies 已設置 (_debug_jwt_preview, _debug_jwt_full)")
   }
 }
 
@@ -165,7 +165,7 @@ export const removeAuthToken = async () => {
 export const getCartId = async () => {
   const cookies = await nextCookies()
   const cartId = cookies.get("_medusa_cart_id")?.value
-  if (process.env.NODE_ENV === 'development') console.log("🛒 Get Cart ID:", cartId || "❌ No cart ID found in cookies")
+  // if (process.env.NODE_ENV === 'development') console.log("🛒 Get Cart ID:", cartId || "❌ No cart ID found in cookies")
   return cartId
 }
 
@@ -178,7 +178,7 @@ export const setCartId = async (cartId: string) => {
     secure: process.env.NODE_ENV === "production",
     domain: COOKIE_DOMAIN,
   })
-  if (process.env.NODE_ENV === 'development') console.log("🍪 設定 Cart ID 到 cookies:", cartId)
+  // if (process.env.NODE_ENV === 'development') console.log("🍪 設定 Cart ID 到 cookies:", cartId)
 }
 
 export const removeCartId = async () => {

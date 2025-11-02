@@ -17,7 +17,7 @@ interface AuthResponse {
  */
 export async function checkAuthenticationAPI(): Promise<AuthResponse> {
   try {
-    console.log("🔍 ClientAuth: 通過 API 檢查認證狀態")
+    // console.log("🔍 ClientAuth: 通過 API 檢查認證狀態")
     
     const response = await fetch('/api/auth/check', {
       credentials: 'include',
@@ -34,13 +34,13 @@ export async function checkAuthenticationAPI(): Promise<AuthResponse> {
     
     const result = await response.json()
     
-    console.log("✅ ClientAuth: 基礎認證檢查完成", {
-      authenticated: result.authenticated
-    })
+    // console.log("✅ ClientAuth: 基礎認證檢查完成", {
+      // authenticated: result.authenticated
+    // })
     
     return result
   } catch (error) {
-    console.error("❌ ClientAuth: 認證檢查失敗", error)
+    // console.error("❌ ClientAuth: 認證檢查失敗", error)
     return {
       authenticated: false,
       customer: null,
@@ -54,7 +54,7 @@ export async function checkAuthenticationAPI(): Promise<AuthResponse> {
  */
 export async function getCustomerAPI(): Promise<AuthResponse> {
   try {
-    console.log("🔍 ClientAuth: 通過 API 獲取客戶資料")
+    // console.log("🔍 ClientAuth: 通過 API 獲取客戶資料")
     
     const response = await fetch('/api/auth/customer', {
       credentials: 'include',
@@ -71,15 +71,15 @@ export async function getCustomerAPI(): Promise<AuthResponse> {
     
     const result = await response.json()
     
-    console.log("✅ ClientAuth: 客戶資料獲取完成", {
-      authenticated: result.authenticated,
-      hasCustomer: !!result.customer,
-      method: result.method
-    })
+    // console.log("✅ ClientAuth: 客戶資料獲取完成", {
+      // authenticated: result.authenticated,
+      // hasCustomer: !!result.customer,
+      // method: result.method
+    // })
     
     return result
   } catch (error) {
-    console.error("❌ ClientAuth: 客戶資料獲取失敗", error)
+    // console.error("❌ ClientAuth: 客戶資料獲取失敗", error)
     return {
       authenticated: false,
       customer: null,
@@ -93,7 +93,7 @@ export async function getCustomerAPI(): Promise<AuthResponse> {
  */
 export async function logoutAPI(): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log("🚪 ClientAuth: 通過 API 登出")
+    // console.log("🚪 ClientAuth: 通過 API 登出")
     
     const response = await fetch('/api/auth/logout', {
       method: 'POST',
@@ -107,11 +107,11 @@ export async function logoutAPI(): Promise<{ success: boolean; error?: string }>
       throw new Error(`HTTP ${response.status}`)
     }
     
-    console.log("✅ ClientAuth: 登出成功")
+    // console.log("✅ ClientAuth: 登出成功")
     
     return { success: true }
   } catch (error) {
-    console.error("❌ ClientAuth: 登出失敗", error)
+    // console.error("❌ ClientAuth: 登出失敗", error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -127,22 +127,22 @@ export async function waitForAuthentication(
   delayMs: number = 1000
 ): Promise<AuthResponse> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    console.log(`🔄 ClientAuth: 等待認證穩定 (嘗試 ${attempt}/${maxAttempts})`)
+    // console.log(`🔄 ClientAuth: 等待認證穩定 (嘗試 ${attempt}/${maxAttempts})`)
     
     const authResult = await getCustomerAPI()
     
     if (authResult.authenticated && authResult.customer) {
-      console.log("✅ ClientAuth: 認證狀態已穩定")
+      // console.log("✅ ClientAuth: 認證狀態已穩定")
       return authResult
     }
     
     if (attempt < maxAttempts) {
-      console.log(`⏳ ClientAuth: 等待 ${delayMs}ms 後重試...`)
+      // console.log(`⏳ ClientAuth: 等待 ${delayMs}ms 後重試...`)
       await new Promise(resolve => setTimeout(resolve, delayMs))
     }
   }
   
-  console.log("❌ ClientAuth: 認證狀態等待超時")
+  // console.log("❌ ClientAuth: 認證狀態等待超時")
   return {
     authenticated: false,
     customer: null,

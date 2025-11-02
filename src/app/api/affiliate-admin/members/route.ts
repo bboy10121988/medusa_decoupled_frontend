@@ -41,23 +41,23 @@ export async function GET() {
       
       if (membersResponse.ok) {
         affiliateData = await membersResponse.json()
-        console.log('Members data loaded from backend API:', affiliateData.affiliates?.length || 0)
+        // console.log('Members data loaded from backend API:', affiliateData.affiliates?.length || 0)
       } else {
-        console.warn('Backend API not available, falling back to file system')
+        // console.warn('Backend API not available, falling back to file system')
         // 回退到讀取檔案
         if (fs.existsSync(backendDataPath)) {
           const backendContent = fs.readFileSync(backendDataPath, 'utf8')
           affiliateData = JSON.parse(backendContent)
-          console.log('Members data loaded from file:', affiliateData.affiliates?.length || 0)
+          // console.log('Members data loaded from file:', affiliateData.affiliates?.length || 0)
         }
       }
     } catch (fetchError) {
-      console.warn('Failed to fetch from backend API, falling back to file system:', fetchError)
+      // console.warn('Failed to fetch from backend API, falling back to file system:', fetchError)
       // 回退到讀取檔案
       if (fs.existsSync(backendDataPath)) {
         const backendContent = fs.readFileSync(backendDataPath, 'utf8')
         affiliateData = JSON.parse(backendContent)
-        console.log('Members data loaded from file (fallback):', affiliateData.affiliates?.length || 0)
+        // console.log('Members data loaded from file (fallback):', affiliateData.affiliates?.length || 0)
       }
     }
 
@@ -123,7 +123,7 @@ export async function GET() {
 
     return NextResponse.json({ members })
   } catch (error) {
-    console.error('獲取會員列表錯誤:', error)
+    // console.error('獲取會員列表錯誤:', error)
     return NextResponse.json(
       { error: '無法獲取會員列表' },
       { status: 500 }

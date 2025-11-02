@@ -232,7 +232,7 @@ export class SanityImagePicker {
     if (progressEl) progressEl.style.display = 'block'
 
     try {
-      console.log(`🖼️ 開始處理上傳圖片: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
+      // console.log(`🖼️ 開始處理上傳圖片: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
       
       // 壓縮圖片
       let fileToUpload: File = file
@@ -250,9 +250,9 @@ export class SanityImagePicker {
           const blob = await response.blob()
           fileToUpload = new File([blob], file.name, { type: 'image/jpeg' })
           
-          console.log(`✅ 圖片壓縮完成: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(fileToUpload.size / 1024 / 1024).toFixed(2)}MB)`)
+          // console.log(`✅ 圖片壓縮完成: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(fileToUpload.size / 1024 / 1024).toFixed(2)}MB)`)
         } catch (compressionError) {
-          console.warn('⚠️ 圖片壓縮失敗，使用原始檔案:', compressionError)
+          // console.warn('⚠️ 圖片壓縮失敗，使用原始檔案:', compressionError)
           // 繼續使用原始文件
         }
       }
@@ -290,7 +290,7 @@ export class SanityImagePicker {
         if (progressEl) progressEl.style.display = 'none'
       }
     } catch (error) {
-      console.error('上傳錯誤:', error)
+      // console.error('上傳錯誤:', error)
       alert('上傳失敗，請重試')
       if (progressEl) progressEl.style.display = 'none'
     }
@@ -328,7 +328,7 @@ export class SanityImagePicker {
         if (nextBtn) nextBtn.disabled = !this.nextPage
       }
     } catch (error) {
-      console.error('Failed to refresh image list:', error)
+      // console.error('Failed to refresh image list:', error)
       const grid = this.modal?.querySelector('.sanity-image-picker-grid') as HTMLElement
       if (grid) grid.innerHTML = '<div style="padding:16px;color:#b91c1c;">載入失敗，請重試</div>'
     }

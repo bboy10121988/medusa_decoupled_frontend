@@ -152,7 +152,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(analyticsData)
   } catch (error) {
-    console.error('獲取分析數據錯誤:', error)
+    // console.error('獲取分析數據錯誤:', error)
     return NextResponse.json(
       { error: '無法獲取分析數據' },
       { status: 500 }

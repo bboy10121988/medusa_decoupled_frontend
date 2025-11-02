@@ -4,10 +4,10 @@ export default function medusaError(error: any): never {
     // that falls out of the range of 2xx
     const u = new URL(error.config.url, error.config.baseURL)
     if (process.env.NODE_ENV === 'development') {
-      console.error("Resource:", u.toString())
-      console.error("Response data:", error.response.data)
-      console.error("Status code:", error.response.status)
-      console.error("Headers:", error.response.headers)
+      // console.error("Resource:", u.toString())
+      // console.error("Response data:", error.response.data)
+      // console.error("Status code:", error.response.status)
+      // console.error("Headers:", error.response.headers)
     }
 
     // Extracting the error message from the response data

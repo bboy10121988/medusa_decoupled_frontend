@@ -36,11 +36,11 @@ export default function SimplePageRenderer({ htmlContent, cssContent }: Props) {
     const timer = setTimeout(() => {
       scripts.forEach((scriptContent, index) => {
         try {
-          console.log(`🔧 執行頁面腳本 ${index + 1}`)
+          // console.log(`🔧 執行頁面腳本 ${index + 1}`)
           eval(scriptContent)
-          console.log(`✅ 頁面腳本 ${index + 1} 執行成功`)
+          // console.log(`✅ 頁面腳本 ${index + 1} 執行成功`)
         } catch (error) {
-          console.error(`❌ 頁面腳本 ${index + 1} 執行失敗:`, error)
+          // console.error(`❌ 頁面腳本 ${index + 1} 執行失敗:`, error)
         }
       })
     }, 100)

@@ -25,14 +25,14 @@ export async function GET(request: NextRequest) {
         referrer
       )
 
-      console.log('✅ 聯盟連結點擊已記錄:', {
-        clickId,
-        affiliateId: ref || affiliateId,
-        linkId,
-        timestamp: new Date().toISOString(),
-        ip,
-        targetUrl
-      })
+      // console.log('✅ 聯盟連結點擊已記錄:', {
+        // clickId,
+        // affiliateId: ref || affiliateId,
+        // linkId,
+        // timestamp: new Date().toISOString(),
+        // ip,
+        // targetUrl
+      // })
 
       // 設置響應 headers 來追蹤轉換
       const response = NextResponse.redirect(new URL(targetUrl, request.url))
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       return response
 
     } catch (error) {
-      console.error('追蹤聯盟點擊失敗:', error)
+      // console.error('追蹤聯盟點擊失敗:', error)
     }
   }
 

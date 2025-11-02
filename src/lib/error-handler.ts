@@ -14,7 +14,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         errorStack.includes('@sanity/client') ||
         errorStack.includes('useTasksStore.useEffect')) {
       // 將錯誤降級為警告
-      console.warn('Sanity EventSource AbortError (handled):', errorMessage)
+      // console.warn('Sanity EventSource AbortError (handled):', errorMessage)
       return
     }
     
@@ -26,7 +26,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   window.addEventListener('unhandledrejection', (event) => {
     if (event.reason?.name === 'AbortError' && 
         event.reason?.message?.includes('signal is aborted')) {
-      console.warn('Sanity EventSource AbortError caught and ignored:', event.reason)
+      // console.warn('Sanity EventSource AbortError caught and ignored:', event.reason)
       event.preventDefault() // 防止錯誤在控制台中顯示
     }
   })
@@ -35,7 +35,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   window.addEventListener('error', (event) => {
     if (event.error?.name === 'AbortError' && 
         event.error?.message?.includes('signal is aborted')) {
-      console.warn('Sanity EventSource AbortError caught and ignored:', event.error)
+      // console.warn('Sanity EventSource AbortError caught and ignored:', event.error)
       event.preventDefault()
     }
   })
@@ -49,13 +49,13 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         
         // 添加錯誤處理
         this.addEventListener('error', (e) => {
-          console.warn('EventSource error (possibly Sanity related):', e)
+          // console.warn('EventSource error (possibly Sanity related):', e)
         })
 
         // 設置超時自動關閉連接
         const timeout = setTimeout(() => {
           if (this.readyState !== this.CLOSED) {
-            console.warn('Auto-closing EventSource connection after timeout')
+            // console.warn('Auto-closing EventSource connection after timeout')
             this.close()
           }
         }, 30000) // 30秒超時
@@ -83,7 +83,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
           super.close()
         } catch (error) {
           // 忽略關閉時的錯誤
-          console.warn('Error closing EventSource (ignored):', error)
+          // console.warn('Error closing EventSource (ignored):', error)
         }
       }
     }

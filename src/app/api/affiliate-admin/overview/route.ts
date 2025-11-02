@@ -171,7 +171,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(adminOverviewData)
   } catch (error) {
-    console.error('管理總覽API錯誤:', error)
+    // console.error('管理總覽API錯誤:', error)
     return NextResponse.json(
       { error: '無法獲取管理總覽數據' },
       { status: 500 }

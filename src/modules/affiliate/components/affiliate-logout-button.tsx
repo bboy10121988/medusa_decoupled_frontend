@@ -11,7 +11,7 @@ export default function AffiliateLogoutButton() {
       // 直接導向 API 路由，讓伺服器處理登出邏輯
       window.location.href = `/api/affiliate/signout?countryCode=${countryCode}`
     } catch (error) {
-      console.error('登出失敗:', error)
+      // console.error('登出失敗:', error)
     }
   }
 

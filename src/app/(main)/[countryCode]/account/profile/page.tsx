@@ -26,7 +26,7 @@ export default function Profile() {
           setRegions(regionsData.regions || [])
         }
       } catch (err) {
-        console.error('獲取區域資料失敗:', err)
+        // console.error('獲取區域資料失敗:', err)
       } finally {
         setLoading(false)
       }

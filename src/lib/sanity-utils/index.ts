@@ -42,7 +42,7 @@ export async function getAllPosts(category?: string, limit: number = 50): Promis
     const posts = await client.fetch<BlogPostType[]>(query)
     return posts || []
   } catch (error) {
-    console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
+    // console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
     return []
   }
 }
@@ -57,7 +57,7 @@ export async function getCategories(): Promise<CategoryType[]> {
     const categories = await client.fetch<CategoryType[]>(query)
     return categories || []
   } catch (error) {
-    console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
+    // console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
     return []
   }
 }
@@ -78,7 +78,7 @@ export async function getFooter() {
     
     return await client.fetch(query)
   } catch (error) {
-    console.error('[getFooter] 從 Sanity 獲取頁腳資料時發生錯誤:', error)
+    // console.error('[getFooter] 從 Sanity 獲取頁腳資料時發生錯誤:', error)
     return null
   }
 }
@@ -100,7 +100,7 @@ export async function getHeader() {
     
     return await client.fetch(query)
   } catch (error) {
-    console.error('[getHeader] 從 Sanity 獲取頭部資料時發生錯誤:', error)
+    // console.error('[getHeader] 從 Sanity 獲取頭部資料時發生錯誤:', error)
     return null
   }
 }

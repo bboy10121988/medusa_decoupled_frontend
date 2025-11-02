@@ -152,7 +152,7 @@ const SearchBarClient = () => {
 
       setResults({ products, blogs, isLoading: false })
     } catch (error) {
-      console.error('搜尋錯誤:', error)
+      // console.error('搜尋錯誤:', error)
       setResults({ products: [], blogs: [], isLoading: false })
     }
   }

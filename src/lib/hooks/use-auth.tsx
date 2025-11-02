@@ -60,17 +60,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       const result = await response.json()
       
-      console.log('🔍 認證狀態檢查:', {
-        authenticated: result.authenticated,
-        user: result.user,
-        timestamp: new Date().toISOString()
-      })
+      // console.log('🔍 認證狀態檢查:', {
+        // authenticated: result.authenticated,
+        // user: result.user,
+        // timestamp: new Date().toISOString()
+      // })
       
       setIsAuthenticated(result.authenticated)
       setUser(result.user || null)
       
     } catch (error) {
-      console.error('❌ 認證檢查失敗:', error)
+      // console.error('❌ 認證檢查失敗:', error)
       setIsAuthenticated(false)
       setUser(null)
     } finally {
@@ -86,10 +86,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (typeof window !== 'undefined' && window.google?.accounts && user?.email) {
         try {
           await window.google.accounts.id.revoke(user.email, () => {
-            console.log('🟢 Google OAuth 已撤銷')
+            // console.log('🟢 Google OAuth 已撤銷')
           })
         } catch (error) {
-          console.warn('⚠️ Google OAuth 撤銷失敗:', error)
+          // console.warn('⚠️ Google OAuth 撤銷失敗:', error)
         }
       }
       
@@ -109,13 +109,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         sessionStorage.clear()
       }
       
-      console.log('🟢 登出完成')
+      // console.log('🟢 登出完成')
       
       // 5. 重定向到首頁
       router.push('/')
       
     } catch (error) {
-      console.error('❌ 登出失敗:', error)
+      // console.error('❌ 登出失敗:', error)
     } finally {
       setIsLoading(false)
     }
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await checkAuth()
       
     } catch (error) {
-      console.error('❌ 登入失敗:', error)
+      // console.error('❌ 登入失敗:', error)
       setIsAuthenticated(false)
       setUser(null)
     }

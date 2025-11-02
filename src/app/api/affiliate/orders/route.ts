@@ -41,7 +41,7 @@ export async function GET() {
         })
       }
     } catch (error) {
-      console.warn('無法獲取連結資料:', error)
+      // console.warn('無法獲取連結資料:', error)
     }
     
     // 篩選該聯盟夥伴的已轉換點擊記錄
@@ -80,7 +80,7 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('獲取聯盟訂單失敗:', error)
+    // console.error('獲取聯盟訂單失敗:', error)
     return NextResponse.json({ 
       summary: {
         totalOrders: 0,

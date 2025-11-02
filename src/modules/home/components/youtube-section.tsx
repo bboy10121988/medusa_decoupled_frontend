@@ -26,33 +26,33 @@ const YouTubeSection = memo(({
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // 立即 log 接收到的 props
-  console.log('🚀 YouTubeSection Component Mounted with props:', {
-    heading,
-    description,
-    videoUrl,
-    videoMode,
-    youtubeSettings,
-    uploadSettings,
-    videoSettings,
-    fullWidth
-  });  // 從 URL 提取 YouTube 影片 ID
+  // console.log('🚀 YouTubeSection Component Mounted with props:', {
+    // heading,
+    // description,
+    // videoUrl,
+    // videoMode,
+    // youtubeSettings,
+    // uploadSettings,
+    // videoSettings,
+    // fullWidth
+  // });  // 從 URL 提取 YouTube 影片 ID
     // 判斷是否為上傳檔案模式
   const isUploadMode = videoMode === 'upload'
   
   const extractVideoId = (url: string): { videoId: string | null; isShorts: boolean } => {
     if (!url) return { videoId: null, isShorts: false };
     
-    console.log('🔄 Processing video URL:', url, {
-      isMobile,
-      videoSettings,
-      timestamp: new Date().toLocaleTimeString()
-    });
+    // console.log('🔄 Processing video URL:', url, {
+      // isMobile,
+      // videoSettings,
+      // timestamp: new Date().toLocaleTimeString()
+    // });
 
     // Check if it's a YouTube Shorts URL
     const shortsPattern = /(?:youtube\.com\/shorts\/)([^&\n?#]+)/;
     const shortsMatch = url.match(shortsPattern);
     if (shortsMatch) {
-      console.log('🎬 YouTube Shorts detected, video ID:', shortsMatch[1]);
+      // console.log('🎬 YouTube Shorts detected, video ID:', shortsMatch[1]);
       return { videoId: shortsMatch[1], isShorts: true };
     }
 
@@ -64,12 +64,12 @@ const YouTubeSection = memo(({
     for (const pattern of standardPatterns) {
       const match = url.match(pattern);
       if (match) {
-        console.log('✅ Standard YouTube video, ID:', match[1]);
+        // console.log('✅ Standard YouTube video, ID:', match[1]);
         return { videoId: match[1], isShorts: false };
       }
     }
 
-    console.log('❌ Could not extract video ID from URL:', url);
+    // console.log('❌ Could not extract video ID from URL:', url);
     return { videoId: null, isShorts: false };
   };
 
@@ -83,7 +83,7 @@ const YouTubeSection = memo(({
         localStorage.setItem(STORAGE_KEY, Math.floor(data.time).toString())
       }
     } catch (err) {
-      console.error('處理 YouTube 訊息時發生錯誤:', err)
+      // console.error('處理 YouTube 訊息時發生錯誤:', err)
     }
   }, [])
 
@@ -95,14 +95,14 @@ const YouTubeSection = memo(({
       const mobile = window.innerWidth < 768
       const changed = mobile !== isMobile
       
-      console.log('📱 Device detection:', { 
-        windowWidth: window.innerWidth, 
-        wasMobile: isMobile,
-        nowMobile: mobile,
-        changed,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toLocaleTimeString()
-      })
+      // console.log('📱 Device detection:', {
+        // windowWidth: window.innerWidth,
+        // wasMobile: isMobile,
+        // nowMobile: mobile,
+        // changed,
+        // userAgent: navigator.userAgent,
+        // timestamp: new Date().toLocaleTimeString()
+      // })
       
       if (changed || isMobile === null) {
         setIsMobile(mobile)
@@ -121,36 +121,36 @@ const YouTubeSection = memo(({
   const getCurrentVideoUrl = useCallback(() => {
     // 等待 isMobile 狀態初始化完成
     if (isMobile === null) {
-      console.log('⏳ Waiting for mobile detection to initialize...')
+      // console.log('⏳ Waiting for mobile detection to initialize...')
       return null
     }
     
-    console.log('🔍 Raw props received:', {
-      videoMode,
-      videoUrl,
-      youtubeSettings,
-      uploadSettings,
-      videoSettings,
-      propsKeys: Object.keys({ videoMode, videoUrl, youtubeSettings, uploadSettings, videoSettings })
-    })
+    // console.log('🔍 Raw props received:', {
+      // videoMode,
+      // videoUrl,
+      // youtubeSettings,
+      // uploadSettings,
+      // videoSettings,
+      // propsKeys: Object.keys({ videoMode, videoUrl, youtubeSettings, uploadSettings, videoSettings })
+    // })
 
     // 處理上傳模式
     if (videoMode === 'upload' && uploadSettings) {
-      console.log('📁 Upload mode detected, processing video files...')
+      // console.log('📁 Upload mode detected, processing video files...')
       
       if (uploadSettings.useSameVideo && uploadSettings.desktopVideo?.asset?.url) {
-        console.log('🔄 Using same uploaded video for all devices:', uploadSettings.desktopVideo.asset.url)
+        // console.log('🔄 Using same uploaded video for all devices:', uploadSettings.desktopVideo.asset.url)
         return uploadSettings.desktopVideo.asset.url
       }
 
       // 檢查是否有有效的檔案 URL
       if (isMobile && !uploadSettings.mobileVideo?.asset?.url) {
-        console.warn('⚠️ Mobile device detected but no mobile video file, falling back to desktop')
+        // console.warn('⚠️ Mobile device detected but no mobile video file, falling back to desktop')
         return uploadSettings.desktopVideo?.asset?.url || null
       }
       
       if (!isMobile && !uploadSettings.desktopVideo?.asset?.url) {
-        console.warn('⚠️ Desktop device detected but no desktop video file, falling back to mobile')
+        // console.warn('⚠️ Desktop device detected but no desktop video file, falling back to mobile')
         return uploadSettings.mobileVideo?.asset?.url || null
       }
 
@@ -158,7 +158,7 @@ const YouTubeSection = memo(({
         ? uploadSettings.mobileVideo?.asset?.url 
         : uploadSettings.desktopVideo?.asset?.url
       
-      console.log(`🎬 FINAL SELECTION - ${isMobile ? 'MOBILE 📱' : 'DESKTOP 🖥️'} uploaded video:`, selectedVideoUrl)
+      // console.log(`🎬 FINAL SELECTION - ${isMobile ? 'MOBILE 📱' : 'DESKTOP 🖥️'} uploaded video:`, selectedVideoUrl)
       return selectedVideoUrl || null
     }
 
@@ -168,39 +168,39 @@ const YouTubeSection = memo(({
     if (activeYoutubeSettings) {
       const { desktopVideoUrl, mobileVideoUrl, useSameVideo } = activeYoutubeSettings
       
-      console.log('� YouTube mode, VideoSettings breakdown:', {
-        hasDesktopUrl: !!desktopVideoUrl,
-        hasMobileUrl: !!mobileVideoUrl,
-        desktopVideoUrl,
-        mobileVideoUrl,
-        useSameVideo,
-        isMobile,
-        windowWidth: typeof window !== 'undefined' ? window.innerWidth : 'SSR'
-      })
+      // console.log('� YouTube mode, VideoSettings breakdown:', {
+        // hasDesktopUrl: !!desktopVideoUrl,
+        // hasMobileUrl: !!mobileVideoUrl,
+        // desktopVideoUrl,
+        // mobileVideoUrl,
+        // useSameVideo,
+        // isMobile,
+        // windowWidth: typeof window !== 'undefined' ? window.innerWidth : 'SSR'
+      // })
       
       if (useSameVideo) {
-        console.log('🔄 Using same YouTube video for all devices:', desktopVideoUrl)
+        // console.log('🔄 Using same YouTube video for all devices:', desktopVideoUrl)
         return desktopVideoUrl
       }
       
       // 檢查是否有有效的 URL
       if (isMobile && !mobileVideoUrl) {
-        console.warn('⚠️ Mobile device detected but no mobileVideoUrl provided, falling back to desktop')
+        // console.warn('⚠️ Mobile device detected but no mobileVideoUrl provided, falling back to desktop')
         return desktopVideoUrl
       }
       
       if (!isMobile && !desktopVideoUrl) {
-        console.warn('⚠️ Desktop device detected but no desktopVideoUrl provided, falling back to mobile')
+        // console.warn('⚠️ Desktop device detected but no desktopVideoUrl provided, falling back to mobile')
         return mobileVideoUrl
       }
       
       const selectedUrl = isMobile ? mobileVideoUrl : desktopVideoUrl
-      console.log(`🎬 FINAL SELECTION - ${isMobile ? 'MOBILE 📱' : 'DESKTOP 🖥️'} YouTube URL:`, selectedUrl)
+      // console.log(`🎬 FINAL SELECTION - ${isMobile ? 'MOBILE 📱' : 'DESKTOP 🖥️'} YouTube URL:`, selectedUrl)
       return selectedUrl
     }
     
     // 向後兼容：使用舊的 videoUrl
-    console.log('🔙 Using fallback videoUrl (no settings):', videoUrl)
+    // console.log('🔙 Using fallback videoUrl (no settings):', videoUrl)
     return videoUrl
   }, [videoMode, youtubeSettings, uploadSettings, videoSettings, videoUrl, isMobile])
 
@@ -215,7 +215,7 @@ const YouTubeSection = memo(({
         }
       }
     } catch (err) {
-      console.error('讀取播放時間時發生錯誤:', err)
+      // console.error('讀取播放時間時發生錯誤:', err)
     }
 
     window.addEventListener('message', handleMessage)
@@ -224,12 +224,12 @@ const YouTubeSection = memo(({
 
   useEffect(() => {
     const currentVideoUrl = getCurrentVideoUrl()
-    console.log('🔄 Processing video URL:', currentVideoUrl, { 
-      isMobile, 
-      videoMode,
-      isUploadMode,
-      timestamp: new Date().toLocaleTimeString() 
-    })
+    // console.log('🔄 Processing video URL:', currentVideoUrl, {
+      // isMobile,
+      // videoMode,
+      // isUploadMode,
+      // timestamp: new Date().toLocaleTimeString()
+    // })
     
     // 先清空狀態以強制重新載入
     setVideoId(null)
@@ -239,7 +239,7 @@ const YouTubeSection = memo(({
     if (currentVideoUrl) {
       if (isUploadMode) {
         // 上傳模式：直接使用檔案 URL
-        console.log('✅ Upload mode - using video file URL:', currentVideoUrl)
+        // console.log('✅ Upload mode - using video file URL:', currentVideoUrl)
         setVideoId(currentVideoUrl) // 對於上傳模式，我們直接儲存 URL
         
         // 檢查是否為垂直視頻（基於設定或檔案名稱）
@@ -248,7 +248,7 @@ const YouTubeSection = memo(({
       } else {
         // YouTube 模式：提取 video ID
         const { videoId: id, isShorts: shorts } = extractVideoId(currentVideoUrl)
-        console.log('✅ YouTube mode - Extracted video ID:', id, 'isShorts:', shorts, 'from URL:', currentVideoUrl)
+        // console.log('✅ YouTube mode - Extracted video ID:', id, 'isShorts:', shorts, 'from URL:', currentVideoUrl)
         setVideoId(id)
         setIsShorts(shorts)
         if (!id) {
@@ -257,7 +257,7 @@ const YouTubeSection = memo(({
       }
     } else if (isMobile !== null) {
       // 只有在 isMobile 初始化完成後才顯示錯誤
-      console.log('❌ No video URL available after initialization')
+      // console.log('❌ No video URL available after initialization')
       setError('沒有可用的影片 URL')
     }
   }, [getCurrentVideoUrl, extractVideoId, isMobile, videoMode, isUploadMode, uploadSettings])
@@ -286,23 +286,23 @@ const YouTubeSection = memo(({
   const videoSrc = getVideoSrc()
 
   // 除錯資訊
-  console.log('🎬 Video Section render state:', {
-    error,
-    videoId,
-    videoUrl,
-    videoMode,
-    isUploadMode,
-    youtubeSettings,
-    uploadSettings,
-    videoSettings,
-    isMobile,
-    isShorts,
-    videoSrc,
-    isInitialized: isMobile !== null,
-    renderMode: isUploadMode ? 'VIDEO_ELEMENT' : 'YOUTUBE_IFRAME',
-    willRenderVideo: Boolean(isUploadMode && videoId),
-    willRenderIframe: Boolean(!isUploadMode && videoId)
-  })
+  // console.log('🎬 Video Section render state:', {
+    // error,
+    // videoId,
+    // videoUrl,
+    // videoMode,
+    // isUploadMode,
+    // youtubeSettings,
+    // uploadSettings,
+    // videoSettings,
+    // isMobile,
+    // isShorts,
+    // videoSrc,
+    // isInitialized: isMobile !== null,
+    // renderMode: isUploadMode ? 'VIDEO_ELEMENT' : 'YOUTUBE_IFRAME',
+    // willRenderVideo: Boolean(isUploadMode && videoId),
+    // willRenderIframe: Boolean(!isUploadMode && videoId)
+  // })
 
   // 初始化中
   if (isMobile === null) {
@@ -368,16 +368,16 @@ const YouTubeSection = memo(({
                 verticalAlign: 'top'
               }}
               onPlay={() => {
-                console.log('🎬 Video started playing')
+                // console.log('🎬 Video started playing')
                 setIsPlaying(true)
               }}
               onPause={() => {
-                console.log('⏸️ Video paused')
+                // console.log('⏸️ Video paused')
                 setIsPlaying(false)
               }}
-              onLoadStart={() => console.log('📂 Video file loading started')}
-              onLoadedData={() => console.log('✅ Video file loaded successfully')}
-              onError={(e) => console.error('❌ Video error:', e)}
+              // onLoadStart={() => console.log('📂 Video file loading started')}
+              // onLoadedData={() => console.log('✅ Video file loaded successfully')}
+              // onError={(e) => console.error('❌ Video error:', e)}
             />
           ) : (
             // YouTube 模式：使用 iframe

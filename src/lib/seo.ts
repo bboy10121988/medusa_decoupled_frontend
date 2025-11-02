@@ -80,7 +80,7 @@ export function generateStructuredData(
         JSON.parse(seoMeta.customJsonLd) // 驗證 JSON 格式
         return seoMeta.customJsonLd
       } catch {
-        if (process.env.NODE_ENV === 'development') console.error('無效的自訂 JSON-LD 格式')
+        // if (process.env.NODE_ENV === 'development') console.error('無效的自訂 JSON-LD 格式')
         return null
       }
     }
@@ -218,7 +218,7 @@ export const getDefaultSEOSettings = async (): Promise<Metadata> => {
       metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tims-hair-salon.com'),
     }
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('獲取 SEO 設定時發生錯誤:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('獲取 SEO 設定時發生錯誤:', error)
     return {
       title: '我的商店',
       description: undefined,

@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
-  console.log('🌐🌐🌐 前端 ECPay API 被呼叫！！！')
-  console.log('⏰ 時間:', new Date().toISOString())
+  // console.log('🌐🌐🌐 前端 ECPay API 被呼叫！！！')
+  // console.log('⏰ 時間:', new Date().toISOString())
   
   try {
     const { cart, customer, shippingAddress, shippingMethod, selectedStore } = await req.json()
     
-    console.log('📦 前端收到的參數:')
-    console.log('- cart ID:', cart?.id)
-    console.log('- cart total:', cart?.total)
-    console.log('- cart items:', cart?.items?.length || 0)
-    console.log('- customer ID:', customer?.id) 
-    console.log('- shippingAddress:', shippingAddress ? '✅ 有地址' : '❌ 無地址')
-    console.log('- shippingMethod:', shippingMethod)
-    console.log('- selectedStore:', selectedStore ? '✅ 有門市' : '❌ 無門市')
+    // console.log('📦 前端收到的參數:')
+    // console.log('- cart ID:', cart?.id)
+    // console.log('- cart total:', cart?.total)
+    // console.log('- cart items:', cart?.items?.length || 0)
+    // console.log('- customer ID:', customer?.id)
+    // console.log('- shippingAddress:', shippingAddress ? '✅ 有地址' : '❌ 無地址')
+    // console.log('- shippingMethod:', shippingMethod)
+    // console.log('- selectedStore:', selectedStore ? '✅ 有門市' : '❌ 無門市')
 
     // 驗證必要資訊
     if (!cart?.id) {
@@ -35,10 +35,10 @@ export async function POST(req: Request) {
       )
     }
 
-    console.log('🔄 準備調用後端 API...')
-    console.log('後端 URL:', `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/ecpay/create-payment`)
+    // console.log('🔄 準備調用後端 API...')
+    // console.log('後端 URL:', `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/ecpay/create-payment`)
     const { getPublishableKeyForBackend } = await import('@lib/medusa-publishable-key')
-    console.log('API Key:', getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) ? 'SET' : 'NOT_SET')
+    // console.log('API Key:', getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) ? 'SET' : 'NOT_SET')
     
     const backendUrl = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/ecpay/create-payment`
     const requestBody = { 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       selectedStore
     }
     
-    console.log('🔄 Request payload:', JSON.stringify(requestBody, null, 2))
+    // console.log('🔄 Request payload:', JSON.stringify(requestBody, null, 2))
     
     const response = await fetch(backendUrl, {
       method: "POST",
@@ -60,11 +60,11 @@ export async function POST(req: Request) {
       body: JSON.stringify(requestBody),
     })
 
-    console.log('後端回應狀態:', response.status, response.statusText)
+    // console.log('後端回應狀態:', response.status, response.statusText)
     
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('❌ 後端錯誤回應:', errorText)
+      // console.error('❌ 後端錯誤回應:', errorText)
       
       try {
         const errorData = JSON.parse(errorText)
@@ -81,21 +81,21 @@ export async function POST(req: Request) {
     }
     
     const data = await response.json()
-    console.log('後端回應數據:', data)
+    // console.log('後端回應數據:', data)
     
     // 驗證回應數據
     if (!data.html) {
-      console.error('❌ 後端未返回 HTML:', data)
+      // console.error('❌ 後端未返回 HTML:', data)
       return NextResponse.json(
         { error: "後端未返回付款表單 HTML" },
         { status: 500 }
       )
     }
     
-    console.log('✅ 付款表單 HTML 驗證通過')
+    // console.log('✅ 付款表單 HTML 驗證通過')
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Error creating payment:", error)
+    // console.error("Error creating payment:", error)
     return NextResponse.json(
       { error: "Failed to create payment" },
       { status: 500 }

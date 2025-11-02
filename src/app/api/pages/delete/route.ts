@@ -12,12 +12,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('正在刪除頁面:', pageId)
+    // console.log('正在刪除頁面:', pageId)
 
     // 從 Sanity 刪除頁面
     const result = await client.delete(pageId)
 
-    console.log('頁面已刪除:', result)
+    // console.log('頁面已刪除:', result)
 
     return NextResponse.json({
       success: true,
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('從 Sanity 刪除頁面失敗:', error)
+    // console.error('從 Sanity 刪除頁面失敗:', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -53,7 +53,7 @@ export async function DELETE(request: NextRequest) {
     // 從 Sanity 刪除頁面
     const result = await client.delete(pageId)
 
-    console.log('頁面已刪除:', result)
+    // console.log('頁面已刪除:', result)
 
     return NextResponse.json({
       success: true,
@@ -62,7 +62,7 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('從 Sanity 刪除頁面失敗:', error)
+    // console.error('從 Sanity 刪除頁面失敗:', error)
     return NextResponse.json(
       { 
         success: false, 

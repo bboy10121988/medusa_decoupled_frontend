@@ -17,7 +17,7 @@ export default function FeaturedProducts({
 }: FeaturedProductsProps) {
   // 如果沒有收到必要的參數，返回 null
   if (!collections || !region) {
-    console.error("FeaturedProducts - Missing required props:", { collections, region })
+    // console.error("FeaturedProducts - Missing required props:", { collections, region })
     return null
   }
 

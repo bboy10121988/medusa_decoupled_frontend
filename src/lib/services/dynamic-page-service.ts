@@ -10,7 +10,7 @@ function getWriteClient() {
   const hasValidToken = token && token !== 'your_sanity_write_token_here' && token.length > 10
   
   if (!hasValidToken) {
-    console.error('Sanity write token is missing or invalid. Please check your environment variables.')
+    // console.error('Sanity write token is missing or invalid. Please check your environment variables.')
     throw new Error('Sanity write token is required for write operations')
   }
   
@@ -122,7 +122,7 @@ class GrapesJSPageService {
       
       return pages || []
     } catch (error) {
-      console.error('載入頁面列表失敗:', error)
+      // console.error('載入頁面列表失敗:', error)
       throw error
     }
   }
@@ -134,7 +134,7 @@ class GrapesJSPageService {
     try {
       // 驗證參數
       if (!id || id.trim() === '') {
-        console.warn('getPageById: ID 參數為空')
+        // console.warn('getPageById: ID 參數為空')
         return null
       }
 
@@ -167,7 +167,7 @@ class GrapesJSPageService {
       
       return await readClient.fetch(query, { id })
     } catch (error) {
-      console.error('獲取頁面失敗:', error)
+      // console.error('獲取頁面失敗:', error)
       throw error
     }
   }
@@ -179,7 +179,7 @@ class GrapesJSPageService {
     try {
       // 驗證參數
       if (!slug || slug.trim() === '') {
-        console.warn('getPageBySlug: slug 參數為空')
+        // console.warn('getPageBySlug: slug 參數為空')
         return null
       }
 
@@ -212,7 +212,7 @@ class GrapesJSPageService {
       
       return await readClient.fetch(query, { slug })
     } catch (error) {
-      console.error('根據slug獲取頁面失敗:', error)
+      // console.error('根據slug獲取頁面失敗:', error)
       throw error
     }
   }
@@ -256,11 +256,11 @@ class GrapesJSPageService {
       }
 
       const result = await writeClient.create(pageData)
-      console.log('頁面創建成功:', result._id)
+      // console.log('頁面創建成功:', result._id)
       return result as unknown as DynamicPageData
       
     } catch (error: any) {
-      console.error('創建頁面失敗:', error)
+      // console.error('創建頁面失敗:', error)
       
       if (error.message?.includes('Insufficient permissions') || error.message?.includes('Unauthorized')) {
         throw new Error('❌ Sanity 寫入權限不足。請確認您的 token 設定或在 Sanity Studio 中操作。')
@@ -280,21 +280,21 @@ class GrapesJSPageService {
    */
   async updatePage(params: UpdatePageParams): Promise<DynamicPageData> {
     try {
-      console.log('🔄 updatePage 開始執行:', {
-        pageId: params._id,
-        title: params.title,
-        status: params.status,
-        hasHtml: !!params.grapesHtml,
-        hasCss: !!params.grapesCss,
-        htmlLength: params.grapesHtml?.length || 0,
-        cssLength: params.grapesCss?.length || 0,
-        componentsLength: typeof params.grapesComponents === 'string' 
-          ? params.grapesComponents.length 
-          : params.grapesComponents ? JSON.stringify(params.grapesComponents).length : 0,
-        stylesLength: typeof params.grapesStyles === 'string' 
-          ? params.grapesStyles.length 
-          : params.grapesStyles ? JSON.stringify(params.grapesStyles).length : 0
-      })
+      // console.log('🔄 updatePage 開始執行:', {
+        // pageId: params._id,
+        // title: params.title,
+        // status: params.status,
+        // hasHtml: !!params.grapesHtml,
+        // hasCss: !!params.grapesCss,
+        // htmlLength: params.grapesHtml?.length || 0,
+        // cssLength: params.grapesCss?.length || 0,
+        // componentsLength: typeof params.grapesComponents === 'string'
+          // ? params.grapesComponents.length
+          // : params.grapesComponents ? JSON.stringify(params.grapesComponents).length : 0,
+        // stylesLength: typeof params.grapesStyles === 'string'
+          // ? params.grapesStyles.length
+          // : params.grapesStyles ? JSON.stringify(params.grapesStyles).length : 0
+      // })
       
       // 輸入驗證 - 檢查必要參數
       if (!params._id || params._id.trim() === '') {
@@ -325,7 +325,7 @@ class GrapesJSPageService {
             JSON.parse(params.grapesComponents)
           }
         } catch (jsonError) {
-          console.error('組件 JSON 無效:', jsonError)
+          // console.error('組件 JSON 無效:', jsonError)
           throw new Error('組件數據格式無效，無法序列化')
         }
       }
@@ -340,7 +340,7 @@ class GrapesJSPageService {
             JSON.parse(params.grapesStyles)
           }
         } catch (jsonError) {
-          console.error('樣式 JSON 無效:', jsonError)
+          // console.error('樣式 JSON 無效:', jsonError)
           throw new Error('樣式數據格式無效，無法序列化')
         }
       }
@@ -354,22 +354,22 @@ class GrapesJSPageService {
       const now = new Date().toISOString()
       
       // 取得當前頁面以比較變更，包含錯誤處理
-      console.log('🔍 正在檢查頁面是否存在:', params._id)
+      // console.log('🔍 正在檢查頁面是否存在:', params._id)
       let currentPage: DynamicPageData | null = null
       
       try {
         currentPage = await this.getPageById(params._id)
       } catch (queryError) {
-        console.error('查詢頁面失敗:', queryError)
+        // console.error('查詢頁面失敗:', queryError)
         throw new Error(`無法讀取頁面信息: ${queryError instanceof Error ? queryError.message : '未知錯誤'}`)
       }
       
       if (!currentPage) {
-        console.error('❌ 頁面不存在:', params._id)
+        // console.error('❌ 頁面不存在:', params._id)
         throw new Error(`找不到 ID 為 ${params._id} 的頁面`)
       }
       
-      console.log('✅ 頁面存在，當前狀態:', currentPage.status)
+      // console.log('✅ 頁面存在，當前狀態:', currentPage.status)
 
       // 準備更新數據
       const updateData: any = {
@@ -380,7 +380,7 @@ class GrapesJSPageService {
       // 只更新有提供的欄位，並進行額外驗證
       if (params.title) {
         if (typeof params.title !== 'string' || params.title.trim() === '') {
-          console.warn('忽略無效的標題值')
+          // console.warn('忽略無效的標題值')
         } else {
           updateData.title = params.title.trim()
         }
@@ -388,7 +388,7 @@ class GrapesJSPageService {
       
       if (params.slug) {
         if (typeof params.slug !== 'string' || params.slug.trim() === '') {
-          console.warn('忽略無效的 slug 值')
+          // console.warn('忽略無效的 slug 值')
         } else {
           updateData.slug = { current: params.slug.trim() }
         }
@@ -399,7 +399,7 @@ class GrapesJSPageService {
         if (['draft', 'preview', 'published', 'archived'].includes(params.status)) {
           updateData.status = params.status
         } else {
-          console.warn(`忽略無效的狀態值: ${params.status}`)
+          // console.warn(`忽略無效的狀態值: ${params.status}`)
         }
       }
       
@@ -425,7 +425,7 @@ class GrapesJSPageService {
         if (['responsive', 'desktop', 'tablet', 'mobile'].includes(params.viewport)) {
           updateData.viewport = params.viewport
         } else {
-          console.warn(`忽略無效的視口值: ${params.viewport}`)
+          // console.warn(`忽略無效的視口值: ${params.viewport}`)
         }
       }
 
@@ -454,7 +454,7 @@ class GrapesJSPageService {
       
       while (retryCount < maxRetries) {
         try {
-          console.log(`嘗試提交更新到 Sanity (嘗試 ${retryCount + 1}/${maxRetries})`)
+          // console.log(`嘗試提交更新到 Sanity (嘗試 ${retryCount + 1}/${maxRetries})`)
           
           // 設定超時
           const timeoutPromise = new Promise((_, reject) => {
@@ -473,11 +473,11 @@ class GrapesJSPageService {
             timeoutPromise
           ])
 
-          console.log('✅ Sanity 更新成功:', {
-            pageId: params._id,
-            newStatus: updateData.status,
-            version: updateData.version
-          })
+          // console.log('✅ Sanity 更新成功:', {
+            // pageId: params._id,
+            // newStatus: updateData.status,
+            // version: updateData.version
+          // })
 
           return result as unknown as DynamicPageData
           
@@ -485,13 +485,13 @@ class GrapesJSPageService {
           lastError = error
           retryCount++
           
-          console.error(`Sanity 更新失敗 (嘗試 ${retryCount}/${maxRetries}):`, error)
-          console.error('錯誤詳細信息:', {
-            message: error.message,
-            name: error.name,
-            stack: error.stack,
-            details: error.details || 'No details'
-          })
+          // console.error(`Sanity 更新失敗 (嘗試 ${retryCount}/${maxRetries}):`, error)
+          // console.error('錯誤詳細信息:', {
+            // message: error.message,
+            // name: error.name,
+            // stack: error.stack,
+            // details: error.details || 'No details'
+          // })
           
           // 如果是權限錯誤，立即失敗不重試
           if (error.message?.includes('permission') || error.message?.includes('Unauthoriz')) {
@@ -501,18 +501,18 @@ class GrapesJSPageService {
           // 如果不是最後一次重試，等待後重試
           if (retryCount < maxRetries) {
             const delay = 1000 * Math.pow(2, retryCount - 1)
-            console.log(`等待 ${delay}ms 後重試...`)
+            // console.log(`等待 ${delay}ms 後重試...`)
             await new Promise(resolve => setTimeout(resolve, delay))
           }
         }
       }
       
       // 所有重試都失敗
-      console.error('達到最大重試次數，更新失敗')
+      // console.error('達到最大重試次數，更新失敗')
       throw lastError || new Error('更新頁面失敗，請稍後重試')
       
     } catch (error: any) {
-      console.error('更新頁面失敗:', error)
+      // console.error('更新頁面失敗:', error)
       
       // 提供更詳細的錯誤信息
       if (error.message?.includes('Insufficient permissions') || error.message?.includes('Unauthorized')) {

@@ -5,11 +5,11 @@ export async function GET(request: NextRequest) {
   const orderId = searchParams.get('order_id')
   const merchantTradeNo = searchParams.get('merchant_trade_no')
   
-  console.log('🎉 ECPay payment success callback received:', {
-    orderId,
-    merchantTradeNo,
-    timestamp: new Date().toISOString()
-  })
+  // console.log('🎉 ECPay payment success callback received:', {
+    // orderId,
+    // merchantTradeNo,
+    // timestamp: new Date().toISOString()
+  // })
 
   if (orderId) {
     // 重定向到訂單確認頁面
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         }
       }
     } catch (error) {
-      console.error('Error fetching order by merchant trade no:', error)
+      // console.error('Error fetching order by merchant trade no:', error)
     }
   }
 

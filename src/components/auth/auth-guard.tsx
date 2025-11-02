@@ -27,17 +27,17 @@ export function AuthGuard({
       
       const result = await response.json()
       
-      console.log('🔍 認證檢查結果:', result)
+      // console.log('🔍 認證檢查結果:', result)
       
       setIsAuthenticated(result.authenticated)
       
       if (!result.authenticated && redirectTo) {
-        console.log('❌ 未認證，重定向到:', redirectTo)
+        // console.log('❌ 未認證，重定向到:', redirectTo)
         router.push(redirectTo)
       }
       
     } catch (error) {
-      console.error('❌ 認證檢查失敗:', error)
+      // console.error('❌ 認證檢查失敗:', error)
       setIsAuthenticated(false)
       
       if (redirectTo) {

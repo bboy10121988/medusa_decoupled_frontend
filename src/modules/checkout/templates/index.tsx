@@ -27,28 +27,28 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
   const [availablePaymentMethods, setAvailablePaymentMethods] = useState<any[]>([])
 
   useEffect(() => {
-    console.log("🛒 CheckoutTemplate - cart.id:", cart?.id)
+    // console.log("🛒 CheckoutTemplate - cart.id:", cart?.id)
     if (cart?.id) {
-      console.log("📞 呼叫 listCartShippingMethods...")
+      // console.log("📞 呼叫 listCartShippingMethods...")
       listCartShippingMethods(cart.id).then((methods) => {
-        console.log("📦 收到 shipping methods:", methods)
+        // console.log("📦 收到 shipping methods:", methods)
         if (methods && Array.isArray(methods)) {
           setAvailableShippingMethods(methods)
         } else {
-          console.log("⚠️ 配送方式為空或無效，設置為空陣列")
+          // console.log("⚠️ 配送方式為空或無效，設置為空陣列")
           setAvailableShippingMethods([])
         }
       }).catch((error) => {
-        console.error("❌ listCartShippingMethods 錯誤:", error)
+        // console.error("❌ listCartShippingMethods 錯誤:", error)
         // 即使出錯也設置為空陣列，不阻止用戶操作
         setAvailableShippingMethods([])
       })
 
       // 加載付款方式 - 目前主要提供銀行轉帳
       if (cart.region?.id) {
-        console.log("💳 呼叫 listCartPaymentMethods...")
+        // console.log("💳 呼叫 listCartPaymentMethods...")
         listCartPaymentMethods(cart.region.id).then((methods) => {
-          console.log("💳 收到 payment methods:", methods)
+          // console.log("💳 收到 payment methods:", methods)
           
           // 總是提供銀行轉帳選項，無論後端返回什麼
           const bankTransferMethod = {
@@ -61,14 +61,14 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
             // 合併後端方法和銀行轉帳
             const combinedMethods = [bankTransferMethod, ...methods]
             setAvailablePaymentMethods(combinedMethods)
-            console.log("💳 設置組合付款方式:", combinedMethods)
+            // console.log("💳 設置組合付款方式:", combinedMethods)
           } else {
             // 只提供銀行轉帳
             setAvailablePaymentMethods([bankTransferMethod])
-            console.log("💳 只設置銀行轉帳選項")
+            // console.log("💳 只設置銀行轉帳選項")
           }
         }).catch((error) => {
-          console.error("❌ listCartPaymentMethods 錯誤:", error)
+          // console.error("❌ listCartPaymentMethods 錯誤:", error)
           // 出錯時提供銀行轉帳
           const fallbackMethods = [
             {
@@ -78,7 +78,7 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
             }
           ]
           setAvailablePaymentMethods(fallbackMethods)
-          console.log("💳 錯誤回退，設置銀行轉帳")
+          // console.log("💳 錯誤回退，設置銀行轉帳")
         })
       } else {
         // 沒有region時也提供銀行轉帳
@@ -89,10 +89,10 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
             is_enabled: true
           }
         ])
-        console.log("💳 無region，預設銀行轉帳")
+        // console.log("💳 無region，預設銀行轉帳")
       }
     } else {
-      console.log("⚠️ 沒有 cart.id，無法獲取配送方式")
+      // console.log("⚠️ 沒有 cart.id，無法獲取配送方式")
       setAvailableShippingMethods([])
       setAvailablePaymentMethods([])
     }

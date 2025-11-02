@@ -93,7 +93,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
     })
   } catch (error) {
-    console.error('更新狀態錯誤:', error)
+    // console.error('更新狀態錯誤:', error)
     return NextResponse.json(
       { error: '無法更新狀態' },
       { status: 500 }

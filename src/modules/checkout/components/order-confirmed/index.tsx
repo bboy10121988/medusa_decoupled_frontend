@@ -13,7 +13,7 @@ import PaymentDetails from "../../../order/components/payment-details/index"
 
 // 客戶端訂單獲取函數
 const fetchOrder = async (orderId: string): Promise<HttpTypes.StoreOrder> => {
-  console.log("🔍 fetchOrder 開始獲取訂單:", orderId)
+  // console.log("🔍 fetchOrder 開始獲取訂單:", orderId)
   
   try {
     const response = await fetch(`/api/orders/${orderId}`, {
@@ -25,16 +25,16 @@ const fetchOrder = async (orderId: string): Promise<HttpTypes.StoreOrder> => {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error("❌ API 響應錯誤:", response.status, errorText)
+      // console.error("❌ API 響應錯誤:", response.status, errorText)
       throw new Error(`Failed to fetch order: ${response.status} ${errorText}`)
     }
 
     const data = await response.json()
-    console.log("✅ fetchOrder 成功獲取訂單:", data)
+    // console.log("✅ fetchOrder 成功獲取訂單:", data)
     
     return data.order || data
   } catch (error) {
-    console.error("❌ fetchOrder 錯誤:", error)
+    // console.error("❌ fetchOrder 錯誤:", error)
     throw error
   }
 }
@@ -47,29 +47,29 @@ const OrderConfirmed = () => {
 
   useEffect(() => {
     if (orderId) {
-      console.log("🎉 載入訂單確認頁面，訂單ID:", orderId)
-      console.log("🔍 開始呼叫 retrieveOrder...")
+      // console.log("🎉 載入訂單確認頁面，訂單ID:", orderId)
+      // console.log("🔍 開始呼叫 retrieveOrder...")
       fetchOrder(orderId)
         .then((orderData: HttpTypes.StoreOrder) => {
-          console.log("✅ 訂單資料載入成功:", orderData)
+          // console.log("✅ 訂單資料載入成功:", orderData)
           if (orderData) {
             setOrder(orderData)
-            console.log("✅ 訂單狀態設置完成")
+            // console.log("✅ 訂單狀態設置完成")
           } else {
-            console.error("❌ retrieveOrder 返回了空的資料")
+            // console.error("❌ retrieveOrder 返回了空的資料")
           }
         })
         .catch((error: any) => {
-          console.error("❌ 載入訂單資料失敗:", error)
-          console.error("❌ 錯誤詳情:", error.message, error.stack)
+          // console.error("❌ 載入訂單資料失敗:", error)
+          // console.error("❌ 錯誤詳情:", error.message, error.stack)
         })
         .finally(() => {
-          console.log("🏁 retrieveOrder 完成，設置 loading = false")
+          // console.log("🏁 retrieveOrder 完成，設置 loading = false")
           setLoading(false)
         })
     } else {
-      console.log("⚠️ 沒有訂單ID，無法載入訂單確認頁面")
-      console.log("🔍 當前 searchParams:", searchParams?.toString())
+      // console.log("⚠️ 沒有訂單ID，無法載入訂單確認頁面")
+      // console.log("🔍 當前 searchParams:", searchParams?.toString())
       setLoading(false)
     }
   }, [orderId, searchParams])

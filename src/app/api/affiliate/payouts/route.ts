@@ -82,7 +82,7 @@ async function calculatePayoutSummary(affiliateId: string): Promise<{
       nextPayoutDate: '每月 15 日',
     }
   } catch (error) {
-    console.error('計算結算摘要失敗:', error)
+    // console.error('計算結算摘要失敗:', error)
     return {
       totalEarned: 0,
       totalPaid: 0,
@@ -113,7 +113,7 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('獲取結算資料失敗:', error)
+    // console.error('獲取結算資料失敗:', error)
     return NextResponse.json({ error: '獲取結算資料失敗' }, { status: 500 })
   }
 }
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
     payoutData.payouts.push(newPayout)
     await savePayoutData(payoutData)
 
-    console.log(`💰 新提款申請: ${session.id} -> $${amount} (${method})`)
+    // console.log(`💰 新提款申請: ${session.id} -> $${amount} (${method})`)
 
     return NextResponse.json({ 
       success: true,
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('提款申請失敗:', error)
+    // console.error('提款申請失敗:', error)
     return NextResponse.json({ error: '提款申請失敗' }, { status: 500 })
   }
 }

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     })
     
     if (!customerResponse.ok) {
-      console.error('從 Medusa 獲取客戶資料失敗:', customerResponse.status, customerResponse.statusText)
+      // console.error('從 Medusa 獲取客戶資料失敗:', customerResponse.status, customerResponse.statusText)
       return NextResponse.json(
         { error: `Failed to fetch customer data: ${customerResponse.statusText}` }, 
         { status: customerResponse.status }
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     
     // 如果客戶郵件是預設值，嘗試獲取 Google 提供者身份資訊
     if (customerData.customer.email === 'example@medusajs.com') {
-      console.log('檢測到預設郵件，嘗試查詢提供者身份資訊')
+      // console.log('檢測到預設郵件，嘗試查詢提供者身份資訊')
       
       // 向後端發送請求以獲取關聯的 OAuth 提供者身份資訊
       // 這需要後端提供相應的 API，這只是一個示例
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           })
         }
       } catch (providerError) {
-        console.error('獲取提供者資訊失敗:', providerError)
+        // console.error('獲取提供者資訊失敗:', providerError)
         // 繼續使用可用的客戶資料
       }
     }
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('處理獲取 Google 用戶資料請求失敗:', error)
+    // console.error('處理獲取 Google 用戶資料請求失敗:', error)
     return NextResponse.json(
       { error: 'Failed to process request' }, 
       { status: 500 }

@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('搜尋商品時出錯:', error)
+    // console.error('搜尋商品時出錯:', error)
     return NextResponse.json(
       { message: '搜尋商品時出錯', error: (error as Error).message },
       { status: 500 }

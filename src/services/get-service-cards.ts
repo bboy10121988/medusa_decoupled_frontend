@@ -55,7 +55,7 @@ export async function getServiceCards(): Promise<ServiceCardsType | null> {
   } catch (error: any) {
     const msg = String(error?.message || error)
     if (error?.name === 'AbortError' || msg.includes('The user aborted a request') || msg.includes('signal is aborted')) {
-      if (process.env.NODE_ENV === 'development') console.warn('Sanity fetch aborted (handled) in getServiceCards:', msg)
+      // if (process.env.NODE_ENV === 'development') console.warn('Sanity fetch aborted (handled) in getServiceCards:', msg)
       result = null
     } else {
       throw error

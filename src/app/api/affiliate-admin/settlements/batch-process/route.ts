@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       failedCount
     })
   } catch (error) {
-    console.error('批量處理結算錯誤:', error)
+    // console.error('批量處理結算錯誤:', error)
     return NextResponse.json(
       { error: '無法批量處理結算' },
       { status: 500 }

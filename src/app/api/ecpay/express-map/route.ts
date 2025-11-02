@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🗺️ 前端代理：ECPay 電子地圖請求')
+    // console.log('🗺️ 前端代理：ECPay 電子地圖請求')
     
     // 獲取請求參數
     const body = await request.json()
-    console.log('📝 請求參數:', body)
+    // console.log('📝 請求參數:', body)
     
     // 準備後端 URL 和 API 密鑰
     const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const publishableKey = getPublishableKeyForBackend(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL)
     
     if (!publishableKey) {
-      console.error('❌ 缺少 Medusa Publishable API Key')
+      // console.error('❌ 缺少 Medusa Publishable API Key')
       return NextResponse.json(
         { 
           success: false, 
@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
     
     const apiUrl = `${backendUrl}/store/ecpay/express-map`
     
-    console.log('🔗 代理到:', apiUrl)
-    console.log('🔑 使用 API 密鑰:', publishableKey.substring(0, 10) + '...')
+    // console.log('🔗 代理到:', apiUrl)
+    // console.log('🔑 使用 API 密鑰:', publishableKey.substring(0, 10) + '...')
     
     // 代理請求到後端
     const response = await fetch(apiUrl, {
@@ -44,11 +44,11 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body)
     })
     
-    console.log('📡 後端回應狀態:', response.status)
+    // console.log('📡 後端回應狀態:', response.status)
     
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('❌ 後端回應錯誤:', errorText)
+      // console.error('❌ 後端回應錯誤:', errorText)
       return NextResponse.json(
         { 
           success: false, 
@@ -61,17 +61,17 @@ export async function POST(request: NextRequest) {
     
     // 檢查回應類型
     const contentType = response.headers.get('content-type')
-    console.log('📄 回應類型:', contentType)
+    // console.log('📄 回應類型:', contentType)
     
     if (contentType && contentType.includes('application/json')) {
       // JSON 回應
       const result = await response.json()
-      console.log('✅ JSON 回應:', result)
+      // console.log('✅ JSON 回應:', result)
       return NextResponse.json(result)
     } else {
       // HTML 回應（ECPay 電子地圖頁面）
       const htmlContent = await response.text()
-      console.log('🗺️ ECPay 電子地圖 HTML 頁面')
+      // console.log('🗺️ ECPay 電子地圖 HTML 頁面')
       
       // 回傳 HTML 內容
       return new NextResponse(htmlContent, {
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
     
   } catch (error: any) {
-    console.error('❌ 代理請求失敗:', error)
+    // console.error('❌ 代理請求失敗:', error)
     return NextResponse.json(
       {
         success: false,

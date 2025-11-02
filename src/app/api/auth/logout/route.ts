@@ -20,7 +20,7 @@ const performLogout = async () => {
     try {
       await medusa.auth.logout()
     } catch (error) {
-      console.warn("Medusa SDK logout failed:", error)
+      // console.warn("Medusa SDK logout failed:", error)
     }
   }
 
@@ -108,7 +108,7 @@ const performLogout = async () => {
       revalidateTag(cartTag)
     }
   } catch (error) {
-    console.warn("Failed to revalidate auth caches:", error)
+    // console.warn("Failed to revalidate auth caches:", error)
   }
 }
 

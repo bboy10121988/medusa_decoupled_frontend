@@ -53,7 +53,7 @@ export async function retrieveCart(cartId?: string) {
       // 只在真正的錯誤時記錄，而不是沒有購物車時
       if (error.status !== 404) {
         if (isDev) {
-          console.error("❌ retrieveCart 失敗:", error)
+          // console.error("❌ retrieveCart 失敗:", error)
         }
       }
       return null
@@ -68,7 +68,7 @@ export async function getOrSetCart(countryCode: string) {
     throw new Error(`Region not found for country code: ${countryCode}`)
   }
 
-  if (isDev) console.log("🌍 區域資訊:", { regionId: region.id, countryCode })
+  // if (isDev) console.log("🌍 區域資訊:", { regionId: region.id, countryCode })
 
   let cart = await retrieveCart()
 
@@ -77,7 +77,7 @@ export async function getOrSetCart(countryCode: string) {
   }
 
   if (!cart) {
-    if (isDev) console.log("🆕 建立新購物車...")
+    // if (isDev) console.log("🆕 建立新購物車...")
     try {
       const cartResp = await sdk.store.cart.create(
         { region_id: region.id },
@@ -86,29 +86,29 @@ export async function getOrSetCart(countryCode: string) {
       )
       cart = cartResp.cart
 
-      if (isDev) console.log("✅ 購物車建立成功:", { cartId: cart.id })
+      // if (isDev) console.log("✅ 購物車建立成功:", { cartId: cart.id })
 
       await setCartId(cart.id)
-      if (isDev) console.log("🍪 Cart ID 已設定到 cookies:", cart.id)
+      // if (isDev) console.log("🍪 Cart ID 已設定到 cookies:", cart.id)
 
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
     } catch (error) {
-      if (isDev) console.error("❌ 建立購物車失敗:", error)
+      // if (isDev) console.error("❌ 建立購物車失敗:", error)
       throw error
     }
   } else {
-    if (isDev) console.log("♻️ 使用現有購物車:", { cartId: cart.id })
+    // if (isDev) console.log("♻️ 使用現有購物車:", { cartId: cart.id })
   }
 
   if (cart && cart?.region_id !== region.id) {
-    if (isDev) console.log("🔄 更新購物車區域...")
+    // if (isDev) console.log("🔄 更新購物車區域...")
     try {
       await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers)
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
     } catch (error) {
-      if (isDev) console.error("❌ 更新購物車區域失敗:", error)
+      // if (isDev) console.error("❌ 更新購物車區域失敗:", error)
       throw error
     }
   }
@@ -156,7 +156,7 @@ export async function addToCart({
     throw new Error("Missing variant ID when adding to cart")
   }
 
-  if (isDev) console.log("🚀 addToCart 開始:", { variantId, quantity, countryCode })
+  // if (isDev) console.log("🚀 addToCart 開始:", { variantId, quantity, countryCode })
 
   try {
     const cart = await getOrSetCart(countryCode)
@@ -165,7 +165,7 @@ export async function addToCart({
       throw new Error("Error retrieving or creating cart")
     }
 
-    if (isDev) console.log("📦 購物車資訊:", { cartId: cart.id, regionId: cart.region_id })
+    // if (isDev) console.log("📦 購物車資訊:", { cartId: cart.id, regionId: cart.region_id })
 
     const headers = {
       ...(await getAuthHeaders()),
@@ -182,7 +182,7 @@ export async function addToCart({
         headers
       )
       .then(async (response) => {
-        if (isDev) console.log("✅ 成功創建購物車項目:", response)
+        // if (isDev) console.log("✅ 成功創建購物車項目:", response)
         
         const cartCacheTag = await getCacheTag("carts")
         revalidateTag(cartCacheTag)
@@ -191,11 +191,11 @@ export async function addToCart({
         revalidateTag(fulfillmentCacheTag)
       })
       .catch((error) => {
-        if (isDev) console.error("❌ 創建購物車項目失敗:", error)
+        // if (isDev) console.error("❌ 創建購物車項目失敗:", error)
         throw error
       })
   } catch (error) {
-    if (isDev) console.error("❌ addToCart 失敗:", error)
+    // if (isDev) console.error("❌ addToCart 失敗:", error)
     throw error
   }
 }
@@ -270,7 +270,7 @@ export async function clearCart() {
     revalidateTag(cartCacheTag)
     return true
   } catch (error: any) {
-    console.error("清空購物車失敗:", error)
+    // console.error("清空購物車失敗:", error)
     throw new Error("清空購物車失敗")
   }
 }
@@ -303,15 +303,15 @@ export async function initiatePaymentSession(
 
   const action = "initiatePaymentSession"
 
-  console.log(action,"cart:",cart)
+  // console.log(action,"cart:",cart)
   
-  console.log(action,"data:",data)
+  // console.log(action,"data:",data)
   
   const headers = {
     ...(await getAuthHeaders()),
   }
 
-  console.log("執行：",action)
+  // console.log("執行：",action)
 
   return sdk.store.payment
     .initiatePaymentSession(cart, data, {}, headers)
@@ -324,7 +324,7 @@ export async function initiatePaymentSession(
       return resp
     }).catch((e)=>{
 
-      console.log(action,"has error:",e)
+      // console.log(action,"has error:",e)
 
       medusaError(e)
     })
@@ -475,7 +475,7 @@ export async function createPaymentCollectionForBankTransfer(cartId: string) {
     ...(await getAuthHeaders()),
   }
 
-  console.log("🏦 開始為銀行轉帳創建支付集合，購物車ID:", cartId)
+  // console.log("🏦 開始為銀行轉帳創建支付集合，購物車ID:", cartId)
   
   // 先獲取購物車信息
   let cart;
@@ -484,34 +484,34 @@ export async function createPaymentCollectionForBankTransfer(cartId: string) {
     if (!cart) {
       throw new Error("找不到購物車")
     }
-    console.log("📋 購物車信息:", {
-      id: cart.id,
-      region_id: cart.region?.id,
-      currency_code: cart.region?.currency_code,
-      total: cart.total,
-      has_payment_collection: !!cart.payment_collection
-    })
+    // console.log("📋 購物車信息:", {
+      // id: cart.id,
+      // region_id: cart.region?.id,
+      // currency_code: cart.region?.currency_code,
+      // total: cart.total,
+      // has_payment_collection: !!cart.payment_collection
+    // })
   } catch (cartError: any) {
-    console.error("❌ 獲取購物車失敗:", cartError)
+    // console.error("❌ 獲取購物車失敗:", cartError)
     throw new Error(`獲取購物車失敗: ${cartError.message}`)
   }
 
   // 如果購物車已經有支付集合，直接返回
   if (cart.payment_collection) {
-    console.log("✅ 購物車已經有支付集合:", cart.payment_collection)
+    // console.log("✅ 購物車已經有支付集合:", cart.payment_collection)
     return cart.payment_collection
   }
 
   try {
     // 方法1：嘗試使用 payment-collections API
-    console.log("🔧 嘗試創建支付集合 (方法1: /store/payment-collections)")
+    // console.log("🔧 嘗試創建支付集合 (方法1: /store/payment-collections)")
     
     const paymentData = {
       cart_id: cartId,
       region_id: cart.region?.id,
       currency_code: cart.region?.currency_code || "TWD",
     }
-    console.log("📦 發送的數據:", paymentData)
+    // console.log("📦 發送的數據:", paymentData)
     
     const paymentCollectionResponse = await sdk.client.fetch<any>(
       `/store/payment-collections`,
@@ -525,32 +525,32 @@ export async function createPaymentCollectionForBankTransfer(cartId: string) {
       }
     )
     
-    console.log("✅ 支付集合創建成功 (方法1):", paymentCollectionResponse)
+    // console.log("✅ 支付集合創建成功 (方法1):", paymentCollectionResponse)
     return paymentCollectionResponse
     
   } catch (error: any) {
-    console.error("❌ 方法1失敗 - 錯誤詳情:", {
-      message: error.message,
-      status: error.status,
-      statusText: error.statusText,
-      response: error.response?.data || error.response,
-      responseText: error.responseText,
-      stack: error.stack?.split('\n').slice(0, 3)
-    })
+    // console.error("❌ 方法1失敗 - 錯誤詳情:", {
+      // message: error.message,
+      // status: error.status,
+      // statusText: error.statusText,
+      // response: error.response?.data || error.response,
+      // responseText: error.responseText,
+      // stack: error.stack?.split('\n').slice(0, 3)
+    // })
     
     // 如果是網路錯誤或 API 不存在，直接嘗試下一個方法
-    console.log("🔄 方法1失敗，嘗試方法2...")
+    // console.log("🔄 方法1失敗，嘗試方法2...")
     
     try {
       // 方法2：為銀行轉帳創建一個基本的支付集合（使用系統預設）
-      console.log("🔧 嘗試為銀行轉帳創建基本支付集合 (方法2)")
+      // console.log("🔧 嘗試為銀行轉帳創建基本支付集合 (方法2)")
       
       const paymentSessionData2 = {
         cart_id: cartId,
         amount: cart.total || 0,
         currency_code: cart.region?.currency_code || "TWD",
       }
-      console.log("📦 發送的會話數據:", paymentSessionData2)
+      // console.log("📦 發送的會話數據:", paymentSessionData2)
       
       const paymentResponse = await sdk.client.fetch<any>(
         `/store/carts/${cartId}/payment-collection`,
@@ -564,25 +564,25 @@ export async function createPaymentCollectionForBankTransfer(cartId: string) {
         }
       )
       
-      console.log("✅ 支付會話創建成功 (方法2):", paymentResponse)
+      // console.log("✅ 支付會話創建成功 (方法2):", paymentResponse)
       return paymentResponse
       
     } catch (error2: any) {
-      console.error("❌ 方法2也失敗了 - 錯誤詳情:", {
-        message: error2.message,
-        status: error2.status,
-        statusText: error2.statusText,
-        response: error2.response?.data || error2.response,
-        responseText: error2.responseText,
-        url: `/store/carts/${cartId}/payment-collection`,
-        stack: error2.stack?.split('\n').slice(0, 3)
-      })
+      // console.error("❌ 方法2也失敗了 - 錯誤詳情:", {
+        // message: error2.message,
+        // status: error2.status,
+        // statusText: error2.statusText,
+        // response: error2.response?.data || error2.response,
+        // responseText: error2.responseText,
+        // url: `/store/carts/${cartId}/payment-collection`,
+        // stack: error2.stack?.split('\n').slice(0, 3)
+      // })
       
-      console.log("🔄 方法2失敗，嘗試方法3...")
+      // console.log("🔄 方法2失敗，嘗試方法3...")
       
       // 方法3：使用 ECPay provider 作為技術基礎，但標記為銀行轉帳
       try {
-        console.log("🔧 使用 ECPay 作為基礎建立銀行轉帳支付 (方法3)")
+        // console.log("🔧 使用 ECPay 作為基礎建立銀行轉帳支付 (方法3)")
         
         const paymentSessionData = {
           provider_id: "ecpay_credit_card", // 技術上使用 ECPay，但會在 metadata 中標記為銀行轉帳
@@ -600,7 +600,7 @@ export async function createPaymentCollectionForBankTransfer(cartId: string) {
           }
         )
         
-        console.log("✅ 基礎支付集合建立成功，現在標記為銀行轉帳")
+        // console.log("✅ 基礎支付集合建立成功，現在標記為銀行轉帳")
         
         // 立即更新 metadata 以標記這是銀行轉帳
         const updateResponse = await sdk.store.cart.update(
@@ -615,15 +615,15 @@ export async function createPaymentCollectionForBankTransfer(cartId: string) {
           }
         )
         
-        console.log("✅ 銀行轉帳支付集合建立完成 (方法3)")
+        // console.log("✅ 銀行轉帳支付集合建立完成 (方法3)")
         return paymentResponse
         
       } catch (error3: any) {
-        console.error("❌ 所有方法都失敗了 - 最終錯誤:", {
-          method1: error.message,
-          method2: error2.message,
-          method3: error3.message
-        })
+        // console.error("❌ 所有方法都失敗了 - 最終錯誤:", {
+          // method1: error.message,
+          // method2: error2.message,
+          // method3: error3.message
+        // })
         
         const detailedError = error3.response?.data || error3.message || "未知錯誤"
         throw new Error(`所有支付集合創建方法都失敗了: ${detailedError}`)
@@ -670,22 +670,22 @@ export async function placeOrder(cartId?: string) {
   // 對於 manual_manual (銀行轉帳)，直接提交訂單
   const selectedPaymentProvider = currentCart.metadata?.selected_payment_provider
   
-  console.log("💳 準備提交訂單:", {
-    cartId: id,
-    paymentProvider: selectedPaymentProvider,
-    hasPaymentCollection: !!currentCart.payment_collection,
-    hasPaymentSessions: !!currentCart.payment_collection?.payment_sessions?.length
-  })
+  // console.log("💳 準備提交訂單:", {
+    // cartId: id,
+    // paymentProvider: selectedPaymentProvider,
+    // hasPaymentCollection: !!currentCart.payment_collection,
+    // hasPaymentSessions: !!currentCart.payment_collection?.payment_sessions?.length
+  // })
 
   let cartRes;
   
   try {
     if (selectedPaymentProvider === "manual_manual") {
-      console.log("💰 使用銀行轉帳，嘗試直接提交訂單")
+      // console.log("💰 使用銀行轉帳，嘗試直接提交訂單")
       
       // 銀行轉帳不需要支付集合，但可能需要在 metadata 中標記
       if (!currentCart.payment_collection) {
-        console.log("🔧 銀行轉帳: 先更新購物車 metadata")
+        // console.log("🔧 銀行轉帳: 先更新購物車 metadata")
         await sdk.store.cart.update(
           id,
           {
@@ -708,26 +708,26 @@ export async function placeOrder(cartId?: string) {
     revalidateTag(cartCacheTag)
     
   } catch (error: any) {
-    console.error("❌ 訂單提交失敗:", error)
-    console.error("錯誤詳情:", {
-      message: error?.message,
-      status: error?.status,
-      statusText: error?.statusText,
-      response: error?.response?.data || error?.response,
-      stack: error?.stack?.split('\n').slice(0, 5)
-    })
+    // console.error("❌ 訂單提交失敗:", error)
+    // console.error("錯誤詳情:", {
+      // message: error?.message,
+      // status: error?.status,
+      // statusText: error?.statusText,
+      // response: error?.response?.data || error?.response,
+      // stack: error?.stack?.split('\n').slice(0, 5)
+    // })
     
     // 如果是支付集合未初始化錯誤，根據支付方式採取不同策略
     if (error?.message?.includes("Payment collection has not been initiated")) {
-      console.log("🔧 處理支付集合未初始化錯誤")
+      // console.log("🔧 處理支付集合未初始化錯誤")
       
       if (selectedPaymentProvider === "manual_manual") {
-        console.log("🏦 銀行轉帳: 嘗試使用替代策略")
+        // console.log("🏦 銀行轉帳: 嘗試使用替代策略")
         
         try {
           // 策略: 對於銀行轉帳，我們嘗試用 ECPay provider 創建支付集合
           // 然後在訂單創建後通過 metadata 標記為銀行轉帳
-          console.log("🔄 使用 ECPay provider 作為技術基礎建立支付集合")
+          // console.log("🔄 使用 ECPay provider 作為技術基礎建立支付集合")
           
           const paymentCollection = await sdk.client.fetch<any>(
             `/store/carts/${id}/payment-collection`,
@@ -743,7 +743,7 @@ export async function placeOrder(cartId?: string) {
             }
           )
           
-          console.log("✅ 技術支付集合建立成功:", paymentCollection)
+          // console.log("✅ 技術支付集合建立成功:", paymentCollection)
           
           // 更新購物車 metadata 標記為銀行轉帳
           await sdk.store.cart.update(id, {
@@ -755,22 +755,22 @@ export async function placeOrder(cartId?: string) {
             }
           })
           
-          console.log("✅ 已標記為銀行轉帳模式")
+          // console.log("✅ 已標記為銀行轉帳模式")
           
           // 重新嘗試提交訂單
-          console.log("🔄 重新提交銀行轉帳訂單")
+          // console.log("🔄 重新提交銀行轉帳訂單")
           cartRes = await sdk.store.cart.complete(id, {}, headers)
           
           const cartCacheTag = await getCacheTag("carts")
           revalidateTag(cartCacheTag)
           
         } catch (retryError: any) {
-          console.error("❌ 銀行轉帳重試失敗:", {
-            originalError: error.message,
-            retryError: retryError?.message,
-            status: retryError?.status,
-            response: retryError?.response?.data
-          })
+          // console.error("❌ 銀行轉帳重試失敗:", {
+            // originalError: error.message,
+            // retryError: retryError?.message,
+            // status: retryError?.status,
+            // response: retryError?.response?.data
+          // })
           
           // 對於銀行轉帳，如果還是失敗，給出特定的錯誤信息
           throw new Error(`銀行轉帳訂單提交失敗：${retryError?.message || error.message}。請聯絡客服協助處理`)
@@ -787,7 +787,7 @@ export async function placeOrder(cartId?: string) {
   }
 
   if (cartRes?.type === "order") {
-    console.log("✅ 訂單建立成功:", cartRes.order.id)
+    // console.log("✅ 訂單建立成功:", cartRes.order.id)
     
     const countryCode =
       cartRes.order.shipping_address?.country_code?.toLowerCase()

@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('桌面版 banner 圖片上傳更新錯誤:', error)
+    // console.error('桌面版 banner 圖片上傳更新錯誤:', error)
     return NextResponse.json(
       { success: false, error: error?.message || '操作失敗' },
       { status: 500 }

@@ -63,7 +63,7 @@ export function LinkGeneratorForm() {
         alert(errorMessage)
       }
     } catch (error) {
-      console.error('Error creating link:', error)
+      // console.error('Error creating link:', error)
       alert('創建連結時發生錯誤：' + (error as Error).message)
     } finally {
       setIsLoading(false)
@@ -160,7 +160,7 @@ export function LinkList({ links }: LinkListProps) {
         alert('刪除失敗')
       }
     } catch (error) {
-      console.error('Error deleting link:', error)
+      // console.error('Error deleting link:', error)
       alert('刪除時發生錯誤')
     } finally {
       setDeletingId(null)

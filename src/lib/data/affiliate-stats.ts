@@ -72,7 +72,7 @@ export async function recordClick(
   // 同時更新連結系統中的點擊數
   await updateLinkClickCount(linkId, affiliateId)
   
-  console.log(`📊 記錄點擊: ${affiliateId} -> ${linkId}`)
+  // console.log(`📊 記錄點擊: ${affiliateId} -> ${linkId}`)
   return clickId
 }
 
@@ -89,10 +89,10 @@ async function updateLinkClickCount(linkId: string, affiliateId: string): Promis
     })
     
     if (!response.ok) {
-      console.warn(`更新連結 ${linkId} 點擊數失敗`)
+      // console.warn(`更新連結 ${linkId} 點擊數失敗`)
     }
   } catch (error) {
-    console.warn('更新連結點擊數時發生錯誤:', error)
+    // console.warn('更新連結點擊數時發生錯誤:', error)
   }
 }
 
@@ -105,7 +105,7 @@ export async function recordConversion(
   
   const clickRecord = stats.clicks.find(click => click.id === clickId)
   if (!clickRecord) {
-    console.error('找不到點擊記錄:', clickId)
+    // console.error('找不到點擊記錄:', clickId)
     return false
   }
   
@@ -115,7 +115,7 @@ export async function recordConversion(
   
   await saveStatsData(stats)
   
-  console.log(`💰 記錄轉換: ${clickRecord.affiliateId} -> $${conversionValue}`)
+  // console.log(`💰 記錄轉換: ${clickRecord.affiliateId} -> $${conversionValue}`)
   return true
 }
 
@@ -217,5 +217,5 @@ export async function clearStats(): Promise<void> {
     lastUpdated: new Date().toISOString(),
   }
   await saveStatsData(initialData)
-  console.log('🗑️  統計資料已清除')
+  // console.log('🗑️  統計資料已清除')
 }

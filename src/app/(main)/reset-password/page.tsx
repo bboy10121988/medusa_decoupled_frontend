@@ -73,7 +73,7 @@ function ResetPasswordContent() {
       }, 3000)
 
     } catch (error: any) {
-      console.error("密碼重設失敗:", error)
+      // console.error("密碼重設失敗:", error)
       setError(error.message || "密碼重設失敗，請重試或聯繫客服")
     } finally {
       setLoading(false)

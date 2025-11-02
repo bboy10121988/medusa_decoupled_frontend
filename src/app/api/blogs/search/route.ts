@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       }
     `)
 
-    if (process.env.NODE_ENV === 'development') console.log(`找到 ${posts.length} 篇文章匹配查詢: "${query}"`);
+    // if (process.env.NODE_ENV === 'development') console.log(`找到 ${posts.length} 篇文章匹配查詢: "${query}"`);
     
     // 對搜尋結果進行二次過濾，確保真正匹配關鍵字
     if (posts.length > 0) {
@@ -84,13 +84,13 @@ export async function GET(request: NextRequest) {
                categories.includes(lowerQuery);
       });
       
-      if (process.env.NODE_ENV === 'development') console.log(`二次過濾後剩餘 ${filteredPosts.length} 篇文章`);
+      // if (process.env.NODE_ENV === 'development') console.log(`二次過濾後剩餘 ${filteredPosts.length} 篇文章`);
       posts = filteredPosts;
     }
     
     // 如果沒有找到結果，而且是中文搜尋詞，嘗試按字符拆分搜尋
     if (posts.length === 0 && isChinese(query)) {
-      if (process.env.NODE_ENV === 'development') console.log('沒有找到匹配的中文文章，嘗試拆分搜尋');
+      // if (process.env.NODE_ENV === 'development') console.log('沒有找到匹配的中文文章，嘗試拆分搜尋');
       
       // 將中文查詢拆分為單個字符
       const characters = Array.from(query);
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
         });
         
         posts = splitResults;
-        if (process.env.NODE_ENV === 'development') console.log(`拆分搜尋找到 ${posts.length} 篇文章`);
+        // if (process.env.NODE_ENV === 'development') console.log(`拆分搜尋找到 ${posts.length} 篇文章`);
       }
     }
 
@@ -195,14 +195,14 @@ export async function GET(request: NextRequest) {
 
     // 如果沒有找到匹配的文章，則獲取最新文章
     if (formattedPosts.length === 0) {
-      if (process.env.NODE_ENV === 'development') console.log('沒有找到匹配的文章，獲取最新文章')
+      // if (process.env.NODE_ENV === 'development') console.log('沒有找到匹配的文章，獲取最新文章')
       const recentPosts = await fetchRecentPosts()
       return NextResponse.json({ posts: recentPosts })
     }
 
     return NextResponse.json({ posts: formattedPosts })
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('搜尋部落格文章時出錯:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('搜尋部落格文章時出錯:', error)
     // 發生錯誤時，返回最新文章
     const recentPosts = await fetchRecentPosts()
     return NextResponse.json({
@@ -243,7 +243,7 @@ async function fetchRecentPosts() {
       categories: post.categories || []
     }))
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('獲取最新文章時出錯:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('獲取最新文章時出錯:', error)
     return [] // 發生錯誤時返回空數組
   }
 }

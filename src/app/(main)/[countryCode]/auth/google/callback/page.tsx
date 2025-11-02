@@ -24,17 +24,17 @@ export default function GoogleCallback() {
     // 將 validateCallback 移入 useEffect 內部，避免不必要的重新渲染
     const validateCallback = async () => {
       try {
-        console.log("開始驗證 Google 回調...")
-        console.log("查詢參數:", queryParams)
+        // console.log("開始驗證 Google 回調...")
+        // console.log("查詢參數:", queryParams)
         
         // 檢查授權碼
         if (!queryParams.code) {
-          console.error("錯誤: 缺少 Google 授權碼 (code)")
+          // console.error("錯誤: 缺少 Google 授權碼 (code)")
           setError("缺少 Google 授權參數，無法完成登入。")
           return
         }
         
-        console.log("正在發送 Google 授權碼到後端...")
+        // console.log("正在發送 Google 授權碼到後端...")
         
         // 將 code 發送到後端，後端會處理所有與 Google 的通訊和使用者建立/登入邏輯
         // 成功後，後端會設定 httpOnly cookie，SDK 會自動感知到認證狀態
@@ -45,14 +45,14 @@ export default function GoogleCallback() {
           redirect_uri: `${window.location.origin}/${countryCode}/auth/google/callback`,
         })
         
-        console.log("✅ 後端已成功處理回調。")
+        // console.log("✅ 後端已成功處理回調。")
         
         // 登入成功，重導向到帳戶頁面
-        console.log("🚀 登入成功，正在重導向到帳戶頁面...")
+        // console.log("🚀 登入成功，正在重導向到帳戶頁面...")
         // 使用 window.location.href 進行完整頁面重載，確保所有 context 和狀態都刷新
         window.location.href = `/${countryCode}/account`
       } catch (error) {
-        console.error("驗證回調過程中發生錯誤:", error)
+        // console.error("驗證回調過程中發生錯誤:", error)
         const errorMessage = error instanceof Error ? error.message : "發生未知錯誤"
         setError(`登入失敗: ${errorMessage}`)
       } finally {

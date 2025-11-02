@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
       setMessage("密碼重設連結已發送到您的電子郵件信箱，請檢查郵件並點擊連結重設密碼。")
       
     } catch (error: any) {
-      console.error("發送重設郵件失敗:", error)
+      // console.error("發送重設郵件失敗:", error)
       setError(error.message || "發送失敗，請確認電子郵件地址是否正確或稍後重試")
     } finally {
       setLoading(false)

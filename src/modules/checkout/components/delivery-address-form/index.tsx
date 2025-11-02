@@ -76,7 +76,7 @@ const DeliveryAddressForm = ({
             ...initialData
           }))
         } catch (e) {
-          console.error('無法解析儲存的收件資訊:', e)
+          // console.error('無法解析儲存的收件資訊:', e)
         }
       } else if (initialData && Object.keys(initialData).length > 0) {
         setFormData(prev => ({
@@ -94,7 +94,7 @@ const DeliveryAddressForm = ({
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
     } catch (e) {
-      console.error('無法儲存收件資訊:', e)
+      // console.error('無法儲存收件資訊:', e)
     }
   }
 

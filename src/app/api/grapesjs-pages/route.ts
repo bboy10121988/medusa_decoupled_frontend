@@ -45,7 +45,7 @@ async function savePagesToFile(pages: { [pageId: string]: GrapesJSPage }) {
     await ensureStorageDir()
     await fs.writeFile(PAGES_FILE, JSON.stringify(pages, null, 2), 'utf-8')
   } catch (error) {
-    console.error('儲存頁面到檔案失敗:', error)
+    // console.error('儲存頁面到檔案失敗:', error)
     throw error
   }
 }
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, pages: pageList })
     }
   } catch (error) {
-    console.error('獲取頁面失敗:', error)
+    // console.error('獲取頁面失敗:', error)
     return NextResponse.json(
       { success: false, message: '獲取頁面失敗' },
       { status: 500 }
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('儲存頁面失敗:', error)
+    // console.error('儲存頁面失敗:', error)
     return NextResponse.json(
       { success: false, message: '儲存頁面失敗' },
       { status: 500 }
@@ -166,7 +166,7 @@ export async function DELETE(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('刪除頁面失敗:', error)
+    // console.error('刪除頁面失敗:', error)
     return NextResponse.json(
       { success: false, message: '刪除頁面失敗' },
       { status: 500 }

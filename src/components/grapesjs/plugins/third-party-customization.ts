@@ -272,7 +272,7 @@ export const applyAllPluginCustomizations = (editor: any) => {
   // 將CSS添加到編輯器的樣式中
   editor.setStyle(style + fullWidthCarouselCSS);
 
-  console.log('✅ 所有第三方插件客製化已套用，包含全寬輪播功能');
+  // console.log('✅ 所有第三方插件客製化已套用，包含全寬輪播功能');
 };
 
 /**
@@ -281,7 +281,7 @@ export const applyAllPluginCustomizations = (editor: any) => {
 export const modifyPluginBlock = (editor: any, blockId: string, modifications: any) => {
   // 檢查 editor 和 BlockManager 是否存在
   if (!editor?.BlockManager) {
-    console.warn(`⚠️  Editor 或 BlockManager 未初始化`);
+    // console.warn(`⚠️  Editor 或 BlockManager 未初始化`);
     return false;
   }
   
@@ -290,10 +290,10 @@ export const modifyPluginBlock = (editor: any, blockId: string, modifications: a
   
   if (block) {
     block.set(modifications);
-    console.log(`✅ 已修改插件區塊: ${blockId}`);
+    // console.log(`✅ 已修改插件區塊: ${blockId}`);
     return true;
   } else {
-    console.warn(`⚠️  找不到插件區塊: ${blockId}`);
+    // console.warn(`⚠️  找不到插件區塊: ${blockId}`);
     return false;
   }
 };
@@ -304,7 +304,7 @@ export const modifyPluginBlock = (editor: any, blockId: string, modifications: a
 export const getThirdPartyBlocks = (editor: any) => {
   // 檢查 editor 和 BlockManager 是否存在
   if (!editor?.BlockManager) {
-    console.warn(`⚠️  Editor 或 BlockManager 未初始化`);
+    // console.warn(`⚠️  Editor 或 BlockManager 未初始化`);
     return [];
   }
   

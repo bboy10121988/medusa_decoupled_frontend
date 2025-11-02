@@ -645,7 +645,7 @@ export async function getRealPromotionLabels(
     return labels.sort((a, b) => a.priority - b.priority)
 
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('Error fetching real promotion labels:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('Error fetching real promotion labels:', error)
     // 如果 API 出錯，返回空陣列
     return []
   }
@@ -672,7 +672,7 @@ export async function getPromotionLabelsAsync(
       // 如果沒有主動促銷，回退到原方法
       return await getRealPromotionLabels(product, regionId)
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('Real API failed, falling back to local data:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('Real API failed, falling back to local data:', error)
       // API 失敗時回退到本地邏輯
       return getPromotionLabels(product)
     }
@@ -714,7 +714,7 @@ export async function getActivePromotionLabels(
         throw new Error('Backend unavailable')
       }
     } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.warn('Backend health check failed')
+    // if (process.env.NODE_ENV === 'development') console.warn('Backend health check failed')
       // 後端不可用時，不顯示任何標籤
       return labels
     }
@@ -732,7 +732,7 @@ export async function getActivePromotionLabels(
 
     if (!cartResponse.ok) {
       const errorText = await cartResponse.text()
-    if (process.env.NODE_ENV === 'development') console.error('Failed to create cart:', errorText)
+    // if (process.env.NODE_ENV === 'development') console.error('Failed to create cart:', errorText)
       throw new Error(`Failed to create cart: ${cartResponse.status}`)
     }
 
@@ -759,7 +759,7 @@ export async function getActivePromotionLabels(
 
     if (!addItemResponse.ok) {
       const errorText = await addItemResponse.text()
-      if (process.env.NODE_ENV === 'development') console.error(`❌ [${product.title}] 添加商品失敗: ${addItemResponse.status}`, errorText)
+      // if (process.env.NODE_ENV === 'development') console.error(`❌ [${product.title}] 添加商品失敗: ${addItemResponse.status}`, errorText)
       // 添加商品失敗時，返回空標籤而不是拋出錯誤
       return labels
     }
@@ -893,14 +893,14 @@ export async function getActivePromotionLabels(
         method: 'DELETE',
       })
     } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.warn('Failed to cleanup test cart:', error)
+    // if (process.env.NODE_ENV === 'development') console.warn('Failed to cleanup test cart:', error)
     }
 
     // 如果沒有找到任何促銷，返回空陣列
     return labels.sort((a, b) => a.priority - b.priority)
 
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('Error fetching Medusa API promotion labels:', error)
+    // if (process.env.NODE_ENV === 'development') console.error('Error fetching Medusa API promotion labels:', error)
     // 出錯時不顯示任何標籤
     return []
   }

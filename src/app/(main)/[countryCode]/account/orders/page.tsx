@@ -25,7 +25,7 @@ export default function Orders() {
           setOrders(ordersData.orders || [])
         }
       } catch (err) {
-        console.error('獲取訂單資料失敗:', err)
+        // console.error('獲取訂單資料失敗:', err)
       } finally {
         setLoading(false)
       }

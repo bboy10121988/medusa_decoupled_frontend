@@ -19,14 +19,14 @@ export const retrieveCustomer =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
     const authHeaders = await getAuthHeaders()
 
-    console.log('🔍 retrieveCustomer - 檢查認證標頭:', {
-      hasHeaders: !!authHeaders,
-      hasAuth: !!(authHeaders as any)?.authorization,
-      headerKeys: authHeaders ? Object.keys(authHeaders) : []
-    })
+    // console.log('🔍 retrieveCustomer - 檢查認證標頭:', {
+      // hasHeaders: !!authHeaders,
+      // hasAuth: !!(authHeaders as any)?.authorization,
+      // headerKeys: authHeaders ? Object.keys(authHeaders) : []
+    // })
 
     if (!authHeaders || !(authHeaders as any)?.authorization) {
-      console.log('ℹ️ retrieveCustomer - 使用者未登入，返回 null (正常情況)')
+      // console.log('ℹ️ retrieveCustomer - 使用者未登入，返回 null (正常情況)')
       return null
     }
 
@@ -39,7 +39,7 @@ export const retrieveCustomer =
     }
 
     try {
-      console.log('📡 retrieveCustomer - 發送請求到 Medusa 後端')
+      // console.log('📡 retrieveCustomer - 發送請求到 Medusa 後端')
       return await sdk.client
         .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
           method: "GET",
@@ -51,11 +51,11 @@ export const retrieveCustomer =
           cache: "no-cache", // 改為 no-cache 確保獲取最新狀態
         })
         .then(({ customer }) => {
-          console.log('✅ retrieveCustomer - 成功獲取客戶資料:', {
-            hasCustomer: !!customer,
-            email: customer?.email,
-            id: customer?.id
-          })
+          // console.log('✅ retrieveCustomer - 成功獲取客戶資料:', {
+            // hasCustomer: !!customer,
+            // email: customer?.email,
+            // id: customer?.id
+          // })
           return customer
         })
     } catch (error) {
@@ -66,12 +66,12 @@ export const retrieveCustomer =
          error.message.includes('Invalid token'))
       
       if (isAuthError) {
-        console.log('ℹ️ retrieveCustomer - 認證失敗，可能是未登入或 token 過期 (正常情況)')
+        // console.log('ℹ️ retrieveCustomer - 認證失敗，可能是未登入或 token 過期 (正常情況)')
       } else {
-        console.error('❌ retrieveCustomer - 獲取客戶資訊失敗:', {
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined
-        })
+        // console.error('❌ retrieveCustomer - 獲取客戶資訊失敗:', {
+          // error: error instanceof Error ? error.message : String(error),
+          // stack: error instanceof Error ? error.stack : undefined
+        // })
       }
       return null
     }
@@ -119,7 +119,7 @@ export async function signup(_currentState: unknown, formData: FormData) {
   }
 
   try {
-    console.log("🔐 開始傳統註冊流程:", { email: customerForm.email })
+    // console.log("🔐 開始傳統註冊流程:", { email: customerForm.email })
     
     // 使用標準 Medusa SDK 進行註冊
     const registerToken = await sdk.auth.register("customer", "emailpass", {
@@ -127,7 +127,7 @@ export async function signup(_currentState: unknown, formData: FormData) {
       password: password,
     })
 
-    console.log("✅ 註冊成功，獲得 token:", { hasToken: !!registerToken })
+    // console.log("✅ 註冊成功，獲得 token:", { hasToken: !!registerToken })
 
     // 先設置註冊 token 來創建客戶資料
     await setAuthToken(registerToken)
@@ -142,10 +142,10 @@ export async function signup(_currentState: unknown, formData: FormData) {
       headers
     )
 
-    console.log("✅ 客戶資料創建成功:", { 
-      customerId: createdCustomer?.id, 
-      email: createdCustomer?.email 
-    })
+    // console.log("✅ 客戶資料創建成功:", {
+      // customerId: createdCustomer?.id,
+      // email: createdCustomer?.email
+    // })
 
     // 註冊後自動登入以獲得完整的認證狀態
     const loginToken = await sdk.auth.login("customer", "emailpass", {
@@ -153,7 +153,7 @@ export async function signup(_currentState: unknown, formData: FormData) {
       password,
     })
 
-    console.log("✅ 自動登入成功，設置最終 token")
+    // console.log("✅ 自動登入成功，設置最終 token")
     await setAuthToken(loginToken as string)
 
     // 清除快取並轉移購物車
@@ -162,10 +162,10 @@ export async function signup(_currentState: unknown, formData: FormData) {
 
     await transferCart()
 
-    console.log("🎉 註冊流程完成，客戶應已登入")
+    // console.log("🎉 註冊流程完成，客戶應已登入")
     return createdCustomer
   } catch (error: any) {
-    console.error("註冊錯誤:", error)
+    // console.error("註冊錯誤:", error)
     
     // 處理註冊錯誤
     if (error.message || error.response?.data?.message) {
@@ -216,7 +216,7 @@ export async function login(_currentState: unknown, formData: FormData) {
     revalidateTag(customerCacheTag)
     
   } catch (error: any) {
-    console.error("登入錯誤:", error)
+    // console.error("登入錯誤:", error)
     
     // 處理登入錯誤
     if (error.message || error.response?.data?.message) {
@@ -241,7 +241,7 @@ export async function login(_currentState: unknown, formData: FormData) {
   try {
     await transferCart()
   } catch (error: any) {
-    console.error("購物車轉移錯誤:", error)
+    // console.error("購物車轉移錯誤:", error)
     // 購物車轉移失敗不應該阻止登入成功
   }
 
@@ -251,19 +251,19 @@ export async function login(_currentState: unknown, formData: FormData) {
 
 export async function signout(countryCode: string) {
   try {
-    console.log('🔓 開始簡單 SDK 登出')
+    // console.log('🔓 開始簡單 SDK 登出')
     
     // 使用 Medusa SDK 的官方登出方法
     await sdk.auth.logout()
-    console.log('✅ Medusa SDK 登出成功')
+    // console.log('✅ Medusa SDK 登出成功')
     
     // 清除認證令牌
     await removeAuthToken()
-    console.log('🧹 已清除認證令牌')
+    // console.log('🧹 已清除認證令牌')
 
     // 清除購物車 ID
     await removeCartId()
-    console.log('🛒 已清除購物車 ID')
+    // console.log('🛒 已清除購物車 ID')
 
     // 重新驗證相關緩存
     const customerCacheTag = await getCacheTag("customers")
@@ -272,10 +272,10 @@ export async function signout(countryCode: string) {
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
     
-    console.log('🔄 已重新驗證緩存')
+    // console.log('🔄 已重新驗證緩存')
     
   } catch (error) {
-    console.error('❌ SDK 登出過程中發生錯誤:', error)
+    // console.error('❌ SDK 登出過程中發生錯誤:', error)
     // 即使 SDK 登出失敗，仍清除本地狀態
     await removeAuthToken()
     await removeCartId()
@@ -297,7 +297,7 @@ export async function transferCart() {
     
     if (!headers) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn('🔐 transferCart: 無驗證 headers，跳過轉移')
+        // console.warn('🔐 transferCart: 無驗證 headers，跳過轉移')
       }
       return
     }
@@ -308,11 +308,11 @@ export async function transferCart() {
     revalidateTag(cartCacheTag)
     
     if (process.env.NODE_ENV === 'development') {
-      console.log('✅ transferCart: 購物車轉移成功')
+      // console.log('✅ transferCart: 購物車轉移成功')
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.error('❌ transferCart 失敗:', error)
+      // console.error('❌ transferCart 失敗:', error)
     }
     // 不重新拋出錯誤，避免影響用戶體驗
   }
@@ -450,22 +450,22 @@ async function ensureCartAssociation() {
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
     
-    console.log("購物車重新轉移成功")
+    // console.log("購物車重新轉移成功")
   } catch (error) {
-    console.error("購物車重新轉移失敗:", error)
+    // console.error("購物車重新轉移失敗:", error)
     // 如果還是失敗，清除本地購物車 ID，讓系統創建新的
     await removeCartId()
     
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
     
-    console.log("已清除本地購物車，系統將創建新的購物車")
+    // console.log("已清除本地購物車，系統將創建新的購物車")
   }
 }
 
 export async function handleGoogleCallback(token: string) {
   try {
-    console.log("🔐 處理 Google 登入回調")
+    // console.log("🔐 處理 Google 登入回調")
     
     await setAuthToken(token)
     
@@ -474,10 +474,10 @@ export async function handleGoogleCallback(token: string) {
     
     await transferCart()
     
-    console.log("✅ Google 登入成功")
+    // console.log("✅ Google 登入成功")
     return { success: true }
   } catch (error: any) {
-    console.error("❌ Google 登入回調處理失敗:", error)
+    // console.error("❌ Google 登入回調處理失敗:", error)
     return { success: false, error: error.message || "處理失敗" }
   }
 }

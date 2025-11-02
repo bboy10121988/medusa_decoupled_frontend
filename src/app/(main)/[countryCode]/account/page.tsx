@@ -17,7 +17,7 @@ export default function AccountPage() {
   // 檢查是否有強制登出參數
   useEffect(() => {
     if (searchParams.get('force_logout') === '1') {
-      console.log('🔄 檢測到強制登出參數，清除所有狀態')
+      // console.log('🔄 檢測到強制登出參數，清除所有狀態')
       
       if (typeof window !== 'undefined') {
         // 完全清除所有狀態
@@ -32,7 +32,7 @@ export default function AccountPage() {
             document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
           })
           
-          console.log('✅ 強制清除完成')
+          // console.log('✅ 強制清除完成')
           
           // 移除 URL 參數並重新加載
           const url = new URL(window.location.href)
@@ -40,7 +40,7 @@ export default function AccountPage() {
           window.history.replaceState({}, '', url.toString())
           
         } catch (e) {
-          console.log('強制清除失敗:', e)
+          // console.log('強制清除失敗:', e)
         }
       }
     }
@@ -59,7 +59,7 @@ export default function AccountPage() {
           setOrders(ordersData.orders || [])
         }
       } catch (err) {
-        console.error('獲取訂單資料失敗:', err)
+        // console.error('獲取訂單資料失敗:', err)
       } finally {
         setLoading(false)
       }

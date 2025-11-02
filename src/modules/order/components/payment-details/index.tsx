@@ -13,7 +13,7 @@ type PaymentDetailsProps = {
 const PaymentDetails = ({ order }: PaymentDetailsProps) => {
   const payment = order.payment_collections?.[0].payments?.[0]
 
-  console.log("payment details:", payment)
+  // console.log("payment details:", payment)
 
   return (
     <div>
