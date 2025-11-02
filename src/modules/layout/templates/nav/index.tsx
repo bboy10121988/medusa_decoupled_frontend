@@ -2,7 +2,6 @@ import { Suspense } from "react"
 import Image from "next/image"
 
 import { listRegions } from "../../../../lib/data/regions"
-import { listCollections } from "../../../../lib/data/collections"
 import { listCategories } from "../../../../lib/data/categories"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "../../../common/components/localized-client-link"
@@ -18,7 +17,6 @@ import HelpButtonWrapper from "../../components/help-button-wrapper"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
-  const collections = await listCollections().then((res) => res.collections)
   const categories = await listCategories()
   const headerData = await getHeader() as SanityHeader
 
@@ -160,14 +158,14 @@ export default async function Nav() {
                 <div className="block lg:hidden">
                   <MobileMenu 
                     regions={regions} 
-                    navigation={headerData?.navigation}
+                    navigation={headerData?.navigation || []}
                     categories={categories}
                     headerData={headerData}
                   />
                 </div>
                 {/* 桌機版導航選單 - 螢幕寬度大於等於1024px時顯示 */}
                 <div className="hidden lg:flex items-center gap-x-6">
-                  {headerData?.navigation?.filter((item: {name: string; href: string}, index: number) => {
+                  {headerData?.navigation?.filter((item: {name: string; href: string}) => {
                     // 擴展的左側項目關鍵字：首頁、商品、Blog、關於我們、商店等
                     const leftSideItems = [
                       'home', 'homes', '首頁', '主頁',
@@ -304,7 +302,7 @@ export default async function Nav() {
                 {/* 桌機版導航項目和功能按鈕 - 在手機版隱藏 */}
                 <div className="hidden lg:flex items-center gap-x-4">
                   {/* 剩餘的導航項目 - 右側項目 */}
-                  {headerData?.navigation?.filter((item: {name: string; href: string}, index: number) => {
+                  {headerData?.navigation?.filter((item: {name: string; href: string}) => {
                     // 擴展的左側項目關鍵字（需要與上面保持一致）
                     const leftSideItems = [
                       'home', 'homes', '首頁', '主頁',

@@ -1,5 +1,4 @@
 import { createClient } from "@sanity/client"
-import { requestDeduplicator } from "./request-deduplicator"
 import type { Footer } from './types/footer'
 import type { BlogPost, FeaturedProduct } from '../types/global'
 import type { MainSection } from './types/page-sections'
@@ -7,24 +6,37 @@ import type { PageData } from './types/pages'
 import type { Category } from '../types/sanity'
 import type { ServiceCards } from './types/service-cards'
 
-const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+// 確保環境變數有值
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+
+if (!projectId || !dataset) {
+  throw new Error('Missing required Sanity environment variables: NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET')
+}
+
+const clientConfig: any = {
+  projectId,
+  dataset,
   apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2022-03-25",
   useCdn: true,
   // 啟用 HTTP 快取
   requestTagPrefix: 'sanity',
   // 設定重試機制
   maxRetries: 3,
-  retryDelay: (attemptNumber) => Math.min(300 * attemptNumber, 2000),
-  token: process.env.SANITY_API_TOKEN,
-})
+  retryDelay: (attemptNumber: number) => Math.min(300 * attemptNumber, 2000),
+}
+
+// 只有在 token 存在時才添加
+if (process.env.SANITY_API_TOKEN) {
+  clientConfig.token = process.env.SANITY_API_TOKEN
+}
+
+const client = createClient(clientConfig)
 
 // Helper to handle AbortError / user-abort gracefully for sanity fetches
-const isDev = process.env.NODE_ENV === 'development'
 async function safeFetch<T = any>(query: string, params: any = {}, options: any = {}, fallback: T | null = null): Promise<any> {
   try {
-    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+    if (!projectId) {
       // console.error("Missing Sanity Project ID in environment variables")
       return fallback
     }
@@ -53,44 +65,6 @@ async function safeFetch<T = any>(query: string, params: any = {}, options: any 
     // if (isDev) console.error('Sanity fetch error details:', error)
     return fallback // 在生產環境中總是返回備用值，避免應用崩潰
   }
-}
-
-// 建立快取實例（按需淘汰，不使用 setInterval 以相容無伺服器環境）
-const cache = new Map<string, { data: any; timestamp: number }>()
-const CACHE_TTL = 5 * 60 * 1000 // 5分鐘
-const MAX_CACHE_SIZE = 50 // 最大快取項目數
-
-function pruneCacheIfNeeded() {
-  if (cache.size <= MAX_CACHE_SIZE) return
-  const entries: [string, { data: any; timestamp: number }][] = []
-  cache.forEach((entry, key) => entries.push([key, entry]))
-  entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
-  const toRemove = entries.slice(0, cache.size - MAX_CACHE_SIZE)
-  toRemove.forEach(([key]) => cache.delete(key))
-}
-
-// 快取包裝函數 - 優化版，加入去重功能
-function withCache<T>(key: string, fn: () => Promise<T>, ttl: number = CACHE_TTL): Promise<T> {
-  return requestDeduplicator.dedupe(key, async () => {
-    const cached = cache.get(key)
-    if (cached && Date.now() - cached.timestamp < ttl) {
-      return cached.data
-    }
-
-    try {
-      const data = await fn()
-      cache.set(key, { data, timestamp: Date.now() })
-      pruneCacheIfNeeded()
-      return data
-    } catch (error) {
-      // 如果有快取資料但已過期，在錯誤時仍返回舊資料
-      if (cached) {
-        // if (isDev) console.warn(`API 調用失敗，使用快取資料: ${key}`, error)
-        return cached.data
-      }
-      throw error
-    }
-  })
 }
 
 export async function getHomepage_old(): Promise<{ title: string; mainSections: MainSection[] }> {

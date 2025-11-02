@@ -36,4 +36,3 @@ const setPaymentMethod = async (method: string) => {
   }
 }
 
-console.log("✅ 支付組件錯誤修復完成")

@@ -59,8 +59,8 @@ export default async function CollectionPage(props: Props) {
   return (
     <CollectionTemplate
       collection={collection}
-      page={page}
-      sortBy={sortBy}
+      {...(page && { page })}
+      {...(sortBy && { sortBy })}
       countryCode={params.countryCode}
       sanityHeading={sanityHeading}
     />

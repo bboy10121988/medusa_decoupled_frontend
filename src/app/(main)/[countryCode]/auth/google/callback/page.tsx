@@ -28,31 +28,44 @@ export default function GoogleCallback() {
         // console.log("查詢參數:", queryParams)
         
         // 檢查授權碼
-        if (!queryParams.code) {
-          // console.error("錯誤: 缺少 Google 授權碼 (code)")
+        const code = queryParams.code
+        const state = queryParams.state
+        
+        if (!code || !state) {
+          // console.error("錯誤: 缺少 Google 授權碼或 state")
           setError("缺少 Google 授權參數，無法完成登入。")
           return
         }
         
+        console.log("=== Frontend Google OAuth Callback ===")
+        console.log("Code:", code.substring(0, 10) + "...")
+        console.log("State:", state)
+        console.log("Country Code:", countryCode)
+        
         // console.log("正在發送 Google 授權碼到後端...")
         
-        // 將 code 發送到後端，後端會處理所有與 Google 的通訊和使用者建立/登入邏輯
+        // 將 code 和 state 發送到後端，後端會處理所有與 Google 的通訊和使用者建立/登入邏輯
         // 成功後，後端會設定 httpOnly cookie，SDK 會自動感知到認證狀態
-        await sdk.auth.callback("customer", "google", {
-          ...queryParams,
-          // 確保傳遞給後端的 redirect_uri 與 Google 驗證請求時一致
-          // 動態使用當前的 countryCode
-          redirect_uri: `${window.location.origin}/${countryCode}/auth/google/callback`,
+        const res = await sdk.auth.callback("customer", "google", {
+          query: { code, state }  // 注意：必須使用 query 物件包裝
         })
         
-        // console.log("✅ 後端已成功處理回調。")
+        console.log("✅ 後端已成功處理回調:", res)
+        
+        // 檢查 cookie 是否存在（僅供 debug，httpOnly cookie 無法從 JS 讀取）
+        console.log("Cookies:", document.cookie.split(';').map(c => c.trim().split('=')[0]))
         
         // 登入成功，重導向到帳戶頁面
         // console.log("🚀 登入成功，正在重導向到帳戶頁面...")
         // 使用 window.location.href 進行完整頁面重載，確保所有 context 和狀態都刷新
         window.location.href = `/${countryCode}/account`
       } catch (error) {
-        // console.error("驗證回調過程中發生錯誤:", error)
+        console.error("❌ 驗證回調過程中發生錯誤:", error)
+        console.error("Error details:", {
+          message: error instanceof Error ? error.message : "Unknown error",
+          response: (error as any).response?.data,
+          status: (error as any).response?.status
+        })
         const errorMessage = error instanceof Error ? error.message : "發生未知錯誤"
         setError(`登入失敗: ${errorMessage}`)
       } finally {

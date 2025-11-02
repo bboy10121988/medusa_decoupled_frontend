@@ -47,7 +47,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
 
   const price = getProductPrice({
     product: product,
-    variantId: variant?.id,
+    ...(variant?.id && { variantId: variant.id }),
   })
 
   const selectedPrice = useMemo(() => {
@@ -129,7 +129,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 onClick={handleAddToCart}
                 disabled={!inStock || !variant}
                 className="w-full"
-                isLoading={isAdding}
+                {...(isAdding !== undefined && { isLoading: isAdding })}
                 data-testid="mobile-cart-button"
               >
                 {!variant

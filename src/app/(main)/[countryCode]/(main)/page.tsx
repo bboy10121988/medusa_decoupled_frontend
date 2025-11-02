@@ -169,11 +169,11 @@ export default async function Home({
   });
   
   const [collectionsData, region] = await Promise.allSettled([
-    Promise.race([listCollections({}), timeoutPromise]).catch(err => {
+    Promise.race([listCollections({}), timeoutPromise]).catch(() => {
       // console.warn('獲取商品集合時出錯:', err.message);
       return null;
     }),
-    Promise.race([getRegion(countryCode), timeoutPromise]).catch(err => {
+    Promise.race([getRegion(countryCode), timeoutPromise]).catch(() => {
       // console.warn('獲取地區資訊時出錯:', err.message);
       return null;
     })
@@ -274,7 +274,7 @@ export default async function Home({
         {/* 動態區塊（如果存在） */}
         {mainSections && mainSections.length > 0 ? (
           mainSections
-            .filter((section: any, index: number) => {
+            .filter((section: any) => {
               // 過濾掉空物件或無效的 section
               if (!section || typeof section !== "object" || !("_type" in section) || !section._type) {
                 // console.warn(`Filtering out invalid section at index ${index}:`, section);

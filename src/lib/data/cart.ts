@@ -61,7 +61,6 @@ export async function retrieveCart(cartId?: string) {
 }
 
 export async function getOrSetCart(countryCode: string) {
-  const isDev = process.env.NODE_ENV === 'development'
   const region = await getRegion(countryCode)
 
   if (!region) {
@@ -150,8 +149,6 @@ export async function addToCart({
   quantity: number
   countryCode: string
 }) {
-  const isDev = process.env.NODE_ENV === 'development'
-  
   if (!variantId) {
     throw new Error("Missing variant ID when adding to cart")
   }
@@ -181,7 +178,7 @@ export async function addToCart({
         {},
         headers
       )
-      .then(async (response) => {
+      .then(async () => {
         // if (isDev) console.log("✅ 成功創建購物車項目:", response)
         
         const cartCacheTag = await getCacheTag("carts")
@@ -299,10 +296,6 @@ export async function initiatePaymentSession(
   cart: HttpTypes.StoreCart,
   data: HttpTypes.StoreInitializePaymentSession
 ) {
-
-
-  const action = "initiatePaymentSession"
-
   // console.log(action,"cart:",cart)
   
   // console.log(action,"data:",data)
@@ -358,7 +351,7 @@ export async function applyPromotions(codes: string[]) {
     })
 }
 
-export async function applyGiftCard(code: string) {
+export async function applyGiftCard() {
   //   const cartId = getCartId()
   //   if (!cartId) return "No cartId cookie found"
   //   try {
@@ -370,7 +363,7 @@ export async function applyGiftCard(code: string) {
   //   }
 }
 
-export async function removeDiscount(code: string) {
+export async function removeDiscount() {
   // const cartId = getCartId()
   // if (!cartId) return "No cartId cookie found"
   // try {
@@ -381,11 +374,7 @@ export async function removeDiscount(code: string) {
   // }
 }
 
-export async function removeGiftCard(
-  codeToRemove: string,
-  giftCards: any[]
-  // giftCards: GiftCard[]
-) {
+export async function removeGiftCard() {
   //   const cartId = getCartId()
   //   if (!cartId) return "No cartId cookie found"
   //   try {
@@ -402,7 +391,7 @@ export async function removeGiftCard(
 }
 
 export async function submitPromotionForm(
-  currentState: unknown,
+  _currentState: unknown,
   formData: FormData
 ) {
   const code = formData.get("code") as string
@@ -414,7 +403,7 @@ export async function submitPromotionForm(
 }
 
 // TODO: Pass a POJO instead of a form entity here
-export async function setAddresses(currentState: unknown, formData: FormData) {
+export async function setAddresses(_currentState: unknown, formData: FormData) {
   try {
     if (!formData) {
       throw new Error("No form data found when setting addresses")
@@ -603,7 +592,7 @@ export async function createPaymentCollectionForBankTransfer(cartId: string) {
         // console.log("✅ 基礎支付集合建立成功，現在標記為銀行轉帳")
         
         // 立即更新 metadata 以標記這是銀行轉帳
-        const updateResponse = await sdk.store.cart.update(
+        await sdk.store.cart.update(
           cartId,
           {
             metadata: {
@@ -729,7 +718,7 @@ export async function placeOrder(cartId?: string) {
           // 然後在訂單創建後通過 metadata 標記為銀行轉帳
           // console.log("🔄 使用 ECPay provider 作為技術基礎建立支付集合")
           
-          const paymentCollection = await sdk.client.fetch<any>(
+          await sdk.client.fetch<any>(
             `/store/carts/${id}/payment-collection`,
             {
               method: "POST",

@@ -121,7 +121,7 @@
                 statusEl.className = 'loading'
                 
                 const response = await fetch('/api/pages/return')
-                console.log('API 回應狀態:', response.status)
+
                 
                 if (response.ok) {
                     const data = await response.json()
@@ -135,7 +135,7 @@
                     if (data.pageContent && data.pageContent.length > 0) {
                         const htmlContent = convertPageContentToHtml(data.pageContent)
                         convertedEl.innerHTML = htmlContent
-                        console.log('轉換後的 HTML:', htmlContent)
+
                     } else {
                         convertedEl.innerHTML = '<p style="color: orange;">沒有 pageContent 資料可轉換</p>'
                     }
