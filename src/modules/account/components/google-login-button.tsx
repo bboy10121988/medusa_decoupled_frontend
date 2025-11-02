@@ -45,6 +45,7 @@ export default function GoogleLoginButton() {
   return (
     <div className="w-full">
       <button 
+        type="button"
         onClick={loginWithGoogle}
         disabled={isLoading}
         className={`flex items-center justify-center w-full px-5 py-2.5 border border-gray-300 rounded-md transition-colors ${
