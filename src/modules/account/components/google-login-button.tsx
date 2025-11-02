@@ -1,42 +1,15 @@
-"use client" // include with Next.js 13+
+"use client"
 
 import { useState } from "react"
-import { useParams } from "next/navigation"
-import { sdk } from "@/lib/config"
 
 export default function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
-  const params = useParams()
 
-  // 從 URL 獲取當前的 countryCode，如果沒有則預設為 'tw'
-  const countryCode = (params.countryCode as string) || 'tw'
-
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = () => {
     setIsLoading(true)
-    try {
-      // 將回調 URL 動態傳遞給後端
-      const result = await sdk.auth.login("customer", "google", {
-        redirect_uri: `${window.location.origin}/${countryCode}/auth/google/callback`,
-        // 建議明確傳遞 state，增強安全性
-        state: btoa(JSON.stringify({ countryCode })),
-      })
-      
-      if (typeof result === "object" && result.location) {
-        // 直接使用後端回傳的、已經包含所有正確參數的 URL 進行跳轉
-        window.location.href = result.location
-        return // 確保在跳轉後立即中止函式執行
-      }
-      
-      // 如果後端沒有回傳 location，代表流程有問題
-      // (例如，後端 Google 策略未正確設定)
-      // 在正常情況下，這段不會被觸發
-      alert("無法啟動 Google 登入，請聯繫管理員。")
-      setIsLoading(false)
-    } catch (error) {
-      // console.error("Google 登入錯誤:", error)
-      alert("登入時發生錯誤，請稍後重試")
-      setIsLoading(false)
-    }
+    // 直接導向後端,由後端處理所有 OAuth 流程
+    // 後端會自動處理 Google 授權並返回到正確的 callback URL
+    window.location.href = 'https://admin.timsfantasyworld.com/auth/customer/google'
   }
 
   return (

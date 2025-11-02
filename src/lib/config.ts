@@ -62,6 +62,9 @@ export const sdk = new Medusa({
   auth: {
     type: "session"
   },
+  fetchConfig: {
+    credentials: "include"  // ⭐ 重要!讓 cookie 可以跨域傳遞
+  }
 })
 
 // -------------------- API Config --------------------

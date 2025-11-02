@@ -1,57 +1,109 @@
-"use client" // include with Next.js 13+
+"use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { sdk } from "@/lib/config"
-import { useRouter, useParams } from "next/navigation"
+import { useEffect, useState, Suspense } from "react"
+import { useSearchParams, useRouter, useParams } from "next/navigation"
 
-export default function GoogleCallback() {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+/**
+ * Google OAuth Callback 頁面
+ * 
+ * 後端會將用戶重定向到此頁面,並附帶以下參數:
+ * - success=true: 登入成功
+ * - error=<message>: 登入失敗,包含錯誤訊息
+ * 
+ * Flow:
+ * 1. 用戶點擊 Google 登入按鈕 → 導向後端
+ * 2. 後端處理 OAuth → Google 授權 → 後端創建 session
+ * 3. 後端重定向回此頁面 (已設定 cookie)
+ * 4. 根據參數顯示結果並跳轉
+ */
+
+function GoogleCallbackContent() {
+  const searchParams = useSearchParams()
   const router = useRouter()
   const params = useParams()
-  
-  const countryCode = params.countryCode as string
-  // 安全地獲取 URL 參數，避免伺服器端渲染問題
-  const queryParams = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return {}
-    }
-    const searchParams = new URLSearchParams(window.location.search)
-    return Object.fromEntries(searchParams.entries())
-  }, [])
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+
+  const countryCode = (params.countryCode as string) || 'tw'
 
   useEffect(() => {
-    // 將 validateCallback 移入 useEffect 內部，避免不必要的重新渲染
-    const validateCallback = async () => {
-      try {
-        // console.log("開始驗證 Google 回調...")
-        // console.log("查詢參數:", queryParams)
+    const success = searchParams.get('success')
+    const error = searchParams.get('error')
+
+    console.log('=== Google OAuth Callback ===')
+    console.log('Success:', success)
+    console.log('Error:', error)
+
+    if (success === 'true') {
+      setStatus('success')
+      console.log('✅ Google 登入成功!')
+      
+      // 1 秒後跳轉到會員中心
+      setTimeout(() => {
+        router.push(`/${countryCode}/account`)
+      }, 1000)
+      
+    } else if (error) {
+      setStatus('error')
+      console.error('❌ Google 登入失敗:', error)
+      
+      // 3 秒後返回登入頁
+      setTimeout(() => {
+        router.push(`/${countryCode}/account`)
+      }, 3000)
+    }
+  }, [searchParams, router, countryCode])
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md w-full">
+        {status === 'loading' && (
+          <>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">處理登入中...</p>
+          </>
+        )}
         
-        // 檢查授權碼
-        const code = queryParams.code
-        const state = queryParams.state
+        {status === 'success' && (
+          <>
+            <svg className="w-16 h-16 text-green-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <h1 className="mt-4 text-2xl font-bold text-gray-900">登入成功!</h1>
+            <p className="mt-2 text-gray-600">正在跳轉到會員中心...</p>
+          </>
+        )}
         
-        if (!code || !state) {
-          // console.error("錯誤: 缺少 Google 授權碼或 state")
-          setError("缺少 Google 授權參數，無法完成登入。")
-          return
-        }
-        
-        console.log("=== Frontend Google OAuth Callback ===")
-        console.log("Code:", code.substring(0, 10) + "...")
-        console.log("State:", state)
-        console.log("Country Code:", countryCode)
-        
-        // console.log("正在發送 Google 授權碼到後端...")
-        
-        // 將 code 和 state 發送到後端,後端會處理所有與 Google 的通訊和使用者建立/登入邏輯
-        // 成功後,後端會設定 httpOnly cookie,SDK 會自動感知到認證狀態
-        const res = await sdk.auth.callback("customer", "google", {
-          code,
-          state
-        })
-        
-        console.log("✅ 後端已成功處理回調:", res)
+        {status === 'error' && (
+          <>
+            <svg className="w-16 h-16 text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <h1 className="mt-4 text-2xl font-bold text-gray-900">登入失敗</h1>
+            <p className="mt-2 text-gray-600 break-words">
+              {searchParams.get('error') || '發生未知錯誤'}
+            </p>
+            <p className="mt-4 text-sm text-gray-500">正在返回帳戶頁面...</p>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-lg shadow-md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">處理登入中...</p>
+        </div>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
+  )
+}
         
         // 檢查 cookie 是否存在（僅供 debug，httpOnly cookie 無法從 JS 讀取）
         console.log("Cookies:", document.cookie.split(';').map(c => c.trim().split('=')[0]))
