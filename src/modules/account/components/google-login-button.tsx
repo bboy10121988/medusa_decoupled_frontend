@@ -1,35 +1,16 @@
 "use client"
 
 import { useState } from "react"
+import { FcGoogle } from "react-icons/fc"
 
 export default function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = () => {
     setIsLoading(true)
-    try {
-      // 向後端請求 Google OAuth URL
-      const response = await fetch('https://admin.timsfantasyworld.com/auth/customer/google', {
-        credentials: 'include'
-      })
-      
-      if (!response.ok) {
-        throw new Error('無法獲取 Google 登入 URL')
-      }
-      
-      const data = await response.json()
-      
-      if (data.location) {
-        // 跳轉到 Google OAuth 頁面
-        window.location.href = data.location
-      } else {
-        throw new Error('後端未返回 Google OAuth URL')
-      }
-    } catch (error) {
-      console.error('Google 登入錯誤:', error)
-      alert('登入失敗,請稍後再試')
-      setIsLoading(false)
-    }
+    // ✅ 正確方式: 直接讓瀏覽器重定向
+    // Medusa middleware 會自動處理 session 建立、state 生成和 Google OAuth 流程
+    window.location.href = 'https://admin.timsfantasyworld.com/auth/customer/google'
   }
 
   return (
