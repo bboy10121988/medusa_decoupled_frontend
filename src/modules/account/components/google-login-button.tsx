@@ -2,46 +2,72 @@
 
 import { useState } from "react"
 import { FcGoogle } from "react-icons/fc"
+import { sdk } from "@lib/config"
 
 export default function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
 
   const loginWithGoogle = async () => {
     try {
+
       setIsLoading(true)
-      
-      // 1. 向後端請求 OAuth URL (這會建立 session)
-      const response = await fetch(
-        'https://admin.timsfantasyworld.com/auth/customer/google',
-        {
-          method: 'GET',
-          credentials: 'include', // ⭐️ 重要!建立並保存 session
-          headers: {
-            'Accept': 'application/json'
-          }
-        }
-      )
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
+
+      const result = await sdk.auth.login("customer", "google", {})
+
+      if (typeof result === "object" && result.location) {
+        // redirect to Google for authentication
+        window.location.href = result.location
+        return
       }
-      
-      const data = await response.json()
-      console.log('收到的 data:', data)
-      
-      if (!data.location) {
-        throw new Error('No OAuth URL received')
+
+      if (typeof result !== "string") {
+        // result failed, show an error
+        throw new Error("Authentication failed")
       }
+
+      const { customer } = await sdk.store.customer.retrieve()
+      console.log(customer)
+
+
+
+      // setIsLoading(true)
       
-      console.log('準備跳轉到:', data.location)
+      // // // 1. 向後端請求 OAuth URL (這會建立 session)
+      // const response = await fetch(
+      //   'https://admin.timsfantasyworld.com/auth/customer/google',
+      //   {
+      //     method: 'GET',
+      //     // credentials: 'include', // ⭐️ 重要!建立並保存 session
+      //     headers: {
+      //       'Accept': 'application/json'
+      //     }
+      //   }
+      // )
+      // console.log(response)
+
+      // console.log("response:",response)
       
-      // 2. 重定向到 Google (保持同一個 session)
-      window.location.href = data.location
+      // if (!response.ok) {
+      //   throw new Error(`HTTP ${response.status}`)
+      // }
+      
+      // const data = await response.json()
+      // console.log('收到的 data:', data)
+      
+      // if (!data.location) {
+      //   throw new Error('No OAuth URL received')
+      // }
+      
+      // console.log('準備跳轉到:', data.location)
+      
+      // // 2. 重定向到 Google (保持同一個 session)
+      // window.location.href = data.location
       
     } catch (error) {
+
       console.error('Google login failed:', error)
-      setIsLoading(false)
-      alert('Google 登入失敗,請稍後再試')
+      // setIsLoading(false)
+      // alert('Google 登入失敗,請稍後再試')
     }
   }
 
