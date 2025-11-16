@@ -352,7 +352,7 @@ export default function ProductPreview({
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-medium text-gray-900 line-clamp-2">{product.title}</h4>
+                <h4 className="text-sm font-medium text-gray-900 line-clamp-2 text-center">{product.title}</h4>
                 {cheapestPrice && (
                   <div className="mt-1">
                     <ClientPreviewPrice price={cheapestPrice} />
@@ -443,7 +443,7 @@ export default function ProductPreview({
                 {/* 左箭頭 */}
                 <button
                   onClick={prevImage}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-40 text-black hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-all duration-200 drop-shadow-lg"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-40 text-black opacity-100"
                   aria-label="上一張圖片"
                 >
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -454,7 +454,7 @@ export default function ProductPreview({
                 {/* 右箭頭 */}
                 <button
                   onClick={nextImage}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-40 text-black hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-all duration-200 drop-shadow-lg"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-40 text-black opacity-100"
                   aria-label="下一張圖片"
                 >
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -463,7 +463,7 @@ export default function ProductPreview({
                 </button>
                 
                 {/* 圖片指示器 */}
-                <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex space-x-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex space-x-1 opacity-100">
                   {allImages.map((_, index) => (
                     <button
                       key={index}
@@ -472,10 +472,10 @@ export default function ProductPreview({
                         e.stopPropagation()
                         setCurrentImageIndex(index)
                       }}
-                      className={`w-3 h-3 rounded-full transition-all duration-200 border-2 ${
+                      className={`w-3 h-3 rounded-full ${
                         index === currentImageIndex 
-                          ? 'bg-white border-white shadow-lg scale-110' 
-                          : 'bg-white/50 border-white/70 hover:bg-white/80 hover:border-white shadow-md'
+                          ? 'bg-white scale-110' 
+                          : 'bg-white/50'
                       }`}
                     />
                   ))}
@@ -486,19 +486,19 @@ export default function ProductPreview({
             {/* 右上角庫存狀態標籤區域 */}
             <div className="absolute top-2 right-2 z-30">
               {(isProductSoldOut || productStockStatus.canPreorder) && (
-                <div className={`px-2 py-1 text-xs font-semibold rounded-md shadow-md border
-                  ${isProductSoldOut 
-                    ? 'bg-gray-600 text-white border-gray-700' 
-                    : 'bg-blue-600 text-white border-blue-700'
-                  }`}>
-                  {isProductSoldOut ? '售完' : '預訂'}
-                </div>
+                <div className={`px-2 py-1 text-xs font-semibold rounded-md
+                    ${isProductSoldOut 
+                      ? 'bg-gray-600 text-white' 
+                      : 'bg-blue-600 text-white'
+                    }`}>
+                    {isProductSoldOut ? '售完' : '預訂'}
+                  </div>
               )}
             </div>
             
             {/* 售完狀態 - 只顯示反灰層 */}
             {isProductSoldOut && (
-              <div className="absolute inset-0 bg-black/50 z-20 pointer-events-none">
+              <div className="absolute inset-0 z-20 pointer-events-none">
               </div>
             )}
           </LocalizedClientLink>
@@ -512,14 +512,13 @@ export default function ProductPreview({
 
           {/* 桌機版 - 選項和加入購物車區塊 (hover 顯示) */}
           {!isProductSoldOut && (
-            <div className="hidden md:block absolute bottom-0 left-0 right-0 
-                          opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out transform translate-y-full group-hover:translate-y-0">
+            <div className="hidden md:block absolute bottom-0 left-0 right-0">
               <div className="w-full bg-white/95 backdrop-blur-[2px]">
                 {productOptions
                   .filter(option => option.values.length > 1) // 只顯示有多個選擇的選項
                   .map((option, index) => (
-                  <div key={index} className="flex flex-col border-t first:border-t-0 border-black/[0.06]">
-                    <div className="text-xs text-black/60 px-2 md:px-8 py-1 border-b border-black/[0.06]">
+                  <div key={index} className="flex flex-col">
+                    <div className="text-xs text-black/60 px-2 md:px-8 py-1">
                       {option.title}
                     </div>
                     <div 
@@ -535,10 +534,10 @@ export default function ProductPreview({
                             e.preventDefault()
                             handleOptionSelect(option.title, value)
                           }}
-                          className={`w-full py-3 border border-black text-sm transition-colors min-h-[40px]
+                          className={`w-full py-3 text-sm min-h-[40px]
                             ${selectedOptions[option.title] === value 
                               ? 'bg-black text-white' 
-                              : 'text-black hover:bg-black hover:text-white'}`}
+                              : 'text-black'}`}
                         >
                           {value}
                         </button>
@@ -571,18 +570,18 @@ export default function ProductPreview({
         {/* 商品資訊區塊 */}
         <LocalizedClientLink href={`/products/${product.handle}`}>
           <div className="px-3 md:px-8 py-3 mt-2">
-            <h3 className="text-sm md:text-xs leading-tight mb-1" data-testid="product-title">
+            <h3 className="text-sm md:text-xs leading-tight mb-1 text-center" data-testid="product-title">
               {product.title}
-            </h3>
-            {cheapestPrice && (
-              <div className="flex items-center justify-between mt-1">
-                <div className="flex-grow">
-                  <ClientPreviewPrice price={cheapestPrice} />
-                </div>
-                {/* 手機版 - 價格右側的加入購物車按鈕 */}
-                {!isProductSoldOut && (
+                <div>
                   <button
-                    onClick={(e) => handleMobileButtonClick(e)}
+                    onClick={handleAddToCart}
+                    disabled={isAdding || (productOptions.filter(option => option.values.length > 1).length > 0 && !findVariantId(selectedOptions))}
+                    className="w-full px-4 py-3 text-sm disabled:bg-gray-200 disabled:text-gray-500 min-h-[40px]"
+                  >
+                    {isAdding ? "處理中..." : 
+                     productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+                  </button>
+                </div>
                     disabled={isAdding}
                     className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn"
                     aria-label={
