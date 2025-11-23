@@ -159,11 +159,31 @@ export default async function DynamicPage({ params }: PageProps) {
                   }
                   case "featuredProducts": {
                     if (!region) return null
+                    
+                    const featuredBlock = section as FeaturedProductsSection
+                    let targetCollection = null;
+
+                    // 1. 嘗試通過 ID 匹配
+                    if (featuredBlock.collection_id) {
+                       targetCollection = collections?.find((c: any) => c.id === featuredBlock.collection_id);
+                    }
+
+                    // 2. 如果 ID 匹配失敗，嘗試通過 handle 或 title 匹配 (Fallback 機制)
+                    if (!targetCollection && collections) {
+                      targetCollection = collections.find((c: any) => 
+                        c.handle === 'featured' || 
+                        c.handle === 'featuerd' || 
+                        c.title === '精選商品'
+                      );
+                    }
+
+                    if (!targetCollection) return null;
+
                     return (
                       <FeaturedProducts
                         key={index}
                         region={region}
-                        collections={collections || []}
+                        collections={[targetCollection]}
                         settings={section}
                       />
                     )

@@ -41,6 +41,10 @@ export async function safeFetch<T = any>(query: string, params: any = {}, option
     
     const mergedOptions = {
       ...options,
+      next: {
+        ...(options.next || {}),
+        tags: Array.from(new Set([...(options.next?.tags || []), 'sanity']))
+      },
       signal: controller.signal,
     }
     

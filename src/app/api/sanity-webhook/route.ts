@@ -1,55 +1,5 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-import { createClient } from '@sanity/client'
-
-const client = createClient({
-  projectId: "m7o2mv1n",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-})
-
-const PAGES_PATH = path.join(process.cwd(), 'src/app/[countryCode]/(main)')
-
-async function generatePages() {
-  const query = `*[_type == "pages" && isActive == true]`
-  const pages = await client.fetch(query)
-
-  for (const page of pages) {
-    const slug = page.slug.current
-    const pagePath = path.join(PAGES_PATH, slug)
-    
-    if (!fs.existsSync(pagePath)) {
-      fs.mkdirSync(pagePath, { recursive: true })
-    }
-
-    const pageContent = `import { Metadata } from "next"
-import { getPageBySlug } from "@lib/sanity"
-import PageRenderer from "@modules/pages/components/page-renderer"
-import { notFound } from "next/navigation"
-
-export const metadata: Metadata = {
-  title: "${page.title}",
-  description: "${page.seo?.metaDescription || ''}"
-}
-
-export default async function Page(props: {
-  params: Promise<{ countryCode: string }>
-}) {
-  const params = await props.params
-  const pageData = await getPageBySlug("${slug}")
-
-  if (!pageData || !pageData.isActive) {
-    return notFound()
-  }
-
-  return <PageRenderer pageData={pageData} />
-}
-`
-    fs.writeFileSync(path.join(pagePath, 'page.tsx'), pageContent)
-  }
-}
+import { revalidateTag } from 'next/cache'
 
 export async function POST(request: Request) {
   try {
@@ -61,18 +11,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '未授權的請求' }, { status: 401 })
     }
 
-    // 如果是頁面發布事件
-    if (body._type === 'pages') {
-      await generatePages()
-      return NextResponse.json({ 
-        message: '頁面已生成',
-        timestamp: new Date().toISOString()
-      })
-    }
+    // 觸發快取更新
+    // 這裡使用 'sanity' tag，因為我們在 safeFetch 中已經為所有請求添加了這個 tag
+    revalidateTag('sanity')
+    
+    console.log(`[Sanity Webhook] Cache revalidated for tag: sanity. Event type: ${body._type}`)
 
-    return NextResponse.json({ message: '非頁面發布事件' })
+    return NextResponse.json({ 
+      message: 'Cache revalidated',
+      timestamp: new Date().toISOString(),
+      type: body._type
+    })
   } catch (error: any) {
-    // console.error('Webhook 處理錯誤:', error)
+    console.error('Webhook 處理錯誤:', error)
     return NextResponse.json({ 
       error: error.message 
     }, { 

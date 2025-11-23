@@ -347,44 +347,47 @@ export default async function Home({
                     const featuredBlock = section as FeaturedProductsSection
                     // console.log("🎯 Processing featuredProducts section:", featuredBlock)
                     
-                    if (!featuredBlock.collection_id) {
-                      // console.error("Invalid featuredProducts section:", featuredBlock)
-                      return null
-                    }
-
                     // 安全檢查 collections
                     if (!collections?.collections || !Array.isArray(collections.collections)) {
                       // console.warn("Featured products skipped - backend unavailable")
                       return null  // 安靜地跳過，不阻塞其他區塊
                     }
 
-                    // console.log("🔍 Looking for collection:", featuredBlock.collection_id, "in collections:", collections.collections.map((c: any) => c.id))
+                    let targetCollection = null;
 
-                    try {
-                      const featuredCollections = collections.collections.filter((c: any) =>
-                        featuredBlock.collection_id === c.id
-                      )
-
-                      // console.log("📦 Filtered collections:", featuredCollections.length, featuredCollections.map((c: any) => c.id))
-
-                      if (featuredCollections.length === 0) {
-                        // console.log("No matching collection found for featured products")
-                        return null
-                      }
-
-                      // console.log("✅ Rendering FeaturedProducts with collections:", featuredCollections.length)
-                      return (
-                        <FeaturedProducts
-                          key={index}
-                          collections={featuredCollections}
-                          region={regionData!}
-                          settings={featuredBlock}
-                        />
-                      )
-                    } catch (error) {
-                      // console.error("Featured products rendering error:", error)
-                      return null  // 安靜地跳過，不阻塞其他區塊
+                    // 1. 嘗試通過 ID 匹配
+                    if (featuredBlock.collection_id) {
+                       targetCollection = collections.collections.find((c: any) => c.id === featuredBlock.collection_id);
                     }
+
+                    // 2. 如果 ID 匹配失敗，嘗試通過 handle 或 title 匹配 (Fallback 機制)
+                    if (!targetCollection) {
+                      // console.warn(`Collection ID ${featuredBlock.collection_id} not found. Trying fallback...`);
+                      targetCollection = collections.collections.find((c: any) => 
+                        c.handle === 'featured' || 
+                        c.handle === 'featuerd' || // Handle typo
+                        c.title === '精選商品'
+                      );
+                    }
+
+                    if (!targetCollection) {
+                      // console.log("No matching collection found for featured products")
+                      return null
+                    }
+
+                    // console.log("✅ Rendering FeaturedProducts with collection:", targetCollection.title)
+                    
+                    // 構造一個包含單個 collection 的數組
+                    const featuredCollections = [targetCollection];
+
+                    return (
+                      <FeaturedProducts
+                        key={index}
+                        collections={featuredCollections}
+                        region={regionData!}
+                        settings={featuredBlock}
+                      />
+                    )
                   }
                   case "blogSection": {
                     const blogSection = section as BlogSection

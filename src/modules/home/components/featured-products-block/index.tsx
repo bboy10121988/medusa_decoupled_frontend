@@ -18,15 +18,21 @@ const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
   // console.log("FeaturedProductsBlock - collectionId:", collectionId);
   // console.log("FeaturedProductsBlock - collections:", collections);
 
-  const featuredCollections = collections.filter(
-    (collection) => collection.id === collectionId
-  );
+  let targetCollection = collections.find((c) => c.id === collectionId);
 
-  if (featuredCollections.length === 0) {
+  if (!targetCollection) {
+      targetCollection = collections.find((c) => 
+        c.handle === 'featured' || 
+        c.handle === 'featuerd' || 
+        c.title === '精選商品'
+      );
+  }
+
+  if (!targetCollection) {
     return null;
   }
 
-  return <FeaturedProducts collections={featuredCollections} region={region} paddingX={paddingX} />;
+  return <FeaturedProducts collections={[targetCollection]} region={region} paddingX={paddingX} />;
 };
 
 export default FeaturedProductsBlock;
