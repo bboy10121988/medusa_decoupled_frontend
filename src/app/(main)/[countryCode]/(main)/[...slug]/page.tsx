@@ -12,6 +12,7 @@ import { getRegion } from "@lib/data/regions"
 import { listCollections } from "@lib/data/collections"
 import type { MainBanner } from '@lib/types/page-sections'
 import type { ImageTextBlock as ImageTextBlockType } from '@lib/types/page-sections'
+import type { FeaturedProductsSection } from '@lib/types/page-sections'
 import type { BlogSection } from '@lib/types/page-sections'
 import type { YoutubeSection as YoutubeSectionType } from '@lib/types/page-sections'
 import type { ServiceCards } from '@lib/types/service-cards'
