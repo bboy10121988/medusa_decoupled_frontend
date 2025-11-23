@@ -62,6 +62,8 @@ const PAGE_SECTIONS_PROJECTION = `
           _type == "mainBanner" => {
             isActive,
             paddingX,
+            paddingTop,
+            paddingBottom,
             "slides": slides[] {
               heading,
               subheading,
@@ -83,6 +85,8 @@ const PAGE_SECTIONS_PROJECTION = `
           _type == "imageTextBlock" => {
             isActive,
             paddingX,
+            paddingTop,
+            paddingBottom,
             heading,
             hideTitle,
             content,
@@ -123,6 +127,8 @@ const PAGE_SECTIONS_PROJECTION = `
           _type == "youtubeSection" => {
             isActive,
             paddingX,
+            paddingTop,
+            paddingBottom,
             videoUrl,
             heading,
             description,
