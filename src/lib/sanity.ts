@@ -177,6 +177,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
         ...select(
           _type == "mainBanner" => {
             isActive,
+            paddingX,
             "slides": slides[] {
               heading,
               subheading,
@@ -196,6 +197,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
           },
           _type == "imageTextBlock" => {
             isActive,
+            paddingX,
             heading,
             hideTitle,
             content,
@@ -219,6 +221,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
           },
           _type == "featuredProducts" => {
             isActive,
+            paddingX,
             heading,
             showHeading,
             showSubheading,
@@ -232,6 +235,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
           },
           _type == "youtubeSection" => {
             isActive,
+            paddingX,
             videoUrl,
             heading,
             description,
@@ -512,6 +516,7 @@ export async function getAllPages(): Promise<PageData[]> {
         ...select(
           _type == "mainBanner" => {
             isActive,
+            paddingX,
             "slides": slides[] {
               heading,
               subheading,
@@ -530,6 +535,7 @@ export async function getAllPages(): Promise<PageData[]> {
           },
           _type == "imageTextBlock" => {
             isActive,
+            paddingX,
             heading,
             hideTitle,
             content,
@@ -554,6 +560,7 @@ export async function getAllPages(): Promise<PageData[]> {
           },
           _type == "featuredProducts" => {
             isActive,
+            paddingX,
             heading,
             showHeading,
             showSubheading,
@@ -568,6 +575,7 @@ export async function getAllPages(): Promise<PageData[]> {
           },
           _type == "youtubeSection" => {
             isActive,
+            paddingX,
             videoUrl,
             heading,
             description,
@@ -710,6 +718,7 @@ export async function getHomepage(): Promise<{
         _type == "mainBanner" => {
           _type,
           isActive,
+          paddingX,
           "slides": slides[] {
             heading,
             subheading,
@@ -729,6 +738,7 @@ export async function getHomepage(): Promise<{
         _type == "imageTextBlock" => {
           _type,
           isActive,
+          paddingX,
           heading,
           hideTitle,
           content,
@@ -757,7 +767,8 @@ export async function getHomepage(): Promise<{
           showHeading,
           showSubheading,
           collection_id,
-          isActive
+          isActive,
+          paddingX
         },
         _type == "blogSection" => {
           _type,
@@ -770,6 +781,7 @@ export async function getHomepage(): Promise<{
         _type == "youtubeSection" => {
           _type,
           isActive,
+          paddingX,
           heading,
           description,
           videoUrl,
@@ -781,7 +793,7 @@ export async function getHomepage(): Promise<{
             useSameVideo,
             autoplay,
             loop,
-              muted,
+            muted,
             muted,
             showControls
           },
@@ -805,7 +817,7 @@ export async function getHomepage(): Promise<{
             useSameVideo,
             autoplay,
             loop,
-              muted,
+            muted,
             muted,
             showControls
           },

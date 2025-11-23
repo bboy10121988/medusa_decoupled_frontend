@@ -307,7 +307,7 @@ export default function ProductPreview({
   }
 
   return (
-    <div className={`product-preview relative group w-full ${isFeatured ? 'featured-product-card' : ''}`}>
+    <div className={`product-preview relative group w-full border-0 shadow-none hover:shadow-none ${isFeatured ? 'featured-product-card' : ''}`}>
       {/* 成功提示彈窗 */}
       {showSuccessMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-black/90 text-white px-4 py-2 rounded-md shadow-lg flex items-center space-x-2 animate-fade-in-down">
@@ -409,7 +409,7 @@ export default function ProductPreview({
         </div>
       )}
       
-      <div className="relative">
+      <div className="relative h-full flex flex-col">
         <div 
           className="relative w-full pb-[133.33%] overflow-hidden bg-white"
           onMouseEnter={() => {
@@ -434,6 +434,7 @@ export default function ProductPreview({
                 thumbnail={allImages[currentImageIndex]} 
                 images={allImages.map(url => ({ url }))}
                 size="full"
+                className="h-full w-full object-cover"
               />
             </div>
             
@@ -443,7 +444,7 @@ export default function ProductPreview({
                 {/* 左箭頭 */}
                 <button
                   onClick={prevImage}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-40 text-black opacity-100"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-40 text-black opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   aria-label="上一張圖片"
                 >
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -454,7 +455,7 @@ export default function ProductPreview({
                 {/* 右箭頭 */}
                 <button
                   onClick={nextImage}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-40 text-black opacity-100"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-40 text-black opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   aria-label="下一張圖片"
                 >
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -463,7 +464,7 @@ export default function ProductPreview({
                 </button>
                 
                 {/* 圖片指示器 */}
-                  <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex space-x-1 opacity-100">
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {allImages.map((_, index) => (
                     <button
                       key={index}
@@ -569,53 +570,53 @@ export default function ProductPreview({
 
         {/* 商品資訊區塊 */}
         <LocalizedClientLink href={`/products/${product.handle}`}>
-          <div className="px-3 md:px-8 py-3 mt-2">
-            <h3 className="text-sm md:text-xs leading-tight mb-1 text-center" data-testid="product-title">
-              {product.title}
-                <div>
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAdding || (productOptions.filter(option => option.values.length > 1).length > 0 && !findVariantId(selectedOptions))}
-                    className="w-full px-4 py-3 text-sm disabled:bg-gray-200 disabled:text-gray-500 min-h-[40px]"
+          <div className="px-3 md:px-8 py-3 mt-2 flex justify-between items-start gap-2">
+            <div className="flex-1">
+              <h3 className="text-sm md:text-xs leading-tight mb-1 text-center" data-testid="product-title">
+                {product.title}
+              </h3>
+              {cheapestPrice && (
+                 <div className="mt-1 text-center">
+                    <ClientPreviewPrice price={cheapestPrice} />
+                 </div>
+              )}
+            </div>
+
+            {!isProductSoldOut && (
+              <button
+                onClick={handleMobileButtonClick}
+                disabled={isAdding}
+                className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn flex-shrink-0"
+                aria-label={
+                  (() => {
+                    if (isAdding) return "處理中..."
+                    const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
+                    const variantId = findVariantId(selectedOptions)
+                    if (hasMultipleOptions && !variantId) return "選擇選項"
+                    return productStockStatus.canPreorder ? "預訂" : "加入購物車"
+                  })()
+                }
+              >
+                {isAdding ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="white" 
+                    strokeWidth="1.5"
+                    className="flex-shrink-0"
+                    style={{ display: 'block' }}
                   >
-                    {isAdding ? "處理中..." : 
-                     productStockStatus.canPreorder ? "預訂" : "加入購物車"}
-                  </button>
-                </div>
-                    disabled={isAdding}
-                    className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn"
-                    aria-label={
-                      (() => {
-                        if (isAdding) return "處理中..."
-                        const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
-                        const variantId = findVariantId(selectedOptions)
-                        if (hasMultipleOptions && !variantId) return "選擇選項"
-                        return productStockStatus.canPreorder ? "預訂" : "加入購物車"
-                      })()
-                    }
-                  >
-                    {isAdding ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="white" 
-                        strokeWidth="1.5"
-                        className="flex-shrink-0"
-                        style={{ display: 'block' }}
-                      >
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                      </svg>
-                    )}
-                  </button>
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  </svg>
                 )}
-              </div>
+              </button>
             )}
           </div>
         </LocalizedClientLink>

@@ -10,16 +10,23 @@ const StoreTemplate = ({
   sortBy,
   page,
   countryCode,
+  paddingX
 }: {
-  sortBy?: SortOptions
-  page?: string
+  sortBy?: SortOptions | undefined
+  page?: string | undefined
   countryCode: string
+  paddingX?: number | undefined
 }) => {
   const sort = sortBy || "created_at"
   const pageNumber = page ? parseInt(page) : 1
 
+  const paddingStyle = paddingX ? {
+    paddingLeft: `${paddingX / 2}%`,
+    paddingRight: `${paddingX / 2}%`
+  } : {}
+
   return (
-    <div className="pt-0 pb-8" data-testid="store-container">
+    <div className="pt-0 pb-8" data-testid="store-container" style={paddingStyle}>
       {/* 標題區域 - 置中對齊 */}
       <div className="px-4 md:px-8 lg:px-12 py-3 border-b border-gray-100 text-center">
         <h1 data-testid="store-page-title" className="text-2xl font-semibold mb-1">

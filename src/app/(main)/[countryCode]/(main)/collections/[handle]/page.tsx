@@ -2,10 +2,11 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { getCollectionByHandle } from "@lib/data/collections"
-import { getFeaturedProductsHeading } from "@lib/sanity"
+import { getFeaturedProductsHeading, getHomepage } from "@lib/sanity"
 import { StoreCollection } from "@medusajs/types"
 import CollectionTemplate from "@modules/collections/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import type { FeaturedProductsSection } from "@lib/types/page-sections"
 
 // 強制動態渲染,避免預渲染問題
 export const dynamic = 'force-dynamic'
@@ -53,16 +54,23 @@ export default async function CollectionPage(props: Props) {
     notFound()
   }
 
-  // 從首頁的 featuredProducts 區塊讀取標題配置
   const sanityHeading = await getFeaturedProductsHeading(collection.id)
+
+  // Fetch homepage settings for global padding
+  const homepage = await getHomepage()
+  const featuredProductsSection = homepage.mainSections?.find(
+    (s) => s._type === "featuredProducts"
+  ) as FeaturedProductsSection | undefined
+  const paddingX = featuredProductsSection?.paddingX
 
   return (
     <CollectionTemplate
       collection={collection}
-      {...(page && { page })}
-      {...(sortBy && { sortBy })}
+      page={page}
+      sortBy={sortBy}
       countryCode={params.countryCode}
       sanityHeading={sanityHeading}
+      paddingX={paddingX}
     />
   )
 }

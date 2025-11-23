@@ -4,6 +4,8 @@ import { notFound } from "next/navigation"
 import { getCategoryByHandle } from "@lib/data/categories"
 import CategoryTemplate from "@modules/categories/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import { getHomepage } from "@lib/sanity"
+import type { FeaturedProductsSection } from "@lib/types/page-sections"
 
 // 強制動態渲染，避免預渲染問題
 export const dynamic = 'force-dynamic'
@@ -58,12 +60,20 @@ export default async function CategoryPage(props: Props) {
     notFound()
   }
 
+  // Fetch homepage settings for global padding
+  const homepage = await getHomepage()
+  const featuredProductsSection = homepage.mainSections?.find(
+    (s) => s._type === "featuredProducts"
+  ) as FeaturedProductsSection | undefined
+  const paddingX = featuredProductsSection?.paddingX
+
   return (
     <CategoryTemplate
       category={productCategory}
-      sortBy={sortBy}
       page={page}
+      sortBy={sortBy}
       countryCode={params.countryCode}
+      paddingX={paddingX}
     />
   )
 }

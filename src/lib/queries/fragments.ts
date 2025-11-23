@@ -2,6 +2,7 @@ export const mainBannerFragment = `
   _type == "mainBanner" => {
     _type,
     isActive,
+    paddingX,
     "slides": slides[] {
       heading,
       subheading,

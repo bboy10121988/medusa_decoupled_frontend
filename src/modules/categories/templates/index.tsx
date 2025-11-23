@@ -13,11 +13,13 @@ export default function CategoryTemplate({
   sortBy,
   page,
   countryCode,
+  paddingX
 }: {
   category: HttpTypes.StoreProductCategory
-  sortBy?: SortOptions
-  page?: string
+  sortBy?: SortOptions | undefined
+  page?: string | undefined
   countryCode: string
+  paddingX?: number | undefined
 }) {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
@@ -35,8 +37,13 @@ export default function CategoryTemplate({
 
   getParents(category)
 
+  const paddingStyle = paddingX ? {
+    paddingLeft: `${paddingX / 2}%`,
+    paddingRight: `${paddingX / 2}%`
+  } : {}
+
   return (
-    <div className="pt-0 pb-8" data-testid="category-container">
+    <div className="pt-0 pb-8" data-testid="category-container" style={paddingStyle}>
       {/* 標題區域 - 置中對齊 */}
       <div className="px-4 md:px-8 lg:px-12 py-3 border-b border-gray-100 text-center">
         <div className="flex flex-row mb-1 text-2xl-semi gap-4 justify-center">

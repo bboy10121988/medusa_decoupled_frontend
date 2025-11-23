@@ -16,12 +16,14 @@ export default function CollectionTemplate({
   page,
   countryCode,
   sanityHeading,
+  paddingX
 }: {
-  sortBy?: SortOptions
+  sortBy?: SortOptions | undefined
   collection: HttpTypes.StoreCollection
-  page?: string
+  page?: string | undefined
   countryCode: string
   sanityHeading?: FeaturedProductsHeading | null
+  paddingX?: number | undefined
 }) {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
@@ -29,8 +31,13 @@ export default function CollectionTemplate({
   // 集合頁面永遠顯示標題（硬編碼），不受 Sanity showHeading 控制
   const heading = sanityHeading?.heading || collection.title
 
+  const paddingStyle = paddingX ? {
+    paddingLeft: `${paddingX / 2}%`,
+    paddingRight: `${paddingX / 2}%`
+  } : {}
+
   return (
-    <div className="pt-8 pb-8">
+    <div className="pt-8 pb-8" style={paddingStyle}>
       {/* 標題區塊 - 永遠顯示 */}
       {heading && (
         <div className="container mx-auto px-4 mb-8">

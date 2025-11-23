@@ -10,7 +10,14 @@ export default {
       initialValue: true
     },
     {
-      name: 'heading',
+      name: 'paddingX',
+      title: '左右邊距 (百分比)',
+      type: 'number',
+      description: '輸入 0-100 的數字，代表左右留白佔全寬的百分比 (例如輸入 80 代表左右留白共 80%，內容佔 20%)。此設定同時會影響所有商品頁、分頁、分頁商品頁的邊距。',
+      validation: (Rule: any) => Rule.min(0).max(100)
+    },
+    {
+      name: 'title',
       title: '標題',
       type: 'string',
       description: '此標題會顯示在首頁和精選商品頁面'

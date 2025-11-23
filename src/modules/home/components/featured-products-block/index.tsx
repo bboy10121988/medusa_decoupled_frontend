@@ -6,12 +6,14 @@ type FeaturedProductsBlockProps = {
   collectionId: string;
   collections: HttpTypes.StoreCollection[];
   region: HttpTypes.StoreRegion;
+  paddingX?: number;
 };
 
 const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
   collectionId,
   collections,
   region,
+  paddingX,
 }) => {
   // console.log("FeaturedProductsBlock - collectionId:", collectionId);
   // console.log("FeaturedProductsBlock - collections:", collections);
@@ -24,7 +26,7 @@ const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
     return null;
   }
 
-  return <FeaturedProducts collections={featuredCollections} region={region} />;
+  return <FeaturedProducts collections={featuredCollections} region={region} paddingX={paddingX} />;
 };
 
 export default FeaturedProductsBlock;

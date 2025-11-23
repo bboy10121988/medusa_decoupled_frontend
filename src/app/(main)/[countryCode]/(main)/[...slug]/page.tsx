@@ -147,7 +147,8 @@ export default async function DynamicPage({ params }: PageProps) {
                       content: imageBlock.content,
                       image: imageBlock.image,
                       layout: imageBlock.layout,
-                      hideTitle: imageBlock.hideTitle
+                      hideTitle: imageBlock.hideTitle,
+                      paddingX: imageBlock.paddingX
                     }
                     if (imageBlock.leftImage) props.leftImage = imageBlock.leftImage
                     if (imageBlock.rightImage) props.rightImage = imageBlock.rightImage
@@ -163,6 +164,7 @@ export default async function DynamicPage({ params }: PageProps) {
                         key={index}
                         region={region}
                         collections={collections || []}
+                        settings={section}
                       />
                     )
                   }
@@ -206,7 +208,8 @@ export default async function DynamicPage({ params }: PageProps) {
                       _type: "youtubeSection" as const,
                       isActive: true,
                       heading: youtubeBlock.heading || "",
-                      fullWidth: youtubeBlock.fullWidth
+                      fullWidth: youtubeBlock.fullWidth,
+                      paddingX: youtubeBlock.paddingX
                     }
                     if (youtubeBlock.description) youtubeProps.description = youtubeBlock.description
                     if (youtubeBlock.videoUrl) youtubeProps.videoUrl = youtubeBlock.videoUrl

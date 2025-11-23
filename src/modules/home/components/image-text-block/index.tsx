@@ -20,6 +20,7 @@ interface ImageTextBlockProps {
   leftContent?: string
   rightContent?: string
   hideTitle?: boolean
+  paddingX?: number
 }
 
 // 圖片包裝組件
@@ -66,10 +67,16 @@ const ImageTextBlock = ({
   rightImage,
   leftContent,
   rightContent,
-  hideTitle = false
+  hideTitle = false,
+  paddingX
 }: ImageTextBlockProps) => {
   // 檢查是否真的有標題內容
   const hasTitle = !hideTitle && heading && heading.trim().length > 0
+  
+  const paddingStyle = paddingX ? {
+    paddingLeft: `${paddingX / 2}%`,
+    paddingRight: `${paddingX / 2}%`
+  } : {}
   
   // 決定容器樣式
   const containerClasses = (() => {
@@ -87,7 +94,7 @@ const ImageTextBlock = ({
   })()
   
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} style={paddingStyle}>
       {/* 左圖右文布局 */}
       {layout === 'imageLeft' && image?.url && (
         <div className="grid md:grid-cols-2 items-center gap-0">

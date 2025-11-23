@@ -8,12 +8,14 @@ type FeaturedProductsProps = {
   collections: HttpTypes.StoreCollection[]
   region: HttpTypes.StoreRegion
   settings?: FeaturedProductsSection
+  paddingX?: number
 }
 
 export default function FeaturedProducts({
   collections,
   region,
   settings,
+  paddingX
 }: FeaturedProductsProps) {
   // 如果沒有收到必要的參數，返回 null
   if (!collections || !region) {
@@ -45,8 +47,14 @@ export default function FeaturedProducts({
     )
   }
 
+  const paddingValue = paddingX ?? settings?.paddingX
+  const paddingStyle = paddingValue ? {
+    paddingLeft: `${paddingValue / 2}%`,
+    paddingRight: `${paddingValue / 2}%`
+  } : {}
+
   return (
-    <div className="w-full pt-12 pb-6 md:pt-16 md:pb-12 xl:pt-20 xl:pb-16 2xl:pt-24 2xl:pb-20">
+    <div className="w-full pt-12 pb-6 md:pt-16 md:pb-12 xl:pt-20 xl:pb-16 2xl:pt-24 2xl:pb-20" style={paddingStyle}>
       {collections.map((collection) => (
         <section 
           key={collection.id} 

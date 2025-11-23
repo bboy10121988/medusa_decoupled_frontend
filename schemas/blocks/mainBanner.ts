@@ -10,6 +10,13 @@ export default {
       initialValue: true
     },
     {
+      name: 'paddingX',
+      title: '左右邊距 (百分比)',
+      type: 'number',
+      description: '輸入 0-100 的數字，代表左右留白佔全寬的百分比 (例如輸入 80 代表左右留白共 80%，內容佔 20%)',
+      validation: (Rule: any) => Rule.min(0).max(100)
+    },
+    {
       name: 'settings',
       title: '輪播設定',
       type: 'object',

@@ -11,9 +11,14 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
   if (banner.slides?.length === 0) {
     return null
   }
+
+  const paddingStyle = banner.paddingX ? {
+    paddingLeft: `${banner.paddingX / 2}%`,
+    paddingRight: `${banner.paddingX / 2}%`
+  } : {}
   
   return (
-    <section className="hero-section">
+    <section className="hero-section" style={paddingStyle}>
       <Hero
         slides={banner.slides.map((slide: BannerSlide) => ({
           heading: slide.heading,

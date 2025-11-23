@@ -13,7 +13,8 @@ const YouTubeSection = memo(({
   youtubeSettings, 
   uploadSettings,
   videoSettings, // 向後兼容
-  fullWidth = true 
+  fullWidth = true,
+  paddingX
 }: YoutubeSection) => {
   const [videoId, setVideoId] = useState<string | null>(null)
   const [isShorts, setIsShorts] = useState<boolean>(false)
@@ -331,8 +332,13 @@ const YouTubeSection = memo(({
     )
   }
 
+  const paddingStyle = paddingX ? {
+    paddingLeft: `${paddingX / 2}%`,
+    paddingRight: `${paddingX / 2}%`
+  } : {}
+
   return (
-    <section className={`w-full ${fullWidth ? "" : "container mx-auto px-4"} m-0 p-0`}>
+    <section className={`w-full ${fullWidth ? "" : "container mx-auto px-4"} m-0 p-0`} style={paddingStyle}>
       <div className="max-w-none w-full m-0 p-0">
         {heading && (
           <h2 className="h1 text-center mb-6">{heading}</h2>
@@ -415,6 +421,7 @@ const YouTubeSection = memo(({
     prevProps.heading === nextProps.heading &&
     prevProps.description === nextProps.description &&
     prevProps.fullWidth === nextProps.fullWidth &&
+    prevProps.paddingX === nextProps.paddingX &&
     videoSettingsEqual
   )
 })

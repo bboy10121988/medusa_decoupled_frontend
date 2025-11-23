@@ -13,6 +13,7 @@ type ProductTemplateProps = {
   region: any
   countryCode: string
   detailContent?: string | null
+  paddingX?: number | undefined
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
@@ -20,13 +21,19 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   region,
   countryCode,
   detailContent,
+  paddingX
 }) => {
   if (!product?.id) {
     return <div>產品未找到</div>
   }
 
+  const paddingStyle = paddingX ? {
+    paddingLeft: `${paddingX / 2}%`,
+    paddingRight: `${paddingX / 2}%`
+  } : {}
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={paddingStyle}>
       {/* 麵包屑導航 - 緊湊設計 */}
       <div className="bg-gray-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">

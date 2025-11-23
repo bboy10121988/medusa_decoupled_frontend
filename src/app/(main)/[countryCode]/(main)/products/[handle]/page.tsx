@@ -5,6 +5,8 @@ import { getRegion } from "@lib/data/regions"
 import { generateProductKeywords } from "@lib/seo"
 import ProductTemplate from "@modules/products/templates"
 import { getStoreName } from "@lib/store-name"
+import { getHomepage } from "@lib/sanity"
+import type { FeaturedProductsSection } from "@lib/types/page-sections"
 
 // 強制動態渲染，避免預渲染問題
 export const dynamic = 'force-dynamic'
@@ -93,12 +95,20 @@ export default async function ProductPage({ params }: Props) {
       // 從產品資料中提取詳細內容
       const detailContent = await getProductDetailContent(pricedProduct)
 
+      // Fetch homepage settings for global padding
+      const homepage = await getHomepage()
+      const featuredProductsSection = homepage.mainSections?.find(
+        (s) => s._type === "featuredProducts"
+      ) as FeaturedProductsSection | undefined
+      const paddingX = featuredProductsSection?.paddingX
+
       return (
         <ProductTemplate
           product={pricedProduct}
           region={region}
           countryCode={countryCode}
           detailContent={detailContent}
+          paddingX={paddingX}
         />
       )
     } catch (error) {
