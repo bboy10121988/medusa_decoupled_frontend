@@ -2,11 +2,6 @@ import { sdk, MEDUSA_BACKEND_URL } from "../config"
 import { getPublishableKeyForBackend } from "../medusa-publishable-key"
 import { HttpTypes } from "@medusajs/types"
 
-type CacheOptions = {
-  revalidate?: number
-  tags?: string[]
-}
-
 
 
 export const listCategories = async (query?: Record<string, any>) => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter, useParams } from "next/navigation"
+import { sdk } from "@/lib/config"
 
 function GoogleCallbackContent() {
   const searchParams = useSearchParams()
@@ -14,10 +15,13 @@ function GoogleCallbackContent() {
   useEffect(() => {
     const success = searchParams.get('success')
     const error = searchParams.get('error')
+    const code = searchParams.get('code')
+    const state = searchParams.get('state')
 
     console.log('=== Google OAuth Callback ===')
     console.log('Success:', success)
     console.log('Error:', error)
+    console.log('Code:', code ? 'Received' : 'None')
 
     if (success === 'true') {
       setStatus('success')
@@ -27,6 +31,25 @@ function GoogleCallbackContent() {
         router.push(`/${countryCode}/account`)
       }, 1000)
       
+    } else if (code) {
+      console.log('🔄 收到授權碼，正在驗證...')
+      
+      sdk.auth.callback("customer", "google", { 
+        code, 
+        state: state || undefined 
+      })
+      .then((res) => {
+        console.log('✅ 驗證成功:', res)
+        setStatus('success')
+        setTimeout(() => {
+          router.push(`/${countryCode}/account`)
+        }, 1000)
+      })
+      .catch((err) => {
+        console.error('❌ 驗證失敗:', err)
+        setStatus('error')
+      })
+
     } else if (error) {
       setStatus('error')
       console.error('❌ Google 登入失敗:', error)

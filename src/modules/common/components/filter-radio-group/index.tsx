@@ -9,7 +9,7 @@ type FilterRadioGroupProps = {
   }[]
   value: any
   handleChange: (...args: any[]) => void
-  "data-testid"?: string
+  "data-testid"?: string | undefined
 }
 
 const FilterRadioGroup = ({

@@ -87,14 +87,14 @@ const Login = ({ setCurrentView }: Props) => {
       data-testid="login-page"
     >
       {/* Google 登入按鈕與分隔線 */}
-      {/* <div className="w-full flex flex-col items-center mb-6">
+      <div className="w-full flex flex-col items-center mb-6">
         <GoogleLoginButton />
         <div className="w-full flex items-center gap-x-2 my-4">
           <div className="flex-grow h-px bg-gray-200"></div>
           <span className="text-ui-fg-base text-small-regular">或</span>
           <div className="flex-grow h-px bg-gray-200"></div>
         </div>
-      </div> */}
+      </div>
 
       {/* 移除重複的標題，因為在 LoginTemplate 中已經有了 */}
       <form className="w-full" action={formAction}>

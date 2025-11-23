@@ -52,23 +52,12 @@ export async function POST(request: NextRequest) {
         current: slug
       },
       status,
-      grapesHtml: '<div>歡迎使用 GrapesJS 編輯器！</div>',
-      grapesCss: 'body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }',
-      grapesComponents: '[]',
-      grapesStyles: '[]',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      seo: {
-        _type: 'seoMeta',
-        title: title,
-        description: '',
-        keywords: [],
-        openGraph: {
-          title: title,
-          description: '',
-          image: null
-        }
-      }
+      seoTitle: title,
+      seoDescription: '',
+      seoKeywords: [],
+      pageContent: []
     })
 
     // console.log('新頁面已創建:', newPage._id)

@@ -21,11 +21,11 @@ function getWriteClient() {
 
   // 創建標準的客戶端
   return createClient({
-    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
+    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || '',
     apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-01-01",
     useCdn: false, // 寫入操作不使用 CDN
-    token: token,
+    ...(token ? { token } : {}),
     withCredentials: false,
   })
 }
@@ -47,8 +47,6 @@ export interface DynamicPageData {
   publishedAt?: string
   version: number
   pageContent?: any[]
-  grapesComponents?: string // JSON string
-  grapesStyles?: string // JSON string
   homeModules?: any[]
   seoTitle?: string
   seoDescription?: string
@@ -66,10 +64,6 @@ export interface SavePageParams {
   slug: string
   description?: string
   status?: 'draft' | 'preview' | 'published' | 'archived'
-  grapesHtml: string
-  grapesCss: string
-  grapesComponents: any // GrapesJS components object
-  grapesStyles: any // GrapesJS styles object
   homeModules?: any[]
   seoTitle?: string
   seoDescription?: string
@@ -84,10 +78,10 @@ export interface UpdatePageParams extends Partial<SavePageParams> {
   version?: number
 }
 
-class GrapesJSPageService {
+class DynamicPageService {
   
   /**
-   * 獲取所有 GrapesJS 頁面列表
+   * 獲取所有動態頁面列表
    */
   async getAllPages(): Promise<DynamicPageData[]> {
     try {
@@ -103,10 +97,6 @@ class GrapesJSPageService {
           status,
           publishedAt,
           version,
-          grapesHtml,
-          grapesCss,
-          grapesComponents,
-          grapesStyles,
           homeModules,
           seoTitle,
           seoDescription,
@@ -148,10 +138,6 @@ class GrapesJSPageService {
           status,
           publishedAt,
           version,
-          grapesHtml,
-          grapesCss,
-          grapesComponents,
-          grapesStyles,
           homeModules,
           seoTitle,
           seoDescription,
@@ -193,10 +179,6 @@ class GrapesJSPageService {
           status,
           publishedAt,
           version,
-          grapesHtml,
-          grapesCss,
-          grapesComponents,
-          grapesStyles,
           homeModules,
           seoTitle,
           seoDescription,
@@ -234,10 +216,6 @@ class GrapesJSPageService {
         description: params.description,
         status: params.status || 'draft',
         version: 1,
-        grapesHtml: params.grapesHtml,
-        grapesCss: params.grapesCss,
-        grapesComponents: typeof params.grapesComponents === 'string' ? params.grapesComponents : JSON.stringify(params.grapesComponents || []),
-        grapesStyles: typeof params.grapesStyles === 'string' ? params.grapesStyles : JSON.stringify(params.grapesStyles || []),
         homeModules: params.homeModules || [],
         seoTitle: params.seoTitle,
         seoDescription: params.seoDescription,
@@ -250,7 +228,7 @@ class GrapesJSPageService {
         editHistory: [{
           timestamp: now,
           action: 'created',
-          editor: 'GrapesJS Editor',
+          editor: 'Editor',
           changes: 'Page created'
         }]
       }
@@ -284,65 +262,11 @@ class GrapesJSPageService {
         // pageId: params._id,
         // title: params.title,
         // status: params.status,
-        // hasHtml: !!params.grapesHtml,
-        // hasCss: !!params.grapesCss,
-        // htmlLength: params.grapesHtml?.length || 0,
-        // cssLength: params.grapesCss?.length || 0,
-        // componentsLength: typeof params.grapesComponents === 'string'
-          // ? params.grapesComponents.length
-          // : params.grapesComponents ? JSON.stringify(params.grapesComponents).length : 0,
-        // stylesLength: typeof params.grapesStyles === 'string'
-          // ? params.grapesStyles.length
-          // : params.grapesStyles ? JSON.stringify(params.grapesStyles).length : 0
       // })
       
       // 輸入驗證 - 檢查必要參數
       if (!params._id || params._id.trim() === '') {
         throw new Error('必須提供有效的頁面 ID')
-      }
-
-      // 檢查 HTML 和 CSS 內容的有效性（如果有提供）
-      if (params.grapesHtml !== undefined) {
-        if (typeof params.grapesHtml !== 'string') {
-          throw new Error('HTML 內容必須是字符串')
-        }
-      }
-      
-      if (params.grapesCss !== undefined) {
-        if (typeof params.grapesCss !== 'string') {
-          throw new Error('CSS 內容必須是字符串')
-        }
-      }
-
-      // 驗證組件和樣式的 JSON 有效性
-      if (params.grapesComponents !== undefined) {
-        try {
-          if (typeof params.grapesComponents !== 'string') {
-            // 如果不是字符串，嘗試序列化
-            params.grapesComponents = JSON.stringify(params.grapesComponents)
-          } else {
-            // 如果是字符串，確保是有效的 JSON
-            JSON.parse(params.grapesComponents)
-          }
-        } catch (jsonError) {
-          // console.error('組件 JSON 無效:', jsonError)
-          throw new Error('組件數據格式無效，無法序列化')
-        }
-      }
-      
-      if (params.grapesStyles !== undefined) {
-        try {
-          if (typeof params.grapesStyles !== 'string') {
-            // 如果不是字符串，嘗試序列化
-            params.grapesStyles = JSON.stringify(params.grapesStyles)
-          } else {
-            // 如果是字符串，確保是有效的 JSON
-            JSON.parse(params.grapesStyles)
-          }
-        } catch (jsonError) {
-          // console.error('樣式 JSON 無效:', jsonError)
-          throw new Error('樣式數據格式無效，無法序列化')
-        }
       }
       
       // 獲取並驗證客戶端
@@ -403,18 +327,6 @@ class GrapesJSPageService {
         }
       }
       
-      if (params.grapesHtml !== undefined) updateData.grapesHtml = params.grapesHtml
-      if (params.grapesCss !== undefined) updateData.grapesCss = params.grapesCss
-      
-      // 組件和樣式已在之前驗證並標準化
-      if (params.grapesComponents !== undefined) {
-        updateData.grapesComponents = params.grapesComponents
-      }
-      
-      if (params.grapesStyles !== undefined) {
-        updateData.grapesStyles = params.grapesStyles
-      }
-      
       if (params.homeModules !== undefined) updateData.homeModules = params.homeModules
       if (params.seoTitle !== undefined) updateData.seoTitle = params.seoTitle
       if (params.seoDescription !== undefined) updateData.seoDescription = params.seoDescription
@@ -438,7 +350,7 @@ class GrapesJSPageService {
       const newHistoryEntry = {
         timestamp: now,
         action: 'updated',
-        editor: 'GrapesJS Editor',
+        editor: 'Editor',
         changes: this.generateChangesSummary(currentPage, params)
       }
 
@@ -550,18 +462,14 @@ class GrapesJSPageService {
     const duplicateParams: SavePageParams = {
       title: newTitle,
       slug: newSlug,
-      description: originalPage.description,
+      ...(originalPage.description ? { description: originalPage.description } : {}),
       status: 'draft', // 複製的頁面總是從草稿開始
-      grapesHtml: originalPage.grapesHtml || '',
-      grapesCss: originalPage.grapesCss || '',
-      grapesComponents: originalPage.grapesComponents ? JSON.parse(originalPage.grapesComponents) : {},
-      grapesStyles: originalPage.grapesStyles ? JSON.parse(originalPage.grapesStyles) : {},
       homeModules: originalPage.homeModules || [],
-      seoTitle: originalPage.seoTitle,
-      seoDescription: originalPage.seoDescription,
+      ...(originalPage.seoTitle ? { seoTitle: originalPage.seoTitle } : {}),
+      ...(originalPage.seoDescription ? { seoDescription: originalPage.seoDescription } : {}),
       seoKeywords: originalPage.seoKeywords || [],
-      customCSS: originalPage.customCSS,
-      customJS: originalPage.customJS,
+      ...(originalPage.customCSS ? { customCSS: originalPage.customCSS } : {}),
+      ...(originalPage.customJS ? { customJS: originalPage.customJS } : {}),
       viewport: originalPage.viewport
     }
 
@@ -579,8 +487,6 @@ class GrapesJSPageService {
         title,
         slug,
         description,
-        grapesHtml,
-        grapesCss,
         seoTitle,
         seoDescription,
         seoKeywords,
@@ -637,15 +543,6 @@ class GrapesJSPageService {
     if (updates.status && updates.status !== current.status) {
       changes.push(`狀態: "${current.status}" → "${updates.status}"`)
     }
-    if (updates.grapesHtml && updates.grapesHtml !== current.grapesHtml) {
-      changes.push('HTML 內容已更新')
-    }
-    if (updates.grapesCss && updates.grapesCss !== current.grapesCss) {
-      changes.push('CSS 樣式已更新')
-    }
-    if (updates.grapesComponents) {
-      changes.push('頁面組件已更新')
-    }
     if (updates.homeModules) {
       changes.push('首頁模組配置已更新')
     }
@@ -673,5 +570,5 @@ class GrapesJSPageService {
 }
 
 // 匯出單例實例
-export const grapesJSPageService = new GrapesJSPageService()
-export default grapesJSPageService
+export const dynamicPageService = new DynamicPageService()
+export default dynamicPageService

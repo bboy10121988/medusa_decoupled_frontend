@@ -54,7 +54,7 @@ echo ""
 
 # 步驟 2: 提示進行手動測試
 echo -e "${YELLOW}步驟 2: 請進行手動測試${NC}"
-echo -e "${BLUE}1. 打開瀏覽器訪問: ${GREEN}https://tims.com.tw/tw/account${NC}"
+echo -e "${BLUE}1. 打開瀏覽器訪問: ${GREEN}https://timsfantasyworld.com/tw/account${NC}"
 echo -e "${BLUE}2. 點擊 '使用 Google 登入' 按鈕${NC}"
 echo -e "${BLUE}3. 選擇測試帳號: ${GREEN}${TEST_EMAIL}${NC}"
 echo -e "${BLUE}4. 完成授權${NC}"

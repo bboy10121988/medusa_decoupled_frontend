@@ -1,17 +1,18 @@
 "use client"
 
 import { RadioGroup } from "@headlessui/react"
-import { useState } from "react"
+// import { useState } from "react"
 import { Heading, Text, clx } from "@medusajs/ui"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 
+/*
 type ConvenienceStore = {
-  id: string
-  name: string
-  address: string
-  distance: number
-  type: '7-11' | '全家' | 'OK' | '萊爾富'
+  CVSStoreID: string
+  CVSStoreName: string
+  CVSAddress: string
+  CVSTelephone: string
 }
+*/
 
 type EcpayPaymentProps = {
   cart: any
@@ -24,8 +25,6 @@ const EcpayPayment: React.FC<EcpayPaymentProps> = ({
   onPaymentMethodChange,
   selectedPaymentMethod
 }) => {
-  const [selectedStore, setSelectedStore] = useState<ConvenienceStore | null>(null)
-  const [error, setError] = useState<string | null>(null)
   
   // 檢查是否選擇了超商配送
   const isConvenienceStoreDelivery = cart?.shipping_methods?.some(
@@ -35,7 +34,6 @@ const EcpayPayment: React.FC<EcpayPaymentProps> = ({
 
   // 處理支付方式變更
   const handlePaymentMethodChange = (method: string) => {
-    setError(null)
     
     try {
       // 驗證選擇
@@ -45,7 +43,6 @@ const EcpayPayment: React.FC<EcpayPaymentProps> = ({
       
       onPaymentMethodChange(method)
     } catch (err: any) {
-      setError(err.message)
       // console.error('支付方式變更錯誤:', err)
     }
   }

@@ -20,7 +20,7 @@ const YouTubeSection = memo(({
   const [isShorts, setIsShorts] = useState<boolean>(false)
   const [timestamp, setTimestamp] = useState<number>(0)
   const [error, setError] = useState<string | null>(null)
-  const [isPlaying, setIsPlaying] = useState<boolean>(true) // 預設自動播放
+  // const [isPlaying, setIsPlaying] = useState<boolean>(true) // 預設自動播放
   const [isMobile, setIsMobile] = useState<boolean | null>(null) // null 表示尚未初始化
   // iframe 和 video 元素引用
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -375,11 +375,11 @@ const YouTubeSection = memo(({
               }}
               onPlay={() => {
                 // console.log('🎬 Video started playing')
-                setIsPlaying(true)
+                // setIsPlaying(true)
               }}
               onPause={() => {
                 // console.log('⏸️ Video paused')
-                setIsPlaying(false)
+                // setIsPlaying(false)
               }}
               // onLoadStart={() => console.log('📂 Video file loading started')}
               // onLoadedData={() => console.log('✅ Video file loaded successfully')}

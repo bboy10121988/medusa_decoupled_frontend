@@ -28,7 +28,7 @@ async function withRetry<T>(
  * 包含重試機制，提高穩定性
  */
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: { variantId: string } }
 ) {
   try {
@@ -55,7 +55,7 @@ export async function GET(
       })
       
       if (!response.ok) {
-        const errorText = await response.text()
+        await response.text()
         // if (process.env.NODE_ENV === 'development') console.error(`Error fetching variant: ${response.status} ${errorText}`)
         throw new Error(`Failed to fetch variant: ${response.statusText}`)
       }

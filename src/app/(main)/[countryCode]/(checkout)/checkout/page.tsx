@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Checkout() {
-  const cart = await retrieveCart().catch((error) => {
+  const cart = await retrieveCart().catch(() => {
     // console.error("Error retrieving cart:", error)
     return notFound()
   })
@@ -19,7 +19,7 @@ export default async function Checkout() {
     return notFound()
   }
 
-  const customer = await retrieveCustomer().catch((error) => {
+  const customer = await retrieveCustomer().catch(() => {
     // console.error("Error retrieving customer:", error)
     return null
   })

@@ -14,7 +14,7 @@ type MobileMenuProps = {
   headerData?: SanityHeader
 }
 
-export default function MobileMenu({ regions, navigation, categories, headerData }: MobileMenuProps) {
+export default function MobileMenu({ regions, navigation, categories, headerData: _headerData }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [menuTopOffset, setMenuTopOffset] = useState(0)

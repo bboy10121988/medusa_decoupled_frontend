@@ -52,12 +52,12 @@ export declare namespace LocalHttpTypes {
   export interface StoreProduct {
     id: string
     title: string
-    subtitle: string | null
-    description: string | undefined
+    subtitle?: string | null
+    description?: string | null
     handle: string
-    is_giftcard: boolean
+    is_giftcard?: boolean
     status: "draft" | "proposed" | "published" | "rejected"
-    thumbnail: string | undefined
+    thumbnail?: string | null
     weight: number | null
     length: number | null
     height: number | null
@@ -66,53 +66,55 @@ export declare namespace LocalHttpTypes {
     origin_country: string | null
     mid_code: string | null
     material: string | null
-    collection_id: string | null
+    collection_id?: string | null
     type_id: string | null
     discountable: boolean
     external_id: string | null
-    created_at: string
-    updated_at: string
+    created_at: string | null
+    updated_at: string | null
     deleted_at: string | null
-    metadata: Record<string, unknown> | null
-    images: StoreProductImage[] | null
+    metadata?: Record<string, unknown> | null
+    images?: StoreProductImage[] | null
     options: StoreProductOption[] | null
     variants: StoreProductVariant[] | null
-    categories: StoreProductCategory[] | null
-    tags: StoreProductTag[] | null
-    collection: StoreCollection | null
-    type: StoreProductType | null
+    categories?: StoreProductCategory[] | null
+    tags?: StoreProductTag[] | null
+    collection?: StoreCollection | null
+    type?: StoreProductType | null
   }
 
   export interface StoreProductImage {
     id: string
     url: string
     rank: number
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown> | null
   }
 
   export interface StoreProductOption {
     id: string
     title: string
-    values: StoreProductOptionValue[]
+    values?: StoreProductOptionValue[]
+    metadata?: Record<string, unknown> | null
   }
 
   export interface StoreProductOptionValue {
     id: string
     value: string
-    option_id: string
+    option_id?: string | null
+    metadata?: Record<string, unknown> | null
   }
 
   export interface StoreProductVariant {
     id: string
-    title: string
+    title: string | null
     sku: string | null
     barcode: string | null
     ean: string | null
     upc: string | null
-    variant_rank: number | null
-    inventory_quantity: number
-    allow_backorder: boolean
-    manage_inventory: boolean
+    variant_rank?: number | null
+    inventory_quantity?: number
+    allow_backorder?: boolean | null
+    manage_inventory?: boolean | null
     hs_code: string | null
     origin_country: string | null
     mid_code: string | null
@@ -121,8 +123,8 @@ export declare namespace LocalHttpTypes {
     length: number | null
     height: number | null
     width: number | null
-    metadata: Record<string, any> | null
-    prices: StoreProductVariantPrice[] | null
+    metadata?: Record<string, any> | null
+    prices?: StoreProductVariantPrice[] | null
     options: StoreProductOptionValue[] | null
     calculated_price?: BaseCalculatedPriceSet
     created_at: string
@@ -143,8 +145,8 @@ export declare namespace LocalHttpTypes {
     name: string
     description: string
     handle: string
-    is_active: boolean
-    is_internal: boolean
+    is_active?: boolean
+    is_internal?: boolean
     rank: number | null
     parent_category_id: string | null
     parent_category: StoreProductCategory | null
@@ -152,7 +154,7 @@ export declare namespace LocalHttpTypes {
     created_at: string
     updated_at: string
     deleted_at: string | null
-    metadata?: Record<string, any>
+    metadata?: Record<string, any> | null
   }
 
   export interface StoreProductTag {
@@ -176,7 +178,7 @@ export declare namespace LocalHttpTypes {
     value: string
     created_at: string
     updated_at: string
-    metadata?: Record<string, any>
+    metadata?: Record<string, any> | null
   }
 
   export interface StoreRegion {

@@ -346,7 +346,7 @@ export const addCustomerAddress = async (
 
   return sdk.store.customer
     .createAddress(address, {}, headers)
-    .then(async ({ customer }) => {
+    .then(async () => {
       const customerCacheTag = await getCacheTag("customers")
       revalidateTag(customerCacheTag)
       return { success: true, error: null }
@@ -424,6 +424,7 @@ export const updateCustomerAddress = async (
  * 確保購物車與用戶正確關聯
  * 如果轉移失敗，嘗試重新創建關聯
  */
+/*
 async function ensureCartAssociation() {
   const cartId = await getCartId()
   const headers = await getAuthHeaders()
@@ -462,6 +463,7 @@ async function ensureCartAssociation() {
     // console.log("已清除本地購物車，系統將創建新的購物車")
   }
 }
+*/
 
 export async function handleGoogleCallback(token: string) {
   try {

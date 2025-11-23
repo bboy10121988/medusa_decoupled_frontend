@@ -2,7 +2,7 @@ import { retrieveOrder } from "../../../../lib/data/orders"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const { id } = params

@@ -10,7 +10,7 @@ type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
 }
 
-const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
+const ProfilePassword: React.FC<MyInformationProps> = ({ customer: _customer }) => {
   const [successState, setSuccessState] = React.useState(false)
 
   // TODO: Add support for password updates
@@ -35,7 +35,6 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
         }
         isSuccess={successState}
         isError={false}
-        errorMessage={undefined}
         clearState={clearState}
         data-testid="account-password-editor"
       >

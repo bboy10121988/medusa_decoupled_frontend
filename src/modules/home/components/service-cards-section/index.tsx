@@ -220,7 +220,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
     }
   }
 
-  const getDefaultServiceImage = (serviceTitle: string): string => {
+  const getDefaultServiceImage = (_serviceTitle: string): string => {
     // 根據服務類型返回適合的預設圖片 - 暫時使用透明圖片避免 404 錯誤
     return 'data:image/svg+xml,%3Csvg width="600" height="450" xmlns="http://www.w3.org/2000/svg"%3E%3Crect width="100%25" height="100%25" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="20" fill="%236b7280" text-anchor="middle" dy=".3em"%3E服務圖片%3C/text%3E%3C/svg%3E'
   }
@@ -402,7 +402,7 @@ interface ServiceCardsSectionProps {
 }
 
 export default function ServiceCardsSection({
-  heading,
+  // heading,
   cardsPerRow = 4,
   cards = [],
 }: ServiceCardsSectionProps) {

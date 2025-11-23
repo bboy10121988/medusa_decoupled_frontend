@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@medusajs/ui"
 import { MapPin } from "@medusajs/icons"
 import { toast } from "react-hot-toast"
@@ -16,28 +16,6 @@ const EcpayStoreMap: React.FC<EcpayStoreMapProps> = ({
   onStoreSelected 
 }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [hasSelection, setHasSelection] = useState(false)
-
-  // 檢查是否已有物流選擇
-  useEffect(() => {
-    const checkLogisticsSelection = () => {
-      const saved = localStorage.getItem('ecpay_logistics_selection')
-      setHasSelection(!!saved)
-    }
-
-    checkLogisticsSelection()
-
-    // 監聽物流選擇更新
-    const handleUpdate = () => {
-      checkLogisticsSelection()
-    }
-
-    window.addEventListener('logistics-selection-updated', handleUpdate)
-    
-    return () => {
-      window.removeEventListener('logistics-selection-updated', handleUpdate)
-    }
-  }, [])
 
   const handleOpenStoreMap = async () => {
     setIsLoading(true)

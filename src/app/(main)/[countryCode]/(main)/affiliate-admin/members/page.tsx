@@ -55,17 +55,15 @@ export default function MembersPage() {
   }, [])
 
   useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(''), 3000)
-      return () => clearTimeout(timer)
-    }
+    if (!success) return
+    const timer = setTimeout(() => setSuccess(''), 3000)
+    return () => clearTimeout(timer)
   }, [success])
 
   useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => setError(''), 5000)
-      return () => clearTimeout(timer)
-    }
+    if (!error) return
+    const timer = setTimeout(() => setError(''), 5000)
+    return () => clearTimeout(timer)
   }, [error])
 
   const fetchMembers = async () => {

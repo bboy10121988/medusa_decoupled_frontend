@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { FcGoogle } from "react-icons/fc"
+import { MEDUSA_BACKEND_URL } from "@/lib/config"
 
 export default function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
@@ -12,7 +12,7 @@ export default function GoogleLoginButton() {
       
       // 1. 向後端請求 OAuth URL (這會建立 session)
       const response = await fetch(
-        'https://admin.timsfantasyworld.com/auth/customer/google',
+        `${MEDUSA_BACKEND_URL}/auth/customer/google`,
         {
           method: 'GET',
           credentials: 'include', // ⭐️ 重要!建立並保存 session

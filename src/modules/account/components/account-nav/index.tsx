@@ -14,7 +14,7 @@ import { useLogout } from "@lib/hooks/use-logout"
 
 type AccountNavProps = {
   customer: HttpTypes.StoreCustomer | null
-  onLogout?: () => void
+  onLogout?: (() => void) | undefined
 }
 
 const AccountNav = ({

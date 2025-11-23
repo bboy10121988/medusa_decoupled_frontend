@@ -7,10 +7,13 @@ import { useEffect, useMemo, useState } from "react"
 import Thumbnail from "../thumbnail/index"
 import ClientPreviewPrice from "./client-price"
 
+/*
 type ProductOption = {
+  id: string
   title: string
   values: string[]
 }
+*/
 
 type SelectedOptions = {
   [key: string]: string | null
@@ -58,8 +61,9 @@ export default function ProductPreview({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isImageTransitioning, setIsImageTransitioning] = useState(false)
-  const [showVariantSelector, setShowVariantSelector] = useState(false)
+  // const [showVariantSelector, setShowVariantSelector] = useState(false)
   const [showMobileOptions, setShowMobileOptions] = useState(false)
+  // const [isHovered, setIsHovered] = useState(false)
 
   // 獲取所有可用圖片
   const allImages = useMemo(() => {
@@ -103,7 +107,7 @@ export default function ProductPreview({
     const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length
     changeImage(newIndex, e)
   }
-  const [isHovered, setIsHovered] = useState(false)
+  // const [isHovered, setIsHovered] = useState(false)
 
   // 使用 useMemo 優化產品選項的計算
   const productOptions = useMemo(() => {
@@ -413,14 +417,14 @@ export default function ProductPreview({
         <div 
           className="relative w-full pb-[133.33%] overflow-hidden bg-white"
           onMouseEnter={() => {
-            setIsHovered(true)
+            // setIsHovered(true)
             // 如果有多張圖片，hover時使用淡出淡入切換到第二張圖片
             if (allImages.length > 1) {
               changeImage(1)
             }
           }}
           onMouseLeave={() => {
-            setIsHovered(false)
+            // setIsHovered(false)
             // 離開hover時使用淡出淡入恢復到主圖
             changeImage(0)
           }}

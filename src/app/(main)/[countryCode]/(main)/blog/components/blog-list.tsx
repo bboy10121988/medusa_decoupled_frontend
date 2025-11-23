@@ -17,7 +17,7 @@ interface BlogListProps {
 
 const POSTS_PER_PAGE = 9
 
-export default function BlogList({ initialPosts, categories, countryCode = "tw" }: BlogListProps) {
+export default function BlogList({ initialPosts, countryCode = "tw" }: BlogListProps) {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   

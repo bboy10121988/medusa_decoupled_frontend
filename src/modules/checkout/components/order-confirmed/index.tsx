@@ -59,7 +59,7 @@ const OrderConfirmed = () => {
             // console.error("❌ retrieveOrder 返回了空的資料")
           }
         })
-        .catch((error: any) => {
+        .catch((_error: any) => {
           // console.error("❌ 載入訂單資料失敗:", error)
           // console.error("❌ 錯誤詳情:", error.message, error.stack)
         })

@@ -29,7 +29,7 @@ export const listCartShippingMethods = async (cartId: string) => {
     // console.log("📡📡📡 回應狀態:", response.status, response.statusText)
     
     if (!response.ok) {
-      const errorText = await response.text()
+      await response.text()
       // console.error("❌❌❌ HTTP錯誤回應:", errorText)
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
@@ -82,7 +82,7 @@ export const calculatePriceForShippingOption = async (
       }
     )
     .then(({ shipping_option }) => shipping_option)
-    .catch((e) => {
+    .catch(() => {
       return null
     })
 }

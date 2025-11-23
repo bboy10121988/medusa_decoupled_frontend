@@ -71,8 +71,8 @@ export function generateProductKeywords(
 // 生成結構化資料 JSON-LD
 export function generateStructuredData(
   pageData: any,
-  seoMeta?: SanitySEOMeta,
-  pageType: 'homepage' | 'product' | 'article' | 'page' = 'page'
+  seoMeta?: SanitySEOMeta
+  // pageType: 'homepage' | 'product' | 'article' | 'page' = 'page'
 ): string | null {
   if (!seoMeta?.structuredDataType || seoMeta.structuredDataType === 'none') {
     if (seoMeta?.customJsonLd) {

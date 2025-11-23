@@ -11,7 +11,7 @@
 **現象**: 完成 Google OAuth 授權後，無法進入會員中心頁面
 
 **測試環境**:
-- 前端 URL: https://tims.com.tw
+- 前端 URL: https://timsfantasyworld.com
 - 後端 URL: (請後端工程師提供)
 - 測試頁面: `/tw/account`
 
@@ -20,7 +20,7 @@
 ## 📋 測試步驟與結果
 
 ### Step 1: 訪問登入頁面
-- ✅ 成功訪問 `https://tims.com.tw/tw/account`
+- ✅ 成功訪問 `https://timsfantasyworld.com/tw/account`
 - ✅ 頁面正常顯示
 - ✅ "使用 Google 登入" 按鈕可見
 
@@ -106,7 +106,7 @@ res.cookie('_medusa_jwt', token, {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
-  domain: '.tims.com.tw',  // ⚠️ 重要：跨域 cookie 需要設定 domain
+  domain: '.timsfantasyworld.com',  // ⚠️ 重要：跨域 cookie 需要設定 domain
   maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 })
 ```
@@ -123,13 +123,13 @@ res.cookie('_medusa_jwt', token, {
 
 ```typescript
 {
-  store_cors: "https://tims.com.tw,https://www.tims.com.tw",
-  admin_cors: "https://admin.tims.com.tw",
+  store_cors: "https://timsfantasyworld.com,https://www.timsfantasyworld.com",
+  admin_cors: "https://admin.timsfantasyworld.com",
   // 重要：確保 credentials
   http: {
     cors: {
       credentials: true,
-      origin: ["https://tims.com.tw", "https://www.tims.com.tw"]
+      origin: ["https://timsfantasyworld.com", "https://www.timsfantasyworld.com"]
     }
   }
 }
@@ -226,7 +226,7 @@ app.get('/auth/google/callback',
       
       if (!req.user) {
         console.error("❌ No user found after authentication")
-        return res.redirect('https://tims.com.tw/tw/account?error=no_user')
+        return res.redirect('https://timsfantasyworld.com/tw/account?error=no_user')
       }
       
       // 生成 JWT token
@@ -238,18 +238,18 @@ app.get('/auth/google/callback',
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
-        domain: '.tims.com.tw',
+        domain: '.timsfantasyworld.com',
         maxAge: 7 * 24 * 60 * 60 * 1000
       })
       console.log("✅ Cookie set")
       
       // 重定向到前端
       console.log("✅ Redirecting to frontend")
-      res.redirect('https://tims.com.tw/tw/account')
+      res.redirect('https://timsfantasyworld.com/tw/account')
       
     } catch (error) {
       console.error("❌ Error in callback handler:", error)
-      res.redirect('https://tims.com.tw/tw/account?error=callback_failed')
+      res.redirect('https://timsfantasyworld.com/tw/account?error=callback_failed')
     }
   }
 )

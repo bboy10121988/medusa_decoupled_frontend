@@ -6,11 +6,7 @@ interface EcpayCheckoutProps {
   onError?: (error: any) => void
 }
 
-const EcpayCheckout: React.FC<EcpayCheckoutProps> = ({ 
-  cart, 
-  onSuccess, 
-  onError 
-}) => {
+const EcpayCheckout: React.FC<EcpayCheckoutProps> = () => {
   const handlePayment = () => {
     // ECPay 支付邏輯
     // console.log("Processing ECPay payment for cart:", cart?.id)

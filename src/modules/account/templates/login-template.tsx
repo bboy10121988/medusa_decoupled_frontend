@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Register from "@modules/account/components/register"
 import Login from "@modules/account/components/login"
-import GoogleLoginButton from "@modules/account/components/google-login-button"
+// import GoogleLoginButton from "@modules/account/components/google-login-button"
 
 export enum LOGIN_VIEW {
   SIGN_IN = "sign-in",
@@ -14,7 +14,7 @@ interface LoginTemplateProps {
   countryCode?: string
 }
 
-const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
+const LoginTemplate = ({ countryCode: _countryCode = 'tw' }: LoginTemplateProps) => {
   const [currentView, setCurrentView] = useState("sign-in")
 
   return (

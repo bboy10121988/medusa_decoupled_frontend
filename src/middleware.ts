@@ -1,23 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { NextRequest, NextResponse } from "next/server"
 
-const BACKEND_URL = process.env.MEDUSA_BACKEND_URL
-const KEY_DEFAULT = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-const KEY_LOCAL = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_LOCAL
-const KEY_REMOTE = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_REMOTE
-const KEY_RAILWAY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY_RAILWAY
-function chooseKey(url?: string) {
-  if (!url) return KEY_DEFAULT
-  try {
-    const { hostname } = new URL(url)
-    if (hostname === 'localhost' || hostname === '127.0.0.1') return KEY_LOCAL || KEY_DEFAULT
-    if (hostname.endsWith('.railway.app')) return KEY_RAILWAY || KEY_REMOTE || KEY_DEFAULT
-    return KEY_REMOTE || KEY_DEFAULT
-  } catch {
-    return KEY_DEFAULT
-  }
-}
-const PUBLISHABLE_API_KEY = chooseKey(BACKEND_URL)
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || "tw"
 
 const regionMapCache = {
@@ -25,74 +8,29 @@ const regionMapCache = {
   regionMapUpdated: Date.now(),
 }
 
-async function getRegionMap(cacheId: string) {
-  const { regionMap, regionMapUpdated } = regionMapCache
+async function getRegionMap(_cacheId: string) {
+  const { regionMap } = regionMapCache
 
-  if (!BACKEND_URL) {
-    throw new Error(
-      "Middleware.ts: Error fetching regions. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
-    )
+  // If map is already populated, return it
+  if (regionMap.size > 0) {
+    return regionMap
   }
 
-  if (
-    !regionMap.keys().next().value ||
-    regionMapUpdated < Date.now() - 3600 * 1000
-  ) {
-    try {
-      // Fetch regions from Medusa. Middleware runs on Edge; we can't use JS SDK.
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 秒超時
-      
-      const response = await fetch(`${BACKEND_URL}/store/regions`, {
-        headers: {
-          "x-publishable-api-key": PUBLISHABLE_API_KEY!,
-        },
-        signal: controller.signal
-      }).finally(() => clearTimeout(timeoutId));
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch regions: ${response.status}`)
-      }
+  // Performance Optimization: Use static region configuration instead of blocking fetch
+  // This improves TTFB significantly by removing the backend dependency in middleware
+  // If you need to support multiple regions, add them to this array
+  const supportedRegions = [DEFAULT_REGION] 
+  
+  supportedRegions.forEach((regionCode) => {
+    regionMap.set(regionCode, {
+      id: `static-${regionCode}`,
+      name: regionCode.toUpperCase(),
+      countries: [{ iso_2: regionCode }],
+    } as unknown as HttpTypes.StoreRegion)
+  })
 
-      const { regions } = await response.json()
-
-      if (!regions?.length) {
-        throw new Error(
-          "No regions found. Please set up regions in your Medusa Admin."
-        )
-      }
-
-      // Create a map of country codes to regions.
-      regions.forEach((region: HttpTypes.StoreRegion) => {
-        region.countries?.forEach((c) => {
-          regionMapCache.regionMap.set(c.iso_2 ?? "", region)
-        })
-      })
-
-      regionMapCache.regionMapUpdated = Date.now()
-    } catch (err) {
-      // Fallback for local dev: seed default region into map to avoid hard crash
-      if (!regionMapCache.regionMap.size) {
-        regionMapCache.regionMap.set(DEFAULT_REGION, {
-          id: "local",
-          name: DEFAULT_REGION.toUpperCase(),
-          countries: [{ iso_2: DEFAULT_REGION }],
-        } as unknown as HttpTypes.StoreRegion)
-        regionMapCache.regionMapUpdated = Date.now()
-      }
-      
-      // 更有效地處理網絡錯誤
-      const errMsg = String((err as Error)?.message || '未知錯誤');
-      const isNetworkError = errMsg.includes('fetch') || errMsg.includes('network') || 
-                            errMsg.includes('abort') || errMsg.includes('timeout');
-      
-      if (process.env.NODE_ENV === "development") {
-        // console.warn(`Middleware.ts: ${isNetworkError ? '網絡錯誤' : '失敗'} - 使用預設區域:`, errMsg)
-      }
-    }
-  }
-
-  return regionMapCache.regionMap
+  regionMapCache.regionMapUpdated = Date.now()
+  return regionMap
 }
 
 /**
@@ -130,6 +68,7 @@ async function getCountryCode(
         // "Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
       // )
     }
+    return undefined
   }
 }
 
@@ -159,7 +98,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 預設不重導，必要時才建立 redirect 回應
-  const response = NextResponse.next()
+  // const response = NextResponse.next()
 
   const cacheIdCookie = request.cookies.get("_medusa_cache_id")
 

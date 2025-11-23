@@ -21,15 +21,6 @@ interface GoogleIdentity {
   expires_at?: number;
 }
 
-interface GoogleUserData {
-  email?: string;
-  name?: string;
-  given_name?: string;
-  family_name?: string;
-  picture?: string;
-  [key: string]: any;
-}
-
 interface GoogleIdentityResult {
   success: boolean;
   data?: GoogleIdentity;

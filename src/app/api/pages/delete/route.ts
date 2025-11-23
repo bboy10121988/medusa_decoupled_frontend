@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     // console.log('正在刪除頁面:', pageId)
 
     // 從 Sanity 刪除頁面
-    const result = await client.delete(pageId)
+    await client.delete(pageId)
 
     // console.log('頁面已刪除:', result)
 
@@ -51,7 +51,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 從 Sanity 刪除頁面
-    const result = await client.delete(pageId)
+    await client.delete(pageId)
 
     // console.log('頁面已刪除:', result)
 

@@ -10,12 +10,14 @@ if (typeof window === 'undefined' && !serverToken && process.env.NODE_ENV === 'd
   // console.warn('📝 請在 .env.local 中加入: SANITY_API_TOKEN=你的_sanity_寫入_token')
 }
 
+const token = publicToken || serverToken
+
 export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || '',
   apiVersion: "2024-01-01",
   useCdn: !serverToken, // 如果沒有 server token，則使用 CDN（只讀模式）
-  token: publicToken || serverToken, // 支援兩種 token 名稱
+  ...(token ? { token } : {})
 })
 
 export async function getAllPosts(category?: string, limit: number = 50): Promise<BlogPostType[]> {

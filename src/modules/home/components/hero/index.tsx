@@ -3,6 +3,7 @@
 import { Button, Heading } from "@medusajs/ui"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 
 type Slide = {
   heading: string
@@ -164,20 +165,16 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 桌面版圖片容器 - 只在 768px 以上顯示 */}
               <div className="hidden lg:block w-full" style={{ overflow: 'hidden' }}>
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
-                  <img
+                  <Image
                     key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
                     src={slideItem.desktopImage}
                     alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                    width={1920}
+                    height={1080}
+                    priority={index === 0}
                     className="w-full h-auto object-cover block"
-                    loading={index === 0 ? 'eager' : 'lazy'}
+                    sizes="100vw"
                     style={{
-                      margin: 0,
-                      padding: 0,
-                      border: 'none',
-                      outline: 'none',
-                      display: 'block',
-                      lineHeight: 0,
-                      fontSize: 0,
                       verticalAlign: 'top'
                     }}
                   />
@@ -205,22 +202,16 @@ const Hero = ({ slides, settings }: HeroProps) => {
                 }}
               >
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
-                  <img
+                  <Image
                     key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
                     src={slideItem.mobileImage}
                     alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                    width={800}
+                    height={1200}
+                    priority={index === 0}
                     className="w-full h-auto object-cover block"
-                    loading={index === 0 ? 'eager' : 'lazy'}
+                    sizes="100vw"
                     style={{
-                      margin: 0,
-                      padding: 0,
-                      border: 'none',
-                      outline: 'none',
-                      display: 'block',
-                      lineHeight: 0,
-                      fontSize: 0,
-                      WebkitFontSmoothing: 'antialiased',
-                      position: 'relative',
                       width: '100%',
                       height: 'auto',
                       objectFit: 'cover'

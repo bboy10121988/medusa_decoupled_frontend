@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: { merchantTradeNo: string } }
 ) {
   const { merchantTradeNo } = params

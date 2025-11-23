@@ -55,10 +55,11 @@ const LABEL_PRIORITIES: Record<PromotionLabelType, number> = {
 /**
  * 只從 Medusa API 獲取真實的促銷折扣標籤
  */
-export async function applyPromotion(cartId: string, code: string) {
+export async function applyPromotion(product: any, regionId: string) {
+  const labels: PromotionLabel[] = []
   const baseUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || (process.env.NEXT_PUBLIC_ENV_MODE === 'local' ? 'http://localhost:9000' : 'https://timsfantasyworld.com')
-  const { MEDUSA_BACKEND_URL } = await import('./config')
-  const { getPublishableKeyForBackend } = await import('./lib/medusa-publishable-key')
+  const { MEDUSA_BACKEND_URL } = await import('../config')
+  const { getPublishableKeyForBackend } = await import('../medusa-publishable-key')
   const publishableKey = getPublishableKeyForBackend(MEDUSA_BACKEND_URL)
 
   try {
@@ -145,7 +146,7 @@ export async function applyPromotion(cartId: string, code: string) {
     
     // 3. 分析促銷資訊
     const originalPrice = cart.original_total || 0
-    const finalPrice = cart.total || 0
+    // const finalPrice = cart.total || 0
     const discountTotal = cart.discount_total || 0
     const promotions = cart.promotions || []
 
@@ -362,9 +363,9 @@ export async function applyPromotion(cartId: string, code: string) {
 
     if (process.env.NODE_ENV === 'development') {
       // if (process.env.NODE_ENV === 'development') console.log(`📋 [${product.title}] 最終標籤數量: ${labels.length}`)
-      labels.forEach((label, index) => {
+      // labels.forEach((label, index) => {
         // if (process.env.NODE_ENV === 'development') console.log(`   ${index + 1}. ${label.text} (${label.type})`)
-      })
+      // })
     }
 
     return labels.sort((a, b) => a.priority - b.priority)

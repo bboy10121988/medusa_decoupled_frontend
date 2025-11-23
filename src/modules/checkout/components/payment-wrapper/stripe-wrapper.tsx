@@ -7,7 +7,7 @@ import { createContext } from "react"
 
 type StripeWrapperProps = {
   paymentSession: HttpTypes.StorePaymentSession
-  stripeKey?: string
+  stripeKey?: string | undefined
   stripePromise: Promise<Stripe | null> | null
   children: React.ReactNode
 }
@@ -20,10 +20,6 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
   stripePromise,
   children,
 }) => {
-  const options: StripeElementsOptions = {
-    clientSecret: paymentSession!.data?.client_secret as string | undefined,
-  }
-
   if (!stripeKey) {
     // console.warn("Stripe 已停用：未設定 NEXT_PUBLIC_STRIPE_KEY 環境變數")
     return <div>{children}</div>
@@ -37,6 +33,10 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
   if (!paymentSession?.data?.client_secret) {
     // console.warn("Stripe 客戶端密鑰遺失，無法初始化 Stripe")
     return <div>{children}</div>
+  }
+
+  const options: StripeElementsOptions = {
+    clientSecret: paymentSession.data.client_secret as string,
   }
 
   return (

@@ -59,15 +59,15 @@ const StripePaymentButton = ({
               " " +
               cart.billing_address?.last_name,
             address: {
-              city: cart.billing_address?.city ?? undefined,
-              country: cart.billing_address?.country_code ?? undefined,
-              line1: cart.billing_address?.address_1 ?? undefined,
-              line2: cart.billing_address?.address_2 ?? undefined,
-              postal_code: cart.billing_address?.postal_code ?? undefined,
-              state: cart.billing_address?.province ?? undefined,
+              ...(cart.billing_address?.city ? { city: cart.billing_address.city } : {}),
+              ...(cart.billing_address?.country_code ? { country: cart.billing_address.country_code } : {}),
+              ...(cart.billing_address?.address_1 ? { line1: cart.billing_address.address_1 } : {}),
+              ...(cart.billing_address?.address_2 ? { line2: cart.billing_address.address_2 } : {}),
+              ...(cart.billing_address?.postal_code ? { postal_code: cart.billing_address.postal_code } : {}),
+              ...(cart.billing_address?.province ? { state: cart.billing_address.province } : {}),
             },
-            email: cart.email,
-            phone: cart.billing_address?.phone ?? undefined,
+            ...(cart.email ? { email: cart.email } : {}),
+            ...(cart.billing_address?.phone ? { phone: cart.billing_address.phone } : {}),
           },
         },
       })

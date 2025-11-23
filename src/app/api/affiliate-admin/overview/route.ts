@@ -29,7 +29,7 @@ const statsPath = path.join(dataDir, 'affiliate-stats.json')
 const settlementsPath = path.join(dataDir, 'affiliate-settlements.json')
 const settingsPath = path.join(dataDir, 'affiliate-settings.json')
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     // 讀取統計數據
     let stats: AffiliateStats = { affiliateStats: {} }

@@ -60,9 +60,9 @@ export async function recordClick(
     affiliateId,
     linkId,
     timestamp: new Date().toISOString(),
-    ip,
-    userAgent,
-    referrer,
+    ...(ip ? { ip } : {}),
+    ...(userAgent ? { userAgent } : {}),
+    ...(referrer ? { referrer } : {}),
     converted: false,
   }
   

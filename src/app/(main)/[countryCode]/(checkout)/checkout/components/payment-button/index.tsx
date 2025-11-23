@@ -16,7 +16,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   "data-testid": dataTestId,
 }) => {
 
-  const action:string = "PaymentButton"
+  // const action:string = "PaymentButton"
 
   const notReady =
     !cart?.shipping_address ||

@@ -66,7 +66,7 @@ export function defineReactWebComponent<Props>(
 
     private render() {
       if (!this.root) return
-      this.root.render(React.createElement(Component, this.currentProps))
+      this.root.render(React.createElement(Component as any, this.currentProps))
     }
   }
 

@@ -21,6 +21,7 @@ type ShippingProps = {
   availableShippingMethods: HttpTypes.StoreCartShippingOption[] | null
 }
 
+/*
 function formatAddress(address: any) {
   if (!address) return ""
   
@@ -32,6 +33,7 @@ function formatAddress(address: any) {
   
   return parts.join(", ")
 }
+*/
 
 const Shipping: React.FC<ShippingProps> = ({
   cart,
@@ -184,7 +186,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 {hasPickupOptions && (
                   <RadioGroup
                     value={showPickupOptions}
-                    onChange={(value) => {
+                    onChange={(_value) => {
                       const id = _pickupMethods.find(
                         (option) => !option.insufficient_inventory
                       )?.id

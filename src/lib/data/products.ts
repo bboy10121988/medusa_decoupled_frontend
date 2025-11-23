@@ -85,15 +85,15 @@ export const listProducts = async ({
       cache: "force-cache", // 改用快取優先策略
     })
     .then(({ products, count }) => {
-      const nextPage = count > offset + limit ? pageParam + 1 : null
+      const nextPage = count > offset + limit ? offset + limit : null
 
       return {
         response: {
           products,
           count,
         },
-        nextPage: nextPage,
-        queryParams,
+        nextPage,
+        ...(queryParams ? { queryParams } : {}),
       }
     })
     .catch((error) => {
@@ -149,7 +149,7 @@ export const listProductsWithSort = async ({
       count,
     },
     nextPage,
-    queryParams,
+    ...(queryParams ? { queryParams } : {}),
   }
 }
 

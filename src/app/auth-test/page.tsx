@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { sdk } from "@/lib/config"
 
 export default function GoogleAuthTest() {

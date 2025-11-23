@@ -16,31 +16,36 @@ const LocalizedClientLink = ({
   children?: React.ReactNode
   href: string
   className?: string
-  onClick?: () => void
+  onClick?: React.MouseEventHandler<HTMLAnchorElement> | undefined
   passHref?: true
   [x: string]: any
 }) => {
   const { countryCode: rawCountryCode } = useParams()
   
-  // 確保 countryCode 有效，如果無效則使用默認值
-  const countryCode = rawCountryCode && 
-                     typeof rawCountryCode === 'string' &&
-                     rawCountryCode !== 'api' && 
-                     rawCountryCode.length === 2 && 
-                     /^[a-z]{2}$/.test(rawCountryCode) 
-                     ? rawCountryCode 
+    const { onClick, ...rest } = props
+
+  // 確保 countryCode 只有兩位小寫字母
+  const countryCode = typeof rawCountryCode === 'string' 
+                     ? rawCountryCode.toLowerCase() 
+                     : 'tw'
+
+  // 如果 countryCode 不合法，使用預設值
+  const validCountryCode = /^[a-z]{2}$/.test(countryCode) 
+                     ? countryCode 
                      : 'tw'
 
   // 避免重複添加 countryCode
-  const finalHref = href.startsWith(`/${countryCode}`) 
+  const finalHref = href.startsWith(`/${validCountryCode}`) 
     ? href 
-    : `/${countryCode}${href}`
+    : `/${validCountryCode}${href}`
 
   return (
-    <Link href={finalHref} {...props}>
+    <Link href={finalHref} {...rest} {...(onClick ? { onClick } : {})}>
       {children}
     </Link>
   )
+
+
 }
 
 export default LocalizedClientLink

@@ -1,7 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import ProductPreview from "@modules/products/components/product-preview"
 import { listProducts } from "@lib/data/products"
-import { convertToStandardProducts } from "@/lib/util/product-type-converter"
 
 type ProductPreviewGridProps = {
   collection: HttpTypes.StoreCollection
@@ -25,7 +24,7 @@ export default async function ProductPreviewGrid({
   }
 
   // 轉換產品類型以匹配 HttpTypes.StoreProduct
-  const standardProducts = convertToStandardProducts(products)
+  const standardProducts = products
 
   return (
     <div className="px-6 md:px-12 xl:px-16 2xl:px-20">

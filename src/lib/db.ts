@@ -15,7 +15,7 @@ pool.on('connect', () => {
   // console.log('Connected to Medusa database')
 })
 
-pool.on('error', (err) => {
+pool.on('error', () => {
   // console.error('Unexpected error on idle client', err)
   process.exit(-1)
 })

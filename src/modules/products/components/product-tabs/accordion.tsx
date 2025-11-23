@@ -68,7 +68,7 @@ const Item: React.FC<AccordionItemProps> = ({
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Header>
       <AccordionPrimitive.Content
-        forceMount={forceMountContent}
+        {...(forceMountContent ? { forceMount: true } : {})}
         className={clx(
           "radix-state-closed:animate-accordion-close radix-state-open:animate-accordion-open radix-state-closed:pointer-events-none px-1"
         )}

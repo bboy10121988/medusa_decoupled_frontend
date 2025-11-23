@@ -18,12 +18,12 @@ const nextConfig = {
   // 使用絕對路徑作為資產前綴，避免相對路徑問題
   assetPrefix: process.env.NODE_ENV === 'production' ? '' : undefined,
   eslint: {
-    // 暫時在建置時忽略 ESLint 錯誤，待專案穩定後再收斂
+    // Only ignore ESLint errors during builds to allow incremental fixes
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // 暫時在建置時忽略 TypeScript 錯誤，待專案穩定後再收斂
-    ignoreBuildErrors: true,
+    // Keep TypeScript strict as we have fixed all errors
+    ignoreBuildErrors: false,
   },
   // 簡化的 webpack 配置，避免 minify plugin 衝突
   webpack: (config, { isServer, dev }) => {

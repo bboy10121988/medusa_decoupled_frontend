@@ -98,7 +98,7 @@ export async function affiliateLogin(
     id: affiliateId,
     email,
     displayName: email.split('@')[0],
-    website: email === 'test@affiliate.com' ? 'https://test-affiliate.com' : undefined,
+    ...(email === 'test@affiliate.com' ? { website: 'https://test-affiliate.com' } : {}),
     status: 'approved', // 預設為已審核通過
     created_at: new Date().toISOString(),
   })

@@ -3,9 +3,9 @@
 import { useSearchParams } from "next/navigation"
 import type { HttpTypes } from "@medusajs/types"
 import { useEffect, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+// import { usePathname, useRouter } from "next/navigation"
 import { listCartShippingMethods } from "../../../lib/data/fulfillment"
-import { listCartPaymentMethods } from "../../../lib/data/payment"
+// import { listCartPaymentMethods } from "../../../lib/data/payment"
 import Addresses from "../components/addresses"
 import Shipping from "../components/shipping"
 import Payment from "../components/payment"
@@ -20,11 +20,10 @@ type CheckoutTemplateProps = {
 
 const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
   const searchParams = useSearchParams()
-  const router = useRouter()
-  const pathname = usePathname()
+  // const router = useRouter()
+  // const pathname = usePathname()
   const step = searchParams?.get("step") || "address"
   const [availableShippingMethods, setAvailableShippingMethods] = useState<HttpTypes.StoreCartShippingOption[]>([])
-  const [availablePaymentMethods, setAvailablePaymentMethods] = useState<any[]>([])
 
   useEffect(() => {
     // console.log("🛒 CheckoutTemplate - cart.id:", cart?.id)
@@ -38,65 +37,16 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
           // console.log("⚠️ 配送方式為空或無效，設置為空陣列")
           setAvailableShippingMethods([])
         }
-      }).catch((error) => {
+      }).catch((_error) => {
         // console.error("❌ listCartShippingMethods 錯誤:", error)
         // 即使出錯也設置為空陣列，不阻止用戶操作
         setAvailableShippingMethods([])
       })
-
-      // 加載付款方式 - 目前主要提供銀行轉帳
-      if (cart.region?.id) {
-        // console.log("💳 呼叫 listCartPaymentMethods...")
-        listCartPaymentMethods(cart.region.id).then((methods) => {
-          // console.log("💳 收到 payment methods:", methods)
-          
-          // 總是提供銀行轉帳選項，無論後端返回什麼
-          const bankTransferMethod = {
-            id: 'pp_bank_transfer',
-            provider_id: 'pp_bank_transfer',
-            is_enabled: true
-          }
-          
-          if (methods && Array.isArray(methods) && methods.length > 0) {
-            // 合併後端方法和銀行轉帳
-            const combinedMethods = [bankTransferMethod, ...methods]
-            setAvailablePaymentMethods(combinedMethods)
-            // console.log("💳 設置組合付款方式:", combinedMethods)
-          } else {
-            // 只提供銀行轉帳
-            setAvailablePaymentMethods([bankTransferMethod])
-            // console.log("💳 只設置銀行轉帳選項")
-          }
-        }).catch((error) => {
-          // console.error("❌ listCartPaymentMethods 錯誤:", error)
-          // 出錯時提供銀行轉帳
-          const fallbackMethods = [
-            {
-              id: 'pp_bank_transfer', 
-              provider_id: 'pp_bank_transfer',
-              is_enabled: true
-            }
-          ]
-          setAvailablePaymentMethods(fallbackMethods)
-          // console.log("💳 錯誤回退，設置銀行轉帳")
-        })
-      } else {
-        // 沒有region時也提供銀行轉帳
-        setAvailablePaymentMethods([
-          {
-            id: 'pp_bank_transfer',
-            provider_id: 'pp_bank_transfer', 
-            is_enabled: true
-          }
-        ])
-        // console.log("💳 無region，預設銀行轉帳")
-      }
     } else {
       // console.log("⚠️ 沒有 cart.id，無法獲取配送方式")
       setAvailableShippingMethods([])
-      setAvailablePaymentMethods([])
     }
-  }, [cart?.id, cart?.region?.id])
+  }, [cart?.id])
 
   if (!cart) {
     return null
@@ -110,7 +60,7 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
           <div className="w-full" data-testid="checkout-form">
             {/* Steps indicator */}
             <div className="mb-8">
-              <StepsIndicator currentStep={step} cart={cart} router={router} pathname={pathname} />
+              <StepsIndicator currentStep={step} cart={cart} />
             </div>
 
             {/* Step content */}
@@ -125,7 +75,7 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
                 <Shipping cart={cart} availableShippingMethods={availableShippingMethods} />
               )}
               {step === "payment" && (
-                <Payment cart={cart} availablePaymentMethods={availablePaymentMethods} />
+                <Payment cart={cart} />
               )}
               {step === "order-confirmed" && (
                 <OrderConfirmed />
@@ -155,11 +105,9 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
 type StepsIndicatorProps = {
   currentStep: string
   cart: HttpTypes.StoreCart
-  router: any
-  pathname: string
 }
 
-const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorProps) => {
+const StepsIndicator = ({ currentStep, cart }: StepsIndicatorProps) => {
   const steps = [
     { id: "address", name: "配送地址", completed: false },
     { id: "delivery", name: "配送方式", completed: false },
@@ -191,8 +139,6 @@ const StepsIndicator = ({ currentStep, cart, router, pathname }: StepsIndicatorP
         {steps.map((step, index) => {
           const isCurrent = step.id === currentStep
           const isCompleted = step.completed
-          // 只允許訪問當前步驟及之前的步驟（如果已完成的話）
-          const isAccessible = index <= currentStepIndex || isCompleted
           // 如果用戶返回到之前的步驟，後面的步驟不應顯示為已完成
           const shouldShowAsCompleted = isCompleted && !isCurrent
 

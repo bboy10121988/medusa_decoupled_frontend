@@ -71,7 +71,7 @@ export default function PaginatedProducts({
       } = await listProductsWithSort({
         page,
         queryParams,
-        sortBy,
+        ...(sortBy ? { sortBy } : {}),
         countryCode,
       })
 

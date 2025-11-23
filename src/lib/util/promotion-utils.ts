@@ -78,7 +78,7 @@ const LABEL_TEXTS: Record<PromotionLabelType, string> = {
 }
 
 // 統一的金幣樣式類別
-const GOLD_COIN_STYLE = 'px-4 py-2 text-xs font-bold rounded-full shadow-2xl border-2 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-amber-900 border-yellow-200 backdrop-blur-sm gold-shimmer gold-rivet-label transform hover:scale-105 transition-all duration-200'
+// const GOLD_COIN_STYLE = 'px-4 py-2 text-xs font-bold rounded-full shadow-2xl border-2 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-amber-900 border-yellow-200 backdrop-blur-sm gold-shimmer gold-rivet-label transform hover:scale-105 transition-all duration-200'
 
 // 計算商品折扣資訊
 export function calculateProductDiscount(product: HttpTypes.StoreProduct) {
@@ -731,7 +731,7 @@ export async function getActivePromotionLabels(
     })
 
     if (!cartResponse.ok) {
-      const errorText = await cartResponse.text()
+      await cartResponse.text()
     // if (process.env.NODE_ENV === 'development') console.error('Failed to create cart:', errorText)
       throw new Error(`Failed to create cart: ${cartResponse.status}`)
     }
@@ -758,7 +758,7 @@ export async function getActivePromotionLabels(
     })
 
     if (!addItemResponse.ok) {
-      const errorText = await addItemResponse.text()
+      await addItemResponse.text()
       // if (process.env.NODE_ENV === 'development') console.error(`❌ [${product.title}] 添加商品失敗: ${addItemResponse.status}`, errorText)
       // 添加商品失敗時，返回空標籤而不是拋出錯誤
       return labels
@@ -766,7 +766,7 @@ export async function getActivePromotionLabels(
 
     const cartWithItem = await addItemResponse.json()
     const originalPrice = cartWithItem.cart.original_total || 0
-    const finalPrice = cartWithItem.cart.total || 0
+    // const finalPrice = cartWithItem.cart.total || 0
     const discountTotal = cartWithItem.cart.discount_total || 0
 
     // 檢查是否有促銷活動應用

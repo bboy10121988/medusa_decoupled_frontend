@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
 import Input from "@modules/common/components/input"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -16,7 +16,7 @@ type Props = {
 
 const Register = ({ setCurrentView }: Props) => {
   const [result, formAction] = useActionState(signup, null)
-  const router = useRouter()
+  // const router = useRouter()
   const { refreshCustomer } = useAccount()
 
   // 處理註冊成功

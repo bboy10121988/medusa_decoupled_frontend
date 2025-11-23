@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { retrieveCustomer } from "@lib/data/customer"
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const customer = await retrieveCustomer()
     return NextResponse.json({ customer })

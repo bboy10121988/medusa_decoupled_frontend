@@ -112,11 +112,12 @@ export const listOrders = async (
 }
 
 export const createTransferRequest = async (
-  state: {
-    success: boolean
-    error: string | null
-    order: HttpTypes.StoreOrder | null
-  },
+  // state: {
+  //   success: boolean
+  //   error: string | null
+  //   order: HttpTypes.StoreOrder | null
+  // },
+  _state: any,
   formData: FormData
 ): Promise<{
   success: boolean

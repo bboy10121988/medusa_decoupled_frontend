@@ -56,7 +56,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       })
       
       if (rejectResponse.ok) {
-        const result = await rejectResponse.json()
+        await rejectResponse.json()
         // console.log('Application rejected via backend API:', result)
         return NextResponse.json({ 
           success: true, 

@@ -228,7 +228,7 @@ export default function AffiliateHomePage() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {Object.entries(statsData.linkStats)
-                  .filter(([linkId, linkStat]) => linkStat.clicks > 0 || linkStat.conversions > 0) // 只顯示有數據的連結
+                  .filter(([, linkStat]) => linkStat.clicks > 0 || linkStat.conversions > 0) // 只顯示有數據的連結
                   .sort(([, a], [, b]) => b.clicks - a.clicks) // 按點擊數排序
                   .map(([linkId, linkStat]) => {
                     // 從連結資料中獲取補充資訊

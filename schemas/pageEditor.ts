@@ -70,7 +70,7 @@ export default defineType({
       isPublished: 'isPublished',
       publishedAt: 'publishedAt'
     },
-    prepare({ title, description, isPublished, publishedAt }) {
+    prepare({ title, description, isPublished, publishedAt: _publishedAt }) {
       return {
         title: title || '未命名頁面',
         subtitle: `${isPublished ? '✅ 已發布' : '📝 草稿'} • ${description || '無描述'}`,

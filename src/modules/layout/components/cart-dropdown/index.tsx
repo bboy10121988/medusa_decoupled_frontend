@@ -16,7 +16,7 @@ const CartDropdown = ({
   cart?: HttpTypes.StoreCart | null
   onClose?: () => void
 }) => {
-  const totalItems =
+  // const totalItems =
     cartState?.items?.reduce((acc, item) => {
       return acc + item.quantity
     }, 0) || 0
@@ -89,7 +89,7 @@ const CartDropdown = ({
                           <LineItemOptions
                             variant={item.variant}
                             data-testid="cart-item-variant"
-                            data-value={item.variant}
+                            {...(item.variant ? { "data-value": item.variant } : {})}
                           />
                           <div className="flex items-center gap-3">
                             <span

@@ -19,7 +19,7 @@ export function ProductActionProvider({ children }: { children: React.ReactNode 
   const [options, setOptions] = useState<Record<string, string>>({})
   const [selectedVariant, setSelectedVariant] = useState<HttpTypes.StoreProductVariant>()
   const [isAdding, setIsAdding] = useState(false)
-  const [inStock, setInStock] = useState(true) // 預設為可購買狀態
+  const [inStock] = useState(true) // 預設為可購買狀態
 
   const addToCart = useCallback(async (input: { variantId: string; quantity: number; countryCode: string }) => {
     setIsAdding(true)
@@ -38,7 +38,7 @@ export function ProductActionProvider({ children }: { children: React.ReactNode 
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const result = await response.json()
+      await response.json()
       // if (process.env.NODE_ENV === 'development') console.log("✅ ProductActionContext 加入購物車成功:", result)
       
       // 觸發全局購物車更新事件

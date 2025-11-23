@@ -7,7 +7,7 @@ export type SortOptions = "price_asc" | "price_desc" | "created_at"
 type SortProductsProps = {
   sortBy: SortOptions
   setQueryParams: (name: string, value: SortOptions) => void
-  "data-testid"?: string
+  "data-testid"?: string | undefined
 }
 
 const sortOptions = [

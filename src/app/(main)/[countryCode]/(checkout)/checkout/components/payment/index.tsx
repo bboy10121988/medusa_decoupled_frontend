@@ -1,7 +1,7 @@
 "use client"
 
 import { RadioGroup } from "@headlessui/react"
-import { isStripe as isStripeFunc, paymentInfoMap } from "../../../../constants"
+import { paymentInfoMap } from "@/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
@@ -11,18 +11,10 @@ import Divider from "@modules/common/components/divider"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
-// 檢查是否為綠界支付方式
-const isEcpay = (providerId: string | undefined) => {
-  return providerId === "ecpay_credit_card";
-}
-
-
 const Payment = ({
   cart,
-  availablePaymentMethods,
 }: {
   cart: any
-  availablePaymentMethods: any[]
 }) => {
 
   const payment_method_default = process.env.NEXT_PUBLIC_PAYMENT_METHOD_DEFAULT
@@ -34,8 +26,6 @@ const Payment = ({
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [cardBrand, setCardBrand] = useState<string | null>(null)
-  const [cardComplete, setCardComplete] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     activeSession?.provider_id ?? ""
   )
@@ -46,12 +36,9 @@ const Payment = ({
 
   const isOpen = searchParams.get("step") === "payment"
 
-  const isStripe = isStripeFunc(selectedPaymentMethod)
-  const isEcpayMethod = isEcpay(selectedPaymentMethod)
+  // const isStripe = isStripeFunc(selectedPaymentMethod)
 
   const setPaymentMethod = async (method: string) => {
-    
-    const action: string = "setPaymentMethod"
     
     // console.log(action,"選擇支付方式：",method)
 
@@ -83,8 +70,6 @@ const Payment = ({
 
   const handleSubmit = async () => {
     
-    const action: string = "handleSubmit"
-  
     setIsLoading(true)
 
     // console.log(action,"支付方式(providerID):",selectedPaymentMethod)
@@ -95,7 +80,7 @@ const Payment = ({
 
         // console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
-        const initResp = await initiatePaymentSession(cart,{
+        await initiatePaymentSession(cart,{
           provider_id: selectedPaymentMethod
         })
 
@@ -211,7 +196,6 @@ const Payment = ({
                 onClick={handleSubmit}
                 isLoading={isLoading}
                 disabled={
-                  (isStripe && !cardComplete) ||
                   (!selectedPaymentMethod && !paidByGiftcard)
                 }
                 data-testid="submit-payment-button"
@@ -251,9 +235,7 @@ const Payment = ({
                     )}
                   </Container>
                   <Text>
-                    {isStripeFunc(selectedPaymentMethod) && cardBrand
-                      ? cardBrand
-                      : "將於下一步顯示"}
+                    {"將於下一步顯示"}
                   </Text>
                 </div>
               </div>

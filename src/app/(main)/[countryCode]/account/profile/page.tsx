@@ -9,7 +9,7 @@ import { useAccount } from "@lib/context/account-context"
 import { HttpTypes } from "@medusajs/types"
 
 export default function Profile() {
-  const { customer, loading: customerLoading } = useAccount()
+  const { customer } = useAccount()
   const [regions, setRegions] = useState<HttpTypes.StoreRegion[] | null>(null)
   const [loading, setLoading] = useState(true)
 

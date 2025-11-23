@@ -154,7 +154,7 @@ export const getProductInventoryStatus = async (
     return {
       isOutOfStock: false, // TODO: 根據實際庫存 API 實現
       canBackorder: variant.allow_backorder || false,
-      inventoryQuantity: undefined, // TODO: 如果有庫存 API 可以添加
+      // inventoryQuantity: undefined, // TODO: 如果有庫存 API 可以添加
     }
 
   } catch (error) {

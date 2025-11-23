@@ -8,7 +8,7 @@ export async function GET(_request: NextRequest) {
     
     const jwtCookie = cookieStore.get("_medusa_jwt")
     const debugPreview = cookieStore.get("_debug_jwt_preview")
-    const debugFull = cookieStore.get("_debug_jwt_full")
+    // const debugFull = cookieStore.get("_debug_jwt_full")
     
     // console.log("🍪 調試 Cookie 狀態:", {
       // totalCookies: allCookies.length,

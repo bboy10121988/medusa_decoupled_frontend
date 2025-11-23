@@ -3,8 +3,8 @@ import { sdk } from "@lib/config"
 import { getCacheOptions } from "./cookies"
 
 export const getFeaturedProducts = async (
-  limit: number = 4,
-  countryCode: string = "tw"
+  limit: number = 4
+  // countryCode: string = "tw"
 ): Promise<HttpTypes.StoreProduct[]> => {
   try {
     const next = {
@@ -29,8 +29,8 @@ export const getFeaturedProducts = async (
 
 export const getRelatedProducts = async (
   productIds: string[],
-  limit: number = 4,
-  countryCode: string = "tw"
+  limit: number = 4
+  // countryCode: string = "tw"
 ): Promise<HttpTypes.StoreProduct[]> => {
   try {
     const next = {

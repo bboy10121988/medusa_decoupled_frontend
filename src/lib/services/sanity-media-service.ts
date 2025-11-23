@@ -1,11 +1,13 @@
 /**
  * Sanity 媒體庫服務
- * 提供 GrapesJS 與 Sanity 媒體庫的整合功能
+ * 提供 Sanity 媒體庫的整合功能
  */
 
 import { client } from '@/sanity-client/client'
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
+
+const token = process.env.NEXT_PUBLIC_SANITY_TOKEN || process.env.SANITY_API_TOKEN
 
 // 創建具有寫入權限的客戶端
 const writeClient = createClient({
@@ -13,7 +15,7 @@ const writeClient = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2023-05-30',
   useCdn: false,
-  token: process.env.NEXT_PUBLIC_SANITY_TOKEN || process.env.SANITY_API_TOKEN
+  ...(token ? { token } : {})
 })
 
 export interface SanityImage {
@@ -75,7 +77,7 @@ export async function uploadImageToSanity(file: File): Promise<SanityImage | nul
       _id: asset._id,
       _type: 'sanity.imageAsset',
       url: asset.url,
-      originalFilename: asset.originalFilename,
+      ...(asset.originalFilename ? { originalFilename: asset.originalFilename } : {}),
       size: asset.size,
       metadata: asset.metadata as any,
       _createdAt: asset._createdAt,

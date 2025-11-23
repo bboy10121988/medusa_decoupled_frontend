@@ -55,7 +55,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       })
       
       if (approveResponse.ok) {
-        const result = await approveResponse.json()
+        await approveResponse.json()
         // console.log('Application approved via backend API:', result)
         return NextResponse.json({ 
           success: true, 
@@ -103,7 +103,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       id: 'aff_' + Math.random().toString(36).slice(2, 10),
       email: app.email,
       displayName: app.displayName,
-      website: app.website,
+      ...(app.website ? { website: app.website } : {}),
       passwordHash: app.passwordHash,
       status: 'approved',
       created_at: new Date().toISOString(),

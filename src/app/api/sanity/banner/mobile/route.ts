@@ -41,6 +41,7 @@ export async function PATCH(req: NextRequest) {
     })
 
     // 更新指定 banner 的指定 slide 的手機版圖片
+    /*
     const patchQuery = `
       *[_type == "homePage"][0] {
         ...,
@@ -65,6 +66,7 @@ export async function PATCH(req: NextRequest) {
         }
       }
     `
+    */
 
     // 使用 patch 操作更新文檔
     const result = await writeClient

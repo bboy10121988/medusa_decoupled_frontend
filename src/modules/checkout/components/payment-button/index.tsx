@@ -16,7 +16,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   "data-testid": dataTestId,
 }) => {
 
-  const action:string = "PaymentButton"
+  // const action:string = "PaymentButton"
 
   // 這裡一但判斷不符合條件，就直接回傳錯誤訊息，避免後續程式碼執行：notReady參數可以直接砍掉
   if (

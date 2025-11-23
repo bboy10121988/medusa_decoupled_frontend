@@ -18,12 +18,12 @@ export async function POST(req: Request) {
     const {
       MerchantTradeNo,
       RtnCode,
-      RtnMsg,
-      TradeNo,
-      TradeAmt,
-      PaymentDate,
-      PaymentType,
-      TradeDate
+      // RtnMsg,
+      // TradeNo,
+      // TradeAmt,
+      // PaymentDate,
+      // PaymentType,
+      // TradeDate
     } = callbackData
     
     if (!MerchantTradeNo) {
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       
       return new Response(result)
     } else {
-      const errorText = await response.text()
+      await response.text()
       // if (process.env.NODE_ENV === 'development') console.error('❌ 後端處理失敗:', errorText)
       return new Response("0|Backend Error", { status: 500 })
     }

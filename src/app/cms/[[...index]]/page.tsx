@@ -28,7 +28,7 @@ export default function CMSPage() {
     // 動態導入配置
     import('../../../../sanity.config').then((module) => {
       setConfig(module.default)
-    }).catch((error) => {
+    }).catch(() => {
       // console.error('Failed to load Sanity config:', error)
     })
   }, [])

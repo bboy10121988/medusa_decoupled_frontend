@@ -8,7 +8,7 @@ type FeaturedProductsProps = {
   collections: HttpTypes.StoreCollection[]
   region: HttpTypes.StoreRegion
   settings?: FeaturedProductsSection
-  paddingX?: number
+  paddingX?: number | undefined
 }
 
 export default function FeaturedProducts({

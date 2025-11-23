@@ -48,7 +48,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         super(url, eventSourceInitDict)
         
         // 添加錯誤處理
-        this.addEventListener('error', (e) => {
+        this.addEventListener('error', () => {
           // console.warn('EventSource error (possibly Sanity related):', e)
         })
 

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       const referrer = request.headers.get('referer') || undefined
 
       // 記錄到 JSON 檔案
-      const clickId = await recordClick(
+      await recordClick(
         ref || affiliateId || 'unknown',
         linkId || 'direct',
         ip,

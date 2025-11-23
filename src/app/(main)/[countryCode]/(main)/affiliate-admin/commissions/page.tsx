@@ -33,8 +33,8 @@ export default function AffiliateCommissions() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'rules' | 'adjustments'>('rules')
-  const [showCreateRule, setShowCreateRule] = useState(false)
-  const [showCreateAdjustment, setShowCreateAdjustment] = useState(false)
+  // const [showCreateRule, setShowCreateRule] = useState(false)
+  // const [showCreateAdjustment, setShowCreateAdjustment] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -89,22 +89,22 @@ export default function AffiliateCommissions() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-medium text-gray-900">佣金管理</h2>
         <div className="flex space-x-3">
-          {activeTab === 'rules' && (
+          {/* {activeTab === 'rules' && (
             <button
               onClick={() => setShowCreateRule(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
             >
               新增規則
             </button>
-          )}
-          {activeTab === 'adjustments' && (
+          )} */}
+          {/* {activeTab === 'adjustments' && (
             <button
               onClick={() => setShowCreateAdjustment(true)}
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
             >
               新增調整
             </button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -138,17 +138,17 @@ export default function AffiliateCommissions() {
         <CommissionRulesTab 
           rules={rules} 
           onRefresh={fetchData}
-          showCreate={showCreateRule}
-          setShowCreate={setShowCreateRule}
+          // showCreate={showCreateRule}
+          // setShowCreate={setShowCreateRule}
         />
       )}
 
       {activeTab === 'adjustments' && (
         <CommissionAdjustmentsTab 
           adjustments={adjustments} 
-          onRefresh={fetchData}
-          showCreate={showCreateAdjustment}
-          setShowCreate={setShowCreateAdjustment}
+          // onRefresh={fetchData}
+          // showCreate={showCreateAdjustment}
+          // setShowCreate={setShowCreateAdjustment}
         />
       )}
     </div>
@@ -158,13 +158,13 @@ export default function AffiliateCommissions() {
 function CommissionRulesTab({ 
   rules, 
   onRefresh,
-  showCreate,
-  setShowCreate
+  // showCreate,
+  // setShowCreate
 }: { 
   rules: CommissionRule[]
   onRefresh: () => void
-  showCreate: boolean
-  setShowCreate: (show: boolean) => void
+  // showCreate: boolean
+  // setShowCreate: (show: boolean) => void
 }) {
   const handleToggleRule = async (ruleId: string, isActive: boolean) => {
     try {
@@ -296,14 +296,14 @@ function CommissionRulesTab({
 
 function CommissionAdjustmentsTab({ 
   adjustments, 
-  onRefresh,
-  showCreate,
-  setShowCreate
+  // onRefresh,
+  // showCreate,
+  // setShowCreate
 }: { 
   adjustments: CommissionAdjustment[]
-  onRefresh: () => void
-  showCreate: boolean
-  setShowCreate: (show: boolean) => void
+  // onRefresh: () => void
+  // showCreate: boolean
+  // setShowCreate: (show: boolean) => void
 }) {
   return (
     <div className="space-y-6">

@@ -17,6 +17,7 @@ interface SelectedStore {
   logisticsSubType?: string;
 }
 
+/*
 interface StoreSelectionData {
   storeId: string;
   storeName: string;
@@ -24,10 +25,11 @@ interface StoreSelectionData {
   telephone?: string;
   logisticsSubType: string;
 }
+*/
 
 const StoreSelector: React.FC = () => {
   const [selectedLogistics, setSelectedLogistics] = useState<string>("FAMI");
-  const [selectedStore, setSelectedStore] = useState<SelectedStore | null>(null);
+  const [selectedStore, _setSelectedStore] = useState<SelectedStore | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // 物流選項

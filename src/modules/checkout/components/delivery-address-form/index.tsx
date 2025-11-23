@@ -14,9 +14,11 @@ interface FormData {
   postal_code: string;
 }
 
+/*
 interface ConfirmedFormData extends FormData {
   confirmed: boolean;
 }
+*/
 
 const initialFormData: FormData = {
   first_name: "",
@@ -54,7 +56,7 @@ const DeliveryAddressForm = ({
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isFormConfirmed, setIsFormConfirmed] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  // const [touched, setTouched] = useState<Record<string, boolean>>({})
 
   const cities = [
     "臺北市", "新北市", "基隆市", "桃園市", "新竹市", "新竹縣",

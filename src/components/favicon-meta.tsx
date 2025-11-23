@@ -7,7 +7,7 @@ interface FaviconMetaProps {
   altText?: string
 }
 
-export default function FaviconMeta({ faviconUrl, altText }: FaviconMetaProps) {
+export default function FaviconMeta({ faviconUrl }: FaviconMetaProps) {
   useEffect(() => {
     if (faviconUrl && typeof window !== 'undefined') {
       // 移除現有的 favicon 連結

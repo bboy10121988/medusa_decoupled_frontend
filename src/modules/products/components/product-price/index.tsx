@@ -8,7 +8,7 @@ export default function ProductPrice({
   variant,
 }: {
   product: HttpTypes.StoreProduct
-  variant?: HttpTypes.StoreProductVariant
+  variant?: HttpTypes.StoreProductVariant | undefined
 }) {
   const { cheapestPrice, variantPrice } = getProductPrice({
     product,

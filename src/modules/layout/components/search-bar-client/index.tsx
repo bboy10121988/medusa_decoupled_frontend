@@ -105,7 +105,7 @@ const SearchBarClient = () => {
     if (!text || !query || query.trim() === '') return <>{text}</>
 
     const highlightClass = type === 'title' ? 'text-red-600 font-extrabold text-xl' : 'text-red-600 text-sm'
-    const lowerText = text.toLowerCase()
+    // const lowerText = text.toLowerCase()
     const lowerQuery = query.toLowerCase()
     const hasChinese = isChinese(query)
 

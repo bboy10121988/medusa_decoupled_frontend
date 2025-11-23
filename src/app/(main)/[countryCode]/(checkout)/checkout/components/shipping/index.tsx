@@ -234,7 +234,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 {hasPickupOptions && (
                   <RadioGroup
                     value={showPickupOptions}
-                    onChange={(value) => {
+                    onChange={() => {
                       const id = _pickupMethods.find(
                         (option) => !option.insufficient_inventory
                       )?.id

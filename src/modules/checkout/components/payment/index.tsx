@@ -44,7 +44,7 @@ const Payment = ({
 
   const setPaymentMethod = async (method: string) => {
     
-    const action: string = "setPaymentMethod"
+    // const action: string = "setPaymentMethod"
     
     // console.log(action,"選擇支付方式：",method)
 
@@ -78,7 +78,7 @@ const Payment = ({
 
   const handleSubmit = async () => {
     
-    const action: string = "handleSubmit"
+    // const action: string = "handleSubmit"
   
     setIsLoading(true)
 
@@ -90,7 +90,7 @@ const Payment = ({
 
         // console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
-        const initResp = await initiatePaymentSession(cart,{
+        await initiatePaymentSession(cart,{
           provider_id: selectedPaymentMethod
         })
 

@@ -4,16 +4,16 @@ import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 
 type UseLogoutOptions = {
-  countryCode?: string
-  redirectPath?: string
-  onLoggedOut?: () => void
+  countryCode?: string | undefined
+  redirectPath?: string | undefined
+  onLoggedOut?: (() => void) | undefined
   /**
    * Redirect strategy:
    * - client-fetch: (舊行為) 先用 fetch 呼叫 /api/auth/logout 再用 router.replace 導向
    * - server-redirect: 直接導向 /api/auth/logout?redirect=... 交給伺服器回傳 302 (較穩定)
    * 預設使用 server-redirect，避免某些情況下 router.replace 未立即生效或使用者看到停留狀態。
    */
-  strategy?: "client-fetch" | "server-redirect"
+  strategy?: "client-fetch" | "server-redirect" | undefined
 }
 
 type UseLogoutResult = {

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthHeaders } from '@/lib/data/cookies'
 
 // 這個端點用於向 Medusa 後端查詢用戶的 Google 身份資料
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // 檢查是否有認證標頭
     const headers = await getAuthHeaders()

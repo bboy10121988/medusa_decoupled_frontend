@@ -62,6 +62,7 @@ export const sdk = new Medusa({
   auth: {
     type: "session"
   },
+  // @ts-ignore - fetchConfig is not in the type definition but is supported
   fetchConfig: {
     credentials: "include"  // ⭐ 重要!讓 cookie 可以跨域傳遞
   }

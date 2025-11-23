@@ -5,9 +5,9 @@ import React from "react"
 import PlaceholderImage from "@modules/common/icons/placeholder-image"
 
 type ThumbnailProps = {
-  thumbnail?: string | null
+  thumbnail?: string | null | undefined
   // TODO: Fix image typings
-  images?: any[] | null
+  images?: any[] | null | undefined
   size?: "small" | "medium" | "large" | "full" | "square"
   isFeatured?: boolean
   className?: string

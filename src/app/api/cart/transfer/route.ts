@@ -3,7 +3,7 @@ import { getCartId, getAuthHeaders, getCacheTag } from '@lib/data/cookies'
 import { revalidateTag } from 'next/cache'
 import { sdk } from '@lib/config'
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const cartId = await getCartId()
     

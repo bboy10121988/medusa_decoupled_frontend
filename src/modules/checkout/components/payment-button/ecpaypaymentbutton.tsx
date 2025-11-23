@@ -18,7 +18,7 @@ const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": da
     return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
   }
 
-  const action:string = "ECPayPaymentButton"
+  // const action:string = "ECPayPaymentButton"
 
   // console.log(action,": cart:",cart)
 

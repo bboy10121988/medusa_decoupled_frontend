@@ -157,7 +157,7 @@ DELETE FROM customer WHERE email = 'your-test-email@gmail.com';
 
 ### 步驟 2: 進行 Google 登入測試
 
-1. 前往前端登入頁面: `https://tims.com.tw/tw/account`
+1. 前往前端登入頁面: `https://timsfantasyworld.com/tw/account`
 2. 點擊 "使用 Google 登入" 按鈕
 3. 選擇 Google 帳號並授權
 4. 應該會成功登入並重定向到會員中心

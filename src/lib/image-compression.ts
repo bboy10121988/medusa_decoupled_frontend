@@ -148,7 +148,7 @@ export async function compressImagesInHtml(html: string): Promise<string> {
   let compressedHtml = html
 
   for (const match of matches) {
-    const [fullMatch, src] = match
+    const [, src] = match
     
     // 跳過已經是 base64 或相對路徑的圖片
     if (src.startsWith('data:') || !src.startsWith('http')) {

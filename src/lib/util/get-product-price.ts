@@ -33,7 +33,7 @@ export function getProductPrice({
   variantId,
 }: {
   product: HttpTypes.StoreProduct
-  variantId?: string
+  variantId?: string | undefined
 }) {
   if (!product?.id) {
     throw new Error("No product provided")

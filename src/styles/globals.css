@@ -185,7 +185,7 @@ html, body, main {
 }
 
 html {
-  /* 移除全域字體設定，避免影響第三方組件如 GrapesJS */
+  /* 基礎字體設定 */
   font-size: 16px;  /* 確保基礎字體大小為16px */
   line-height: var(--line-height-normal);
   
@@ -194,8 +194,6 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-  
-  /* 移除全域文字顏色設定，避免影響第三方組件如 GrapesJS */
   
   /* 字體顯示優化 */
   font-display: var(--font-display);

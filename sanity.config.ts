@@ -4,11 +4,10 @@ import {visionTool} from '@sanity/vision'
 import { schemaTypes } from './schemas/index'
 import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
 import { structure } from './sanity-structure'
-import { grapesJSPlugin } from './plugins/grapes-editor-tool'
 import type {DocumentActionProps} from 'sanity'
 
 const GeneratePageAction = (props: DocumentActionProps) => {
-  const {draft, published} = props
+  const { published } = props
 
   // 沒有已發布的文檔時不顯示這個動作
   if (!published) return null
@@ -53,8 +52,7 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure }),
-    visionTool(),
-    grapesJSPlugin
+    visionTool()
   ],
 
   document: {

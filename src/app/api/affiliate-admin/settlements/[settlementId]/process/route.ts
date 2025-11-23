@@ -7,7 +7,7 @@ const dataDir = path.join(process.cwd(), 'data')
 const settlementsPath = path.join(dataDir, 'affiliate-settlements.json')
 
 export async function POST(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ settlementId: string }> }
 ) {
   try {

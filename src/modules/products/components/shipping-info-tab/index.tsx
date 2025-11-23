@@ -7,8 +7,8 @@ type ShippingInfoTabProps = {
 }
 
 interface ReturnPageData {
-  grapesHtml: string
-  grapesCss: string
+  htmlContent: string
+  cssContent: string
   title: string
 }
 
@@ -85,9 +85,9 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
           // console.log('頁面資料:', pageData.title)
           
           // 處理動態頁面內容
-          let htmlContent = pageData.grapesHtml || ''
+          let htmlContent = pageData.htmlContent || ''
           
-          // 如果沒有 grapesHtml 但有 pageContent，轉換 pageContent 為 HTML
+          // 如果沒有 htmlContent 但有 pageContent，轉換 pageContent 為 HTML
           if (!htmlContent && pageData.pageContent && pageData.pageContent.length > 0) {
             // console.log('🔄 轉換 pageContent 為 HTML...')
             htmlContent = convertPageContentToHtml(pageData.pageContent)
@@ -95,21 +95,21 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
           
           if (htmlContent || pageData.homeModules) {
             setReturnPageData({
-              grapesHtml: htmlContent,
-              grapesCss: pageData.grapesCss || '',
+              htmlContent: htmlContent,
+              cssContent: pageData.cssContent || '',
               title: pageData.title || '退換貨規則'
             })
             // console.log('✅ 成功載入退換貨規則')
           } else {
             // console.warn('⚠️ 動態頁面內容為空')
             setReturnPageData({
-              grapesHtml: `
+              htmlContent: `
                 <div class="return-policy-fallback">
                   <h2>退換貨政策</h2>
                   <p>請聯繫客服獲取詳細的退換貨規則資訊。</p>
                 </div>
               `,
-              grapesCss: '.return-policy-fallback { padding: 20px; }',
+              cssContent: '.return-policy-fallback { padding: 20px; }',
               title: '退換貨規則'
             })
           }
@@ -118,7 +118,7 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
           
           // 提供預設的退換貨規則內容
           setReturnPageData({
-            grapesHtml: `
+            htmlContent: `
               <div class="return-policy-content">
                 <h2>退換貨政策</h2>
                 <div class="policy-section">
@@ -141,7 +141,7 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
                 </div>
               </div>
             `,
-            grapesCss: `
+            cssContent: `
               .return-policy-content { padding: 20px; font-family: Arial, sans-serif; }
               .return-policy-content h2 { color: #333; margin-bottom: 20px; }
               .return-policy-content h3 { color: #555; margin: 15px 0 10px 0; }
@@ -157,7 +157,7 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
         
         // 錯誤時也提供預設內容
         setReturnPageData({
-          grapesHtml: `
+          htmlContent: `
             <div class="error-message">
               <h3>無法載入退換貨規則</h3>
               <p>請聯繫客服獲取詳細資訊</p>
@@ -165,7 +165,7 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
               <p>客服信箱：service@example.com</p>
             </div>
           `,
-          grapesCss: `
+          cssContent: `
             .error-message { padding: 20px; text-align: center; color: #666; }
             .error-message h3 { color: #e74c3c; margin-bottom: 15px; }
             .error-message p { margin: 8px 0; }
@@ -198,8 +198,8 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
       {returnPageData ? (
         <div>
           {/* 嵌入 return 頁面的 CSS */}
-          {returnPageData.grapesCss && (
-            <style dangerouslySetInnerHTML={{ __html: returnPageData.grapesCss }} />
+          {returnPageData.cssContent && (
+            <style dangerouslySetInnerHTML={{ __html: returnPageData.cssContent }} />
           )}
           
           {/* 確保字體樣式一致的額外 CSS */}
@@ -242,7 +242,7 @@ const ShippingInfoTab = ({}: ShippingInfoTabProps) => {
           
           {/* 嵌入 return 頁面的 HTML 內容 */}
           <div 
-            dangerouslySetInnerHTML={{ __html: returnPageData.grapesHtml }}
+            dangerouslySetInnerHTML={{ __html: returnPageData.htmlContent }}
             className="return-page-content prose prose-gray max-w-none
                        [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:text-gray-900 [&>h2]:mb-4 [&>h2]:mt-6 [&>h2]:border-b [&>h2]:border-gray-200 [&>h2]:pb-2
                        [&>p]:text-gray-700 [&>p]:leading-relaxed [&>p]:mb-3 [&>p]:text-sm

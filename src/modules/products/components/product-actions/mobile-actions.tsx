@@ -13,7 +13,7 @@ import { isSimpleProduct } from "@lib/util/product"
 
 type MobileActionsProps = {
   product: HttpTypes.StoreProduct
-  variant?: HttpTypes.StoreProductVariant
+  variant?: HttpTypes.StoreProductVariant | undefined
   options: Record<string, string | undefined>
   updateOptions: (title: string, value: string) => void
   inStock?: boolean

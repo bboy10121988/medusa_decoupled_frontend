@@ -47,19 +47,20 @@ type Props = {
 
 const ECPayPaymentButton: React.FC<Props> = ({ cart, notReady, "data-testid": dataTestId }) => {
 
-  const action:string = "ECPayPaymentButton"
+  // const action:string = "ECPayPaymentButton"
 
   let defaultError:string | null = null
 
   const paymentSessions = cart.payment_collection?.payment_sessions
 
-  let paymentSessionID = ""
+  // let paymentSessionID = ""
 
   if (!paymentSessions || paymentSessions.length === 0){
     defaultError = "尚未建立支付會話"
-  }else{
-    paymentSessionID = paymentSessions[0].id
   }
+  // else{
+  //   paymentSessionID = paymentSessions[0].id
+  // }
 
   // console.log(action,"payment session id",paymentSessionID)
 

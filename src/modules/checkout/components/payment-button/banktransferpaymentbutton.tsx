@@ -12,7 +12,7 @@ type Props = {
   "data-testid"?: string
 }
 
-const BankTransferPaymentButton = ({ cart, notReady, "data-testid": dataTestId }: Props) => {
+const BankTransferPaymentButton = ({ notReady, "data-testid": dataTestId }: Props) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -23,7 +23,7 @@ const BankTransferPaymentButton = ({ cart, notReady, "data-testid": dataTestId }
     // console.log("🏦 開始銀行轉帳訂單處理")
     
     try {
-      const result = await placeOrder()
+      await placeOrder()
       // console.log("✅ 銀行轉帳訂單建立成功:", result)
       // placeOrder 成功會自動跳轉到 order confirmed 頁面
     } catch (err: any) {
