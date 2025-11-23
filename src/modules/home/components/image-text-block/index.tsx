@@ -82,9 +82,15 @@ const ImageTextBlock = ({
       paddingLeft: `${paddingX / 2}%`,
       paddingRight: `${paddingX / 2}%`
     } : {}),
-    ...(paddingTop ? { paddingTop: `${paddingTop}px` } : {}),
-    ...(paddingBottom ? { paddingBottom: `${paddingBottom}px` } : {})
-  }
+    ...(paddingTop ? { 
+      '--pt-desktop': `${paddingTop}px`,
+      '--pt-mobile': `${Math.round(paddingTop * 0.6)}px`
+    } : {}),
+    ...(paddingBottom ? { 
+      '--pb-desktop': `${paddingBottom}px`,
+      '--pb-mobile': `${Math.round(paddingBottom * 0.6)}px`
+    } : {})
+  } as React.CSSProperties
   
   // 決定容器樣式
   const containerClasses = (() => {
@@ -106,8 +112,13 @@ const ImageTextBlock = ({
     ? "py-12 md:py-20" 
     : ""
 
+  const customPaddingClass = [
+    paddingTop ? "pt-[var(--pt-mobile)] md:pt-[var(--pt-desktop)]" : "",
+    paddingBottom ? "pb-[var(--pb-mobile)] md:pb-[var(--pb-desktop)]" : ""
+  ].filter(Boolean).join(" ")
+
   return (
-    <div className={`${containerClasses} ${defaultPaddingClass}`} style={paddingStyle}>
+    <div className={`${containerClasses} ${defaultPaddingClass} ${customPaddingClass}`} style={paddingStyle}>
       {/* 左圖右文布局 */}
       {layout === 'imageLeft' && image?.url && (
         <div className="grid md:grid-cols-2 items-center gap-0">

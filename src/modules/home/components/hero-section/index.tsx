@@ -17,12 +17,24 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
       paddingLeft: `${banner.paddingX / 2}%`,
       paddingRight: `${banner.paddingX / 2}%`
     } : {}),
-    ...(banner.paddingTop ? { paddingTop: `${banner.paddingTop}px` } : {}),
-    ...(banner.paddingBottom ? { paddingBottom: `${banner.paddingBottom}px` } : {})
-  }
+    ...(banner.paddingTop ? { 
+      '--pt-desktop': `${banner.paddingTop}px`,
+      '--pt-mobile': `${Math.round(banner.paddingTop * 0.6)}px`
+    } : {}),
+    ...(banner.paddingBottom ? { 
+      '--pb-desktop': `${banner.paddingBottom}px`,
+      '--pb-mobile': `${Math.round(banner.paddingBottom * 0.6)}px`
+    } : {})
+  } as React.CSSProperties
+  
+  const paddingClasses = [
+    "hero-section",
+    banner.paddingTop ? "pt-[var(--pt-mobile)] md:pt-[var(--pt-desktop)]" : "",
+    banner.paddingBottom ? "pb-[var(--pb-mobile)] md:pb-[var(--pb-desktop)]" : ""
+  ].filter(Boolean).join(" ")
   
   return (
-    <section className="hero-section" style={paddingStyle}>
+    <section className={paddingClasses} style={paddingStyle}>
       <Hero
         slides={banner.slides.map((slide: BannerSlide) => ({
           heading: slide.heading,

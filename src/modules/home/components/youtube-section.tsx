@@ -339,12 +339,25 @@ const YouTubeSection = memo(({
       paddingLeft: `${paddingX / 2}%`,
       paddingRight: `${paddingX / 2}%`
     } : {}),
-    ...(paddingTop ? { paddingTop: `${paddingTop}px` } : {}),
-    ...(paddingBottom ? { paddingBottom: `${paddingBottom}px` } : {})
-  }
+    ...(paddingTop ? { 
+      '--pt-desktop': `${paddingTop}px`,
+      '--pt-mobile': `${Math.round(paddingTop * 0.6)}px`
+    } : {}),
+    ...(paddingBottom ? { 
+      '--pb-desktop': `${paddingBottom}px`,
+      '--pb-mobile': `${Math.round(paddingBottom * 0.6)}px`
+    } : {})
+  } as React.CSSProperties
+
+  const paddingClasses = [
+    fullWidth ? "" : "container mx-auto px-4",
+    "w-full m-0 p-0",
+    paddingTop ? "pt-[var(--pt-mobile)] md:pt-[var(--pt-desktop)]" : "",
+    paddingBottom ? "pb-[var(--pb-mobile)] md:pb-[var(--pb-desktop)]" : ""
+  ].filter(Boolean).join(" ")
 
   return (
-    <section className={`w-full ${fullWidth ? "" : "container mx-auto px-4"} m-0 p-0`} style={paddingStyle}>
+    <section className={paddingClasses} style={paddingStyle}>
       <div className="max-w-none w-full m-0 p-0">
         {heading && (
           <h2 className="h1 text-center mb-6">{heading}</h2>
