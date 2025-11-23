@@ -21,6 +21,8 @@ export type MainBanner = {
   _type: "mainBanner"
   isActive: boolean
   paddingX?: number
+  paddingTop?: number
+  paddingBottom?: number
   slides: BannerSlide[]
   settings: BannerSettings
 }
@@ -35,6 +37,8 @@ export type ImageTextBlock = {
   _type: "imageTextBlock"
   isActive: boolean
   paddingX?: number
+  paddingTop?: number
+  paddingBottom?: number
   heading: string
   content: string
   image: ImageConfig
@@ -69,6 +73,8 @@ export type YoutubeSection = {
   _type: "youtubeSection"
   isActive: boolean
   paddingX?: number
+  paddingTop?: number
+  paddingBottom?: number
   heading?: string
   description?: string
   // 保留舊的 videoUrl 以向後兼容

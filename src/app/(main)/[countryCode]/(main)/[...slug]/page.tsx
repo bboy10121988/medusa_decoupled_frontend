@@ -149,7 +149,9 @@ export default async function DynamicPage({ params }: PageProps) {
                       image: imageBlock.image,
                       layout: imageBlock.layout,
                       hideTitle: imageBlock.hideTitle,
-                      paddingX: imageBlock.paddingX
+                      paddingX: imageBlock.paddingX,
+                      paddingTop: imageBlock.paddingTop,
+                      paddingBottom: imageBlock.paddingBottom
                     }
                     if (imageBlock.leftImage) props.leftImage = imageBlock.leftImage
                     if (imageBlock.rightImage) props.rightImage = imageBlock.rightImage
@@ -230,7 +232,9 @@ export default async function DynamicPage({ params }: PageProps) {
                       isActive: true,
                       heading: youtubeBlock.heading || "",
                       fullWidth: youtubeBlock.fullWidth,
-                      paddingX: youtubeBlock.paddingX
+                      paddingX: youtubeBlock.paddingX,
+                      paddingTop: youtubeBlock.paddingTop,
+                      paddingBottom: youtubeBlock.paddingBottom
                     }
                     if (youtubeBlock.description) youtubeProps.description = youtubeBlock.description
                     if (youtubeBlock.videoUrl) youtubeProps.videoUrl = youtubeBlock.videoUrl

@@ -17,6 +17,20 @@ export default {
       validation: (Rule: any) => Rule.min(0).max(100)
     },
     {
+      name: 'paddingTop',
+      title: '上邊距 (px)',
+      type: 'number',
+      description: '輸入像素值 (例如: 50)',
+      initialValue: 0
+    },
+    {
+      name: 'paddingBottom',
+      title: '下邊距 (px)',
+      type: 'number',
+      description: '輸入像素值 (例如: 50)',
+      initialValue: 0
+    },
+    {
       name: 'heading',
       title: '標題',
       type: 'string'

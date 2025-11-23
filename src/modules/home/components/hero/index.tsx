@@ -12,6 +12,7 @@ type Slide = {
   desktopImageAlt?: string
   mobileImage: string
   mobileImageAlt?: string
+  imageLink?: string
   buttonText: string
   buttonLink: string
 }
@@ -165,19 +166,37 @@ const Hero = ({ slides, settings }: HeroProps) => {
               {/* 桌面版圖片容器 - 只在 768px 以上顯示 */}
               <div className="hidden lg:block w-full" style={{ overflow: 'hidden' }}>
                 {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
-                  <Image
-                    key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
-                    src={slideItem.desktopImage}
-                    alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
-                    width={1920}
-                    height={1080}
-                    priority={index === 0}
-                    className="w-full h-auto object-cover block"
-                    sizes="100vw"
-                    style={{
-                      verticalAlign: 'top'
-                    }}
-                  />
+                  slideItem.imageLink ? (
+                    <Link href={slideItem.imageLink} className="block w-full h-full">
+                      <Image
+                        key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
+                        src={slideItem.desktopImage}
+                        alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                        width={1920}
+                        height={1080}
+                        priority={index === 0}
+                        className="w-full h-auto object-cover block"
+                        sizes="100vw"
+                        style={{
+                          verticalAlign: 'top'
+                        }}
+                      />
+                    </Link>
+                  ) : (
+                    <Image
+                      key={`desktop-${index}-${slideItem.desktopImage.slice(-20)}`}
+                      src={slideItem.desktopImage}
+                      alt={slideItem.desktopImageAlt || slideItem.heading || `桌面版輪播圖片 ${index + 1}`}
+                      width={1920}
+                      height={1080}
+                      priority={index === 0}
+                      className="w-full h-auto object-cover block"
+                      sizes="100vw"
+                      style={{
+                        verticalAlign: 'top'
+                      }}
+                    />
+                  )
                 ) : (
                   <div className="w-full bg-gray-300 flex items-center justify-center h-64">
                     <span className="text-gray-500">桌面版圖片未設定</span>
@@ -202,21 +221,41 @@ const Hero = ({ slides, settings }: HeroProps) => {
                 }}
               >
                 {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
-                  <Image
-                    key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
-                    src={slideItem.mobileImage}
-                    alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
-                    width={800}
-                    height={1200}
-                    priority={index === 0}
-                    className="w-full h-auto object-cover block"
-                    sizes="100vw"
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      objectFit: 'cover'
-                    }}
-                  />
+                  slideItem.imageLink ? (
+                    <Link href={slideItem.imageLink} className="block w-full h-full">
+                      <Image
+                        key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
+                        src={slideItem.mobileImage}
+                        alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                        width={800}
+                        height={1200}
+                        priority={index === 0}
+                        className="w-full h-auto object-cover block"
+                        sizes="100vw"
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </Link>
+                  ) : (
+                    <Image
+                      key={`mobile-${index}-${slideItem.mobileImage.slice(-20)}`}
+                      src={slideItem.mobileImage}
+                      alt={slideItem.mobileImageAlt || slideItem.heading || `手機版輪播圖片 ${index + 1}`}
+                      width={800}
+                      height={1200}
+                      priority={index === 0}
+                      className="w-full h-auto object-cover block"
+                      sizes="100vw"
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  )
                 ) : (
                   <div className="w-full h-64 bg-gray-300 flex items-center justify-center">
                     <span className="text-gray-500 text-sm">手機版圖片未設定</span>

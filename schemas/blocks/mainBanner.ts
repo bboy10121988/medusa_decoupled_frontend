@@ -17,6 +17,20 @@ export default {
       validation: (Rule: any) => Rule.min(0).max(100)
     },
     {
+      name: 'paddingTop',
+      title: '上邊距 (px)',
+      type: 'number',
+      description: '輸入像素值 (例如: 50)',
+      initialValue: 0
+    },
+    {
+      name: 'paddingBottom',
+      title: '下邊距 (px)',
+      type: 'number',
+      description: '輸入像素值 (例如: 50)',
+      initialValue: 0
+    },
+    {
       name: 'settings',
       title: '輪播設定',
       type: 'object',
@@ -86,6 +100,12 @@ export default {
                   description: '手機版背景圖片的替代文字，用於無障礙和 SEO 優化'
                 }
               ]
+            },
+            {
+              name: 'imageLink',
+              title: '圖片連結',
+              type: 'string',
+              description: '點擊圖片時跳轉的連結 (可選)'
             },
             {
               name: 'heading',

@@ -12,10 +12,14 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
     return null
   }
 
-  const paddingStyle = banner.paddingX ? {
-    paddingLeft: `${banner.paddingX / 2}%`,
-    paddingRight: `${banner.paddingX / 2}%`
-  } : {}
+  const paddingStyle = {
+    ...(banner.paddingX ? {
+      paddingLeft: `${banner.paddingX / 2}%`,
+      paddingRight: `${banner.paddingX / 2}%`
+    } : {}),
+    ...(banner.paddingTop ? { paddingTop: `${banner.paddingTop}px` } : {}),
+    ...(banner.paddingBottom ? { paddingBottom: `${banner.paddingBottom}px` } : {})
+  }
   
   return (
     <section className="hero-section" style={paddingStyle}>
@@ -27,6 +31,7 @@ const HeroSection = ({ banner }: HeroSectionProps) => {
           desktopImageAlt: slide.desktopImageAlt || "",
           mobileImage: slide.mobileImage,
           mobileImageAlt: slide.mobileImageAlt || "",
+          imageLink: slide.imageLink || "",
           buttonText: slide.buttonText || "",
           buttonLink: slide.buttonLink || ""
         }))}

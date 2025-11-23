@@ -21,6 +21,8 @@ interface ImageTextBlockProps {
   rightContent?: string
   hideTitle?: boolean
   paddingX?: number
+  paddingTop?: number
+  paddingBottom?: number
 }
 
 // 圖片包裝組件
@@ -68,15 +70,21 @@ const ImageTextBlock = ({
   leftContent,
   rightContent,
   hideTitle = false,
-  paddingX
+  paddingX,
+  paddingTop,
+  paddingBottom
 }: ImageTextBlockProps) => {
   // 檢查是否真的有標題內容
   const hasTitle = !hideTitle && heading && heading.trim().length > 0
   
-  const paddingStyle = paddingX ? {
-    paddingLeft: `${paddingX / 2}%`,
-    paddingRight: `${paddingX / 2}%`
-  } : {}
+  const paddingStyle = {
+    ...(paddingX ? {
+      paddingLeft: `${paddingX / 2}%`,
+      paddingRight: `${paddingX / 2}%`
+    } : {}),
+    ...(paddingTop ? { paddingTop: `${paddingTop}px` } : {}),
+    ...(paddingBottom ? { paddingBottom: `${paddingBottom}px` } : {})
+  }
   
   // 決定容器樣式
   const containerClasses = (() => {
@@ -87,14 +95,19 @@ const ImageTextBlock = ({
     }
     
     if (hasTitle) {
-      return "w-full max-w-none -mx-0 md:mx-0 py-12 md:py-20 px-6 md:px-12"
+      return "w-full max-w-none -mx-0 md:mx-0 px-6 md:px-12"
     }
     
     return "w-full max-w-none -mx-0 md:mx-0 px-6 md:px-12"
   })()
   
+  // 如果沒有設定 padding，使用預設的 py-12 md:py-20 (僅當有標題時)
+  const defaultPaddingClass = (!paddingTop && !paddingBottom && hasTitle && !['imageLeft', 'imageRight', 'imageLeftImageRight'].includes(layout)) 
+    ? "py-12 md:py-20" 
+    : ""
+
   return (
-    <div className={containerClasses} style={paddingStyle}>
+    <div className={`${containerClasses} ${defaultPaddingClass}`} style={paddingStyle}>
       {/* 左圖右文布局 */}
       {layout === 'imageLeft' && image?.url && (
         <div className="grid md:grid-cols-2 items-center gap-0">
