@@ -1,8 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 
 // 型別定義
+type AffiliateProfile = {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  code: string
+  status: 'pending' | 'approved' | 'rejected'
+  balance: number
+  total_earnings: number
+}
+
 type AffiliateStatPoint = {
   date: string
   clicks: number
@@ -56,6 +68,11 @@ type ExtendedAffiliateStats = AffiliateStatsSummary & {
 }
 
 export default function AffiliateHomePage() {
+  const router = useRouter()
+  const params = useParams()
+  const countryCode = params.countryCode as string
+
+  const [profile, setProfile] = useState<AffiliateProfile | null>(null)
   const [statsData, setStatsData] = useState<ExtendedAffiliateStats | null>(null)
   const [linksData, setLinksData] = useState<AffiliateLink[]>([])
   const [ordersData, setOrdersData] = useState<AffiliateOrdersResponse | null>(null)
@@ -64,6 +81,26 @@ export default function AffiliateHomePage() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [filterMode, setFilterMode] = useState<'preset' | 'custom'>('preset')
+
+  // 驗證身份與狀態
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/affiliate/me')
+        if (res.status === 401) {
+          router.push(`/${countryCode}/login-affiliate`)
+          return
+        }
+        if (!res.ok) throw new Error('Failed to fetch profile')
+        
+        const data = await res.json()
+        setProfile(data)
+      } catch (error) {
+        console.error('Auth check failed:', error)
+      }
+    }
+    checkAuth()
+  }, [countryCode, router])
 
   // 設定預設日期範圍
   useEffect(() => {
@@ -76,6 +113,8 @@ export default function AffiliateHomePage() {
 
   // 載入資料
   const fetchData = async () => {
+    if (!profile || profile.status !== 'approved') return
+
     setLoading(true)
     try {
       const [statsRes, linksRes, ordersRes] = await Promise.all([
@@ -102,8 +141,10 @@ export default function AffiliateHomePage() {
   }
 
   useEffect(() => {
-    fetchData()
-  }, [dateRange])
+    if (profile?.status === 'approved') {
+      fetchData()
+    }
+  }, [dateRange, profile])
 
   // 處理日期範圍變更
   const handleDateRangeChange = (days: number) => {
@@ -123,7 +164,37 @@ export default function AffiliateHomePage() {
     }
   }
 
-  if (loading) {
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">載入中...</div>
+      </div>
+    )
+  }
+
+  if (profile.status === 'pending') {
+    return (
+      <div className="max-w-2xl mx-auto mt-16 p-8 bg-white rounded-lg border shadow-sm text-center">
+        <div className="mb-6 flex justify-center">
+          <div className="h-16 w-16 bg-yellow-100 rounded-full flex items-center justify-center">
+            <svg className="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">帳號審核中</h2>
+        <p className="text-gray-600 mb-6">
+          感謝您申請加入我們的聯盟行銷計畫。您的帳號目前正在審核中，
+          我們會在 1-3 個工作天內完成審核並透過 Email 通知您。
+        </p>
+        <div className="text-sm text-gray-500">
+          申請帳號：{profile.email}
+        </div>
+      </div>
+    )
+  }
+
+  if (loading && !statsData) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-500">載入中...</div>
@@ -133,6 +204,14 @@ export default function AffiliateHomePage() {
 
   return (
     <div className="space-y-8">
+      {/* Welcome Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">歡迎回來，{profile.last_name} {profile.first_name}</h1>
+          <p className="text-gray-500">聯盟代碼：<span className="font-mono font-medium text-blue-600">{profile.code}</span></p>
+        </div>
+      </div>
+
       {/* 日期篩選器 */}
       <div className="bg-white border rounded-lg p-4">
         <h3 className="text-lg font-medium mb-4">篩選條件</h3>
