@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import safeFetchGlobal from '../../../../lib/safe-fetch'
@@ -101,7 +101,7 @@ const SearchBarClient = () => {
 
   const isChinese = (str: string): boolean => /[\u4e00-\u9fa5]/.test(str)
 
-  const highlightMatches = (text: string, query: string, type: 'title' | 'content' = 'title'): JSX.Element => {
+  const highlightMatches = (text: string, query: string, type: 'title' | 'content' = 'title'): React.ReactNode => {
     if (!text || !query || query.trim() === '') return <>{text}</>
 
     const highlightClass = type === 'title' ? 'text-red-600 font-extrabold text-xl' : 'text-red-600 text-sm'
