@@ -3,6 +3,7 @@
 import "server-only"
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { MEDUSA_BACKEND_URL } from '../config'
 
 type AffiliateSession = {
   id: string
@@ -13,12 +14,23 @@ type AffiliateSession = {
   created_at: string
 }
 
-const COOKIE_NAME = '_affiliate_jwt'
+const SESSION_COOKIE = '_affiliate_session'
+const TOKEN_COOKIE = '_affiliate_token'
 
-export async function setAffiliateAuthToken(payload: AffiliateSession) {
+export async function setAffiliateAuthToken(payload: AffiliateSession, token: string) {
   const cookieStore = await cookies()
-  const token = Buffer.from(JSON.stringify(payload)).toString('base64')
-  cookieStore.set(COOKIE_NAME, token, {
+  
+  // Store session data
+  const sessionStr = Buffer.from(JSON.stringify(payload)).toString('base64')
+  cookieStore.set(SESSION_COOKIE, sessionStr, {
+    maxAge: 60 * 60 * 24 * 30,
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  })
+
+  // Store JWT token
+  cookieStore.set(TOKEN_COOKIE, token, {
     maxAge: 60 * 60 * 24 * 30,
     httpOnly: true,
     sameSite: 'lax',
@@ -28,15 +40,21 @@ export async function setAffiliateAuthToken(payload: AffiliateSession) {
 
 export async function removeAffiliateAuthToken() {
   const cookieStore = await cookies()
-  cookieStore.set(COOKIE_NAME, '', { maxAge: -1 })
+  cookieStore.set(SESSION_COOKIE, '', { maxAge: -1 })
+  cookieStore.set(TOKEN_COOKIE, '', { maxAge: -1 })
+}
+
+export async function getAffiliateToken(): Promise<string | undefined> {
+  const cookieStore = await cookies()
+  return cookieStore.get(TOKEN_COOKIE)?.value
 }
 
 export async function retrieveAffiliate(): Promise<AffiliateSession | null> {
   try {
     const cookieStore = await cookies()
-    const token = cookieStore.get(COOKIE_NAME)?.value
-    if (!token) return null
-    const json = Buffer.from(token, 'base64').toString()
+    const sessionStr = cookieStore.get(SESSION_COOKIE)?.value
+    if (!sessionStr) return null
+    const json = Buffer.from(sessionStr, 'base64').toString()
     return JSON.parse(json) as AffiliateSession
   } catch {
     return null
@@ -53,58 +71,31 @@ export async function affiliateLogin(
 
   if (!email || !password) return '請輸入電子郵件與密碼'
   
-  // 測試模式：如果使用特定測試帳號，直接設置認證 token
-  if (email === 'test@affiliate.com' && password === 'test123') {
-    // 使用固定的測試 ID，確保每次登入都相同
-    await setAffiliateAuthToken({
-      id: 'aff_test',
-      email: 'test@affiliate.com',
-      displayName: '測試聯盟夥伴',
-      website: 'https://test-affiliate.com',
-      status: 'approved',
-      created_at: new Date().toISOString(),
+  try {
+    const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+      cache: 'no-store'
     })
+
+    if (!res.ok) {
+      const error = await res.json()
+      return error.message || '登入失敗'
+    }
+
+    const data = await res.json()
+    await setAffiliateAuthToken(data.session, data.token)
     
     redirect(`/${countryCode}/affiliate`)
+  } catch (error) {
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error
+    }
+    return '發生錯誤，請稍後再試'
   }
-  
-  // 聯盟會員登入邏輯 - 使用本地驗證，不需要調用外部 API
-  // 使用 email 前綴作為固定的聯盟會員 ID
-  const emailPrefix = email.split('@')[0]
-  const affiliateId = `aff_${emailPrefix}`
-  
-  // 簡單的本地驗證邏輯（可以根據需要擴展）
-  let isValidLogin = false
-  
-  // 未來可以在這裡添加其他驗證邏輯，例如：
-  // - 檢查 JSON 檔案中的聯盟會員資料
-  // - 驗證密碼雜湊
-  // - 檢查帳號狀態等
-  
-  // 目前除了測試帳號外，其他帳號都使用預設驗證
-  // 可以根據需要修改這個邏輯
-  if (email && password) {
-    isValidLogin = true
-  }
-  
-  if (!isValidLogin) {
-    return '電子郵件或密碼不正確'
-  }
-  
-  // console.log('Login successful for affiliate:', affiliateId)
-  
-  // 設定聯盟會員認證 token
-  await setAffiliateAuthToken({
-    id: affiliateId,
-    email,
-    displayName: email.split('@')[0],
-    ...(email === 'test@affiliate.com' ? { website: 'https://test-affiliate.com' } : {}),
-    status: 'approved', // 預設為已審核通過
-    created_at: new Date().toISOString(),
-  })
-
-  // 重定向到聯盟夥伴儀表板
-  redirect(`/${countryCode}/affiliate`)
 }
 
 export async function affiliateSignup(
@@ -122,88 +113,50 @@ export async function affiliateSignup(
   }
 
   try {
-    // 使用不需要 publishable key 的專用端點
-    // 在 Server Actions 中，環境變數可能不可用，使用VM地址
-    const backendUrl = 'http://35.236.182.29:9000'
-    const requestUrl = `${backendUrl}/affiliate-apply`
-    // console.log('Submitting affiliate application to:', requestUrl)
-    // console.log('Environment MEDUSA_BACKEND_URL:', process.env.MEDUSA_BACKEND_URL)
-    // console.log('Request payload:', { name: displayName, email, password, website: website || undefined })
-    
-    // 先測試後端連接
-    let res: Response
-    try {
-      res = await fetch(requestUrl, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ 
-          name: displayName,  // 後端期望的是 name 字段
-          email, 
-          password, 
-          website: website || undefined 
-        }),
-        cache: 'no-store',
-      })
-      // console.log('Fetch completed, status:', res.status)
-    } catch (fetchError: any) {
-      // console.error('Fetch error details:', {
-        // message: fetchError.message,
-        // cause: fetchError.cause,
-        // stack: fetchError.stack,
-        // name: fetchError.name,
-        // code: fetchError.code
-      // })
-      throw fetchError
-    }
+    const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/register`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        first_name: displayName,
+        email, 
+        password, 
+        phone: '', // Optional
+        metadata: { website }
+      }),
+      cache: 'no-store',
+    })
     
     if (!res.ok) {
-      const errorResponse = await res.json().catch(() => ({}))
-      const errorText = errorResponse.message || errorResponse.error || await res.text().catch(() => '')
-      // console.error('Backend signup error:', res.status, errorResponse)
-      
-      // 根據不同錯誤返回不同訊息
-      if (res.status === 400) {
-        return errorText || '申請資料有誤，請檢查後重新提交'
-      } else if (res.status === 409) {
-        return '此電子郵件已經申請過或已是會員'
-      } else {
-        return errorText || '申請提交失敗，請稍後再試'
-      }
+      const error = await res.json()
+      return error.message || '註冊失敗'
     }
 
-    const responseData = await res.json().catch(() => ({}))
-    // console.log('Application submitted successfully:', responseData)
+    const data = await res.json()
 
-    // 申請成功後設置前端會話
+    // Auto login or redirect to login?
+    // The requirement says "pending" status usually.
+    // Let's set session as pending.
+    
     await setAffiliateAuthToken({
-      id: responseData.data?.id || responseData.id || 'temp_' + Math.random().toString(36).slice(2, 8),
-      email,
+      id: data.affiliate.id,
+      email: data.affiliate.email,
       displayName,
       website,
-      status: 'pending',
-      created_at: responseData.data?.created_at || responseData.created_at || new Date().toISOString(),
-    })
+      status: data.affiliate.status,
+      created_at: new Date().toISOString(),
+    }, '') // No token yet if pending, or maybe backend should return token for pending user?
+    // Actually, if pending, they might not be able to login.
+    // But let's redirect to pending page.
 
-    // 重定向到待審核頁面
-    try {
-      redirect(`/${countryCode}/affiliate/pending`)
-    } catch (redirectError) {
-      // redirect() 拋出錯誤是正常的，這是 Next.js 的機制
-      throw redirectError
-    }
+    redirect(`/${countryCode}/affiliate/pending`)
     
-  } catch (error: any) {
-    // 檢查是否是 redirect 錯誤
-    if (error?.digest?.startsWith?.('NEXT_REDIRECT')) {
-      // 這是正常的重定向，重新拋出
+  } catch (error) {
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
       throw error
     }
-    
-    // console.error('Network error during signup:', error)
-    return '網路連線錯誤，請檢查網路連線後重試'
+    return '發生錯誤，請稍後再試'
   }
 }
 

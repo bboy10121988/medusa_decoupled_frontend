@@ -1,6 +1,6 @@
-import { retrieveAffiliate } from '@lib/data/affiliate-auth'
+import { retrieveAffiliate, getAffiliateToken } from '@lib/data/affiliate-auth'
 import { redirect } from 'next/navigation'
-import { getRequestOrigin } from '@lib/util/absolute-url'
+import { MEDUSA_BACKEND_URL } from '@lib/config'
 import { LinkGeneratorForm, LinkList } from './components'
 
 // 暫時內嵌類型定義
@@ -19,21 +19,27 @@ export default async function AffiliateLinksPage({ params }: { params: Promise<{
   if (!session) redirect(`/${countryCode}/login-affiliate`)
   if (session.status !== 'approved') redirect(`/${countryCode}/affiliate/pending`)
 
-  // 直接使用會員 session 中的 ID 獲取連結，而不是透過 API
-  const origin = await getRequestOrigin()
+  const token = await getAffiliateToken()
   let links: AffiliateLink[] = []
   
   try {
-    const res = await fetch(`${origin}/api/affiliate/links`, { 
+    const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/links`, { 
       cache: 'no-store',
       headers: {
-        'Cookie': `_affiliate_jwt=${Buffer.from(JSON.stringify(session)).toString('base64')}`
+        'Authorization': `Bearer ${token}`
       }
     })
     
     if (res.ok) {
       const json = await res.json()
-      links = json?.links || []
+      links = (json?.links || []).map((l: any) => ({
+        id: l.id,
+        name: l.code,
+        url: l.url,
+        createdAt: l.created_at,
+        clicks: l.clicks,
+        conversions: l.conversions
+      }))
     } else {
       // console.error('無法取得連結列表:', res.status, res.statusText)
     }
