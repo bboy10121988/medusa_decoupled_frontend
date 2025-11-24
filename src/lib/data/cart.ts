@@ -1,5 +1,6 @@
 "use server"
 
+import { cookies } from "next/headers"
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
@@ -78,8 +79,20 @@ export async function getOrSetCart(countryCode: string) {
   if (!cart) {
     // if (isDev) console.log("🆕 建立新購物車...")
     try {
+      // Check for affiliate cookie
+      const cookieStore = await cookies()
+      const affiliateRef = cookieStore.get("affiliate_ref")?.value
+      
+      const metadata: Record<string, any> = {}
+      if (affiliateRef) {
+        metadata.affiliate_link_id = affiliateRef
+      }
+
       const cartResp = await sdk.store.cart.create(
-        { region_id: region.id },
+        { 
+          region_id: region.id,
+          metadata
+        },
         {},
         headers
       )
@@ -98,6 +111,27 @@ export async function getOrSetCart(countryCode: string) {
     }
   } else {
     // if (isDev) console.log("♻️ 使用現有購物車:", { cartId: cart.id })
+
+    // Check if we need to attach affiliate info to existing cart
+    const cookieStore = await cookies()
+    const affiliateRef = cookieStore.get("affiliate_ref")?.value
+    
+    if (affiliateRef && (!cart.metadata || !cart.metadata.affiliate_link_id)) {
+      try {
+        await sdk.store.cart.update(cart.id, {
+          metadata: {
+            ...cart.metadata,
+            affiliate_link_id: affiliateRef
+          }
+        }, {}, headers)
+        
+        const cartCacheTag = await getCacheTag("carts")
+        revalidateTag(cartCacheTag)
+      } catch (e) {
+        // Ignore error, not critical
+        console.error("Failed to update cart with affiliate info", e)
+      }
+    }
   }
 
   if (cart && cart?.region_id !== region.id) {
