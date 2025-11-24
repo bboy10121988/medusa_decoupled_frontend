@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 
 export const useIntersection = (
-  element: React.RefObject<HTMLElement>,
+  element: React.RefObject<any>,
   rootMargin: string = "0px"
 ) => {
   const [isVisible, setIsVisible] = useState<boolean>(true)
