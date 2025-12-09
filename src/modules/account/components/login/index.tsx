@@ -7,7 +7,7 @@ import { useActionState, useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useAccount } from "@lib/context/account-context"
 
-import GoogleLoginButton from "@modules/account/components/google-login-button"
+// import GoogleLoginButton from "@modules/account/components/google-login-button"
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
 }
@@ -28,7 +28,7 @@ const Login = ({ setCurrentView }: Props) => {
   useEffect(() => {
     if (result === "login_success") {
       // console.log("🎉 登入成功，刷新客戶狀態並重定向")
-      
+
       const handleSuccess = async () => {
         try {
           await refreshCustomer()
@@ -44,7 +44,7 @@ const Login = ({ setCurrentView }: Props) => {
           }, 500)
         }
       }
-      
+
       handleSuccess()
     }
   }, [result, refreshCustomer, countryCode])
@@ -87,6 +87,9 @@ const Login = ({ setCurrentView }: Props) => {
       data-testid="login-page"
     >
       {/* Google 登入按鈕與分隔線 */}
+      {/* Google 登入按鈕與分隔線 */}
+      {/* 
+      // TEMPORARY: Hidden as per user request (2025-12-09)
       <div className="w-full flex flex-col items-center mb-6">
         <GoogleLoginButton />
         <div className="w-full flex items-center gap-x-2 my-4">
@@ -95,6 +98,7 @@ const Login = ({ setCurrentView }: Props) => {
           <div className="flex-grow h-px bg-gray-200"></div>
         </div>
       </div>
+      */}
 
       {/* 移除重複的標題，因為在 LoginTemplate 中已經有了 */}
       <form className="w-full" action={formAction}>
@@ -109,14 +113,14 @@ const Login = ({ setCurrentView }: Props) => {
             data-testid="email-input"
             onBlur={(e) => checkEmail(e.target.value)}
           />
-          
+
           {/* 顯示 email 檢查結果 */}
           {isCheckingEmail && (
             <div className="text-sm text-gray-500">
               檢查帳戶狀態中...
             </div>
           )}
-          
+
           {emailCheckResult?.exists && emailCheckResult.authProvider === 'password' && (
             <div className="bg-green-50 border border-green-200 rounded-md p-3">
               <p className="text-sm text-green-700">
@@ -124,7 +128,7 @@ const Login = ({ setCurrentView }: Props) => {
               </p>
             </div>
           )}
-          
+
           {emailCheckResult && !emailCheckResult.exists && (
             <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
               <p className="text-sm text-orange-700">
@@ -132,7 +136,7 @@ const Login = ({ setCurrentView }: Props) => {
               </p>
             </div>
           )}
-          
+
           <Input
             label="密碼"
             name="password"
@@ -143,7 +147,7 @@ const Login = ({ setCurrentView }: Props) => {
             disabled={false}
           />
         </div>
-        
+
         {/* 忘記密碼連結 */}
         <div className="flex justify-end mb-4">
           <button
@@ -154,11 +158,11 @@ const Login = ({ setCurrentView }: Props) => {
             忘記密碼？
           </button>
         </div>
-        
+
         <ErrorMessage error={errorMessage} data-testid="login-error-message" />
-        
-        <SubmitButton 
-          data-testid="sign-in-button" 
+
+        <SubmitButton
+          data-testid="sign-in-button"
           className="w-full mt-6"
         >
           登入
