@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getAffiliateToken } from '../../../../lib/data/affiliate-auth'
 import { MEDUSA_BACKEND_URL } from '../../../../lib/config'
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     const token = await getAffiliateToken()
     if (!token) {
