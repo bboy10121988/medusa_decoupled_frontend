@@ -9,10 +9,16 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/settings`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers,
       cache: 'no-store'
     })
 
@@ -36,12 +42,18 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
     
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/settings`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify(body),
       cache: 'no-store'
     })

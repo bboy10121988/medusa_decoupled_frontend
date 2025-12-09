@@ -72,11 +72,17 @@ export async function affiliateLogin(
   if (!email || !password) return '請輸入電子郵件與密碼'
   
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ email, password }),
       cache: 'no-store'
     })
@@ -113,11 +119,17 @@ export async function affiliateSignup(
   }
 
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/register`, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ 
         first_name: displayName,
         email, 

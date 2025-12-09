@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import AffiliateLogoutButton from '@modules/affiliate/components/affiliate-logout-button'
 
 // 型別定義
 type AffiliateProfile = {
@@ -113,7 +114,7 @@ export default function AffiliateHomePage() {
 
   // 載入資料
   const fetchData = async () => {
-    if (!profile || profile.status !== 'approved') return
+    if (!profile || (profile.status !== 'approved' && profile.status !== 'active')) return
 
     setLoading(true)
     try {
@@ -141,7 +142,7 @@ export default function AffiliateHomePage() {
   }
 
   useEffect(() => {
-    if (profile?.status === 'approved') {
+    if (profile?.status === 'approved' || profile?.status === 'active') {
       fetchData()
     }
   }, [dateRange, profile])
@@ -187,8 +188,11 @@ export default function AffiliateHomePage() {
           感謝您申請加入我們的聯盟行銷計畫。您的帳號目前正在審核中，
           我們會在 1-3 個工作天內完成審核並透過 Email 通知您。
         </p>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 mb-6">
           申請帳號：{profile.email}
+        </div>
+        <div className="flex justify-center">
+          <AffiliateLogoutButton />
         </div>
       </div>
     )

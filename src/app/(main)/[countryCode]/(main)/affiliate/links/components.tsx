@@ -31,18 +31,27 @@ export function LinkGeneratorForm() {
 
     setIsLoading(true)
     try {
+      // 構建完整的目標網址（包含 UTM 參數）
+      const url = new URL(targetUrl, window.location.origin)
+      if (utmSource) url.searchParams.set('utm_source', utmSource)
+      if (utmMedium) url.searchParams.set('utm_medium', utmMedium)
+      if (utmCampaign) url.searchParams.set('utm_campaign', utmCampaign)
+
       const response = await fetch('/api/affiliate/links', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: linkName,
-          targetUrl,
-          utmParams: {
-            utm_source: utmSource || 'affiliate',
-            utm_medium: utmMedium || 'referral',
-            utm_campaign: utmCampaign || 'default'
+          code: linkName, // 後端預期欄位為 code
+          url: url.toString(), // 後端預期欄位為 url
+          metadata: {
+            originalUrl: targetUrl,
+            utmParams: {
+              utm_source: utmSource,
+              utm_medium: utmMedium,
+              utm_campaign: utmCampaign
+            }
           }
         })
       })

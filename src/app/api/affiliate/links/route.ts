@@ -9,10 +9,16 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/links`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers,
       cache: 'no-store'
     })
 
@@ -36,12 +42,18 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/links`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify(body),
       cache: 'no-store'
     })
@@ -53,6 +65,43 @@ export async function POST(request: NextRequest) {
 
     const data = await res.json()
     return NextResponse.json(data)
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const token = await getAffiliateToken()
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+    }
+
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`
+    }
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
+    const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/links?id=${id}`, {
+      method: 'DELETE',
+      headers,
+      cache: 'no-store'
+    })
+
+    if (!res.ok) {
+      return NextResponse.json({ error: 'Failed to delete link' }, { status: res.status })
+    }
+
+    return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }

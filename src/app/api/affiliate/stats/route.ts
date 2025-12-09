@@ -12,10 +12,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const days = searchParams.get('days') || '7'
 
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/stats?days=${days}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers,
       cache: 'no-store'
     })
 

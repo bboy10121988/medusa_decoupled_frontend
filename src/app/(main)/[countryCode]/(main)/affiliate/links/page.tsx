@@ -17,9 +17,39 @@ export default async function AffiliateLinksPage({ params }: { params: Promise<{
   const { countryCode } = await params
   const session = await retrieveAffiliate()
   if (!session) redirect(`/${countryCode}/login-affiliate`)
-  if (session.status !== 'approved') redirect(`/${countryCode}/affiliate/pending`)
 
   const token = await getAffiliateToken()
+  
+  // Verify status with backend
+  try {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`
+    }
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
+    const meRes = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/me`, {
+      headers,
+      cache: 'no-store'
+    })
+    
+    if (meRes.ok) {
+      const me = await meRes.json()
+      if (me.status !== 'approved' && me.status !== 'active') {
+        redirect(`/${countryCode}/affiliate/pending`)
+      }
+    } else if (meRes.status === 401) {
+      redirect(`/${countryCode}/login-affiliate`)
+    }
+  } catch (error) {
+    // If verification fails but we have session, let it proceed or handle error
+    // For now, if it's a redirect error, throw it
+    if (error instanceof Error && (error.message === 'NEXT_REDIRECT' || (error as any).digest?.startsWith('NEXT_REDIRECT'))) {
+      throw error
+    }
+  }
+
   let links: AffiliateLink[] = []
   
   try {

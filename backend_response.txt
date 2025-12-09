@@ -1,0 +1,35 @@
+Note: Unnecessary use of -X or --request, POST is already inferred.
+* Host localhost:9000 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:9000...
+* connect to ::1 port 9000 from ::1 port 50098 failed: Connection refused
+*   Trying 127.0.0.1:9000...
+* Connected to localhost (127.0.0.1) port 9000
+> POST /store/affiliates/login HTTP/1.1
+> Host: localhost:9000
+> User-Agent: curl/8.7.1
+> Accept: */*
+> Content-Type: application/json
+> x-publishable-api-key: pk_df177fe4f1c94ded6d9f25681a9519cb20f462f9d240d4de1708304f9cc05dd7
+> Content-Length: 53
+> 
+} [53 bytes data]
+* upload completely sent off: 53 bytes
+< HTTP/1.1 400 Bad Request
+< X-Powered-By: Express
+< Vary: Origin
+< Access-Control-Allow-Credentials: true
+< Content-Type: application/json; charset=utf-8
+< Content-Length: 98
+< ETag: W/"62-+C7Pxb83VsY7ATk+0Nq5tFmQTW0"
+< Date: Mon, 24 Nov 2025 17:41:39 GMT
+< Connection: keep-alive
+< Keep-Alive: timeout=5
+< 
+{ [98 bytes data]
+100   151  100    98  100    53   7937   4292 --:--:-- --:--:-- --:--:-- 12583
+* Connection #0 to host localhost left intact
+{"type":"not_allowed","message":"A valid publishable key is required to proceed with the request"}

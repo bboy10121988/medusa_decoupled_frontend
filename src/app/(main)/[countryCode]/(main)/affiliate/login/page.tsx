@@ -24,7 +24,7 @@ export default function AffiliateLoginPage() {
       </form>
       <div className="mt-4 text-sm">
         還不是聯盟夥伴？
-        <LocalizedClientLink className="ml-1 underline" href="/regitster-affiliate">
+        <LocalizedClientLink className="ml-1 underline" href="/affiliate/register">
           立即申請
         </LocalizedClientLink>
       </div>

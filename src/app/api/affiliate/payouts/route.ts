@@ -9,10 +9,16 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`
+    }
+
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+    }
+
     const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/payouts`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers,
       cache: 'no-store'
     })
 
