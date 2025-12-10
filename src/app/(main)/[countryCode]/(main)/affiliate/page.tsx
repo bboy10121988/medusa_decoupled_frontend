@@ -11,7 +11,7 @@ type AffiliateProfile = {
   first_name: string
   last_name: string
   code: string
-  status: 'pending' | 'approved' | 'rejected'
+  status: 'pending' | 'approved' | 'rejected' | 'active'
   balance: number
   total_earnings: number
 }
@@ -64,8 +64,8 @@ type AffiliateOrdersResponse = {
   orders: AffiliateOrder[]
 }
 
-type ExtendedAffiliateStats = AffiliateStatsSummary & { 
-  linkStats?: { [linkId: string]: { clicks: number, conversions: number, revenue: number, commission: number } } 
+type ExtendedAffiliateStats = AffiliateStatsSummary & {
+  linkStats?: { [linkId: string]: { clicks: number, conversions: number, revenue: number, commission: number } }
 }
 
 export default function AffiliateHomePage() {
@@ -93,7 +93,7 @@ export default function AffiliateHomePage() {
           return
         }
         if (!res.ok) throw new Error('Failed to fetch profile')
-        
+
         const data = await res.json()
         setProfile(data)
       } catch (error) {
@@ -107,7 +107,7 @@ export default function AffiliateHomePage() {
   useEffect(() => {
     const today = new Date()
     const weekAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000) // 7天前
-    
+
     setEndDate(today.toISOString().split('T')[0])
     setStartDate(weekAgo.toISOString().split('T')[0])
   }, [])
@@ -219,7 +219,7 @@ export default function AffiliateHomePage() {
       {/* 日期篩選器 */}
       <div className="bg-white border rounded-lg p-4">
         <h3 className="text-lg font-medium mb-4">篩選條件</h3>
-        
+
         <div className="flex flex-wrap items-center gap-4">
           {/* 預設日期範圍 */}
           <div className="flex flex-wrap gap-2">
@@ -227,11 +227,10 @@ export default function AffiliateHomePage() {
               <button
                 key={days}
                 onClick={() => handleDateRangeChange(days)}
-                className={`px-3 py-1 text-sm rounded-md border ${
-                  filterMode === 'preset' && dateRange === days
+                className={`px-3 py-1 text-sm rounded-md border ${filterMode === 'preset' && dateRange === days
                     ? 'bg-blue-500 text-white border-blue-500'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 最近 {days} 天
               </button>
@@ -268,23 +267,23 @@ export default function AffiliateHomePage() {
       <div>
         <h2 className="mb-4 text-xl font-medium">統計總覽（{statsData?.period || '最近 7 天'}）</h2>
         <div className="grid grid-cols-2 gap-4 small:grid-cols-4">
-          <StatCard 
-            label="總點擊數" 
+          <StatCard
+            label="總點擊數"
             value={statsData?.totalClicks || 0}
             subtitle="所有連結累計"
           />
-          <StatCard 
-            label="總轉換數" 
+          <StatCard
+            label="總轉換數"
             value={statsData?.totalConversions || 0}
             subtitle={`整體轉換率：${statsData?.totalClicks && statsData.totalClicks > 0 ? ((statsData.totalConversions || 0) / statsData.totalClicks * 100).toFixed(1) : 0}%`}
           />
-          <StatCard 
-            label="總營收" 
+          <StatCard
+            label="總營收"
             value={`$${(statsData?.totalRevenue || 0).toFixed(2)}`}
             subtitle="客戶消費金額"
           />
-          <StatCard 
-            label="總佣金" 
+          <StatCard
+            label="總佣金"
             value={`$${(statsData?.totalCommission || 0).toFixed(2)}`}
             subtitle="您的總收入"
           />
@@ -320,7 +319,7 @@ export default function AffiliateHomePage() {
                       url: '',
                       createdAt: new Date().toISOString()
                     }
-                    
+
                     return (
                       <tr key={linkId} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
@@ -330,14 +329,14 @@ export default function AffiliateHomePage() {
                         <td className="px-6 py-4" style={{ maxWidth: '250px' }}>
                           {linkInfo.url ? (
                             <div className="overflow-x-auto">
-                              <div className="text-sm text-gray-600" style={{ 
+                              <div className="text-sm text-gray-600" style={{
                                 whiteSpace: 'nowrap',
                                 minWidth: 'max-content'
                               }}>
-                                <a 
-                                  href={linkInfo.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
+                                <a
+                                  href={linkInfo.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   className="hover:text-blue-600"
                                   title={linkInfo.url}
                                 >
@@ -365,10 +364,10 @@ export default function AffiliateHomePage() {
                               {linkStat.clicks > 0 ? (linkStat.conversions / linkStat.clicks * 100).toFixed(1) : 0}%
                             </span>
                             <div className="ml-2 w-16 bg-gray-200 rounded-full h-2">
-                              <div 
-                                className="bg-blue-600 h-2 rounded-full" 
-                                style={{ 
-                                  width: `${linkStat.clicks > 0 ? Math.min((linkStat.conversions / linkStat.clicks * 100), 100) : 0}%` 
+                              <div
+                                className="bg-blue-600 h-2 rounded-full"
+                                style={{
+                                  width: `${linkStat.clicks > 0 ? Math.min((linkStat.conversions / linkStat.clicks * 100), 100) : 0}%`
                                 }}
                               ></div>
                             </div>
@@ -381,10 +380,10 @@ export default function AffiliateHomePage() {
                           ${linkStat.commission.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          {linkInfo.createdAt ? 
-                            new Date(linkInfo.createdAt).toLocaleDateString('zh-TW', { 
+                          {linkInfo.createdAt ?
+                            new Date(linkInfo.createdAt).toLocaleDateString('zh-TW', {
                               year: 'numeric',
-                              month: 'short', 
+                              month: 'short',
                               day: 'numeric'
                             }) : '-'
                           }
@@ -399,7 +398,7 @@ export default function AffiliateHomePage() {
           <div className="text-center py-8">
             <div className="text-gray-500">在選定日期範圍內沒有連結活動</div>
             <div className="mt-2">
-              <a 
+              <a
                 href="/tw/affiliate/links"
                 className="text-blue-600 hover:text-blue-500 text-sm font-medium"
               >
@@ -450,7 +449,7 @@ export default function AffiliateHomePage() {
       {/* 最近成交訂單 */}
       <div>
         <h3 className="mb-4 text-lg font-medium">最近成交訂單</h3>
-        
+
         {ordersData && ordersData.orders.length > 0 ? (
           <div className="bg-white border rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
@@ -480,20 +479,19 @@ export default function AffiliateHomePage() {
                       ${order.commission.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        order.status === 'confirmed' 
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === 'confirmed'
                           ? 'bg-green-100 text-green-800'
                           : order.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {order.status === 'confirmed' ? '已確認' : 
-                         order.status === 'pending' ? '待確認' : '已取消'}
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                        {order.status === 'confirmed' ? '已確認' :
+                          order.status === 'pending' ? '待確認' : '已取消'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString('zh-TW', { 
-                        month: 'short', 
+                      {new Date(order.createdAt).toLocaleDateString('zh-TW', {
+                        month: 'short',
                         day: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit'
