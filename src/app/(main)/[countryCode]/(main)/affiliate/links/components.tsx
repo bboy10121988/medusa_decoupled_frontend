@@ -7,6 +7,7 @@ import { Button, Input, Label, Text } from '@medusajs/ui'
 type AffiliateLink = {
     id: string
     name: string
+    code: string
     url: string
     createdAt: string
     clicks: number
@@ -15,6 +16,7 @@ type AffiliateLink = {
 
 interface LinkListProps {
     links: AffiliateLink[]
+    affiliateCode: string
 }
 
 interface LinkGeneratorFormProps {
@@ -31,17 +33,26 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!linkName.trim() || !targetUrl.trim()) return
+        console.log('[LinkGenerator DEBUG] Submitting form with:', { linkName, targetUrl })
+
+        if (!linkName.trim()) {
+            alert('請輸入連結名稱')
+            return
+        }
+        if (!targetUrl.trim()) {
+            alert('請輸入目標網址')
+            return
+        }
 
         setIsLoading(true)
         try {
-            // 構建完整的目標網址（包含 REF 和 UTM 參數）
+
+
+            // 構建完整的目標網址（包含 UTM 參數）
             const url = new URL(targetUrl, window.location.origin)
 
-            // 自動加上 Affiliate Ref Code
-            if (affiliateCode) {
-                url.searchParams.set('ref', affiliateCode)
-            }
+            // 注意：我們不需要在這裡加上 ref，因為後端會生成唯一的 link code
+            // 並且前端展示時會使用那個 unique code
 
             if (utmSource) url.searchParams.set('utm_source', utmSource)
             if (utmMedium) url.searchParams.set('utm_medium', utmMedium)
@@ -53,9 +64,9 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    code: linkName, // 後端預期欄位為 code (作為連結識別名)
-                    url: url.toString(), // 儲存包含 ref 參數的完整網址
+                    url: url.toString(),
                     metadata: {
+                        name: linkName, // Store display name in metadata
                         originalUrl: targetUrl,
                         utmParams: {
                             utm_source: utmSource,
@@ -158,7 +169,6 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
             <div className="pt-2">
                 <Button
                     type="submit"
-                    disabled={isLoading || !linkName.trim() || !targetUrl.trim()}
                     className="w-full"
                 >
                     {isLoading ? '創建中...' : '創建推廣連結'}
@@ -168,8 +178,11 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
     )
 }
 
-export function LinkList({ links }: LinkListProps) {
+export function LinkList({ links, affiliateCode }: LinkListProps) {
+    console.log('[LinkList DEBUG] Received links:', JSON.stringify(links, null, 2))
+    console.log('[LinkList DEBUG] AffiliateCode:', affiliateCode)
     const [deletingId, setDeletingId] = useState<string | null>(null)
+    //...
 
     const handleDelete = async (id: string) => {
         setDeletingId(id)
@@ -188,6 +201,31 @@ export function LinkList({ links }: LinkListProps) {
             alert('刪除時發生錯誤')
         } finally {
             setDeletingId(null)
+        }
+    }
+
+    const getShareableUrl = (link: AffiliateLink) => {
+        try {
+            // 確保 url 有 protocol
+            let urlStr = link.url
+            if (!urlStr.startsWith('http')) {
+                urlStr = `https://${urlStr}`
+            }
+            const url = new URL(urlStr)
+
+            // 1. ref = 用戶的聯盟代碼 (身分識別)
+            if (affiliateCode) {
+                url.searchParams.set('ref', affiliateCode)
+            }
+
+            // 2. lid = 該連結的唯一代碼 (追蹤識別)
+            if (link.code) {
+                url.searchParams.set('lid', link.code)
+            }
+
+            return url.toString()
+        } catch (e) {
+            return link.url // Fallback
         }
     }
 
@@ -212,11 +250,11 @@ export function LinkList({ links }: LinkListProps) {
                     <div className="flex items-center justify-between">
                         <div className="flex-1">
                             <h3 className="font-medium text-gray-900">{link.name}</h3>
-                            <p className="text-sm text-gray-500 break-all select-all font-mono">{link.url}</p>
+                            <p className="text-sm text-gray-500 break-all select-all font-mono">{getShareableUrl(link)}</p>
                             <div className="mt-2 flex gap-4 text-xs text-gray-500">
                                 <span>點擊次數: {link.clicks}</span>
                                 <span>轉換次數: {link.conversions}</span>
-                                <span>創建時間: {new Date(link.createdAt).toLocaleDateString('zh-TW')}</span>
+                                <span>創建時間: {link.createdAt ? new Date(link.createdAt).toLocaleDateString('zh-TW') : 'N/A'}</span>
                             </div>
                         </div>
 
@@ -224,7 +262,7 @@ export function LinkList({ links }: LinkListProps) {
                             <Button
                                 variant="secondary"
                                 size="small"
-                                onClick={() => copyToClipboard(link.url)}
+                                onClick={() => copyToClipboard(getShareableUrl(link))}
                             >
                                 複製連結
                             </Button>

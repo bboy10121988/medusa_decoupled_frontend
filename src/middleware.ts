@@ -19,8 +19,8 @@ async function getRegionMap(_cacheId: string) {
   // Performance Optimization: Use static region configuration instead of blocking fetch
   // This improves TTFB significantly by removing the backend dependency in middleware
   // If you need to support multiple regions, add them to this array
-  const supportedRegions = [DEFAULT_REGION] 
-  
+  const supportedRegions = [DEFAULT_REGION]
+
   supportedRegions.forEach((regionCode) => {
     regionMap.set(regionCode, {
       id: `static-${regionCode}`,
@@ -65,7 +65,7 @@ async function getCountryCode(
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       // console.error(
-        // "Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
+      // "Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
       // )
     }
     return undefined
@@ -75,37 +75,33 @@ async function getCountryCode(
 /**
  * Middleware to handle region selection and onboarding status.
  */
+// Middleware to handle region selection and onboarding status.
 export async function middleware(request: NextRequest) {
   // Skip middleware for studio, cms routes
-  if (request.nextUrl.pathname.startsWith("/studio") || 
-      request.nextUrl.pathname.startsWith("/cms")) {
+  if (request.nextUrl.pathname.startsWith("/studio") ||
+    request.nextUrl.pathname.startsWith("/cms")) {
     return NextResponse.next()
   }
 
-  // Skip middleware for affiliate-admin routes (they handle their own region routing)
+  // Skip middleware for affiliate-admin routes
   if (request.nextUrl.pathname.includes("/affiliate-admin")) {
     return NextResponse.next()
   }
-  
-  // Skip middleware for auth routes (needed for OAuth callbacks)
+
+  // Skip middleware for auth routes
   if (request.nextUrl.pathname.startsWith("/auth")) {
     return NextResponse.next()
   }
-  
-  // Skip middleware for reset-password routes (allow direct access without region routing)
+
+  // Skip middleware for reset-password routes
   if (request.nextUrl.pathname.includes("/reset-password")) {
     return NextResponse.next()
   }
 
-  // 預設不重導，必要時才建立 redirect 回應
-  // const response = NextResponse.next()
-
   const cacheIdCookie = request.cookies.get("_medusa_cache_id")
-
   const cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
   const regionMap = await getRegionMap(cacheId)
-
   const countryCode = regionMap && (await getCountryCode(request, regionMap))
 
   const urlHasCountryCode =
@@ -113,14 +109,13 @@ export async function middleware(request: NextRequest) {
 
   // if one of the country codes is in the url and the cache id is set, return next
   if (urlHasCountryCode && cacheIdCookie) {
-    return NextResponse.next()
+    // Check for affiliate tracking even if URL is correct
+    // But usually we track on the first hit. If params exist, we should process them.
   }
 
   // if one of the country codes is in the url and the cache id is not set, set the cache id and continue
   if (urlHasCountryCode && !cacheIdCookie) {
-    const res = NextResponse.next()
-    res.cookies.set("_medusa_cache_id", cacheId, { maxAge: 60 * 60 * 24 })
-    return res
+    // If we have params, we might need to process them before returning
   }
 
   // check if the url is a static asset
@@ -132,20 +127,44 @@ export async function middleware(request: NextRequest) {
   const queryString = request.nextUrl.search ? request.nextUrl.search : ""
 
   // Affiliate tracking middleware
-  const affiliateResponse = NextResponse.next()
+  let finalResponse: NextResponse
+
   const url = request.nextUrl.clone()
-  
-  // Check for affiliate parameters
   const affiliateRef = url.searchParams.get('ref')
+  const linkId = url.searchParams.get('lid') // Unique Link Code
   const affiliateId = url.searchParams.get('affiliate_id')
   const utmSource = url.searchParams.get('utm_source')
   const utmMedium = url.searchParams.get('utm_medium')
   const utmCampaign = url.searchParams.get('utm_campaign')
-  
-  // Set affiliate tracking cookies if parameters are present
+
+  const hasAffiliateParams = affiliateRef || linkId || affiliateId || utmSource || utmMedium || utmCampaign
+
+  // Logic 1: Handle Country Code Redirect
+  if (!urlHasCountryCode && countryCode) {
+    const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+    finalResponse = NextResponse.redirect(redirectUrl, 307)
+  }
+  // Logic 2: Handle Clean URL Redirect (if we have params AND we are already on correct country)
+  else if (hasAffiliateParams && urlHasCountryCode) {
+    const cleanUrl = new URL(request.url)
+    cleanUrl.searchParams.delete('ref')
+    cleanUrl.searchParams.delete('lid')
+    cleanUrl.searchParams.delete('affiliate_id')
+    cleanUrl.searchParams.delete('utm_source')
+    cleanUrl.searchParams.delete('utm_medium')
+    cleanUrl.searchParams.delete('utm_campaign')
+
+    finalResponse = NextResponse.redirect(cleanUrl)
+  }
+  // Logic 3: Normal Request
+  else {
+    finalResponse = NextResponse.next()
+  }
+
+  // Set cookies on the FINAL response (whether it's a redirect or next)
   if (affiliateRef || affiliateId) {
     if (affiliateRef) {
-      affiliateResponse.cookies.set('affiliate_ref', affiliateRef, {
+      finalResponse.cookies.set('affiliate_ref', affiliateRef, {
         maxAge: 30 * 24 * 60 * 60, // 30 days
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
@@ -153,9 +172,9 @@ export async function middleware(request: NextRequest) {
         path: '/'
       })
     }
-    
+
     if (affiliateId && affiliateId !== affiliateRef) {
-      affiliateResponse.cookies.set('affiliate_id', affiliateId, {
+      finalResponse.cookies.set('affiliate_id', affiliateId, {
         maxAge: 30 * 24 * 60 * 60,
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
@@ -163,81 +182,47 @@ export async function middleware(request: NextRequest) {
         path: '/'
       })
     }
-    
-    // Set UTM parameter cookies
-    if (utmSource) {
-      affiliateResponse.cookies.set('utm_source', utmSource, {
-        maxAge: 30 * 24 * 60 * 60,
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      })
-    }
-    
-    if (utmMedium) {
-      affiliateResponse.cookies.set('utm_medium', utmMedium, {
-        maxAge: 30 * 24 * 60 * 60,
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      })
-    }
-    
-    if (utmCampaign) {
-      affiliateResponse.cookies.set('utm_campaign', utmCampaign, {
-        maxAge: 30 * 24 * 60 * 60,
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      })
-    }
-    
-    // Log affiliate click tracking (in production, save to database)
-    // console.log('Affiliate click tracked:', {
-      // affiliateId: affiliateRef || affiliateId,
-      // timestamp: Date.now(),
-      // referrer: request.headers.get('referer'),
-      // userAgent: request.headers.get('user-agent'),
-      // ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-      // utmSource,
-      // utmMedium,
-      // utmCampaign,
-      // path: url.pathname
-    // })
-    
-    // Remove affiliate parameters from URL to keep it clean
-    url.searchParams.delete('ref')
-    url.searchParams.delete('affiliate_id')
-    url.searchParams.delete('utm_source')
-    url.searchParams.delete('utm_medium')
-    url.searchParams.delete('utm_campaign')
-    url.searchParams.delete('utm_content')
-    url.searchParams.delete('utm_term')
-    url.searchParams.delete('t') // timestamp
-    
-    // If URL has changed, redirect to clean URL
-    if (url.href !== request.url) {
-      // But first handle country code redirect if needed
-      if (!urlHasCountryCode && countryCode) {
-        const cleanPath = url.pathname === "/" ? "" : url.pathname
-        const cleanQuery = url.search ? url.search : ""
-        url.pathname = `/${countryCode}${cleanPath}`
-        url.search = cleanQuery
-      }
-      return NextResponse.redirect(url.href)
-    }
+
+    if (utmSource) finalResponse.cookies.set('utm_source', utmSource, { maxAge: 30 * 24 * 60 * 60, path: '/' })
+    if (utmMedium) finalResponse.cookies.set('utm_medium', utmMedium, { maxAge: 30 * 24 * 60 * 60, path: '/' })
+    if (utmCampaign) finalResponse.cookies.set('utm_campaign', utmCampaign, { maxAge: 30 * 24 * 60 * 60, path: '/' })
   }
 
-  // If no country code is set, we redirect to the relevant region.
-  if (!urlHasCountryCode && countryCode) {
-    const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
-    return NextResponse.redirect(redirectUrl, 307)
+  // Log affiliate click tracking (Side Effect)
+  const trackingCode = linkId || affiliateRef
+  if (trackingCode) {
+    const backendUrl = process.env.MEDUSA_BACKEND_URL || 'https://admin.timsfantasyworld.com'
+    const trackingUrl = `${backendUrl}/store/affiliates/links/click`
+
+    fetch(trackingUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ''
+      },
+      body: JSON.stringify({
+        code: trackingCode,
+        ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+        user_agent: request.headers.get('user-agent'),
+        metadata: {
+          referrer: request.headers.get('referer'),
+          utmSource,
+          utmMedium,
+          utmCampaign,
+          affiliateRef
+        }
+      })
+    }).catch((err) => {
+      console.error('[Affiliate Middleware] Tracking failed:', err)
+    })
   }
 
-  return affiliateResponse
+  // Ensure cache ID is set if missing
+  if (!cacheIdCookie) {
+    finalResponse.cookies.set("_medusa_cache_id", cacheId, { maxAge: 60 * 60 * 24 })
+  }
+
+  return finalResponse
 }
 
 export const config = {

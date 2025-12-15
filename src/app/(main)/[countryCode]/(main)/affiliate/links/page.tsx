@@ -7,6 +7,7 @@ import { LinkGeneratorForm, LinkList } from './components'
 type AffiliateLink = {
     id: string
     name: string
+    code: string
     url: string
     createdAt: string
     clicks: number
@@ -57,25 +58,31 @@ export default async function AffiliateLinksPage({ params }: { params: Promise<{
     let links: AffiliateLink[] = []
 
     try {
+        const headers: Record<string, string> = {
+            'Authorization': `Bearer ${token}`
+        }
+        if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+            headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+        }
+
         const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/links`, {
             cache: 'no-store',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers
         })
 
         if (res.ok) {
             const json = await res.json()
             links = (json?.links || []).map((l: any) => ({
                 id: l.id,
-                name: l.code,
+                name: l.name, // Use the name returned by backend (which handles metadata fallback)
+                code: l.code,
                 url: l.url,
-                createdAt: l.created_at,
+                createdAt: l.createdAt, // Backend returns camelCase createdAt
                 clicks: l.clicks,
                 conversions: l.conversions
             }))
         } else {
-            // console.error('無法取得連結列表:', res.status, res.statusText)
+            console.error('無法取得連結列表:', res.status, res.statusText)
         }
     } catch (error) {
         // console.error('取得連結列表時發生錯誤:', error)
@@ -90,7 +97,7 @@ export default async function AffiliateLinksPage({ params }: { params: Promise<{
 
             <div>
                 <h2 className="mb-4 text-xl font-medium">我的推廣連結</h2>
-                <LinkList links={links} />
+                <LinkList links={links} affiliateCode={affiliateCode} />
             </div>
         </div>
     )

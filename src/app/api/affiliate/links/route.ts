@@ -29,6 +29,7 @@ export async function GET(_request: NextRequest) {
     const data = await res.json()
     return NextResponse.json(data)
   } catch (error) {
+    console.error('[API Proxy DEBUG] GET /links Error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
@@ -41,7 +42,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    
+    console.log('[API Proxy DEBUG] POST /links Request Body:', body)
+
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -59,13 +61,21 @@ export async function POST(request: NextRequest) {
     })
 
     if (!res.ok) {
-      const error = await res.json()
-      return NextResponse.json({ error: error.message || 'Failed to create link' }, { status: res.status })
+      const errorText = await res.text()
+      console.error('[API Proxy DEBUG] Backend Error:', res.status, errorText)
+      // Try to parse JSON if possible, else return text
+      try {
+        const errorJson = JSON.parse(errorText)
+        return NextResponse.json({ error: errorJson.message || 'Failed to create link' }, { status: res.status })
+      } catch (e) {
+        return NextResponse.json({ error: errorText || 'Failed to create link' }, { status: res.status })
+      }
     }
 
     const data = await res.json()
     return NextResponse.json(data)
   } catch (error) {
+    console.error('[API Proxy DEBUG] POST /links Error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
