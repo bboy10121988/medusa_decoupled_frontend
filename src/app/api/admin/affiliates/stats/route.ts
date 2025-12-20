@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
-import { getAffiliateToken } from '../../../../../../lib/data/affiliate-auth'
-import { MEDUSA_BACKEND_URL } from '../../../../../../lib/config'
+import { getAffiliateToken } from '../../../../../lib/data/affiliate-auth'
+import { MEDUSA_BACKEND_URL } from '../../../../../lib/config'
 
 export async function GET(_request: NextRequest) {
     try {
