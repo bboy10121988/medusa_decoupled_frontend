@@ -94,15 +94,11 @@ export async function affiliateLogin(
     }
 
     const data = await res.json()
-    console.log('[Auth Debug] Login Response:', JSON.stringify(data, null, 2))
-
     await setAffiliateAuthToken(data.session, data.token)
 
     if (data.session.role === 'admin') {
-      console.log('[Auth Debug] Redirecting to Admin Manager')
       redirect(`/${countryCode}/affiliate/manager`)
     } else {
-      console.log('[Auth Debug] Redirecting to User Dashboard')
       redirect(`/${countryCode}/affiliate`)
     }
   } catch (error) {

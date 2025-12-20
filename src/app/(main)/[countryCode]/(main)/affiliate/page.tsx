@@ -98,11 +98,8 @@ export default function AffiliateHomePage() {
 
         const data = await res.json()
 
-        // Admin Redirect Failsafe
-        if (data.role === 'admin') {
-          window.location.href = `/${countryCode}/affiliate/manager` // Force hard redirect
-          return
-        }
+        // Admin Redirect Failsafe removed to allow access to personal dashboard
+        // if (data.role === 'admin') { ... }
 
         setProfile(data)
       } catch (error) {

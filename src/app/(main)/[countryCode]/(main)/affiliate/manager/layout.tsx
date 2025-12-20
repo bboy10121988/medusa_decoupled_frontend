@@ -21,7 +21,7 @@ export default function AffiliateManagerLayout({
 
                     </div>
                     <div>
-                        <Link href={`/${countryCode}/affiliate`} className="text-sm text-ui-fg-subtle hover:text-ui-fg-base">回自己的推廣頁</Link>
+                        <Link href={`/${countryCode}/affiliate`} className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded hover:bg-gray-100">回自己的推廣頁</Link>
                     </div>
                 </div>
             </header>
