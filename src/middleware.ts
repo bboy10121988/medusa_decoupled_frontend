@@ -98,6 +98,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Admin Route Protection
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const sessionCookie = request.cookies.get('_affiliate_session')
+    if (!sessionCookie) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+    try {
+      const session = JSON.parse(Buffer.from(sessionCookie.value, 'base64').toString())
+      if (session.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    } catch (e) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+  }
+
   const cacheIdCookie = request.cookies.get("_medusa_cache_id")
   const cacheId = cacheIdCookie?.value || crypto.randomUUID()
 

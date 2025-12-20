@@ -12,6 +12,7 @@ type AffiliateProfile = {
   last_name: string
   code: string
   status: 'pending' | 'approved' | 'rejected' | 'active'
+  role: string
   balance: number
   total_earnings: number
 }
@@ -71,7 +72,7 @@ type ExtendedAffiliateStats = AffiliateStatsSummary & {
 export default function AffiliateHomePage() {
   const router = useRouter()
   const params = useParams()
-  const countryCode = params.countryCode as string
+  const countryCode = (params?.countryCode as string) || 'tw'
 
   const [profile, setProfile] = useState<AffiliateProfile | null>(null)
   const [statsData, setStatsData] = useState<ExtendedAffiliateStats | null>(null)
@@ -81,6 +82,7 @@ export default function AffiliateHomePage() {
   const [dateRange, setDateRange] = useState(7) // 預設 7 天
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [filterMode, setFilterMode] = useState<'preset' | 'custom'>('preset')
 
   // 驗證身份與狀態
@@ -95,9 +97,18 @@ export default function AffiliateHomePage() {
         if (!res.ok) throw new Error('Failed to fetch profile')
 
         const data = await res.json()
+
+        // Admin Redirect Failsafe
+        if (data.role === 'admin') {
+          window.location.href = `/${countryCode}/affiliate/manager` // Force hard redirect
+          return
+        }
+
         setProfile(data)
       } catch (error) {
         console.error('Auth check failed:', error)
+      } finally {
+        setIsAuthLoading(false)
       }
     }
     checkAuth()
@@ -165,10 +176,19 @@ export default function AffiliateHomePage() {
     }
   }
 
-  if (!profile) {
+  if (isAuthLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-500">載入中...</div>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-red-500 gap-4">
+        <div>無法載入使用者資料</div>
+        <button onClick={() => window.location.reload()} className="underline text-sm text-gray-500">重試</button>
       </div>
     )
   }
@@ -228,8 +248,8 @@ export default function AffiliateHomePage() {
                 key={days}
                 onClick={() => handleDateRangeChange(days)}
                 className={`px-3 py-1 text-sm rounded-md border ${filterMode === 'preset' && dateRange === days
-                    ? 'bg-blue-500 text-white border-blue-500'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                   }`}
               >
                 最近 {days} 天
@@ -310,7 +330,7 @@ export default function AffiliateHomePage() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {Object.entries(statsData.linkStats)
-                  .filter(([, linkStat]) => linkStat.clicks > 0 || linkStat.conversions > 0) // 只顯示有數據的連結
+                  .filter(([, linkStat]) => linkStat && (linkStat.clicks > 0 || linkStat.conversions > 0)) // 只顯示有數據的連結
                   .sort(([, a], [, b]) => b.clicks - a.clicks) // 按點擊數排序
                   .map(([linkId, linkStat]) => {
                     // 從連結資料中獲取補充資訊
@@ -480,10 +500,10 @@ export default function AffiliateHomePage() {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === 'confirmed'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
+                        ? 'bg-green-100 text-green-800'
+                        : order.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
                         }`}>
                         {order.status === 'confirmed' ? '已確認' :
                           order.status === 'pending' ? '待確認' : '已取消'}
