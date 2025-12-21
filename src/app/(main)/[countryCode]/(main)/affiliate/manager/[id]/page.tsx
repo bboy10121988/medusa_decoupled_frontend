@@ -78,12 +78,109 @@ export default function AffiliateDetailPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="links">
+            <Tabs defaultValue="settings">
                 <Tabs.List className="mb-4">
+                    <Tabs.Trigger value="settings">基本資料</Tabs.Trigger>
                     <Tabs.Trigger value="links">推廣連結 ({affiliate.links?.length || 0})</Tabs.Trigger>
                     <Tabs.Trigger value="conversions">成交紀錄 ({affiliate.conversions?.length || 0})</Tabs.Trigger>
                     <Tabs.Trigger value="payouts">撥款紀錄 ({affiliate.settlements?.length || 0})</Tabs.Trigger>
                 </Tabs.List>
+
+                <Tabs.Content value="settings">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Profile Info */}
+                        <div className="p-6 bg-white rounded-lg border">
+                            <h3 className="text-lg font-medium mb-4">個人/公司資料</h3>
+                            <dl className="space-y-3 text-sm">
+                                <div className="flex justify-between">
+                                    <dt className="text-gray-500">顯示名稱</dt>
+                                    <dd className="font-medium">{affiliate.settings?.displayName || '-'}</dd>
+                                </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-gray-500">公司名稱</dt>
+                                    <dd className="font-medium">{affiliate.settings?.profile?.company || '-'}</dd>
+                                </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-gray-500">統一編號</dt>
+                                    <dd className="font-medium">{affiliate.settings?.profile?.taxId || '-'}</dd>
+                                </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-gray-500">聯絡電話</dt>
+                                    <dd className="font-medium">{affiliate.settings?.profile?.phone || '-'}</dd>
+                                </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-gray-500">網站</dt>
+                                    <dd className="font-medium">{affiliate.settings?.website || '-'}</dd>
+                                </div>
+                                <div>
+                                    <dt className="text-gray-500 mb-1">地址</dt>
+                                    <dd className="font-medium bg-gray-50 p-2 rounded">{affiliate.settings?.profile?.address || '-'}</dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        {/* Payment Info */}
+                        <div className="p-6 bg-white rounded-lg border">
+                            <h3 className="text-lg font-medium mb-4">收款設定</h3>
+                            <div className="mb-4">
+                                <span className="text-sm text-gray-500">收款方式: </span>
+                                <Badge color="blue" className="ml-2">
+                                    {affiliate.settings?.payoutMethod === 'bank_transfer' && '銀行轉帳'}
+                                    {affiliate.settings?.payoutMethod === 'paypal' && 'PayPal'}
+                                    {affiliate.settings?.payoutMethod === 'stripe' && 'Stripe'}
+                                    {!affiliate.settings?.payoutMethod && '未設定'}
+                                </Badge>
+                            </div>
+
+                            {affiliate.settings?.payoutMethod === 'bank_transfer' && (
+                                <dl className="space-y-3 text-sm">
+                                    <div className="flex justify-between">
+                                        <dt className="text-gray-500">銀行名稱</dt>
+                                        <dd className="font-medium">{affiliate.settings?.bankAccount?.bankName}</dd>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <dt className="text-gray-500">分行</dt>
+                                        <dd className="font-medium">{affiliate.settings?.bankAccount?.branch || '-'}</dd>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <dt className="text-gray-500">帳戶名稱</dt>
+                                        <dd className="font-medium">{affiliate.settings?.bankAccount?.accountName}</dd>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <dt className="text-gray-500">帳號</dt>
+                                        <dd className="font-medium font-mono bg-gray-50 px-2 py-0.5 rounded">
+                                            {affiliate.settings?.bankAccount?.accountNumber}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            )}
+
+                            {affiliate.settings?.payoutMethod === 'paypal' && (
+                                <dl className="space-y-3 text-sm">
+                                    <div className="flex justify-between">
+                                        <dt className="text-gray-500">PayPal Email</dt>
+                                        <dd className="font-medium">{affiliate.settings?.paypalEmail}</dd>
+                                    </div>
+                                </dl>
+                            )}
+
+                            {affiliate.settings?.payoutMethod === 'stripe' && (
+                                <dl className="space-y-3 text-sm">
+                                    <div className="flex justify-between">
+                                        <dt className="text-gray-500">Stripe ID</dt>
+                                        <dd className="font-medium">{affiliate.settings?.stripeAccountId}</dd>
+                                    </div>
+                                </dl>
+                            )}
+
+                            {!affiliate.settings?.payoutMethod && (
+                                <div className="text-sm text-gray-500">
+                                    此用戶尚未設定收款資訊
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </Tabs.Content>
 
                 <Tabs.Content value="links">
                     <Table>
