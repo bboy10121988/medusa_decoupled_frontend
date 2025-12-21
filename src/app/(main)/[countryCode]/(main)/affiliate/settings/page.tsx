@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 
 type AffiliateSettings = {
+  email?: string
   displayName: string
   website?: string
   payoutMethod: 'bank_transfer' | 'paypal' | 'stripe'
@@ -43,11 +44,11 @@ export default function AffiliateSettingsPage() {
     try {
       setLoading(true)
       const response = await fetch('/api/affiliate/settings')
-      
+
       if (!response.ok) {
         throw new Error('獲取設定失敗')
       }
-      
+
       const data = await response.json()
       setSettings(data)
     } catch (err) {
@@ -63,7 +64,7 @@ export default function AffiliateSettingsPage() {
     try {
       setSaving(true)
       setError(null)
-      
+
       const response = await fetch('/api/affiliate/settings', {
         method: 'PUT',
         headers: {
@@ -153,11 +154,10 @@ export default function AffiliateSettingsPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.key
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.key
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               <span className="mr-2">{tab.icon}</span>
               {tab.label}
@@ -185,6 +185,17 @@ export default function AffiliateSettingsPage() {
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                     placeholder="請輸入顯示名稱"
                     required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    帳號信箱 (通知將發送至此)
+                  </label>
+                  <input
+                    type="email"
+                    value={settings.email || ''}
+                    disabled
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50 text-gray-500 cursor-not-allowed"
                   />
                 </div>
                 <div>
@@ -257,7 +268,7 @@ export default function AffiliateSettingsPage() {
           <div className="space-y-6">
             <div className="bg-white border rounded-lg p-6">
               <h3 className="text-lg font-medium mb-4">收款方式</h3>
-              
+
               {/* 收款方式選擇 */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -271,11 +282,10 @@ export default function AffiliateSettingsPage() {
                   ].map((method) => (
                     <label
                       key={method.key}
-                      className={`relative flex cursor-pointer rounded-lg border p-4 focus:outline-none ${
-                        settings.payoutMethod === method.key
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-300'
-                      }`}
+                      className={`relative flex cursor-pointer rounded-lg border p-4 focus:outline-none ${settings.payoutMethod === method.key
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-300'
+                        }`}
                     >
                       <input
                         type="radio"
