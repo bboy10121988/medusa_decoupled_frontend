@@ -201,7 +201,10 @@ export default function AffiliateDetailPage() {
                                     <Table.Cell>{link.conversions}</Table.Cell>
                                 </Table.Row>
                             ))}
-                            {!affiliate.links?.length && <Table.Row><Table.Cell colSpan={4} className="text-center text-ui-fg-subtle">無資料</Table.Cell></Table.Row>}
+                            {!affiliate.links?.length && <Table.Row>
+                                {/* @ts-expect-error: colSpan is valid DOM attribute but missing in types */}
+                                <Table.Cell colSpan={4} className="text-center text-ui-fg-subtle">無資料</Table.Cell>
+                            </Table.Row>}
                         </Table.Body>
                     </Table>
                 </Tabs.Content>
@@ -227,7 +230,10 @@ export default function AffiliateDetailPage() {
                                     <Table.Cell>{new Date(conv.created_at).toLocaleDateString()}</Table.Cell>
                                 </Table.Row>
                             ))}
-                            {!affiliate.conversions?.length && <Table.Row><Table.Cell colSpan={5} className="text-center text-ui-fg-subtle">無資料</Table.Cell></Table.Row>}
+                            {!affiliate.conversions?.length && <Table.Row>
+                                {/* @ts-expect-error: colSpan is valid DOM attribute but missing in types */}
+                                <Table.Cell colSpan={5} className="text-center text-ui-fg-subtle">無資料</Table.Cell>
+                            </Table.Row>}
                         </Table.Body>
                     </Table>
                 </Tabs.Content>
@@ -251,7 +257,10 @@ export default function AffiliateDetailPage() {
                                     <Table.Cell>{new Date(stm.created_at).toLocaleDateString()}</Table.Cell>
                                 </Table.Row>
                             ))}
-                            {!affiliate.settlements?.length && <Table.Row><Table.Cell colSpan={4} className="text-center text-ui-fg-subtle">無資料</Table.Cell></Table.Row>}
+                            {!affiliate.settlements?.length && <Table.Row>
+                                {/* @ts-expect-error: colSpan is valid DOM attribute but missing in types */}
+                                <Table.Cell colSpan={4} className="text-center text-ui-fg-subtle">無資料</Table.Cell>
+                            </Table.Row>}
                         </Table.Body>
                     </Table>
                 </Tabs.Content>
