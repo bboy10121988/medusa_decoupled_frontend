@@ -43,6 +43,37 @@ export default function AffiliateDetailPage() {
         }
     }
 
+    const handleUpdateCommission = async () => {
+        const currentRate = (affiliate.commission_rate * 100).toFixed(1)
+        const newRateStr = prompt(`請輸入新的佣金比例 (%)\n目前: ${currentRate}%`, currentRate)
+
+        if (newRateStr === null) return // Cancelled
+
+        const newRate = parseFloat(newRateStr)
+        if (isNaN(newRate) || newRate < 0 || newRate > 100) {
+            alert('請輸入有效的數字 (0-100)')
+            return
+        }
+
+        try {
+            const res = await fetch(`/api/admin/affiliates/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ commission_rate: newRate / 100 })
+            })
+
+            if (res.ok) {
+                alert('佣金比例已更新')
+                fetchAffiliate()
+            } else {
+                throw new Error('Update failed')
+            }
+        } catch (e) {
+            console.error(e)
+            alert('更新失敗')
+        }
+    }
+
     if (loading) return <div className="p-8">載入中...</div>
     if (!affiliate) return <div className="p-8">找不到此推廣者</div>
 
@@ -53,7 +84,16 @@ export default function AffiliateDetailPage() {
                     <div className="flex items-center gap-3">
                         <Heading>{affiliate.first_name} {affiliate.last_name}</Heading>
                         <StatusBadge status={affiliate.status} />
-                        <Badge color="blue">佣金: {(affiliate.commission_rate * 100).toFixed(1)}%</Badge>
+                        <div className="flex items-center gap-2">
+                            <Badge color="blue">佣金: {(affiliate.commission_rate * 100).toFixed(1)}%</Badge>
+                            <button
+                                onClick={handleUpdateCommission}
+                                className="text-ui-fg-subtle hover:text-ui-fg-base p-1"
+                                title="調整佣金"
+                            >
+                                ✏️
+                            </button>
+                        </div>
                     </div>
                     <div className="text-ui-fg-subtle text-sm mt-1">{affiliate.email}</div>
                     {affiliate.phone && <div className="text-ui-fg-subtle text-sm">{affiliate.phone}</div>}
