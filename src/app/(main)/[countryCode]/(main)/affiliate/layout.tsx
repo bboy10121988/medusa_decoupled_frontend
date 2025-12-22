@@ -5,11 +5,11 @@ import { retrieveAffiliate } from '@lib/data/affiliate-auth'
 
 interface AffiliateLayoutProps {
   children: ReactNode
-  params: { countryCode: string }
+  params: Promise<{ countryCode: string }>
 }
 
 export default async function AffiliateLayout({ children, params }: AffiliateLayoutProps) {
-  const { countryCode } = params
+  const { countryCode } = await params
   const affiliate = await retrieveAffiliate()
 
   return (

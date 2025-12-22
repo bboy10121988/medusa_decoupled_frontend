@@ -1,13 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
 
-export default function AffiliateManagerLayout({
+export default async function AffiliateManagerLayout({
     children,
-    params: { countryCode },
+    params,
 }: {
     children: React.ReactNode
-    params: { countryCode: string }
+    params: Promise<{ countryCode: string }>
 }) {
+    const { countryCode } = await params
     return (
         <div className="min-h-screen bg-ui-bg-subtle">
             <header className="sticky top-0 z-50 w-full border-b bg-white">
