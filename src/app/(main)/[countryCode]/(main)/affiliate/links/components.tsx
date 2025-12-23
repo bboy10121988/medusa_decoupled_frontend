@@ -27,9 +27,43 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [linkName, setLinkName] = useState('')
     const [targetUrl, setTargetUrl] = useState('')
-    const [utmSource, setUtmSource] = useState('')
-    const [utmMedium, setUtmMedium] = useState('')
+    const [utmSource, setUtmSource] = useState('affiliate')
+    const [utmMedium, setUtmMedium] = useState('referral')
     const [utmCampaign, setUtmCampaign] = useState('')
+
+    // Product Search State
+    const [searchQuery, setSearchQuery] = useState('')
+    const [searchResults, setSearchResults] = useState<any[]>([])
+    const [isSearching, setIsSearching] = useState(false)
+
+    const handleProductSearch = async (query: string) => {
+        setSearchQuery(query)
+        if (query.length < 2) {
+            setSearchResults([])
+            return
+        }
+
+        setIsSearching(true)
+        try {
+            const res = await fetch(`/api/store/products?q=${encodeURIComponent(query)}&limit=5`)
+            const data = await res.json()
+            setSearchResults(data.products || [])
+        } catch (e) {
+            console.error('Product search failed', e)
+        } finally {
+            setIsSearching(false)
+        }
+    }
+
+    const selectProduct = (product: any) => {
+        const handle = product.handle
+        // Construct the URL based on current context if possible, or just relative
+        const url = `${window.location.origin}/tw/products/${handle}`
+        setTargetUrl(url)
+        setLinkName(`推廣: ${product.title}`)
+        setSearchResults([])
+        setSearchQuery('')
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -46,13 +80,8 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
 
         setIsLoading(true)
         try {
-
-
             // 構建完整的目標網址（包含 UTM 參數）
             const url = new URL(targetUrl, window.location.origin)
-
-            // 注意：我們不需要在這裡加上 ref，因為後端會生成唯一的 link code
-            // 並且前端展示時會使用那個 unique code
 
             if (utmSource) url.searchParams.set('utm_source', utmSource)
             if (utmMedium) url.searchParams.set('utm_medium', utmMedium)
@@ -66,7 +95,7 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
                 body: JSON.stringify({
                     url: url.toString(),
                     metadata: {
-                        name: linkName, // Store display name in metadata
+                        name: linkName,
                         originalUrl: targetUrl,
                         utmParams: {
                             utm_source: utmSource,
@@ -78,14 +107,11 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
             })
 
             if (response.ok) {
-                // 重置表單
                 setLinkName('')
                 setTargetUrl('')
-                setUtmSource('')
-                setUtmMedium('')
+                setUtmSource('affiliate')
+                setUtmMedium('referral')
                 setUtmCampaign('')
-
-                // 重新整理頁面以顯示新連結
                 window.location.reload()
             } else {
                 const errorData = await response.json().catch(() => ({}))
@@ -93,7 +119,6 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
                 alert(errorMessage)
             }
         } catch (error) {
-            // console.error('Error creating link:', error)
             alert('創建連結時發生錯誤：' + (error as Error).message)
         } finally {
             setIsLoading(false)
@@ -101,33 +126,69 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-6 bg-white">
-            <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                    <Label htmlFor="linkName">連結名稱 (用於報表識別) *</Label>
-                    <Input
-                        id="linkName"
-                        type="text"
-                        value={linkName}
-                        onChange={(e) => setLinkName(e.target.value)}
-                        placeholder="例如：首頁推廣"
-                        required
-                    />
-                    <Text className="text-ui-fg-subtle text-xs mt-1">
-                        請輸入易於識別的名稱，請勿與您的聯盟代碼 ({affiliateCode || 'Code'}) 重複。
-                    </Text>
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-6 bg-white shadow-sm">
+            <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                    <div className="relative">
+                        <Label>快速搜尋商品生成連結</Label>
+                        <Input
+                            type="text"
+                            placeholder="輸入商品名稱關鍵字..."
+                            value={searchQuery}
+                            onChange={(e) => handleProductSearch(e.target.value)}
+                        />
+                        {isSearching && <div className="absolute right-3 top-9 text-xs text-gray-400">搜尋中...</div>}
+
+                        {searchResults.length > 0 && (
+                            <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-xl max-h-60 overflow-auto">
+                                {searchResults.map(p => (
+                                    <div
+                                        key={p.id}
+                                        className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-0 flex items-center gap-3"
+                                        onClick={() => selectProduct(p)}
+                                    >
+                                        {p.thumbnail && <img src={p.thumbnail} className="w-8 h-8 rounded object-cover" />}
+                                        <div>
+                                            <div className="text-sm font-medium">{p.title}</div>
+                                            <div className="text-xs text-ui-fg-subtle">{p.handle}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <Label htmlFor="linkName">連結名稱 (用於報表識別) *</Label>
+                        <Input
+                            id="linkName"
+                            type="text"
+                            value={linkName}
+                            onChange={(e) => setLinkName(e.target.value)}
+                            placeholder="例如：首頁推廣"
+                            required
+                        />
+                        <Text className="text-ui-fg-subtle text-[11px] mt-1 italic">
+                            易於識別的名稱（如：夏季新品、或是特定商品名稱，勿與代碼 {affiliateCode} 重複）
+                        </Text>
+                    </div>
                 </div>
 
-                <div>
-                    <Label htmlFor="targetUrl">目標網址 *</Label>
-                    <Input
-                        id="targetUrl"
-                        type="url"
-                        value={targetUrl}
-                        onChange={(e) => setTargetUrl(e.target.value)}
-                        placeholder="例如：https://timsfantasyworld.com/tw/"
-                        required
-                    />
+                <div className="space-y-4">
+                    <div>
+                        <Label htmlFor="targetUrl">目標網址 *</Label>
+                        <Input
+                            id="targetUrl"
+                            type="url"
+                            value={targetUrl}
+                            onChange={(e) => setTargetUrl(e.target.value)}
+                            placeholder="例如：https://timsfantasyworld.com/tw/"
+                            required
+                        />
+                        <Text className="text-ui-fg-subtle text-[11px] mt-1">
+                            您可以手動貼上網址，或使用左側搜尋商品自動生成。
+                        </Text>
+                    </div>
                 </div>
             </div>
 

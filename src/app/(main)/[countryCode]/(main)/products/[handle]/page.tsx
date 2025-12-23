@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getProduct, getProductDetailContent } from "@lib/data/products"
+import { getProduct, getProductDetailContent, getProductDetailImages, getProductDetailBlocks } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { generateProductKeywords } from "@lib/seo"
 import ProductTemplate from "@modules/products/templates"
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       }
     } catch (error) {
       // console.error(`無法獲取產品詳情: ${error instanceof Error ? error.message : "未知錯誤"}`)
-      
+
       // 回退到基本元數據
       return {
         title: `商品 | ${storeName}`,
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   } catch (error) {
     // console.error(`生成商品頁面元數據時出錯: ${error instanceof Error ? error.message : "未知錯誤"}`)
-    
+
     // 由於不知道是否能獲取 storeName，所以返回固定文字
     return {
       title: "商品頁面",
@@ -92,8 +92,10 @@ export default async function ProductPage({ params }: Props) {
         notFound()
       }
 
-      // 從產品資料中提取詳細內容
+      // 從產品資料中提取詳細內容與圖片區塊
       const detailContent = await getProductDetailContent(pricedProduct)
+      const detailImages = await getProductDetailImages(pricedProduct)
+      const detailBlocks = await getProductDetailBlocks(pricedProduct)
 
       // Fetch homepage settings for global padding
       const homepage = await getHomepage()
@@ -108,6 +110,8 @@ export default async function ProductPage({ params }: Props) {
           region={region}
           countryCode={countryCode}
           detailContent={detailContent}
+          detailImages={detailImages}
+          detailBlocks={detailBlocks}
           paddingX={paddingX}
         />
       )

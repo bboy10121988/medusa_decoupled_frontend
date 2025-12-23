@@ -13,6 +13,8 @@ type ProductTemplateProps = {
   region: any
   countryCode: string
   detailContent?: string | null
+  detailImages?: string[]
+  detailBlocks?: any[]
   paddingX?: number | undefined
 }
 
@@ -21,6 +23,8 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   region,
   countryCode,
   detailContent,
+  detailImages,
+  detailBlocks,
   paddingX
 }) => {
   if (!product?.id) {
@@ -68,7 +72,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       {/* 主要商品區塊 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-testid="product-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-10">
-          
+
           {/* 圖片區塊 - 左側 */}
           <div className="lg:sticky lg:top-16 lg:self-start">
             <ImageGallery images={product?.images || []} />
@@ -80,12 +84,12 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             <div className="mb-4">
               <StoreName />
             </div>
-            
+
             {/* 產品標題 */}
             <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
               {product.title}
             </h1>
-            
+
             {/* 產品副標題 */}
             {product.subtitle && (
               <p className="text-lg text-gray-600 mb-6">{product.subtitle}</p>
@@ -118,18 +122,52 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         </div>
       </div>
 
-      {/* 詳情圖容器 - 只有在有詳情內容時才顯示 */}
-      {detailContent && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-testid="product-details-images-container">
-          {/* <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">商品詳情</h2>
-            <p className="text-gray-600">更多關於此商品的圖片</p>
-          </div> */}
-          {/* 在這裡顯示詳情內容 */}
-          <div 
-            className="product-detail-content max-w-none mx-auto"
-            dangerouslySetInnerHTML={{ __html: detailContent }}
-          />
+      {/* 詳情與展示區塊 */}
+      {(detailContent || (detailImages && detailImages.length > 0) || (detailBlocks && detailBlocks.length > 0)) && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-testid="product-details-container">
+          {detailBlocks && detailBlocks.length > 0 ? (
+            <div className="flex flex-col gap-0 w-full max-w-none mx-auto">
+              {detailBlocks.map((block: any, index: number) => (
+                <div key={index} className="w-full">
+                  {block.type === 'text' ? (
+                    <div
+                      className="product-detail-content prose prose-sm sm:prose max-w-none py-6 px-4 md:px-0"
+                      dangerouslySetInnerHTML={{ __html: block.content }}
+                    />
+                  ) : (
+                    <img
+                      src={block.content}
+                      alt={`${product.title} detail ${index + 1}`}
+                      className="w-full h-auto block"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="max-w-7xl mx-auto px-0 py-0 overflow-hidden">
+              {detailContent && (
+                <div
+                  className="product-detail-content max-w-none mx-auto mb-8 prose prose-sm sm:prose"
+                  dangerouslySetInnerHTML={{ __html: detailContent }}
+                />
+              )}
+              {detailImages && detailImages.length > 0 && (
+                <div className="flex flex-col gap-0 w-full">
+                  {detailImages.map((src, index) => (
+                    <img
+                      key={index}
+                      src={src}
+                      alt={`${product.title} detail ${index + 1}`}
+                      className="w-full h-auto block"
+                      loading="lazy"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

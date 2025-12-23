@@ -178,23 +178,22 @@ export async function middleware(request: NextRequest) {
   }
 
   // Set cookies on the FINAL response (whether it's a redirect or next)
-  if (affiliateRef || affiliateId) {
-    if (affiliateRef) {
-      finalResponse.cookies.set('affiliate_ref', affiliateRef, {
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      })
-    }
+  const trackingValue = linkId || affiliateRef
 
-    if (affiliateId && affiliateId !== affiliateRef) {
-      finalResponse.cookies.set('affiliate_id', affiliateId, {
+  if (trackingValue) {
+    // We use affiliate_ref as the primary cookie for cart metadata
+    finalResponse.cookies.set('affiliate_ref', trackingValue, {
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/'
+    })
+
+    if (affiliateRef) {
+      finalResponse.cookies.set('affiliate_code', affiliateRef, {
         maxAge: 30 * 24 * 60 * 60,
         httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
         path: '/'
       })
     }

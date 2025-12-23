@@ -22,7 +22,7 @@ const ESSENTIAL_PRODUCT_FIELDS = [
 ].join(",")
 
 const VARIANT_FIELDS = [
-  "id", "title", "sku", "barcode", "inventory_quantity", 
+  "id", "title", "sku", "barcode", "inventory_quantity",
   "allow_backorder", "manage_inventory", "prices", "options"
 ].join(",")
 
@@ -52,8 +52,8 @@ export const listProducts = async ({
   const region = regionId
     ? await retrieveRegion(regionId)
     : countryCode
-    ? await getRegion(countryCode)
-    : null
+      ? await getRegion(countryCode)
+      : null
 
   if (!region) {
     throw new Error("Could not find region")
@@ -78,9 +78,9 @@ export const listProducts = async ({
         "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
         "Cache-Control": "public, max-age=300", // 5分鐘瀏覽器快取
       },
-      next: { 
+      next: {
         revalidate: PRODUCTS_CACHE_CONFIG.revalidate,
-        tags: PRODUCTS_CACHE_CONFIG.tags 
+        tags: PRODUCTS_CACHE_CONFIG.tags
       },
       cache: "force-cache", // 改用快取優先策略
     })
@@ -172,8 +172,8 @@ export const getProduct = async ({
   const region = regionId
     ? await retrieveRegion(regionId)
     : countryCode
-    ? await getRegion(countryCode)
-    : null
+      ? await getRegion(countryCode)
+      : null
 
   if (!region) {
     throw new Error("Could not find region")
@@ -226,8 +226,8 @@ export const getProductsByIds = async ({
   const region = regionId
     ? await retrieveRegion(regionId)
     : countryCode
-    ? await getRegion(countryCode)
-    : null
+      ? await getRegion(countryCode)
+      : null
 
   if (!region) {
     throw new Error("Could not find region")
@@ -249,9 +249,9 @@ export const getProductsByIds = async ({
         "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
         "Cache-Control": "public, max-age=300",
       },
-      next: { 
+      next: {
         revalidate: 300,
-        tags: ['products', 'batch-products'] 
+        tags: ['products', 'batch-products']
       },
       cache: "force-cache",
     })
@@ -267,14 +267,50 @@ export const getProductsByIds = async ({
  */
 export const getProductDetailContent = async (product: HttpTypes.StoreProduct): Promise<string | null> => {
   try {
-    // 檢查產品 metadata 中是否有 detail_content
     if (product?.metadata && typeof product.metadata === 'object') {
       const metadata = product.metadata as Record<string, any>
       return metadata.detail_content || null
     }
     return null
   } catch (error) {
-    // console.error(`提取產品 ${product?.id} 詳細內容失敗:`, error)
     return null
+  }
+}
+
+/**
+ * 從產品資料中提取詳細圖片清單（從 metadata.detail_images）
+ */
+export const getProductDetailImages = async (product: HttpTypes.StoreProduct): Promise<string[]> => {
+  try {
+    if (product?.metadata && typeof product.metadata === 'object') {
+      const metadata = product.metadata as Record<string, any>
+      if (metadata.detail_images) {
+        return typeof metadata.detail_images === 'string'
+          ? JSON.parse(metadata.detail_images)
+          : metadata.detail_images
+      }
+    }
+    return []
+  } catch (error) {
+    return []
+  }
+}
+
+/**
+ * 從產品資料中提取詳細區塊清單（從 metadata.detail_blocks）
+ */
+export const getProductDetailBlocks = async (product: HttpTypes.StoreProduct): Promise<any[]> => {
+  try {
+    if (product?.metadata && typeof product.metadata === 'object') {
+      const metadata = product.metadata as Record<string, any>
+      if (metadata.detail_blocks) {
+        return typeof metadata.detail_blocks === 'string' 
+          ? JSON.parse(metadata.detail_blocks) 
+          : metadata.detail_blocks
+      }
+    }
+    return []
+  } catch (error) {
+    return []
   }
 }

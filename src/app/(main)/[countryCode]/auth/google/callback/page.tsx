@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter, useParams } from "next/navigation"
 import { sdk } from "@/lib/config"
+import { syncAffiliateSession } from "@/lib/data/affiliate-sync"
 
 function GoogleCallbackContent() {
   const searchParams = useSearchParams()
@@ -26,34 +27,41 @@ function GoogleCallbackContent() {
     if (success === 'true') {
       setStatus('success')
       console.log('✅ Google 登入成功!')
-      
+
+      syncAffiliateSession().then((res) => {
+        console.log('🔗 Affiliate sync result:', res)
+      })
+
       setTimeout(() => {
         router.push(`/${countryCode}/account`)
       }, 1000)
-      
+
     } else if (code) {
       console.log('🔄 收到授權碼，正在驗證...')
-      
-      sdk.auth.callback("customer", "google", { 
-        code, 
-        state: state || undefined 
+
+      sdk.auth.callback("customer", "google", {
+        code,
+        state: state || undefined
       })
-      .then((res) => {
-        console.log('✅ 驗證成功:', res)
-        setStatus('success')
-        setTimeout(() => {
-          router.push(`/${countryCode}/account`)
-        }, 1000)
-      })
-      .catch((err) => {
-        console.error('❌ 驗證失敗:', err)
-        setStatus('error')
-      })
+        .then(async (res) => {
+          console.log('✅ 驗證成功:', res)
+
+          await syncAffiliateSession()
+
+          setStatus('success')
+          setTimeout(() => {
+            router.push(`/${countryCode}/account`)
+          }, 1000)
+        })
+        .catch((err) => {
+          console.error('❌ 驗證失敗:', err)
+          setStatus('error')
+        })
 
     } else if (error) {
       setStatus('error')
       console.error('❌ Google 登入失敗:', error)
-      
+
       setTimeout(() => {
         router.push(`/${countryCode}/account`)
       }, 3000)
@@ -69,7 +77,7 @@ function GoogleCallbackContent() {
             <p className="mt-4 text-gray-600">處理登入中...</p>
           </>
         )}
-        
+
         {status === 'success' && (
           <>
             <svg className="w-16 h-16 text-green-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +87,7 @@ function GoogleCallbackContent() {
             <p className="mt-2 text-gray-600">正在跳轉到會員中心...</p>
           </>
         )}
-        
+
         {status === 'error' && (
           <>
             <svg className="w-16 h-16 text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
