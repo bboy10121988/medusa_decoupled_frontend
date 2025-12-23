@@ -2,30 +2,37 @@ import { Metadata } from "next"
 import Script from "next/script"
 import "@/styles/globals.css"
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
-  // 預設的fallback metadata
-  title: {
-    template: '%s | Tim\'s Fantasy World',
-    default: 'Tim\'s Fantasy World - 專業美髮沙龍與造型產品'
-  },
-  description: '專業美髮沙龍服務，提供剪髮、染髮、燙髮等服務。銷售優質美髮產品，包含洗髮精、護髮乳、造型產品等。',
-  keywords: '美髮沙龍, 剪髮, 染髮, 燙髮, 造型, 洗髮精, 護髮乳, 造型產品, 美髮用品',
-  authors: [{ name: 'Tim\'s Fantasy World' }],
-  creator: 'Tim\'s Fantasy World',
-  publisher: 'Tim\'s Fantasy World',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION,
-  },
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
+import { getHeader } from "@lib/sanity"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerData = await getHeader()
+  const faviconUrl = headerData?.favicon?.url || '/favicon.ico'
+  const storeName = headerData?.storeName || 'Tim\'s Fantasy World'
+
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+    title: {
+      template: `%s | ${storeName}`,
+      default: `${storeName} - 專業美髮沙龍與造型產品`
+    },
+    description: '專業美髮沙龍服務，提供剪髮、染髮、燙髮等服務。銷售優質美髮產品，包含洗髮精、護髮乳、造型產品等。',
+    keywords: '美髮沙龍, 剪髮, 染髮, 燙髮, 造型, 洗髮精, 護髮乳, 造型產品, 美髮用品',
+    authors: [{ name: storeName }],
+    creator: storeName,
+    publisher: storeName,
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+    verification: {
+      google: process.env.GOOGLE_SITE_VERIFICATION,
+    },
+    icons: {
+      icon: faviconUrl,
+      shortcut: faviconUrl,
+      apple: faviconUrl,
+    }
   }
 }
 
