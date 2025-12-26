@@ -3,9 +3,13 @@
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter, useParams } from "next/navigation"
 import { sdk } from "@/lib/config"
+import { decodeToken } from "react-jwt"
 import { syncAffiliateSession } from "@/lib/data/affiliate-sync"
 
 function GoogleCallbackContent() {
+
+  console.log("google callback page loaded")
+
   const searchParams = useSearchParams()
   const router = useRouter()
   const params = useParams()
@@ -13,60 +17,98 @@ function GoogleCallbackContent() {
 
   const countryCode = (params.countryCode as string) || 'tw'
 
-  useEffect(() => {
-    const success = searchParams.get('success')
-    const error = searchParams.get('error')
-    const code = searchParams.get('code')
-    const state = searchParams.get('state')
+  const validateCallback = async () => {
 
-    console.log('=== Google OAuth Callback ===')
-    console.log('Success:', success)
-    console.log('Error:', error)
-    console.log('Code:', code ? 'Received' : 'None')
+    alert("Google Callback Triggered")
 
-    if (success === 'true') {
-      setStatus('success')
-      console.log('✅ Google 登入成功!')
+    // 取得網址上的 query parameters (含 code, state 等)
+    const searchParams = new URLSearchParams(window.location.search)
+    const queryParams = Object.fromEntries(searchParams.entries())
 
-      syncAffiliateSession().then((res) => {
-        console.log('🔗 Affiliate sync result:', res)
-      })
+    try {
+      // 1. 驗證回呼，這會自動在 SDK 中設定 JWT Token
+      const token = await sdk.auth.callback("customer", "google", queryParams)
 
-      setTimeout(() => {
-        router.push(`/${countryCode}/account`)
-      }, 1000)
+      // 2. 解碼 Token 檢查 actor_id (顧客 ID)
+      const decodedToken = decodeToken(token)
+      const userExists = decodedToken.actor_id !== ""
 
-    } else if (code) {
-      console.log('🔄 收到授權碼，正在驗證...')
-
-      sdk.auth.callback("customer", "google", {
-        code,
-        state: state || undefined
-      })
-        .then(async (res) => {
-          console.log('✅ 驗證成功:', res)
-
-          await syncAffiliateSession()
-
-          setStatus('success')
-          setTimeout(() => {
-            router.push(`/${countryCode}/account`)
-          }, 1000)
-        })
-        .catch((err) => {
-          console.error('❌ 驗證失敗:', err)
-          setStatus('error')
+      if (!userExists) {
+        // 3. 如果顧客不存在，使用 Token 建立顧客資料
+        // user_metadata 通常包含從 Google 取得的 email
+        await sdk.store.customer.create({
+          email: decodedToken.user_metadata.email
         })
 
-    } else if (error) {
-      setStatus('error')
-      console.error('❌ Google 登入失敗:', error)
+        // 4. 建立後需重新整理 Token 以取得完整的顧客資訊
+        await sdk.auth.refresh()
+      }
 
-      setTimeout(() => {
-        router.push(`/${countryCode}/account`)
-      }, 3000)
+      // 登入成功，導向首頁
+      window.location.href = "/"
+    } catch (error) {
+      console.error("認證失敗", error)
     }
-  }, [searchParams, router, countryCode])
+  }
+
+  useEffect(()=>{
+    validateCallback()
+  },[])
+
+  // useEffect(() => {
+  //   const success = searchParams.get('success')
+  //   const error = searchParams.get('error')
+  //   const code = searchParams.get('code')
+  //   const state = searchParams.get('state')
+
+  //   console.log('=== Google OAuth Callback ===')
+  //   console.log('Success:', success)
+  //   console.log('Error:', error)
+  //   console.log('Code:', code ? 'Received' : 'None')
+
+  //   if (success === 'true') {
+  //     setStatus('success')
+  //     console.log('✅ Google 登入成功!')
+
+  //     syncAffiliateSession().then((res) => {
+  //       console.log('🔗 Affiliate sync result:', res)
+  //     })
+
+  //     setTimeout(() => {
+  //       router.push(`/${countryCode}/account`)
+  //     }, 1000)
+
+  //   } else if (code) {
+  //     console.log('🔄 收到授權碼，正在驗證...')
+
+  //     sdk.auth.callback("customer", "google", {
+  //       code,
+  //       state: state || undefined
+  //     })
+  //       .then(async (res) => {
+  //         console.log('✅ 驗證成功:', res)
+
+  //         await syncAffiliateSession()
+
+  //         setStatus('success')
+  //         setTimeout(() => {
+  //           router.push(`/${countryCode}/account`)
+  //         }, 1000)
+  //       })
+  //       .catch((err) => {
+  //         console.error('❌ 驗證失敗:', err)
+  //         setStatus('error')
+  //       })
+
+  //   } else if (error) {
+  //     setStatus('error')
+  //     console.error('❌ Google 登入失敗:', error)
+
+  //     setTimeout(() => {
+  //       router.push(`/${countryCode}/account`)
+  //     }, 3000)
+  //   }
+  // }, [searchParams, router, countryCode])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
