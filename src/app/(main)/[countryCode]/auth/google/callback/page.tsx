@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter, useParams } from "next/navigation"
 import { sdk } from "@/lib/config"
 import { decodeToken } from "react-jwt"
-import { syncAffiliateSession } from "@/lib/data/affiliate-sync"
 
 function GoogleCallbackContent() {
 
@@ -51,9 +50,9 @@ function GoogleCallbackContent() {
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     validateCallback()
-  },[])
+  }, [])
 
   // useEffect(() => {
   //   const success = searchParams.get('success')
