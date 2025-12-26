@@ -73,7 +73,8 @@ const ImageTextBlock = ({
   hideTitle = false,
   paddingX,
   paddingTop,
-  paddingBottom
+  paddingBottom,
+  showSpacing = false
 }: ImageTextBlockProps) => {
   // 檢查是否真的有標題內容
   const hasTitle = !hideTitle && heading && heading.trim().length > 0
