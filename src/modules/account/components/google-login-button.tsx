@@ -1,6 +1,6 @@
 "use client"
 
-import { sdk } from "@/lib/sdk"
+import { sdk } from "@/lib/config"
 
 export default function GoogleLoginButton() {
   const handleGoogleLogin = async () => {
@@ -18,7 +18,7 @@ export default function GoogleLoginButton() {
       // 登入成功
     }
 
-    
+
 
 
   }
