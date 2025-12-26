@@ -26,16 +26,16 @@ interface ImageTextBlockProps {
 }
 
 // 圖片包裝組件
-const ImageWrapper = ({ imageConfig, className, sizes }: { 
+const ImageWrapper = ({ imageConfig, className, sizes }: {
   imageConfig: ImageConfig
   className?: string
-  sizes?: string 
+  sizes?: string
 }) => {
   // 輸出圖片配置，幫助調試連結問題
   // console.log('ImageWrapper 處理圖片:', {
-    // url: imageConfig.url,
-    // alt: imageConfig.alt,
-    // linkUrl: imageConfig.linkUrl
+  // url: imageConfig.url,
+  // alt: imageConfig.alt,
+  // linkUrl: imageConfig.linkUrl
   // });
 
   const imageElement = (
@@ -76,40 +76,40 @@ const ImageTextBlock = ({
 }: ImageTextBlockProps) => {
   // 檢查是否真的有標題內容
   const hasTitle = !hideTitle && heading && heading.trim().length > 0
-  
+
   const paddingStyle = {
     ...(paddingX ? {
       paddingLeft: `${paddingX / 2}%`,
       paddingRight: `${paddingX / 2}%`
     } : {}),
-    ...(paddingTop ? { 
+    ...(paddingTop ? {
       '--pt-desktop': `${paddingTop}px`,
       '--pt-mobile': `${Math.round(paddingTop * 0.6)}px`
     } : {}),
-    ...(paddingBottom ? { 
+    ...(paddingBottom ? {
       '--pb-desktop': `${paddingBottom}px`,
       '--pb-mobile': `${Math.round(paddingBottom * 0.6)}px`
     } : {})
   } as React.CSSProperties
-  
+
   // 決定容器樣式
   const containerClasses = (() => {
     const isImageLayout = layout === 'imageLeft' || layout === 'imageRight' || layout === 'imageLeftImageRight'
-    
+
     if (isImageLayout) {
       return "w-full max-w-none -mx-0 md:mx-0 px-0 md:px-0"
     }
-    
+
     if (hasTitle) {
       return "w-full max-w-none -mx-0 md:mx-0 px-6 md:px-12"
     }
-    
+
     return "w-full max-w-none -mx-0 md:mx-0 px-6 md:px-12"
   })()
-  
+
   // 如果沒有設定 padding，使用預設的 py-12 md:py-20 (僅當有標題時)
-  const defaultPaddingClass = (!paddingTop && !paddingBottom && hasTitle && !['imageLeft', 'imageRight', 'imageLeftImageRight'].includes(layout)) 
-    ? "py-12 md:py-20" 
+  const defaultPaddingClass = (!paddingTop && !paddingBottom && hasTitle && !['imageLeft', 'imageRight', 'imageLeftImageRight'].includes(layout))
+    ? "py-12 md:py-20"
     : ""
 
   const customPaddingClass = [
@@ -123,8 +123,8 @@ const ImageTextBlock = ({
       {layout === 'imageLeft' && image?.url && (
         <div className="grid md:grid-cols-2 items-center gap-0">
           <div className="relative w-full overflow-hidden">
-            <ImageWrapper 
-              imageConfig={image} 
+            <ImageWrapper
+              imageConfig={image}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
@@ -161,8 +161,8 @@ const ImageTextBlock = ({
             )}
           </div>
           <div className="relative w-full overflow-hidden order-1 md:order-2">
-            <ImageWrapper 
-              imageConfig={image} 
+            <ImageWrapper
+              imageConfig={image}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
@@ -198,19 +198,19 @@ const ImageTextBlock = ({
               </h2>
             </div>
           )}
-          <div className="grid grid-cols-2 w-full m-0 p-0 gap-0">
+          <div className="grid grid-cols-2 w-full m-0 p-0 gap-2 md:gap-4 lg:gap-6">
             {leftImage?.url && (
-              <div className="relative w-full overflow-hidden m-0 p-0">
-                <ImageWrapper 
-                  imageConfig={leftImage} 
+              <div className="relative w-full overflow-hidden m-0 p-0 rounded-lg">
+                <ImageWrapper
+                  imageConfig={leftImage}
                   sizes="(max-width: 768px) 50vw, 50vw"
                 />
               </div>
             )}
             {rightImage?.url && (
-              <div className="relative w-full overflow-hidden m-0 p-0">
-                <ImageWrapper 
-                  imageConfig={rightImage} 
+              <div className="relative w-full overflow-hidden m-0 p-0 rounded-lg">
+                <ImageWrapper
+                  imageConfig={rightImage}
                   sizes="(max-width: 768px) 50vw, 50vw"
                 />
               </div>
