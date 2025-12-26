@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useSearchParams, useRouter, useParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { sdk } from "@/lib/config"
 import { decodeToken } from "react-jwt"
 
@@ -25,10 +25,10 @@ function GoogleCallbackContent() {
       const token = await sdk.auth.callback("customer", "google", queryParams)
 
       // 2. 解碼 Token 檢查 actor_id (顧客 ID)
-      const decodedToken = decodeToken(token)
-      const userExists = decodedToken.actor_id !== ""
+      const decodedToken = decodeToken(token) as any
+      const userExists = decodedToken && decodedToken.actor_id !== ""
 
-      if (!userExists) {
+      if (!userExists && decodedToken && decodedToken.user_metadata) {
         // 3. 如果顧客不存在，使用 Token 建立顧客資料
         // user_metadata 通常包含從 Google 取得的 email
         await sdk.store.customer.create({
