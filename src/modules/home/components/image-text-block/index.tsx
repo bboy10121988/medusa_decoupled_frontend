@@ -23,6 +23,7 @@ interface ImageTextBlockProps {
   paddingX?: number
   paddingTop?: number
   paddingBottom?: number
+  showSpacing?: boolean
 }
 
 // 圖片包裝組件
@@ -198,7 +199,10 @@ const ImageTextBlock = ({
               </h2>
             </div>
           )}
-          <div className="grid grid-cols-2 w-full m-0 p-0 gap-2 md:gap-4 lg:gap-6">
+          <div className={cn(
+            "grid grid-cols-2 w-full m-0 p-0",
+            showSpacing ? "gap-2 md:gap-4 lg:gap-6" : "gap-0"
+          )}>
             {leftImage?.url && (
               <div className="relative w-full overflow-hidden m-0 p-0">
                 <ImageWrapper

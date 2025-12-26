@@ -48,6 +48,7 @@ export type ImageTextBlock = {
   leftContent?: string
   rightContent?: string
   hideTitle?: boolean
+  showSpacing?: boolean
 }
 
 export type BlogSection = {

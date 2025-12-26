@@ -22,12 +22,12 @@ import { getStoreName } from "@lib/store-name"
 // 生成 JSON-LD 結構化資料 (從 googleMapsSection 動態讀取)
 function generateJsonLd(homepageData: any) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://timsfantasyworld.com"
-  
+
   // 從 mainSections 中尋找 googleMapsSection
   const googleMapsSection = homepageData?.mainSections?.find(
     (section: any) => section._type === 'googleMapsSection'
   )
-  
+
   // 如果沒有 googleMapsSection 或資料不完整,使用預設值
   const businessName = googleMapsSection?.businessName || "Tim's fantasy World 男士理髮廳"
   const telephone = googleMapsSection?.telephone || "+886-2-2755-8828"
@@ -38,7 +38,7 @@ function generateJsonLd(homepageData: any) {
   const latitude = googleMapsSection?.latitude || 25.030775
   const longitude = googleMapsSection?.longitude || 121.527158
   const priceRange = googleMapsSection?.priceRange || "$$"
-  
+
   // 處理營業時間
   const openingHours = googleMapsSection?.openingHours?.map((schedule: any) => ({
     "@type": "OpeningHoursSpecification",
@@ -46,14 +46,14 @@ function generateJsonLd(homepageData: any) {
     "opens": schedule.opens || "11:00",
     "closes": schedule.closes || "20:00"
   })) || [
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      "opens": "11:00",
-      "closes": "20:00"
-    }
-  ]
-  
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "11:00",
+        "closes": "20:00"
+      }
+    ]
+
   // HairSalon schema - 從 CMS 動態讀取資料
   return {
     "@context": "https://schema.org",
@@ -91,23 +91,23 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const homepageData = await getHomepage()
     const storeName = await getStoreName()
-    
+
     // 從Sanity獲取SEO資料
     const pageTitle = homepageData?.seoTitle || homepageData?.title || `${storeName} - 專業美髮沙龍與造型產品`
     const pageDescription = homepageData?.seoDescription || '專業美髮沙龍服務，提供剪髮、染髮、燙髮等服務。銷售優質美髮產品，包含洗髮精、護髮乳、造型產品等。Tim\'s Fantasy World 為您打造完美髮型。'
     const ogTitle = homepageData?.ogTitle || pageTitle
     const ogDescription = homepageData?.ogDescription || pageDescription
-    
+
     // 使用 Sanity 的關鍵字設定，如果沒有則使用預設值
     const defaultKeywords = [
-      '美髮沙龍', '剪髮', '染髮', '燙髮', '造型', 
+      '美髮沙龍', '剪髮', '染髮', '燙髮', '造型',
       '洗髮精', '護髮乳', '造型產品', '美髮用品',
       'Tim\'s Fantasy World', '專業美髮', '髮型設計'
     ]
-    const keywords = homepageData?.seoKeywords && homepageData.seoKeywords.length > 0 
-      ? homepageData.seoKeywords 
+    const keywords = homepageData?.seoKeywords && homepageData.seoKeywords.length > 0
+      ? homepageData.seoKeywords
       : defaultKeywords
-    
+
     return {
       title: pageTitle,
       description: pageDescription,
@@ -144,7 +144,7 @@ export async function generateMetadata(): Promise<Metadata> {
   } catch (error) {
     // console.error('生成metadata時發生錯誤:', error)
     const storeName = await getStoreName()
-    
+
     return {
       title: `${storeName} - 專業美髮沙龍與造型產品`,
       description: '專業美髮沙龍服務，提供剪髮、染髮、燙髮等服務。銷售優質美髮產品，包含洗髮精、護髮乳、造型產品等。Tim\'s Fantasy World 為您打造完美髮型。',
@@ -162,12 +162,12 @@ export default async function Home({
   params: Promise<{ countryCode: string }>
 }) {
   const { countryCode } = await params
-  
+
   // 並行獲取數據以提升性能，添加超時控制
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => reject(new Error('請求超時')), 5000);
   });
-  
+
   const [collectionsData, region] = await Promise.allSettled([
     Promise.race([listCollections({}), timeoutPromise]).catch(() => {
       // console.warn('獲取商品集合時出錯:', err.message);
@@ -180,19 +180,19 @@ export default async function Home({
   ])
 
   // 處理數據獲取結果並確保類型正確
-  const collections = (collectionsData.status === 'fulfilled' && collectionsData.value) ? 
+  const collections = (collectionsData.status === 'fulfilled' && collectionsData.value) ?
     collectionsData.value : { collections: [], count: 0 } as any
-  const regionData = (region.status === 'fulfilled' && region.value) ? 
+  const regionData = (region.status === 'fulfilled' && region.value) ?
     region.value : null as any
 
   // 添加調試資訊
   // if (process.env.NODE_ENV === 'development') console.log('🔍 Data fetch results:', {
-    // countryCode,
-    // collectionsCount: collections?.collections?.length || 0,
-    // regionId: regionData?.id,
-    // regionName: regionData?.name,
-    // collectionsStatus: collectionsData.status,
-    // regionStatus: region.status
+  // countryCode,
+  // collectionsCount: collections?.collections?.length || 0,
+  // regionId: regionData?.id,
+  // regionName: regionData?.name,
+  // collectionsStatus: collectionsData.status,
+  // regionStatus: region.status
   // })
 
   // 獲取首頁內容，並添加錯誤處理
@@ -201,9 +201,9 @@ export default async function Home({
     // if (process.env.NODE_ENV === 'development') console.log('🔍 Fetching homepage data from Sanity...')
     homepageData = await getHomepage()
     // console.log('✅ Homepage data fetched:', {
-      // title: homepageData?.title,
-      // sectionsCount: homepageData?.mainSections?.length,
-      // hasValidData: !!(homepageData?.mainSections && homepageData.mainSections.length > 0)
+    // title: homepageData?.title,
+    // sectionsCount: homepageData?.mainSections?.length,
+    // hasValidData: !!(homepageData?.mainSections && homepageData.mainSections.length > 0)
     // })
   } catch (error) {
     // console.error('❌ Failed to fetch homepage data:', error)
@@ -214,29 +214,29 @@ export default async function Home({
   const hasSanityData = homepageData?.mainSections && homepageData.mainSections.length > 0
 
   // console.log('🎯 Data check result:', {
-    // homepageData: !!homepageData,
-    // mainSections: homepageData?.mainSections?.length || 0,
-    // hasSanityData,
-    // willUseFallback: !hasSanityData
+  // homepageData: !!homepageData,
+  // mainSections: homepageData?.mainSections?.length || 0,
+  // hasSanityData,
+  // willUseFallback: !hasSanityData
   // })
 
   // 如果沒有數據或數據無效，顯示備用內容
   if (!hasSanityData) {
     // console.warn('⚠️ No valid Sanity data found, showing fallback content')
-    
+
     return (
       <>
         <div className="mt-16">
-          <a 
-            href="https://page.line.me/timsfantasyworld?fbclid=PARlRTSAMmHoRleHRuA2FlbQIxMAABp_nJitfDUH8W4pRlcRgKeusvIELFdTvXpbu791GiXgPIOarBh8LO2Hg2YJrV_aem_9pdT5ans7oJyF7F17iQPHw" 
-            target="_blank" 
+          <a
+            href="https://page.line.me/timsfantasyworld?fbclid=PARlRTSAMmHoRleHRuA2FlbQIxMAABp_nJitfDUH8W4pRlcRgKeusvIELFdTvXpbu791GiXgPIOarBh8LO2Hg2YJrV_aem_9pdT5ans7oJyF7F17iQPHw"
+            target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
           >
             立即預約 LINE 諮詢
           </a>
         </div>
-        
+
         {/* 精選商品區塊 */}
         {regionData && (
           <FeaturedProducts
@@ -290,17 +290,17 @@ export default async function Home({
               const sectionType = section._type;
               try {
                 // console.log(`🎯 Rendering section ${index}: ${sectionType}`, { isActive: section.isActive })
-                
+
                 switch (sectionType) {
                   case "serviceCardSection": {
                     const serviceSection = section as ServiceCards;
-                    
+
                     // 檢查是否被停用
                     if (serviceSection.isActive === false) {
                       // console.log("❌ ServiceCardSection 已被停用，跳過渲染");
                       return null;
                     }
-                    
+
                     // 直接渲染從 Sanity 獲取的資料
                     return (
                       <ServiceCardsSection
@@ -336,19 +336,20 @@ export default async function Home({
                       hideTitle: imageBlock.hideTitle,
                       paddingX: imageBlock.paddingX,
                       paddingTop: imageBlock.paddingTop,
-                      paddingBottom: imageBlock.paddingBottom
+                      paddingBottom: imageBlock.paddingBottom,
+                      showSpacing: imageBlock.showSpacing
                     }
                     if (imageBlock.leftImage) props.leftImage = imageBlock.leftImage
                     if (imageBlock.rightImage) props.rightImage = imageBlock.rightImage
                     if (imageBlock.leftContent) props.leftContent = imageBlock.leftContent
                     if (imageBlock.rightContent) props.rightContent = imageBlock.rightContent
-                    
+
                     return <ImageTextBlock {...props} />
                   }
                   case "featuredProducts": {
                     const featuredBlock = section as FeaturedProductsSection
                     // console.log("🎯 Processing featuredProducts section:", featuredBlock)
-                    
+
                     // 安全檢查 collections
                     if (!collections?.collections || !Array.isArray(collections.collections)) {
                       // console.warn("Featured products skipped - backend unavailable")
@@ -359,14 +360,14 @@ export default async function Home({
 
                     // 1. 嘗試通過 ID 匹配
                     if (featuredBlock.collection_id) {
-                       targetCollection = collections.collections.find((c: any) => c.id === featuredBlock.collection_id);
+                      targetCollection = collections.collections.find((c: any) => c.id === featuredBlock.collection_id);
                     }
 
                     // 2. 如果 ID 匹配失敗，嘗試通過 handle 或 title 匹配 (Fallback 機制)
                     if (!targetCollection) {
                       // console.warn(`Collection ID ${featuredBlock.collection_id} not found. Trying fallback...`);
-                      targetCollection = collections.collections.find((c: any) => 
-                        c.handle === 'featured' || 
+                      targetCollection = collections.collections.find((c: any) =>
+                        c.handle === 'featured' ||
                         c.handle === 'featuerd' || // Handle typo
                         c.title === '精選商品'
                       );
@@ -378,7 +379,7 @@ export default async function Home({
                     }
 
                     // console.log("✅ Rendering FeaturedProducts with collection:", targetCollection.title)
-                    
+
                     // 構造一個包含單個 collection 的數組
                     const featuredCollections = [targetCollection];
 
@@ -401,30 +402,30 @@ export default async function Home({
                     }
                     if (blogSection.title) props.title = blogSection.title
                     if (blogSection.category) props.category = blogSection.category
-                    
+
                     return <BlogPosts {...props} />
                   }
                   case "youtubeSection": {
                     const youtubeBlock = section as YoutubeSectionType
                     // 檢查是否有響應式設定或舊的 videoUrl
-                    const hasVideo = youtubeBlock.videoSettings?.desktopVideoUrl || 
-                                   youtubeBlock.videoSettings?.mobileVideoUrl || 
-                                   youtubeBlock.videoUrl
-                    
+                    const hasVideo = youtubeBlock.videoSettings?.desktopVideoUrl ||
+                      youtubeBlock.videoSettings?.mobileVideoUrl ||
+                      youtubeBlock.videoUrl
+
                     // console.log('🏠 Homepage YouTube section data:', {
-                      // hasVideo,
-                      // videoUrl: youtubeBlock.videoUrl,
-                      // videoSettings: youtubeBlock.videoSettings,
-                      // desktopUrl: youtubeBlock.videoSettings?.desktopVideoUrl,
-                      // mobileUrl: youtubeBlock.videoSettings?.mobileVideoUrl,
-                      // useSameVideo: youtubeBlock.videoSettings?.useSameVideo
+                    // hasVideo,
+                    // videoUrl: youtubeBlock.videoUrl,
+                    // videoSettings: youtubeBlock.videoSettings,
+                    // desktopUrl: youtubeBlock.videoSettings?.desktopVideoUrl,
+                    // mobileUrl: youtubeBlock.videoSettings?.mobileVideoUrl,
+                    // useSameVideo: youtubeBlock.videoSettings?.useSameVideo
                     // })
-                    
+
                     if (!hasVideo) {
                       // console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
                       return null
                     }
-                    
+
                     const youtubeProps: any = {
                       key: index,
                       _type: "youtubeSection" as const,
@@ -441,7 +442,7 @@ export default async function Home({
                     if (youtubeBlock.youtubeSettings) youtubeProps.youtubeSettings = youtubeBlock.youtubeSettings
                     if (youtubeBlock.uploadSettings) youtubeProps.uploadSettings = youtubeBlock.uploadSettings
                     if (youtubeBlock.videoSettings) youtubeProps.videoSettings = youtubeBlock.videoSettings
-                    
+
                     return <YoutubeSection {...youtubeProps} />
                   }
                   case "contentSection": {

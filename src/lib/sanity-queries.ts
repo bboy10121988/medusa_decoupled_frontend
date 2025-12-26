@@ -96,6 +96,7 @@ const PAGE_SECTIONS_PROJECTION = `
               "linkUrl": linkUrl
             },
             layout,
+            showSpacing,
             "leftImage": leftImage {
               "url": asset->url,
               "alt": alt,

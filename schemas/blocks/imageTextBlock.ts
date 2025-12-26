@@ -42,20 +42,28 @@ export default {
       description: '若勾選則隱藏標題，同時調整上下間距',
       initialValue: false
     },
-  // 移除 content 內文欄位
+    // 移除 content 內文欄位
     {
       name: 'layout',
       title: '版面配置',
       type: 'string',
       options: {
         list: [
-          {title: '圖片在左', value: 'imageLeft'},
-          {title: '圖片在右', value: 'imageRight'},
-          {title: '左右圖片', value: 'imageLeftImageRight'},
-          {title: '左右文字', value: 'textLeftTextRight'},
-          {title: '置中文字', value: 'centerText'}
+          { title: '圖片在左', value: 'imageLeft' },
+          { title: '圖片在右', value: 'imageRight' },
+          { title: '左右圖片', value: 'imageLeftImageRight' },
+          { title: '左右文字', value: 'textLeftTextRight' },
+          { title: '置中文字', value: 'centerText' }
         ]
       }
+    },
+    {
+      name: 'showSpacing',
+      title: '顯示圖片間距 (僅限雙圖布局)',
+      type: 'boolean',
+      description: '若勾選則圖片之間會有間距，否則緊貼在一起',
+      initialValue: false,
+      hidden: ({ parent }: any) => parent?.layout !== 'imageLeftImageRight'
     },
     {
       name: 'image',
@@ -78,7 +86,7 @@ export default {
           description: '點擊圖片時跳轉的網址 (可選)'
         }
       ],
-      hidden: ({parent}: any) => parent?.layout === 'textLeftTextRight' || parent?.layout === 'centerText' || parent?.layout === 'imageLeftImageRight'
+      hidden: ({ parent }: any) => parent?.layout === 'textLeftTextRight' || parent?.layout === 'centerText' || parent?.layout === 'imageLeftImageRight'
     },
     {
       name: 'leftImage',
@@ -101,7 +109,7 @@ export default {
           description: '點擊左側圖片時跳轉的網址 (可選)'
         }
       ],
-      hidden: ({parent}: any) => parent?.layout !== 'imageLeftImageRight'
+      hidden: ({ parent }: any) => parent?.layout !== 'imageLeftImageRight'
     },
     {
       name: 'rightImage',
@@ -124,16 +132,16 @@ export default {
           description: '點擊右側圖片時跳轉的網址 (可選)'
         }
       ],
-      hidden: ({parent}: any) => parent?.layout !== 'imageLeftImageRight'
+      hidden: ({ parent }: any) => parent?.layout !== 'imageLeftImageRight'
     },
-  // 移除 leftContent、rightContent 內文欄位
+    // 移除 leftContent、rightContent 內文欄位
   ],
   preview: {
     select: {
       title: 'heading',
       media: 'image'
     },
-    prepare({title, media}: any) {
+    prepare({ title, media }: any) {
       return {
         title: title || '圖文區塊',
         media
