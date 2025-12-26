@@ -10,11 +10,7 @@ function GoogleCallbackContent() {
   console.log("google callback page loaded")
 
   const searchParams = useSearchParams()
-  const router = useRouter()
-  const params = useParams()
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-
-  const countryCode = (params.countryCode as string) || 'tw'
+  const [status] = useState<'loading' | 'success' | 'error'>('loading')
 
   const validateCallback = async () => {
 
