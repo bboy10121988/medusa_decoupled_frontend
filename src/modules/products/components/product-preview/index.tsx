@@ -124,14 +124,14 @@ export default function ProductPreview({
           if (lowerTitle.includes('顏色') || lowerTitle.includes('color')) return 2
           return 3
         }
-        
+
         const priorityA = getOptionPriority(a.title)
         const priorityB = getOptionPriority(b.title)
-        
+
         if (priorityA !== priorityB) {
           return priorityA - priorityB
         }
-        
+
         // 如果優先級相同，按照創建時間排序
         const timeA = a.created_at ? new Date(a.created_at).getTime() : 0
         const timeB = b.created_at ? new Date(b.created_at).getTime() : 0
@@ -146,13 +146,13 @@ export default function ProductPreview({
   // 自動選擇單一選項值
   const autoSelectSingleOptions = useMemo(() => {
     const autoSelected: SelectedOptions = {}
-    
+
     productOptions.forEach(option => {
       if (option.values.length === 1) {
         autoSelected[option.title] = option.values[0]
       }
     })
-    
+
     return autoSelected
   }, [productOptions])
 
@@ -179,21 +179,21 @@ export default function ProductPreview({
 
     // 檢查是否有選擇的選項
     const selectedEntries = Object.entries(selectedOpts).filter(([_, value]) => value !== null)
-    
+
     // 如果沒有選擇任何選項，返回 undefined
     if (selectedEntries.length === 0) return undefined
-    
+
     // 如果選項數量不完整，也返回 undefined
     if (selectedEntries.length < productOptions.length) return undefined
 
     // 尋找匹配的變體
     const matchedVariant = product.variants.find(variant => {
       if (!variant.options) return false
-      
+
       // 檢查變體的選項是否與選擇的選項匹配
       return selectedEntries.every(([optionTitle, selectedValue]) => {
-        return variant.options?.some(variantOption => 
-          variantOption.option?.title === optionTitle && 
+        return variant.options?.some(variantOption =>
+          variantOption.option?.title === optionTitle &&
           variantOption.value === selectedValue
         )
       }) && variant.options.length === selectedEntries.length
@@ -223,14 +223,14 @@ export default function ProductPreview({
     }
 
     // console.log("🔍 ProductPreview 加入購物車檢查:", {
-      // productTitle: product.title,
-      // selectedOptions,
-      // productOptions
+    // productTitle: product.title,
+    // selectedOptions,
+    // productOptions
     // })
 
     const variantId = findVariantId(selectedOptions)
     // console.log("🔍 找到的變體 ID:", variantId)
-    
+
     if (!variantId) {
       // console.log("❌ 沒有找到匹配的變體")
       setError("請選擇所有必要的選項")
@@ -241,11 +241,11 @@ export default function ProductPreview({
       setError(null)
       setIsAdding(true)
       // console.log("🛒 ProductPreview 開始加入購物車:", {
-        // variantId,
-        // quantity: 1,
-        // countryCode
+      // variantId,
+      // quantity: 1,
+      // countryCode
       // })
-      
+
       // 使用新的 API endpoint
       const response = await fetch('/api/cart/add', {
         method: 'POST',
@@ -264,16 +264,16 @@ export default function ProductPreview({
       if (!response.ok) {
         throw new Error(result.error || '加入購物車失敗')
       }
-      
+
       // console.log("✅ ProductPreview 成功加入購物車:", result)
-      
+
       // 如果 API 回傳 cartId，也在前端設定
       if (result.cartId && typeof window !== 'undefined') {
         localStorage.setItem('_medusa_cart_id', result.cartId)
         document.cookie = `_medusa_cart_id=${result.cartId}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
         // console.log("📱 前端儲存 Cart ID:", result.cartId)
       }
-      
+
       setError(null)
       // 觸發購物車更新事件
       if (typeof window !== 'undefined') {
@@ -326,11 +326,11 @@ export default function ProductPreview({
       {showMobileOptions && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center md:hidden p-4">
           {/* 背景遮罩 */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowMobileOptions(false)}
           />
-          
+
           {/* 彈窗內容 */}
           <div className="relative w-full max-w-sm bg-white rounded-2xl p-6 space-y-4 animate-slide-up max-h-[70vh] overflow-y-auto shadow-2xl">
             {/* 標題區域 */}
@@ -349,8 +349,8 @@ export default function ProductPreview({
             {/* 商品資訊 */}
             <div className="flex space-x-3 pb-4 border-b border-gray-100">
               <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                <Thumbnail 
-                  thumbnail={allImages[0]} 
+                <Thumbnail
+                  thumbnail={allImages[0]}
                   images={allImages.map(url => ({ url }))}
                   size="square"
                 />
@@ -379,11 +379,10 @@ export default function ProductPreview({
                         <button
                           key={value}
                           onClick={() => handleOptionSelect(option.title, value)}
-                          className={`px-3 py-2 text-sm border rounded-lg transition-colors ${
-                            isSelected 
-                              ? 'border-black bg-black text-white' 
+                          className={`px-3 py-2 text-sm border rounded-lg transition-colors ${isSelected
+                              ? 'border-black bg-black text-white'
                               : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                            }`}
                         >
                           {value}
                         </button>
@@ -406,15 +405,15 @@ export default function ProductPreview({
               disabled={isAdding || !findVariantId(selectedOptions)}
               className="w-full px-4 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-500"
             >
-              {isAdding ? "處理中..." : 
-               productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+              {isAdding ? "處理中..." :
+                productStockStatus.canPreorder ? "預訂" : "加入購物車"}
             </button>
           </div>
         </div>
       )}
-      
+
       <div className="relative h-full flex flex-col">
-        <div 
+        <div
           className="relative w-full pb-[133.33%] overflow-hidden bg-white"
           onMouseEnter={() => {
             // setIsHovered(true)
@@ -431,17 +430,16 @@ export default function ProductPreview({
         >
           {/* 商品圖片區塊 */}
           <LocalizedClientLink href={`/products/${product.handle}`} className="block absolute inset-0">
-            <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-              isImageTransitioning ? 'opacity-0' : 'opacity-100'
-            } ${isFeatured ? 'product-image' : ''}`}>
-              <Thumbnail 
-                thumbnail={allImages[currentImageIndex]} 
+            <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isImageTransitioning ? 'opacity-0' : 'opacity-100'
+              } ${isFeatured ? 'product-image' : ''}`}>
+              <Thumbnail
+                thumbnail={allImages[currentImageIndex]}
                 images={allImages.map(url => ({ url }))}
                 size="full"
                 className="h-full w-full object-cover"
               />
             </div>
-            
+
             {/* 圖片切換箭頭 - 只在有多張圖片時顯示 */}
             {allImages.length > 1 && (
               <>
@@ -455,7 +453,7 @@ export default function ProductPreview({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                
+
                 {/* 右箭頭 */}
                 <button
                   onClick={nextImage}
@@ -466,9 +464,9 @@ export default function ProductPreview({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                
+
                 {/* 圖片指示器 */}
-                  <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {allImages.map((_, index) => (
                     <button
                       key={index}
@@ -477,30 +475,29 @@ export default function ProductPreview({
                         e.stopPropagation()
                         setCurrentImageIndex(index)
                       }}
-                      className={`w-3 h-3 rounded-full ${
-                        index === currentImageIndex 
-                          ? 'bg-white scale-110' 
+                      className={`w-3 h-3 rounded-full ${index === currentImageIndex
+                          ? 'bg-white scale-110'
                           : 'bg-white/50'
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
               </>
             )}
-            
+
             {/* 右上角庫存狀態標籤區域 */}
             <div className="absolute top-2 right-2 z-30">
               {(isProductSoldOut || productStockStatus.canPreorder) && (
                 <div className={`px-2 py-1 text-xs font-semibold rounded-md
-                    ${isProductSoldOut 
-                      ? 'bg-gray-600 text-white' 
-                      : 'bg-blue-600 text-white'
-                    }`}>
-                    {isProductSoldOut ? '售完' : '預訂'}
-                  </div>
+                    ${isProductSoldOut
+                    ? 'bg-gray-600 text-white'
+                    : 'bg-blue-600 text-white'
+                  }`}>
+                  {isProductSoldOut ? '售完' : '預訂'}
+                </div>
               )}
             </div>
-            
+
             {/* 售完狀態 - 只顯示反灰層 */}
             {isProductSoldOut && (
               <div className="absolute inset-0 z-20 pointer-events-none">
@@ -522,35 +519,35 @@ export default function ProductPreview({
                 {productOptions
                   .filter(option => option.values.length > 1) // 只顯示有多個選擇的選項
                   .map((option, index) => (
-                  <div key={index} className="flex flex-col">
-                    <div className="text-xs text-black/60 px-2 md:px-8 py-1">
-                      {option.title}
+                    <div key={index} className="flex flex-col">
+                      <div className="text-xs text-black/60 px-2 md:px-8 py-1">
+                        {option.title}
+                      </div>
+                      <div
+                        className="grid"
+                        style={{
+                          gridTemplateColumns: `repeat(${option.values.length}, minmax(0, 1fr))`
+                        }}
+                      >
+                        {option.values.map((value, valueIndex) => (
+                          <button
+                            key={valueIndex}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleOptionSelect(option.title, value)
+                            }}
+                            className={`w-full py-3 text-sm min-h-[40px]
+                            ${selectedOptions[option.title] === value
+                                ? 'bg-black text-white'
+                                : 'text-black'}`}
+                          >
+                            {value}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div 
-                      className="grid"
-                      style={{ 
-                        gridTemplateColumns: `repeat(${option.values.length}, minmax(0, 1fr))`
-                      }}
-                    >
-                      {option.values.map((value, valueIndex) => (
-                        <button
-                          key={valueIndex}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleOptionSelect(option.title, value)
-                          }}
-                          className={`w-full py-3 text-sm min-h-[40px]
-                            ${selectedOptions[option.title] === value 
-                              ? 'bg-black text-white' 
-                              : 'text-black'}`}
-                        >
-                          {value}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                
+                  ))}
+
                 {/* 桌機版購物車按鈕 */}
                 <div>
                   <button
@@ -558,8 +555,8 @@ export default function ProductPreview({
                     disabled={isAdding || (productOptions.filter(option => option.values.length > 1).length > 0 && !findVariantId(selectedOptions))}
                     className="w-full px-4 py-3 border border-black text-sm hover:bg-black hover:text-white transition-colors disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 min-h-[40px]"
                   >
-                    {isAdding ? "處理中..." : 
-                     productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+                    {isAdding ? "處理中..." :
+                      productStockStatus.canPreorder ? "預訂" : "加入購物車"}
                   </button>
                 </div>
                 {error && (
@@ -573,57 +570,56 @@ export default function ProductPreview({
         </div>
 
         {/* 商品資訊區塊 */}
-        <LocalizedClientLink href={`/products/${product.handle}`}>
-          <div className="px-3 md:px-8 py-3 mt-2 flex justify-between items-start gap-2">
-            <div className="flex-1">
-              <h3 className="text-sm md:text-xs leading-tight mb-1 text-center" data-testid="product-title">
-                {product.title}
-              </h3>
-              {cheapestPrice && (
-                 <div className="mt-1 text-center">
-                    <ClientPreviewPrice price={cheapestPrice} />
-                 </div>
-              )}
-            </div>
-
-            {!isProductSoldOut && (
-              <button
-                onClick={handleMobileButtonClick}
-                disabled={isAdding}
-                className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn flex-shrink-0"
-                aria-label={
-                  (() => {
-                    if (isAdding) return "處理中..."
-                    const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
-                    const variantId = findVariantId(selectedOptions)
-                    if (hasMultipleOptions && !variantId) return "選擇選項"
-                    return productStockStatus.canPreorder ? "預訂" : "加入購物車"
-                  })()
-                }
-              >
-                {isAdding ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="16" 
-                    height="16" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="white" 
-                    strokeWidth="1.5"
-                    className="flex-shrink-0"
-                    style={{ display: 'block' }}
-                  >
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                  </svg>
-                )}
-              </button>
+        {/* 商品資訊區塊 */}
+        <div className="px-3 md:px-8 py-3 mt-2 flex justify-between items-start gap-2">
+          <LocalizedClientLink href={`/products/${product.handle}`} className="flex-1">
+            <h3 className="text-sm md:text-xs leading-tight mb-1 text-center" data-testid="product-title">
+              {product.title}
+            </h3>
+            {cheapestPrice && (
+              <div className="mt-1 text-center">
+                <ClientPreviewPrice price={cheapestPrice} />
+              </div>
             )}
-          </div>
-        </LocalizedClientLink>
+          </LocalizedClientLink>
+
+          {!isProductSoldOut && (
+            <button
+              onClick={handleMobileButtonClick}
+              disabled={isAdding}
+              className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn flex-shrink-0"
+              aria-label={
+                (() => {
+                  if (isAdding) return "處理中..."
+                  const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
+                  const variantId = findVariantId(selectedOptions)
+                  if (hasMultipleOptions && !variantId) return "選擇選項"
+                  return productStockStatus.canPreorder ? "預訂" : "加入購物車"
+                })()
+              }
+            >
+              {isAdding ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  className="flex-shrink-0"
+                  style={{ display: 'block' }}
+                >
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
