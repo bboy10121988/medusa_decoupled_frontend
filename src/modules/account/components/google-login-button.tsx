@@ -6,7 +6,9 @@ export default function GoogleLoginButton() {
   const handleGoogleLogin = async () => {
 
     // 1. 調用後端 Google 認證接口
-    const result = await sdk.auth.login("customer", "google", {})
+    const result = await sdk.auth.login("customer", "google", {
+      callback_url: "https://timsfantasyworld.com/auth/google/callback"
+    })
 
     // 2. 如果回傳包含 location，則導向 Google 登入頁面
     if (typeof result === "object" && result.location) {
