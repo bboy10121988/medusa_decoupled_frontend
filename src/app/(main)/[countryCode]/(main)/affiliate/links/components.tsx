@@ -21,9 +21,10 @@ interface LinkListProps {
 
 interface LinkGeneratorFormProps {
     affiliateCode?: string
+    countryCode: string
 }
 
-export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
+export function LinkGeneratorForm({ affiliateCode, countryCode }: LinkGeneratorFormProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [linkName, setLinkName] = useState('')
     const [targetUrl, setTargetUrl] = useState('')
@@ -57,8 +58,10 @@ export function LinkGeneratorForm({ affiliateCode }: LinkGeneratorFormProps) {
 
     const selectProduct = (product: any) => {
         const handle = product.handle
-        // Construct the URL based on current context if possible, or just relative
-        const url = `${window.location.origin}/tw/products/${handle}`
+        // Construct the URL based on current context
+        // Use provided countryCode or fallback to 'tw'
+        const code = countryCode || 'tw'
+        const url = `${window.location.origin}/${code}/products/${handle}`
         setTargetUrl(url)
         setLinkName(`推廣: ${product.title}`)
         setSearchResults([])

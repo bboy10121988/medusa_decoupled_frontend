@@ -92,7 +92,7 @@ export default async function AffiliateLinksPage({ params }: { params: Promise<{
         <div className="space-y-8">
             <div>
                 <h2 className="mb-4 text-xl font-medium">創建推廣連結</h2>
-                <LinkGeneratorForm affiliateCode={affiliateCode} />
+                <LinkGeneratorForm affiliateCode={affiliateCode} countryCode={countryCode} />
             </div>
 
             <div>
