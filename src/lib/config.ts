@@ -60,7 +60,7 @@ export const sdk = new Medusa({
   debug: process.env.NODE_ENV === "development",
   publishableKey: publishableKey,
   auth: {
-    type: "session"
+    type: "jwt"
   },
   // @ts-ignore - fetchConfig is not in the type definition but is supported
   fetchConfig: {
