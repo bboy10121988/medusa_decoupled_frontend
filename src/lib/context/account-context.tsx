@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react'
 import { HttpTypes } from '@medusajs/types'
+import { sdk } from '@/lib/config'
 
 interface AccountContextType {
   customer: HttpTypes.StoreCustomer | null
@@ -17,29 +18,44 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   const fetchCustomer = async () => {
-    try {
-      const response = await fetch('/api/auth/customer', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-cache'
+
+    sdk.store.customer.retrieve()
+      .then(({ customer }) => {
+        console.log("Fetched customer:", customer)
+        setCustomer(customer)
       })
-      
-      if (response.ok) {
-        const data = await response.json()
-        const customerData = data?.customer || null
-        setCustomer(customerData)
-      } else {
+      .catch((e) => {
+        console.error("Failed to fetch customer:", e)
         setCustomer(null)
-      }
-    } catch (err) {
-      // console.error('Failed to fetch customer:', err)
-      setCustomer(null)
-    } finally {
-      setLoading(false)
-    }
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+
+
+    // try {
+    //   const response = await fetch('/api/auth/customer', {
+    //     method: 'GET',
+    //     credentials: 'include',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     cache: 'no-cache'
+    //   })
+      
+    //   if (response.ok) {
+    //     const data = await response.json()
+    //     const customerData = data?.customer || null
+    //     setCustomer(customerData)
+    //   } else {
+    //     setCustomer(null)
+    //   }
+    // } catch (err) {
+    //   // console.error('Failed to fetch customer:', err)
+    //   setCustomer(null)
+    // } finally {
+    //   setLoading(false)
+    // }
   }
 
   const refreshCustomer = async () => {
