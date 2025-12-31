@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+// import { useSearchParams } from "next/navigation"
 import { sdk } from "@/lib/config"
 import { decodeToken } from "react-jwt"
 
 function GoogleCallbackContent() {
   console.log("google callback page loaded")
 
-  const searchParams = useSearchParams()
+//   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const DEFAULT_COUNTRY_CODE = process.env.NEXT_PUBLIC_DEFAULT_REGION ?? "tw"
 
@@ -19,15 +19,21 @@ function GoogleCallbackContent() {
     const searchParams = new URLSearchParams(window.location.search)
     const queryParams = Object.fromEntries(searchParams.entries())
 
+    console.log("query params:",queryParams)
+
     try {
       // 1. 驗證回呼，這會自動在 SDK 中設定 JWT Token
+    
       const token = await sdk.auth.callback("customer", "google", queryParams)
+      console.log("received token:", token)
 
       // 2. 解碼 Token 檢查 actor_id (顧客 ID)
       const decodedToken = decodeToken(token) as {
         actor_id: string
         user_metadata: Record<string, unknown>
       }
+
+      console.log("decoded token:", decodedToken)
 
       if (decodedToken.actor_id === "") {
         // 3. 如果顧客不存在，使用 Token 建立顧客資料
@@ -84,9 +90,7 @@ function GoogleCallbackContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
             <h1 className="mt-4 text-2xl font-bold text-gray-900">登入失敗</h1>
-            <p className="mt-2 text-gray-600 break-words">
-              {searchParams.get('error') ?? '發生未知錯誤'}
-            </p>
+            
             <p className="mt-4 text-sm text-gray-500">正在返回帳戶頁面...</p>
           </>
         )}
