@@ -1,10 +1,10 @@
 "use client"
 
 import { ErrorBoundary } from "react-error-boundary"
-import { useEffect, useState } from "react"
 import { NextStudio } from 'next-sanity/studio'
+import config from '../../../../sanity.config'
 
-function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBoundary: () => void}) {
+function ErrorFallback({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) {
   return (
     <div role="alert" style={{ padding: '20px', textAlign: 'center' }}>
       <h2>Sanity CMS 發生錯誤</h2>
@@ -20,28 +20,6 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 export default function CMSPage() {
-  const [config, setConfig] = useState<any>(null)
-
-  useEffect(() => {
-    // console.log('Sanity CMS page loaded')
-    
-    // 動態導入配置
-    import('../../../../sanity.config').then((module) => {
-      setConfig(module.default)
-    }).catch(() => {
-      // console.error('Failed to load Sanity config:', error)
-    })
-  }, [])
-
-  if (!config) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <h1>載入 Sanity CMS...</h1>
-        <p>正在初始化 CMS 配置</p>
-      </div>
-    )
-  }
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <NextStudio config={config} />
