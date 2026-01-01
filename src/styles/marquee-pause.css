@@ -1,0 +1,9 @@
+
+/* Marquee 暫停動畫 */
+.hover\:animation-paused:hover,
+.hover\:animation-paused:hover .animate-marquee,
+.hover\:animation-paused:hover .animate-marquee-1,
+.hover\:animation-paused:hover .animate-marquee-2,
+.hover\:animation-paused:hover .animate-marquee-3 {
+  animation-play-state: paused !important;
+}

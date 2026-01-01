@@ -34,17 +34,17 @@ interface BlogListProps {
 
 const DEFAULT_POSTS_PER_PAGE = 9
 
-export default function BlogList({ 
-  initialPosts, 
+export default function BlogList({
+  initialPosts,
   countryCode = "tw",
-  blogSettings 
+  blogSettings
 }: BlogListProps) {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [currentPage, setCurrentPage] = useState(1)
-  
+
   const postsPerPage = blogSettings?.postsPerPage || DEFAULT_POSTS_PER_PAGE
   const enablePagination = blogSettings?.enablePagination !== false
-  
+
   useEffect(() => {
     if (Array.isArray(initialPosts)) {
       setPosts(initialPosts)
@@ -53,24 +53,24 @@ export default function BlogList({
   }, [initialPosts])
 
   const totalPages = Math.ceil(posts.length / postsPerPage)
-  const currentPosts = enablePagination 
+  const currentPosts = enablePagination
     ? posts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
     : posts
 
   if (!Array.isArray(posts) || posts.length === 0) {
     return null
   }
-  
+
   // 根據 gridColumns 和 mobileColumns 設定決定網格樣式
   const getGridCols = () => {
     const desktopCols = blogSettings?.gridColumns || 3
     const mobileCols = blogSettings?.mobileColumns || 2
-    
+
     // 手機版列數
     const mobileClass = mobileCols === 1 ? 'grid-cols-1' : 'grid-cols-2'
     // 桌面版列數
-    const desktopClass = `lg:grid-cols-${desktopCols}`
-    
+    const desktopClass = `lg:grid-cols-${desktopCols} xl:grid-cols-${Math.min(desktopCols + 1, 5)} 2xl:grid-cols-${Math.min(desktopCols + 2, 6)}`
+
     return `${mobileClass} ${desktopClass}`
   }
 
@@ -79,9 +79,9 @@ export default function BlogList({
       {/* 文章列表 */}
       <ul className={`grid ${getGridCols()} gap-3 md:gap-4 lg:gap-0`}>
         {currentPosts.map((post) => (
-          <BlogCard 
-            key={post._id} 
-            post={post} 
+          <BlogCard
+            key={post._id}
+            post={post}
             countryCode={countryCode}
             {...(blogSettings && { blogSettings })}
           />
@@ -137,7 +137,7 @@ export default function BlogList({
                       {currentPage > 4 && <span className="px-2 text-gray-400">...</span>}
                     </>
                   )}
-                  
+
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
                     if (pageNum > totalPages) return null;
@@ -156,7 +156,7 @@ export default function BlogList({
                       </button>
                     );
                   })}
-                  
+
                   {currentPage < totalPages - 2 && (
                     <>
                       {currentPage < totalPages - 3 && <span className="px-2 text-gray-400">...</span>}

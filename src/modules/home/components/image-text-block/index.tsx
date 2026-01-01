@@ -201,11 +201,11 @@ const ImageTextBlock = ({
             </div>
           )}
           <div className={cn(
-            "grid grid-cols-2 w-full m-0 p-0",
+            "flex flex-row w-full m-0 p-0",
             showSpacing ? "gap-2 md:gap-4 lg:gap-6" : "gap-0"
           )}>
             {leftImage?.url && (
-              <div className="relative w-full overflow-hidden m-0 p-0">
+              <div className={cn("relative overflow-hidden m-0 p-0", showSpacing ? "flex-1" : "w-1/2")}>
                 <ImageWrapper
                   imageConfig={leftImage}
                   sizes="(max-width: 768px) 50vw, 50vw"
@@ -213,7 +213,7 @@ const ImageTextBlock = ({
               </div>
             )}
             {rightImage?.url && (
-              <div className="relative w-full overflow-hidden m-0 p-0">
+              <div className={cn("relative overflow-hidden m-0 p-0", showSpacing ? "flex-1" : "w-1/2")}>
                 <ImageWrapper
                   imageConfig={rightImage}
                   sizes="(max-width: 768px) 50vw, 50vw"
