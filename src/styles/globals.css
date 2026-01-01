@@ -3055,3 +3055,14 @@ button[class*="shadow-buttons"] {
 .hover\:animation-paused:hover .animate-marquee-3 {
   animation-play-state: paused !important;
 }
+
+/* ========== 9. 圖片保護設定 (Prevent Image Saving) ========== */
+img {
+  -webkit-touch-callout: none; /* iOS Safari: 禁用長按選單 */
+  -webkit-user-select: none;   /* Safari: 禁用選取 */
+  -khtml-user-select: none;    /* Konqueror HTML */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* 標準屬性 */
+  -webkit-user-drag: none;     /* 禁用拖曳圖片 */
+}
