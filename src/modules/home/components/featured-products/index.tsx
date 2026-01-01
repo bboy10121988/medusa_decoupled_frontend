@@ -56,8 +56,8 @@ export default function FeaturedProducts({
   return (
     <div className="w-full pt-12 pb-6 md:pt-16 md:pb-12 xl:pt-20 xl:pb-16 2xl:pt-24 2xl:pb-20" style={paddingStyle}>
       {collections.map((collection) => (
-        <section 
-          key={collection.id} 
+        <section
+          key={collection.id}
           className={settings?.showHeading ? "py-8 md:py-12" : "py-0"}
         >
           <div className="w-full">
@@ -77,7 +77,7 @@ export default function FeaturedProducts({
 const SkeletonProductGrid = () => {
   return (
     <div className="px-6 md:px-12 xl:px-16 2xl:px-20">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full bg-neutral-200">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-0 w-full bg-neutral-200">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="w-full bg-white">
             <SkeletonProductPreview />

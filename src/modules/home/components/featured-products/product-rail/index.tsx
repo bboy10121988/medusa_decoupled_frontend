@@ -28,10 +28,10 @@ export default async function ProductPreviewGrid({
 
   return (
     <div className="px-6 md:px-12 xl:px-16 2xl:px-20">
-      <ul className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full">
+      <ul className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-0 w-full">
         {standardProducts.map(product => (
           <li key={product.id} className="w-full bg-white">
-            <ProductPreview 
+            <ProductPreview
               product={product}
               isFeatured={collection.handle === "featured"}
               countryCode="tw"
