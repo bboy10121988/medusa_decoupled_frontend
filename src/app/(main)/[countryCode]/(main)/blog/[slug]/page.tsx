@@ -60,7 +60,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string; countryCode: string }>
 }): Promise<Metadata> {
-  const { slug, countryCode } = await params
+  const { slug, countryCode: _countryCode } = await params
   const post = await getPostBySlug(slug)
 
   if (!post) {
