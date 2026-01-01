@@ -77,8 +77,10 @@ export default function BlogList({
     if (desktopCols === 4) desktopClass = 'lg:grid-cols-4'
 
     // 超大螢幕響應式設定 - 直接寫死以符合使用者需求，並確保 Tailwind 能掃描到
-    // 使用 min-[] 語法以確保優先級和明確性，類似商品頁的處理
-    const responsiveClass = 'min-[1280px]:grid-cols-5 min-[1536px]:grid-cols-6'
+    // 使用 min-[] 語法以確保優先級和明確性
+    // XL (1280px+) -> 4欄
+    // 2XL (1536px+) -> 6欄
+    const responsiveClass = 'min-[1280px]:grid-cols-4 min-[1536px]:grid-cols-6'
 
     return `${mobileClass} ${desktopClass} ${responsiveClass}`
   }
