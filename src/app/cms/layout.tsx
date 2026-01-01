@@ -6,8 +6,8 @@ export default function CMSLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="cms-layout">
+    <>
       {children}
-    </div>
+    </>
   )
 }

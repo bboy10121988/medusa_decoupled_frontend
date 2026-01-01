@@ -1,10 +1,10 @@
-import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure'
-import {visionTool} from '@sanity/vision'
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
+import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './schemas/index'
 import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
 import { structure } from './sanity-structure'
-import type {DocumentActionProps} from 'sanity'
+import type { DocumentActionProps } from 'sanity'
 
 const GeneratePageAction = (props: DocumentActionProps) => {
   const { published } = props
@@ -43,7 +43,7 @@ const GeneratePageAction = (props: DocumentActionProps) => {
 }
 
 export default defineConfig({
-  name: 'default', 
+  name: 'default',
   title: 'tims_web',
 
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'm7o2mv1n',
@@ -55,16 +55,16 @@ export default defineConfig({
     visionTool()
   ],
 
-  document: {
-    actions: (prev, context) => {
-      // 僅當 webhook 設定齊全時才顯示「生成頁面」
-      const canGenerate = Boolean(WEBHOOK_URL && WEBHOOK_SECRET)
-      if (context.schemaType === 'pages' && canGenerate) {
-        return [...prev, GeneratePageAction]
-      }
-      return prev
-    }
-  },
+  // document: {
+  //   actions: (prev, context) => {
+  //     // 僅當 webhook 設定齊全時才顯示「生成頁面」
+  //     const canGenerate = Boolean(WEBHOOK_URL && WEBHOOK_SECRET)
+  //     if (context.schemaType === 'pages' && canGenerate) {
+  //       return [...prev, GeneratePageAction]
+  //     }
+  //     return prev
+  //   }
+  // },
 
   schema: {
     types: schemaTypes as any,
