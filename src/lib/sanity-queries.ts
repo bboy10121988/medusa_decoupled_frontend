@@ -376,6 +376,7 @@ export const CATEGORIES_QUERY = `*[_type == "category"] {
 export const POST_BY_SLUG_QUERY = `*[_type == "post" && slug.current == $slug][0]{
       _id,
       title,
+      excerpt,
       slug {
         current
       },
@@ -393,6 +394,7 @@ export const POST_BY_SLUG_QUERY = `*[_type == "post" && slug.current == $slug][0
 export const POST_BY_TITLE_OR_ID_QUERY = `*[_type == "post" && title match "*" + $title + "*" || _id match $slug + "*"][0]{
       _id,
       title,
+      excerpt,
       slug {
         current
       },
