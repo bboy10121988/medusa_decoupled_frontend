@@ -62,16 +62,25 @@ export default function BlogList({
   }
 
   // 根據 gridColumns 和 mobileColumns 設定決定網格樣式
+  // 根據 gridColumns 和 mobileColumns 設定決定網格樣式
   const getGridCols = () => {
     const desktopCols = blogSettings?.gridColumns || 3
     const mobileCols = blogSettings?.mobileColumns || 2
 
     // 手機版列數
     const mobileClass = mobileCols === 1 ? 'grid-cols-1' : 'grid-cols-2'
-    // 桌面版列數
-    const desktopClass = `lg:grid-cols-${desktopCols} xl:grid-cols-${Math.min(desktopCols + 1, 5)} 2xl:grid-cols-${Math.min(desktopCols + 2, 6)}`
 
-    return `${mobileClass} ${desktopClass}`
+    // 桌面版列數 (LG) - 使用 switch 或條件判斷以確保 Tailwind 能抓到類名
+    let desktopClass = 'lg:grid-cols-3' // default
+    if (desktopCols === 1) desktopClass = 'lg:grid-cols-1'
+    if (desktopCols === 2) desktopClass = 'lg:grid-cols-2'
+    if (desktopCols === 4) desktopClass = 'lg:grid-cols-4'
+
+    // 超大螢幕響應式設定 - 直接寫死以符合使用者需求，並確保 Tailwind 能掃描到
+    // 使用 min-[] 語法以確保優先級和明確性，類似商品頁的處理
+    const responsiveClass = 'min-[1280px]:grid-cols-5 min-[1536px]:grid-cols-6'
+
+    return `${mobileClass} ${desktopClass} ${responsiveClass}`
   }
 
   return (
