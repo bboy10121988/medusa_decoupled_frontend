@@ -91,7 +91,7 @@ export default function PaginatedProducts({
       )}
       <div>
         <ul
-          className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-0 w-full bg-white"
+          className="grid grid-cols-2 md:grid-cols-4 min-[1280px]:grid-cols-5 min-[1536px]:grid-cols-6 gap-0 w-full bg-white border-8 border-red-500"
           data-testid="products-list"
         >
           {products.map((p) => {
