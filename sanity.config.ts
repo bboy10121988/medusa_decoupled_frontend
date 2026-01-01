@@ -2,9 +2,9 @@ import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './schemas/index'
-import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
+// import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
 import { structure } from './sanity-structure'
-import type { DocumentActionProps } from 'sanity'
+// import type { DocumentActionProps } from 'sanity'
 
 // const GeneratePageAction = (props: DocumentActionProps) => {
 //   const { published } = props
