@@ -21,15 +21,15 @@ export default async function Nav() {
   const headerData = await getHeader() as SanityHeader
 
   // 從 Sanity 獲取跑馬燈資料
-  const enabledTexts = headerData?.marquee?.enabled 
+  const enabledTexts = headerData?.marquee?.enabled
     ? [
-        ...(headerData.marquee.text1?.enabled && headerData.marquee.text1?.content?.trim() 
-            ? [{content: headerData.marquee.text1.content}] : []),
-        ...(headerData.marquee.text2?.enabled && headerData.marquee.text2?.content?.trim() 
-            ? [{content: headerData.marquee.text2.content}] : []),
-        ...(headerData.marquee.text3?.enabled && headerData.marquee.text3?.content?.trim() 
-            ? [{content: headerData.marquee.text3.content}] : [])
-      ]
+      ...(headerData.marquee.text1?.enabled && headerData.marquee.text1?.content?.trim()
+        ? [{ content: headerData.marquee.text1.content }] : []),
+      ...(headerData.marquee.text2?.enabled && headerData.marquee.text2?.content?.trim()
+        ? [{ content: headerData.marquee.text2.content }] : []),
+      ...(headerData.marquee.text3?.enabled && headerData.marquee.text3?.content?.trim()
+        ? [{ content: headerData.marquee.text3.content }] : [])
+    ]
     : []
 
   const marqueeTexts = enabledTexts.map(item => String(item.content)).filter(text => text.trim())
@@ -40,7 +40,7 @@ export default async function Nav() {
     if (count === 1) return textDisplayTime * 2
     return count * textDisplayTime
   }
-  
+
   const animationDuration = calculateAnimationDuration(textCount)
   const pauseOnHover = headerData?.marquee?.pauseOnHover !== false
 
@@ -61,20 +61,20 @@ export default async function Nav() {
   // 計算主導覽列高度
   const logoHeight = headerData?.logoSize?.desktop || headerData?.logoHeight || 36
   const mainNavHeight = Math.max(48, logoHeight + 24)
-  
+
   // 計算總 header 高度
   const marqueeHeight = 36 // h-9 = 36px
-  const totalHeaderHeight = (headerData?.marquee?.enabled && textCount > 0) 
-    ? marqueeHeight + mainNavHeight 
+  const totalHeaderHeight = (headerData?.marquee?.enabled && textCount > 0)
+    ? marqueeHeight + mainNavHeight
     : mainNavHeight
 
   return (
     <>
       {/* 動態設置 header 高度 CSS 變數 */}
       <HeaderHeightSetter totalHeight={totalHeaderHeight} />
-      
+
       {/* 整合的導航容器：跑馬燈 + 主選單 + 分類列 */}
-      <div 
+      <div
         className="sticky top-0 inset-x-0 z-[100] group transition-all duration-300"
       >
         {/* 1. 跑馬燈部分 */}
@@ -82,21 +82,21 @@ export default async function Nav() {
           <div className="bg-gray-900 text-white overflow-hidden h-9">
             <div className="relative h-full">
               {headerData?.marquee?.linkUrl ? (
-                <a 
-                  href={headerData.marquee.linkUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={headerData.marquee.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block w-full h-full"
                 >
-                  <div 
-                    className={`absolute inset-x-0 flex flex-col ${getMarqueeClass(textCount)} ${pauseOnHover ? 'hover:animation-paused' : ''}`}
-                    style={{ 
+                  <div
+                    className={`absolute inset-x-0 flex flex-col ${getMarqueeClass(textCount)} hover:animation-paused`}
+                    style={{
                       '--marquee-duration': `${animationDuration}s`
                     } as React.CSSProperties}
                   >
                     {marqueeTexts.map((text, index) => (
-                      <div 
-                        key={`marquee-link-${index}`} 
+                      <div
+                        key={`marquee-link-${index}`}
                         className="flex-none h-9 flex items-center justify-center text-xs text-white hover:underline"
                       >
                         {text}
@@ -105,15 +105,15 @@ export default async function Nav() {
                   </div>
                 </a>
               ) : (
-                <div 
-                  className={`absolute inset-x-0 flex flex-col ${getMarqueeClass(textCount)} ${pauseOnHover ? 'hover:animation-paused' : ''}`}
-                  style={{ 
+                <div
+                  className={`absolute inset-x-0 flex flex-col ${getMarqueeClass(textCount)} hover:animation-paused`}
+                  style={{
                     '--marquee-duration': `${animationDuration}s`
                   } as React.CSSProperties}
                 >
                   {marqueeTexts.map((text, index) => (
-                    <div 
-                      key={`marquee-nolink-${index}`} 
+                    <div
+                      key={`marquee-nolink-${index}`}
                       className="flex-none h-9 flex items-center justify-center text-xs text-white"
                     >
                       {text}
@@ -141,13 +141,13 @@ export default async function Nav() {
         )}
 
         {/* 2. 主選單導覽列 */}
-        <header 
+        <header
           className="relative w-full border-b bg-white border-ui-border-base shadow-sm"
           style={{
             height: `${mainNavHeight}px`
           }}
         >
-          <nav 
+          <nav
             className="px-6 md:px-12 xl:px-16 2xl:px-20 w-full h-full flex items-center"
           >
             {/* 三等份布局容器 */}
@@ -156,8 +156,8 @@ export default async function Nav() {
               <div className="flex items-center justify-start gap-x-6">
                 {/* 手機版漢堡選單 - 螢幕寬度小於1024px時顯示 */}
                 <div className="block lg:hidden">
-                  <MobileMenu 
-                    regions={regions} 
+                  <MobileMenu
+                    regions={regions}
                     navigation={headerData?.navigation || []}
                     categories={categories}
                     headerData={headerData}
@@ -165,19 +165,19 @@ export default async function Nav() {
                 </div>
                 {/* 桌機版導航選單 - 螢幕寬度大於等於1024px時顯示 - 所有選單都在左側 */}
                 <div className="hidden lg:flex items-center gap-x-6">
-                  {headerData?.navigation?.map(({ name, href }: {name: string; href: string}, index: number) => {
+                  {headerData?.navigation?.map(({ name, href }: { name: string; href: string }, index: number) => {
                     if (typeof name !== 'string' || typeof href !== 'string') {
                       return null
                     }
 
                     const isExternal = /^(http|https|www)/.test(href)
                     const isHome = href === '/' || href === '/home'
-                    const processedHref = isExternal 
-                      ? href 
-                      : isHome 
-                        ? '/' 
-                        : href.startsWith('/') 
-                          ? href 
+                    const processedHref = isExternal
+                      ? href
+                      : isHome
+                        ? '/'
+                        : href.startsWith('/')
+                          ? href
                           : `/${href}`
 
                     const uniqueKey = `nav-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}`
@@ -222,7 +222,7 @@ export default async function Nav() {
                         width={200}
                         height={logoHeight}
                         className="w-auto object-contain transition-all duration-300 hidden md:block"
-                        style={{ 
+                        style={{
                           height: `${headerData?.logoSize?.desktop || logoHeight}px`,
                           width: 'auto'
                         }}
@@ -234,7 +234,7 @@ export default async function Nav() {
                         width={200}
                         height={headerData?.logoSize?.mobile || 28}
                         className="w-auto object-contain transition-all duration-300 md:hidden"
-                        style={{ 
+                        style={{
                           height: `${headerData?.logoSize?.mobile || 28}px`,
                           width: 'auto'
                         }}
@@ -245,7 +245,7 @@ export default async function Nav() {
                   )}
                 </LocalizedClientLink>
               </div>
-              
+
               {/* 右側區塊 - 1/3 - 只放功能按鈕 */}
               <div className="flex items-center justify-end gap-x-6">
                 {/* 漢堡選單模式 - 只顯示圖標的帳戶和購物車 (小於1024px) */}
@@ -261,7 +261,7 @@ export default async function Nav() {
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                   </LocalizedClientLink>
-                  
+
                   {/* 只有圖標的購物車按鈕 */}
                   <Suspense
                     fallback={
@@ -315,7 +315,7 @@ export default async function Nav() {
         <div className="hidden lg:block border-b border-ui-border-base bg-white shadow-sm">
           <div className="px-6 md:px-12 xl:px-16 2xl:px-20 max-w-none flex justify-between items-center py-2 text-xs text-neutral-600">
             <div className="flex items-center gap-x-6">
-              {categories?.map((category: {id: string; handle: string; name: string}) => (
+              {categories?.map((category: { id: string; handle: string; name: string }) => (
                 <LocalizedClientLink
                   key={category.id}
                   href={`/categories/${category.handle}`}

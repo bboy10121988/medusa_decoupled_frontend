@@ -1,19 +1,6 @@
-'use client'
-
-import { useParams, useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { redirect } from "next/navigation"
 
 export default function NotFound() {
-    const params = useParams()
-    const router = useRouter()
-
-    useEffect(() => {
-        if (params?.countryCode) {
-            router.replace(`/${params.countryCode}`)
-        } else {
-            router.replace('/')
-        }
-    }, [params, router])
-
-    return null
+    // Server-side redirect to country homepage
+    redirect("/tw")
 }
