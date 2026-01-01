@@ -37,7 +37,7 @@ const nextConfig = {
     if (!config.resolve.fallback) {
       config.resolve.fallback = {}
     }
-    
+
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -61,7 +61,24 @@ const nextConfig = {
       },
     ];
   },
-  
+
+  // 強制重定向 www 到非 www (解決 Sanity CMS Context 問題)
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.timsfantasyworld.com',
+          },
+        ],
+        destination: 'https://timsfantasyworld.com/:path*',
+        permanent: true,
+      },
+    ]
+  },
+
   // 允許不同域名的重寫規則
   async rewrites() {
     return {
@@ -92,7 +109,7 @@ const nextConfig = {
       fallback: [],
     };
   },
-  
+
   images: {
     // 僅允許受信任的圖片來源，避免從未知網域載入
     remotePatterns: [
