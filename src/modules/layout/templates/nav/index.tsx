@@ -42,7 +42,6 @@ export default async function Nav() {
   }
 
   const animationDuration = calculateAnimationDuration(textCount)
-  const pauseOnHover = headerData?.marquee?.pauseOnHover !== false
 
   const getMarqueeClass = (count: number) => {
     if (count === 0) return ''
