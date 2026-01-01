@@ -8,7 +8,7 @@ const SkeletonProductGrid = ({
 }) => {
   return (
     <ul
-      className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full bg-neutral-200"
+      className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-0 w-full bg-neutral-200"
       data-testid="products-list-loader"
     >
       {repeat(numberOfProducts).map((index) => (
