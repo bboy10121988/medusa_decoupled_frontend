@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Container, Heading, Badge, Button, Table, Tabs, FocusModal, toast, Toaster, Input, Label, Text } from '@medusajs/ui'
+import { Container, Heading, Badge, Button, Table, Tabs, toast, Toaster } from '@medusajs/ui'
 import { useParams } from 'next/navigation'
 
 export default function AffiliateDetailPage() {
@@ -127,130 +127,157 @@ export default function AffiliateDetailPage() {
                 </div>
             </div>
 
-            {/* Settle FocusModal */}
-            <FocusModal open={showSettlePrompt} onOpenChange={setShowSettlePrompt}>
-                <FocusModal.Content>
-                    <FocusModal.Header>
-                        <div className="flex items-center justify-between w-full">
-                            <Heading>確認撥款支付 (Confirm Payout)</Heading>
+            {/* Settle Modal */}
+            {showSettlePrompt && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    onClick={() => setShowSettlePrompt(false)}
+                >
+                    <div
+                        className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white">
+                            <h2 className="text-xl font-bold">確認撥款支付</h2>
+                            <p className="text-blue-100 text-sm">Confirm Payout</p>
                         </div>
-                    </FocusModal.Header>
-                    <FocusModal.Body className="p-8 max-w-2xl mx-auto">
-                        <div className="space-y-8">
+                        <div className="p-6 space-y-6">
                             <div>
-                                <Heading level="h2" className="mb-2">支付對象</Heading>
-                                <div className="p-4 bg-ui-bg-subtle rounded-lg border">
+                                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">支付對象</h3>
+                                <div className="bg-gray-50 rounded-lg p-4 border">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <Text className="text-ui-fg-subtle text-xs uppercase font-semibold">推廣者名稱</Text>
-                                            <Text className="font-medium text-lg">{affiliate.first_name} {affiliate.last_name}</Text>
+                                            <p className="text-xs text-gray-500">推廣者名稱</p>
+                                            <p className="font-medium text-lg">{affiliate.first_name} {affiliate.last_name}</p>
                                         </div>
                                         <div>
-                                            <Text className="text-ui-fg-subtle text-xs uppercase font-semibold">電子郵件</Text>
-                                            <Text className="font-medium">{affiliate.email}</Text>
+                                            <p className="text-xs text-gray-500">電子郵件</p>
+                                            <p className="font-medium">{affiliate.email}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <Heading level="h2" className="mb-2">收款資訊 (Payment Method)</Heading>
-                                <div className="p-4 bg-ui-bg-subtle rounded-lg border">
+                                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">收款資訊</h3>
+                                <div className="bg-gray-50 rounded-lg p-4 border">
                                     {affiliate.settings?.payoutMethod === 'bank_transfer' ? (
                                         <div className="space-y-3">
-                                            <div className="flex justify-between items-center pb-2 border-bottom border-ui-border-base">
-                                                <Badge color="blue">銀行轉帳 (Bank Transfer)</Badge>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-y-4">
+                                            <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">銀行轉帳</span>
+                                            <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <Text className="text-ui-fg-subtle text-xs">銀行名稱</Text>
-                                                    <Text className="font-medium">{affiliate.settings?.bankAccount?.bankName}</Text>
+                                                    <p className="text-xs text-gray-500">銀行名稱</p>
+                                                    <p className="font-medium">{affiliate.settings?.bankAccount?.bankName || '-'}</p>
                                                 </div>
                                                 <div>
-                                                    <Text className="text-ui-fg-subtle text-xs">分行</Text>
-                                                    <Text className="font-medium">{affiliate.settings?.bankAccount?.branch || '-'}</Text>
+                                                    <p className="text-xs text-gray-500">分行</p>
+                                                    <p className="font-medium">{affiliate.settings?.bankAccount?.branch || '-'}</p>
                                                 </div>
                                                 <div>
-                                                    <Text className="text-ui-fg-subtle text-xs">帳戶名稱</Text>
-                                                    <Text className="font-medium">{affiliate.settings?.bankAccount?.accountName}</Text>
+                                                    <p className="text-xs text-gray-500">帳戶名稱</p>
+                                                    <p className="font-medium">{affiliate.settings?.bankAccount?.accountName || '-'}</p>
                                                 </div>
                                                 <div>
-                                                    <Text className="text-ui-fg-subtle text-xs">帳號</Text>
-                                                    <Text className="font-medium font-mono text-blue-600">{affiliate.settings?.bankAccount?.accountNumber}</Text>
+                                                    <p className="text-xs text-gray-500">帳號</p>
+                                                    <p className="font-medium font-mono text-blue-600">{affiliate.settings?.bankAccount?.accountNumber || '-'}</p>
                                                 </div>
                                             </div>
                                         </div>
-                                    ) : (affiliate.settings?.payoutMethod === 'paypal' || affiliate.settings?.paypal_email || affiliate.settings?.paypalEmail) ? (
-                                        <div className="space-y-3">
-                                            <Badge color="blue">PayPal</Badge>
+                                    ) : (affiliate.settings?.payoutMethod === 'paypal' || affiliate.settings?.paypal_email) ? (
+                                        <div className="space-y-2">
+                                            <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">PayPal</span>
                                             <div>
-                                                <Text className="text-ui-fg-subtle text-xs">PayPal 帳號/Email</Text>
-                                                <Text className="font-medium text-lg text-blue-600">
-                                                    {affiliate.settings?.paypal_email || affiliate.settings?.paypalEmail || affiliate.settings?.paypalEmail}
-                                                </Text>
+                                                <p className="text-xs text-gray-500">PayPal 帳號/Email</p>
+                                                <p className="font-medium text-lg text-blue-600">{affiliate.settings?.paypal_email || affiliate.settings?.paypalEmail}</p>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="py-4 text-center">
-                                            <Text className="text-ui-fg-muted italic">此用戶尚未設定收款資訊</Text>
-                                        </div>
+                                        <p className="text-gray-500 italic text-center py-2">此用戶尚未設定收款資訊</p>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="p-6 bg-green-50 rounded-lg border border-green-100 flex justify-between items-center">
+                            <div className="bg-green-50 rounded-lg p-4 border border-green-200 flex justify-between items-center">
                                 <div>
-                                    <Text className="text-green-800 text-sm font-semibold">本次結算總金額</Text>
-                                    <Text className="text-ui-fg-subtle text-xs">確認支付後，系統將會將相關訂單標記為已結算。</Text>
+                                    <p className="text-green-800 font-semibold">本次結算總金額</p>
+                                    <p className="text-green-600 text-xs">確認支付後，相關訂單將標記為已結算</p>
                                 </div>
-                                <Text className="text-3xl font-bold text-green-700">
+                                <p className="text-3xl font-bold text-green-700">
                                     ${affiliate.captured_balance ?? affiliate.balance}
-                                </Text>
+                                </p>
                             </div>
                         </div>
-                    </FocusModal.Body>
-                    <FocusModal.Footer>
-                        <div className="flex items-center justify-end gap-x-2 w-full">
-                            <Button variant="secondary" onClick={() => setShowSettlePrompt(false)}>
+                        <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+                            <button
+                                onClick={() => setShowSettlePrompt(false)}
+                                className="px-4 py-2 text-gray-700 bg-white border rounded-lg hover:bg-gray-100 transition"
+                            >
                                 取消 (Cancel)
-                            </Button>
-                            <Button variant="primary" onClick={handleSettle} isLoading={settling}>
-                                確認已完成支付 (Confirm & Mark as Paid)
-                            </Button>
+                            </button>
+                            <button
+                                onClick={handleSettle}
+                                disabled={settling}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                            >
+                                {settling ? '處理中...' : '確認已完成支付'}
+                            </button>
                         </div>
-                    </FocusModal.Footer>
-                </FocusModal.Content>
-            </FocusModal>
+                    </div>
+                </div>
+            )}
 
             {/* Commission Update Modal */}
-            <FocusModal open={showCommissionModal} onOpenChange={setShowCommissionModal}>
-                <FocusModal.Content>
-                    <FocusModal.Header>
-                        <Heading>調整佣金比例</Heading>
-                    </FocusModal.Header>
-                    <FocusModal.Body className="p-6">
-                        <div className="space-y-4 max-w-sm">
+            {showCommissionModal && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    onClick={() => setShowCommissionModal(false)}
+                >
+                    <div
+                        className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white">
+                            <h2 className="text-xl font-bold">調整佣金比例</h2>
+                            <p className="text-blue-100 text-sm">Adjust Commission Rate</p>
+                        </div>
+                        <div className="p-6 space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="commission_rate">新的佣金比例 (%)</Label>
-                                <Input
+                                <label htmlFor="commission_rate" className="block text-sm font-medium text-gray-700">
+                                    新的佣金比例 (%)
+                                </label>
+                                <input
                                     id="commission_rate"
                                     type="number"
                                     value={newCommissionRate}
                                     onChange={(e) => setNewCommissionRate(e.target.value)}
                                     placeholder="例如: 10"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
-                                <p className="text-xs text-ui-fg-subtle">
+                                <p className="text-xs text-gray-500">
                                     目前比例: {(affiliate.commission_rate * 100).toFixed(1)}%
                                 </p>
                             </div>
                         </div>
-                    </FocusModal.Body>
-                    <FocusModal.Footer>
-                        <Button variant="secondary" onClick={() => setShowCommissionModal(false)}>取消</Button>
-                        <Button variant="primary" onClick={handleUpdateCommission}>儲存變更</Button>
-                    </FocusModal.Footer>
-                </FocusModal.Content>
-            </FocusModal>
+                        <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+                            <button
+                                onClick={() => setShowCommissionModal(false)}
+                                className="px-4 py-2 text-gray-700 bg-white border rounded-lg hover:bg-gray-100 transition"
+                            >
+                                取消
+                            </button>
+                            <button
+                                onClick={handleUpdateCommission}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                            >
+                                儲存變更
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             <Tabs defaultValue="settings">
                 <Tabs.List className="mb-4">
