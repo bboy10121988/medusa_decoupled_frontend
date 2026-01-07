@@ -110,11 +110,7 @@ export default function PayoutsPage() {
                                     </Table.Cell>
                                     <Table.Cell className="text-right">
                                         <button
-                                            onClick={() => {
-                                                console.log('Button clicked for affiliate:', aff.id, aff.first_name)
-                                                alert('Button clicked! Setting selectedAffiliate...')
-                                                setSelectedAffiliate(aff)
-                                            }}
+                                            onClick={() => setSelectedAffiliate(aff)}
                                             disabled={settlingId === aff.id}
                                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                                         >
@@ -131,10 +127,11 @@ export default function PayoutsPage() {
             {/* Custom Modal */}
             {selectedAffiliate && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center"
                     style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
                     onClick={() => setSelectedAffiliate(null)}
                 >
+
                     <div
                         className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
