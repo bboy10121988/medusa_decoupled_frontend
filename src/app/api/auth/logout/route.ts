@@ -30,7 +30,7 @@ const performLogout = async () => {
   // 清除額外的認證相關 cookies，包括 Google OAuth 相關
   const additionalCookiesToClear = [
     "_medusa_customer_id",
-    "medusa-auth-token", 
+    "medusa-auth-token",
     "next-auth.session-token",
     "next-auth.callback-url",
     "next-auth.csrf-token",
@@ -52,7 +52,7 @@ const performLogout = async () => {
     // Google Identity Services cookies
     "g_enabled_idps",
     "g_session_check",
-    "g_accounts_check", 
+    "g_accounts_check",
     "google_auto_select",
     "1P_JAR",
     "APISID",
@@ -73,7 +73,7 @@ const performLogout = async () => {
     // 清除多個路徑和域名的 cookies
     const paths = ["/", "/tw", "/tw/", "/auth", "/auth/google"]
     const domains = ["", "localhost", ".localhost", ".google.com", ".accounts.google.com"]
-    
+
     paths.forEach(path => {
       domains.forEach(domain => {
         cookieStore.set(cookieName, "", {
@@ -86,7 +86,7 @@ const performLogout = async () => {
         })
       })
     })
-    
+
     // 基本清除
     cookieStore.set(cookieName, "", {
       maxAge: -1,
@@ -127,17 +127,17 @@ export async function GET(request: NextRequest) {
   await performLogout()
 
   const redirectParam = request.nextUrl.searchParams.get("redirect") || "/"
-  
+
   // 確保在生產環境中使用正確的域名
   let origin = request.nextUrl.origin
-  
+
   // 如果在 VM 環境中（localhost:8000），使用生產域名
-  if (origin.includes('localhost:8000') && process.env.NEXT_PUBLIC_BASE_URL) {
-    origin = process.env.NEXT_PUBLIC_BASE_URL
+  if (origin.includes('localhost:8000')) {
+    origin = 'https://timsfantasyworld.com'
   }
-  
+
   const redirectUrl = new URL(redirectParam, origin)
-  
+
   // 添加一個查詢參數來強制頁面重新載入，清除任何殘留的 Google OAuth 狀態
   redirectUrl.searchParams.set('_logout', Date.now().toString())
   redirectUrl.searchParams.set('_clear_oauth', '1')
@@ -145,11 +145,11 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(redirectUrl.toString(), {
     status: 302,
   })
-  
+
   // 額外設置響應標頭來清除緩存
   response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
   response.headers.set('Pragma', 'no-cache')
   response.headers.set('Expires', '0')
-  
+
   return response
 }

@@ -15,6 +15,9 @@ type Affiliate = {
     commission_rate: number
     balance: number
     total_earnings: number
+    total_sales: number
+    captured_balance: number
+    pending_balance: number
     created_at: string
 }
 
@@ -114,7 +117,9 @@ export default function AdminAffiliatesPage() {
                             <th className="py-3 px-4">姓名 / Email</th>
                             <th className="py-3 px-4">狀態</th>
                             <th className="py-3 px-4">佣金比例</th>
-                            <th className="py-3 px-4">餘額 (待發)</th>
+                            <th className="py-3 px-4">營業額</th>
+                            <th className="py-3 px-4">待確認</th>
+                            <th className="py-3 px-4">可結算</th>
                             <th className="py-3 px-4">累積收益</th>
                             <th className="py-3 px-4 text-right">操作</th>
                         </tr>
@@ -134,8 +139,14 @@ export default function AdminAffiliatesPage() {
                                 <td className="py-3 px-4">
                                     {(aff.commission_rate * 100).toFixed(1)}%
                                 </td>
+                                <td className="py-3 px-4 font-medium text-blue-600">
+                                    ${aff.total_sales || 0}
+                                </td>
                                 <td className="py-3 px-4 font-medium text-orange-600">
-                                    ${aff.balance}
+                                    ${aff.pending_balance || 0}
+                                </td>
+                                <td className="py-3 px-4 font-medium text-green-600">
+                                    ${aff.captured_balance || 0}
                                 </td>
                                 <td className="py-3 px-4 text-ui-fg-subtle">
                                     ${aff.total_earnings}

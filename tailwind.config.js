@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  presets: [require("@medusajs/ui-preset")],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -77,7 +78,7 @@ module.exports = {
   },
   plugins: [
     require('@tailwindcss/typography'),
-    function({ addUtilities, theme }) {
+    function ({ addUtilities, theme }) {
       addUtilities({
         // 標題等級系統
         '.h1': {
@@ -106,7 +107,7 @@ module.exports = {
           fontWeight: '400',
           letterSpacing: '0.1em'
         },
-        
+
         // 統一容器樣式
         '.content-container': {
           maxWidth: theme('maxWidth.4xl'),
@@ -119,7 +120,7 @@ module.exports = {
             paddingRight: theme('spacing.8'),
           }
         },
-        
+
         '.section-container': {
           marginBottom: theme('spacing.16'),
           textAlign: 'center',
@@ -130,7 +131,7 @@ module.exports = {
             paddingRight: theme('spacing.8'),
           }
         },
-        
+
         // 向後相容的舊樣式類別
         '.section-heading': {
           fontSize: theme('fontSize.3xl')[0],
@@ -148,7 +149,7 @@ module.exports = {
           fontFamily: "'Noto Sans TC', sans-serif",
           color: theme('colors.gray.600')
         },
-        
+
         // 文字樣式工具類
         '.text-content': {
           fontSize: theme('fontSize.base')[0],

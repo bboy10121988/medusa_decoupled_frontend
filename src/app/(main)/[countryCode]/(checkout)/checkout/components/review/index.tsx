@@ -15,8 +15,8 @@ const Review = ({ cart }: { cart: any }) => {
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
 
   // 檢查是否為銀行轉帳
-  const isBankTransfer = searchParams.get("payment") === "bank_transfer" || 
-    cart?.payment_collection?.payment_sessions?.some((session: any) => 
+  const isBankTransfer = searchParams.get("payment") === "bank_transfer" ||
+    cart?.payment_collection?.payment_sessions?.some((session: any) =>
       session.provider_id === 'pp_bank_transfer'
     )
 
@@ -25,14 +25,18 @@ const Review = ({ cart }: { cart: any }) => {
     cart.shipping_methods.length > 0 &&
     (cart.payment_collection || paidByGiftcard || isBankTransfer)
 
+  // 檢查基本必要條件（放寬電子郵件檢查，因為可能已在後端設定）
   const notReady =
     !cart?.shipping_address ||
-    !cart.billing_address ||
-    !cart.email ||
     (cart.shipping_methods?.length ?? 0) < 1
 
-  if (notReady){
-    return <ErrorMessage error="請先完成前置步驟" data-testid="payment-not-ready-error" />
+  // 顯示更友好的錯誤訊息
+  if (notReady) {
+    const missingItems = []
+    if (!cart?.shipping_address) missingItems.push('配送地址')
+    if ((cart.shipping_methods?.length ?? 0) < 1) missingItems.push('配送方式')
+
+    return <ErrorMessage error={`請先完成：${missingItems.join('、')}`} data-testid="payment-not-ready-error" />
   }
 
   return (

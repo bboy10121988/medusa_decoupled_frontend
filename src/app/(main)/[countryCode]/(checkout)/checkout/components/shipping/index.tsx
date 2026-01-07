@@ -60,8 +60,8 @@ const Shipping: React.FC<ShippingProps> = ({
     Record<string, number>
   >({})
   const [error, setError] = useState<string | null>(null)
-  const [shippingMethodId, setShippingMethodId] = useState<string | null>(
-    cart.shipping_methods?.at(-1)?.shipping_option_id || null
+  const [shippingMethodId, setShippingMethodId] = useState<string>(
+    cart.shipping_methods?.at(-1)?.shipping_option_id || ""
   )
 
   const searchParams = useSearchParams()
@@ -122,7 +122,7 @@ const Shipping: React.FC<ShippingProps> = ({
       setError('請先選擇配送方式')
       return
     }
-    
+
     // 清除錯誤並跳轉到付款頁面
     setError(null)
     // console.log('✅ 跳轉到付款頁面，選中的配送方式:', shippingMethodId)
@@ -142,7 +142,7 @@ const Shipping: React.FC<ShippingProps> = ({
       setError('購物車資訊不完整，請重新整理頁面')
       return
     }
-    
+
     // console.log('🚚 設置配送方式:', { cartId: cart.id, shippingMethodId: id, variant })
     setError(null)
 
@@ -152,7 +152,7 @@ const Shipping: React.FC<ShippingProps> = ({
       setShowPickupOptions(PICKUP_OPTION_OFF)
     }
 
-    let currentId: string | null = null
+    let currentId: string = ""
     setIsLoading(true)
     setShippingMethodId((prev) => {
       currentId = prev
@@ -164,8 +164,8 @@ const Shipping: React.FC<ShippingProps> = ({
       // console.log('✅ 配送方式設置成功')
     } catch (err: any) {
       // console.error('❌ 配送方式設置錯誤:', err)
-      setShippingMethodId(currentId)
-      
+      setShippingMethodId(currentId || "")
+
       // 提供更友好的錯誤訊息
       if (err.message.includes('Error setting up the request')) {
         setError('配送方式設定失敗，請檢查網路連線。如果問題持續存在，請聯繫客服。')
@@ -407,8 +407,8 @@ const Shipping: React.FC<ShippingProps> = ({
               onClick={handleSubmit}
               isLoading={isLoading}
               disabled={
-                !cart.shipping_methods?.[0] || 
-                !_shippingMethods || 
+                !cart.shipping_methods?.[0] ||
+                !_shippingMethods ||
                 _shippingMethods.length === 0
               }
               data-testid="submit-delivery-option-button"

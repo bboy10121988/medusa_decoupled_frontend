@@ -1,6 +1,6 @@
 "use client"
 
-import { RadioGroup } from "@headlessui/react"
+import { RadioGroup, Radio } from "@headlessui/react"
 import { paymentInfoMap } from "@/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
@@ -17,8 +17,8 @@ const Payment = ({
   cart: any
 }) => {
 
-  const payment_method_default = process.env.NEXT_PUBLIC_PAYMENT_METHOD_DEFAULT
-  const payment_method_ecpay_credit = process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT
+  const payment_method_default = process.env.NEXT_PUBLIC_PAYMENT_METHOD_DEFAULT || "pp_system_default"
+  const payment_method_ecpay_credit = process.env.NEXT_PUBLIC_PAYMENT_METHOD_ECPAY_CREDIT || "pp_ecpay_credit_card_ecpay_credit_card"
 
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: any) => paymentSession.status === "pending"
@@ -27,7 +27,7 @@ const Payment = ({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id ?? ""
+    activeSession?.provider_id || payment_method_ecpay_credit
   )
 
   const searchParams = useSearchParams()
@@ -39,11 +39,11 @@ const Payment = ({
   // const isStripe = isStripeFunc(selectedPaymentMethod)
 
   const setPaymentMethod = async (method: string) => {
-    
+
     // console.log(action,"選擇支付方式：",method)
 
     setSelectedPaymentMethod(method)
-    
+
   }
 
   const paidByGiftcard =
@@ -69,7 +69,7 @@ const Payment = ({
   }
 
   const handleSubmit = async () => {
-    
+
     setIsLoading(true)
 
     // console.log(action,"支付方式(providerID):",selectedPaymentMethod)
@@ -78,24 +78,24 @@ const Payment = ({
 
     try {
 
-        // console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
+      // console.log(action,":執行initiatePaymentSession(更新支付方式到訂單)")
 
-        await initiatePaymentSession(cart,{
-          provider_id: selectedPaymentMethod
-        })
+      await initiatePaymentSession(cart, {
+        provider_id: selectedPaymentMethod
+      })
 
 
-        // console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
+      // console.log(action,"執行initiatePaymentSession(更新支付方式到訂單)結果：",initResp.payment_collection)
 
-        
 
-        return router.push(
-          pathname + "?" + createQueryString("step", "review"),
-          {
-            scroll: false,
-          }
-        )
-      
+
+      return router.push(
+        pathname + "?" + createQueryString("step", "review"),
+        {
+          scroll: false,
+        }
+      )
+
     } catch (err: any) {
       // console.log(action,"has error:",err)
       setError(err.message)
@@ -142,22 +142,30 @@ const Payment = ({
             <>
               {/* 只顯示兩個硬編碼選項：綠界支付（含刷卡）與銀行轉帳 */}
               <RadioGroup value={selectedPaymentMethod} onChange={setPaymentMethod}>
-                <RadioGroup.Option value={payment_method_ecpay_credit}>
-                  {({ checked }) => (
-                    <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>
-                      <Heading level="h3" className="text-base font-medium mb-1">綠界支付（含刷卡）</Heading>
-                      <Text className="text-sm text-gray-600">信用卡 / 金融卡 (VISA、Mastercard、JCB)</Text>
-                    </div>
+                <Radio
+                  value={payment_method_ecpay_credit}
+                  className={clx(
+                    "cursor-pointer border p-4 rounded mb-2 transition-all",
+                    selectedPaymentMethod === payment_method_ecpay_credit
+                      ? "border-blue-500 ring-2 ring-blue-200"
+                      : "border-gray-200 hover:border-gray-300"
                   )}
-                </RadioGroup.Option>
-                <RadioGroup.Option value={payment_method_default}>
-                  {({ checked }) => (
-                    <div className={`border p-4 rounded mb-2 ${checked ? 'border-blue-500' : 'border-gray-200'}`}>
-                      <Heading level="h3" className="text-base font-medium mb-1">銀行轉帳</Heading>
-                      <Text className="text-sm text-gray-600">手動銀行轉帳 (需要人工核帳)</Text>
-                    </div>
+                >
+                  <Heading level="h3" className="text-base font-medium mb-1">綠界支付（含刷卡）</Heading>
+                  <Text className="text-sm text-gray-600">信用卡 / 金融卡 (VISA、Mastercard、JCB)</Text>
+                </Radio>
+                <Radio
+                  value={payment_method_default}
+                  className={clx(
+                    "cursor-pointer border p-4 rounded mb-2 transition-all",
+                    selectedPaymentMethod === payment_method_default
+                      ? "border-blue-500 ring-2 ring-blue-200"
+                      : "border-gray-200 hover:border-gray-300"
                   )}
-                </RadioGroup.Option>
+                >
+                  <Heading level="h3" className="text-base font-medium mb-1">銀行轉帳</Heading>
+                  <Text className="text-sm text-gray-600">手動銀行轉帳 (需要人工核帳)</Text>
+                </Radio>
               </RadioGroup>
             </>
           )}

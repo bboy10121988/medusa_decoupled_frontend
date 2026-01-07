@@ -1,13 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Container, Heading, Badge, Button, Table, Tabs } from '@medusajs/ui'
+import { Container, Heading, Badge, Button, Table, Tabs, FocusModal, toast, Toaster, Input, Label, Text } from '@medusajs/ui'
 import { useParams } from 'next/navigation'
 
 export default function AffiliateDetailPage() {
     const { id } = useParams()
     const [affiliate, setAffiliate] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [settling, setSettling] = useState(false)
+    const [showSettlePrompt, setShowSettlePrompt] = useState(false)
+    const [showCommissionModal, setShowCommissionModal] = useState(false)
+    const [newCommissionRate, setNewCommissionRate] = useState('')
 
     const fetchAffiliate = async () => {
         try {
@@ -15,9 +19,12 @@ export default function AffiliateDetailPage() {
             if (!res.ok) throw new Error('Failed to fetch')
             const data = await res.json()
             setAffiliate(data.affiliate)
+            if (data.affiliate) {
+                setNewCommissionRate((data.affiliate.commission_rate * 100).toString())
+            }
         } catch (error) {
             console.error(error)
-            alert('無法載入推廣者資料')
+            toast.error('無法載入推廣者資料')
         } finally {
             setLoading(false)
         }
@@ -28,30 +35,28 @@ export default function AffiliateDetailPage() {
     }, [id])
 
     const handleSettle = async () => {
-        if (!confirm(`確定已向 ${affiliate.first_name || affiliate.email} 轉帳 ${affiliate.balance} 並歸零餘額？`)) return
+        setSettling(true)
+        setShowSettlePrompt(false)
 
         try {
             const res = await fetch(`/api/admin/affiliates/${id}/settle`, { method: 'POST' })
             if (res.ok) {
-                alert('結算成功')
+                toast.success('結算成功')
                 fetchAffiliate()
             } else {
                 throw new Error('Settlement failed')
             }
         } catch (e) {
-            alert('結算失敗')
+            toast.error('結算失敗')
+        } finally {
+            setSettling(false)
         }
     }
 
     const handleUpdateCommission = async () => {
-        const currentRate = (affiliate.commission_rate * 100).toFixed(1)
-        const newRateStr = prompt(`請輸入新的佣金比例 (%)\n目前: ${currentRate}%`, currentRate)
-
-        if (newRateStr === null) return // Cancelled
-
-        const newRate = parseFloat(newRateStr)
+        const newRate = parseFloat(newCommissionRate)
         if (isNaN(newRate) || newRate < 0 || newRate > 100) {
-            alert('請輸入有效的數字 (0-100)')
+            toast.error('請輸入有效的數字 (0-100)')
             return
         }
 
@@ -63,14 +68,15 @@ export default function AffiliateDetailPage() {
             })
 
             if (res.ok) {
-                alert('佣金比例已更新')
+                toast.success('佣金比例已更新')
+                setShowCommissionModal(false)
                 fetchAffiliate()
             } else {
                 throw new Error('Update failed')
             }
         } catch (e) {
             console.error(e)
-            alert('更新失敗')
+            toast.error('更新失敗')
         }
     }
 
@@ -79,6 +85,7 @@ export default function AffiliateDetailPage() {
 
     return (
         <Container>
+            <Toaster />
             <div className="flex justify-between items-start mb-6">
                 <div>
                     <div className="flex items-center gap-3">
@@ -87,7 +94,7 @@ export default function AffiliateDetailPage() {
                         <div className="flex items-center gap-2">
                             <Badge color="blue">佣金: {(affiliate.commission_rate * 100).toFixed(1)}%</Badge>
                             <button
-                                onClick={handleUpdateCommission}
+                                onClick={() => setShowCommissionModal(true)}
                                 className="text-ui-fg-subtle hover:text-ui-fg-base p-1"
                                 title="調整佣金"
                             >
@@ -99,10 +106,12 @@ export default function AffiliateDetailPage() {
                     {affiliate.phone && <div className="text-ui-fg-subtle text-sm">{affiliate.phone}</div>}
                 </div>
                 <div className="text-right">
-                    <div className="text-sm text-ui-fg-subtle mb-1">待發餘額</div>
-                    <div className="text-3xl font-bold text-orange-600 mb-2">${affiliate.balance}</div>
-                    {affiliate.balance > 0 && (
-                        <Button variant="primary" onClick={handleSettle}>手動結算 (Mark as Paid)</Button>
+                    <div className="text-sm text-ui-fg-subtle mb-1">可結算金額</div>
+                    <div className="text-3xl font-bold text-green-600 mb-2">${affiliate.captured_balance ?? affiliate.balance}</div>
+                    {(affiliate.captured_balance ?? affiliate.balance) > 0 && (
+                        <Button variant="primary" onClick={() => setShowSettlePrompt(true)} isLoading={settling}>
+                            手動結算 (Mark as Paid)
+                        </Button>
                     )}
                 </div>
             </div>
@@ -117,6 +126,131 @@ export default function AffiliateDetailPage() {
                     <div className="text-xl font-bold">{new Date(affiliate.created_at).toLocaleDateString()}</div>
                 </div>
             </div>
+
+            {/* Settle FocusModal */}
+            <FocusModal open={showSettlePrompt} onOpenChange={setShowSettlePrompt}>
+                <FocusModal.Content>
+                    <FocusModal.Header>
+                        <div className="flex items-center justify-between w-full">
+                            <Heading>確認撥款支付 (Confirm Payout)</Heading>
+                        </div>
+                    </FocusModal.Header>
+                    <FocusModal.Body className="p-8 max-w-2xl mx-auto">
+                        <div className="space-y-8">
+                            <div>
+                                <Heading level="h2" className="mb-2">支付對象</Heading>
+                                <div className="p-4 bg-ui-bg-subtle rounded-lg border">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Text className="text-ui-fg-subtle text-xs uppercase font-semibold">推廣者名稱</Text>
+                                            <Text className="font-medium text-lg">{affiliate.first_name} {affiliate.last_name}</Text>
+                                        </div>
+                                        <div>
+                                            <Text className="text-ui-fg-subtle text-xs uppercase font-semibold">電子郵件</Text>
+                                            <Text className="font-medium">{affiliate.email}</Text>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <Heading level="h2" className="mb-2">收款資訊 (Payment Method)</Heading>
+                                <div className="p-4 bg-ui-bg-subtle rounded-lg border">
+                                    {affiliate.settings?.payoutMethod === 'bank_transfer' ? (
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between items-center pb-2 border-bottom border-ui-border-base">
+                                                <Badge color="blue">銀行轉帳 (Bank Transfer)</Badge>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-y-4">
+                                                <div>
+                                                    <Text className="text-ui-fg-subtle text-xs">銀行名稱</Text>
+                                                    <Text className="font-medium">{affiliate.settings?.bankAccount?.bankName}</Text>
+                                                </div>
+                                                <div>
+                                                    <Text className="text-ui-fg-subtle text-xs">分行</Text>
+                                                    <Text className="font-medium">{affiliate.settings?.bankAccount?.branch || '-'}</Text>
+                                                </div>
+                                                <div>
+                                                    <Text className="text-ui-fg-subtle text-xs">帳戶名稱</Text>
+                                                    <Text className="font-medium">{affiliate.settings?.bankAccount?.accountName}</Text>
+                                                </div>
+                                                <div>
+                                                    <Text className="text-ui-fg-subtle text-xs">帳號</Text>
+                                                    <Text className="font-medium font-mono text-blue-600">{affiliate.settings?.bankAccount?.accountNumber}</Text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (affiliate.settings?.payoutMethod === 'paypal' || affiliate.settings?.paypal_email || affiliate.settings?.paypalEmail) ? (
+                                        <div className="space-y-3">
+                                            <Badge color="blue">PayPal</Badge>
+                                            <div>
+                                                <Text className="text-ui-fg-subtle text-xs">PayPal 帳號/Email</Text>
+                                                <Text className="font-medium text-lg text-blue-600">
+                                                    {affiliate.settings?.paypal_email || affiliate.settings?.paypalEmail || affiliate.settings?.paypalEmail}
+                                                </Text>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="py-4 text-center">
+                                            <Text className="text-ui-fg-muted italic">此用戶尚未設定收款資訊</Text>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="p-6 bg-green-50 rounded-lg border border-green-100 flex justify-between items-center">
+                                <div>
+                                    <Text className="text-green-800 text-sm font-semibold">本次結算總金額</Text>
+                                    <Text className="text-ui-fg-subtle text-xs">確認支付後，系統將會將相關訂單標記為已結算。</Text>
+                                </div>
+                                <Text className="text-3xl font-bold text-green-700">
+                                    ${affiliate.captured_balance ?? affiliate.balance}
+                                </Text>
+                            </div>
+                        </div>
+                    </FocusModal.Body>
+                    <FocusModal.Footer>
+                        <div className="flex items-center justify-end gap-x-2 w-full">
+                            <Button variant="secondary" onClick={() => setShowSettlePrompt(false)}>
+                                取消 (Cancel)
+                            </Button>
+                            <Button variant="primary" onClick={handleSettle} isLoading={settling}>
+                                確認已完成支付 (Confirm & Mark as Paid)
+                            </Button>
+                        </div>
+                    </FocusModal.Footer>
+                </FocusModal.Content>
+            </FocusModal>
+
+            {/* Commission Update Modal */}
+            <FocusModal open={showCommissionModal} onOpenChange={setShowCommissionModal}>
+                <FocusModal.Content>
+                    <FocusModal.Header>
+                        <Heading>調整佣金比例</Heading>
+                    </FocusModal.Header>
+                    <FocusModal.Body className="p-6">
+                        <div className="space-y-4 max-w-sm">
+                            <div className="space-y-2">
+                                <Label htmlFor="commission_rate">新的佣金比例 (%)</Label>
+                                <Input
+                                    id="commission_rate"
+                                    type="number"
+                                    value={newCommissionRate}
+                                    onChange={(e) => setNewCommissionRate(e.target.value)}
+                                    placeholder="例如: 10"
+                                />
+                                <p className="text-xs text-ui-fg-subtle">
+                                    目前比例: {(affiliate.commission_rate * 100).toFixed(1)}%
+                                </p>
+                            </div>
+                        </div>
+                    </FocusModal.Body>
+                    <FocusModal.Footer>
+                        <Button variant="secondary" onClick={() => setShowCommissionModal(false)}>取消</Button>
+                        <Button variant="primary" onClick={handleUpdateCommission}>儲存變更</Button>
+                    </FocusModal.Footer>
+                </FocusModal.Content>
+            </FocusModal>
 
             <Tabs defaultValue="settings">
                 <Tabs.List className="mb-4">
