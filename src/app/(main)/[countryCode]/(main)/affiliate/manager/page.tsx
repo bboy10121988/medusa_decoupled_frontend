@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { Button, Container, Heading, Badge } from '@medusajs/ui'
+import { Container, Heading, Badge } from '@medusajs/ui'
 
 
 type Affiliate = {
@@ -32,6 +32,8 @@ export default function AdminAffiliatesPage() {
         total_commission_paid: 0
     })
     const [loading, setLoading] = useState(true)
+    const [editingAffiliate, setEditingAffiliate] = useState<Affiliate | null>(null)
+    const [newCommissionRate, setNewCommissionRate] = useState('')
 
     const fetchData = async () => {
         try {
@@ -67,14 +69,22 @@ export default function AdminAffiliatesPage() {
         } catch (e) { alert('更新失敗') }
     }
 
-    const handleUpdateCommission = async (id: string, currentRate: number) => {
-        const input = prompt('請輸入新的佣金比例 (0.1 = 10%)', currentRate.toString())
-        if (!input) return
-        const newRate = parseFloat(input)
-        if (isNaN(newRate)) return
-        await fetch(`/api/admin/affiliates/${id}`, {
-            method: 'POST', body: JSON.stringify({ commission_rate: newRate })
+    const openCommissionModal = (aff: Affiliate) => {
+        setEditingAffiliate(aff)
+        setNewCommissionRate((aff.commission_rate * 100).toString())
+    }
+
+    const handleUpdateCommission = async () => {
+        if (!editingAffiliate) return
+        const newRate = parseFloat(newCommissionRate)
+        if (isNaN(newRate) || newRate < 0 || newRate > 100) {
+            alert('請輸入有效的數字 (0-100)')
+            return
+        }
+        await fetch(`/api/admin/affiliates/${editingAffiliate.id}`, {
+            method: 'POST', body: JSON.stringify({ commission_rate: newRate / 100 })
         })
+        setEditingAffiliate(null)
         fetchData()
     }
 
@@ -87,32 +97,32 @@ export default function AdminAffiliatesPage() {
                     <Heading>總覽 & 推廣者列表</Heading>
                     <p className="text-ui-fg-subtle text-sm mt-1">管理所有聯盟行銷夥伴</p>
                 </div>
-                <Button onClick={fetchData} variant="secondary">重新整理</Button>
+                <button onClick={fetchData} className="px-4 py-2 bg-gray-100 border rounded-lg hover:bg-gray-200 transition">重新整理</button>
             </div>
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div className="p-4 bg-ui-bg-base border rounded-lg">
-                    <div className="text-xs text-ui-fg-subtle uppercase font-medium">總推廣營收 (All Time)</div>
+                <div className="p-4 bg-white border rounded-lg">
+                    <div className="text-xs text-gray-500 uppercase font-medium">總推廣營收 (All Time)</div>
                     <div className="text-2xl font-bold mt-2">${stats.total_commission_all_time.toFixed(0)}</div>
                 </div>
-                <div className="p-4 bg-ui-bg-base border rounded-lg">
-                    <div className="text-xs text-ui-fg-subtle uppercase font-medium">待發佣金 (Pending)</div>
+                <div className="p-4 bg-white border rounded-lg">
+                    <div className="text-xs text-gray-500 uppercase font-medium">待發佣金 (Pending)</div>
                     <div className="text-2xl font-bold mt-2 text-orange-600">${stats.total_commission_pending.toFixed(0)}</div>
                 </div>
-                <div className="p-4 bg-ui-bg-base border rounded-lg">
-                    <div className="text-xs text-ui-fg-subtle uppercase font-medium">已發佣金 (Paid)</div>
+                <div className="p-4 bg-white border rounded-lg">
+                    <div className="text-xs text-gray-500 uppercase font-medium">已發佣金 (Paid)</div>
                     <div className="text-2xl font-bold mt-2 text-green-600">${stats.total_commission_paid.toFixed(0)}</div>
                 </div>
-                <div className="p-4 bg-ui-bg-base border rounded-lg">
-                    <div className="text-xs text-ui-fg-subtle uppercase font-medium">活躍推廣者</div>
+                <div className="p-4 bg-white border rounded-lg">
+                    <div className="text-xs text-gray-500 uppercase font-medium">活躍推廣者</div>
                     <div className="text-2xl font-bold mt-2">{stats.active_affiliates} / {stats.total_affiliates}</div>
                 </div>
             </div>
 
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                    <thead className="bg-ui-bg-base border-b">
+                    <thead className="bg-gray-50 border-b">
                         <tr>
                             <th className="py-3 px-4">姓名 / Email</th>
                             <th className="py-3 px-4">狀態</th>
@@ -126,12 +136,12 @@ export default function AdminAffiliatesPage() {
                     </thead>
                     <tbody>
                         {affiliates.map((aff) => (
-                            <tr key={aff.id} className="border-b hover:bg-ui-bg-subtle group">
+                            <tr key={aff.id} className="border-b hover:bg-gray-50 group">
                                 <td className="py-3 px-4">
-                                    <div className="font-medium text-ui-fg-base group-hover:text-blue-600">
+                                    <div className="font-medium text-gray-900 group-hover:text-blue-600">
                                         <a href={`/admin/affiliates/${aff.id}`}>{aff.first_name} {aff.last_name}</a>
                                     </div>
-                                    <div className="text-ui-fg-subtle text-xs">{aff.email}</div>
+                                    <div className="text-gray-500 text-xs">{aff.email}</div>
                                 </td>
                                 <td className="py-3 px-4">
                                     <StatusBadge status={aff.status} />
@@ -148,18 +158,21 @@ export default function AdminAffiliatesPage() {
                                 <td className="py-3 px-4 font-medium text-green-600">
                                     ${aff.captured_balance || 0}
                                 </td>
-                                <td className="py-3 px-4 text-ui-fg-subtle">
+                                <td className="py-3 px-4 text-gray-500">
                                     ${aff.total_earnings}
                                 </td>
                                 <td className="py-3 px-4 text-right gap-2 flex justify-end">
                                     <a href={`/${countryCode}/affiliate/manager/${aff.id}`} className="mr-2 btn-secondary text-xs px-2 py-1 border rounded hover:bg-gray-100">
                                         詳細
                                     </a>
-                                    <Button size="small" variant="secondary" onClick={() => handleUpdateCommission(aff.id, aff.commission_rate)}>
+                                    <button
+                                        onClick={() => openCommissionModal(aff)}
+                                        className="px-2 py-1 text-xs bg-gray-100 border rounded hover:bg-gray-200 transition"
+                                    >
                                         調佣
-                                    </Button>
+                                    </button>
                                     {aff.status === 'pending' && (
-                                        <Button size="small" className="ml-2 bg-green-600 text-white" onClick={() => handleUpdateStatus(aff.id, 'active')}>通過</Button>
+                                        <button className="ml-2 px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700" onClick={() => handleUpdateStatus(aff.id, 'active')}>通過</button>
                                     )}
                                 </td>
                             </tr>
@@ -167,6 +180,61 @@ export default function AdminAffiliatesPage() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Commission Update Modal */}
+            {editingAffiliate && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    onClick={() => setEditingAffiliate(null)}
+                >
+                    <div
+                        className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white">
+                            <h2 className="text-xl font-bold">調整佣金比例</h2>
+                            <p className="text-blue-100 text-sm">Adjust Commission Rate</p>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="mb-2">
+                                <p className="text-gray-700 font-medium">{editingAffiliate.first_name} {editingAffiliate.last_name}</p>
+                                <p className="text-gray-500 text-sm">{editingAffiliate.email}</p>
+                            </div>
+                            <div className="space-y-2">
+                                <label htmlFor="commission_rate" className="block text-sm font-medium text-gray-700">
+                                    新的佣金比例 (%)
+                                </label>
+                                <input
+                                    id="commission_rate"
+                                    type="number"
+                                    value={newCommissionRate}
+                                    onChange={(e) => setNewCommissionRate(e.target.value)}
+                                    placeholder="例如: 10"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <p className="text-xs text-gray-500">
+                                    目前比例: {(editingAffiliate.commission_rate * 100).toFixed(1)}%
+                                </p>
+                            </div>
+                        </div>
+                        <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+                            <button
+                                onClick={() => setEditingAffiliate(null)}
+                                className="px-4 py-2 text-gray-700 bg-white border rounded-lg hover:bg-gray-100 transition"
+                            >
+                                取消
+                            </button>
+                            <button
+                                onClick={handleUpdateCommission}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                            >
+                                儲存變更
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </Container>
     )
 }
@@ -181,3 +249,4 @@ function StatusBadge({ status }: { status: string }) {
 
     return <Badge color={color}>{label}</Badge>
 }
+
