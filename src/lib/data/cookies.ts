@@ -95,9 +95,9 @@ export const setAuthToken = async (token: string) => {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
     // Allow sending/setting cookie on top-level navigations coming from external OAuth
-    // providers (Google). Lax is a safe default for auth cookies in this flow.
+    // ⚠️ 暫時放寬 Cookie 安全設置以進行 Cloudflare 環境調試
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // process.env.NODE_ENV === "production",
     domain: COOKIE_DOMAIN,
     path: "/", // 確保 cookie 路徑一致
   })
