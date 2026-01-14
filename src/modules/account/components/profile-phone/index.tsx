@@ -6,34 +6,18 @@ import Input from "@modules/common/components/input"
 
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
-import { updateCustomer } from "@lib/data/customer"
+import { updateCustomerPhone } from "@lib/data/customer"
 
 type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
 }
 
-const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
+const ProfilePhone: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
 
-  const updateCustomerPhone = async (
-    _currentState: Record<string, unknown>,
-    formData: FormData
-  ) => {
-    const customer = {
-      phone: formData.get("phone") as string,
-    }
-
-    try {
-      await updateCustomer(customer)
-      return { success: true, error: null }
-    } catch (error: any) {
-      return { success: false, error: error.toString() }
-    }
-  }
-
   const [state, formAction] = useActionState(updateCustomerPhone, {
-    error: false,
     success: false,
+    error: null,
   })
 
   const clearState = () => {
@@ -48,10 +32,9 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
     <form action={formAction} className="w-full">
       <AccountInfo
         label="電話"
-        currentInfo={`${customer.phone}`}
+        currentInfo={`${customer.phone || "未設定"}`}
         isSuccess={successState}
         isError={!!state.error}
-        errorMessage={state.error}
         clearState={clearState}
         data-testid="account-phone-editor"
       >
@@ -59,9 +42,8 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
           <Input
             label="電話"
             name="phone"
-            type="phone"
-            autoComplete="phone"
-            required
+            type="tel"
+            autoComplete="tel"
             defaultValue={customer.phone ?? ""}
             data-testid="phone-input"
           />
@@ -71,4 +53,5 @@ const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
   )
 }
 
-export default ProfileEmail
+export default ProfilePhone
+
