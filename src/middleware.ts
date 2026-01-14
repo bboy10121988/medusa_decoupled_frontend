@@ -174,7 +174,17 @@ export async function middleware(request: NextRequest) {
   }
   // Logic 3: Normal Request
   else {
-    finalResponse = NextResponse.next()
+    const requestHeaders = new Headers(request.headers)
+    const jwtCookie = request.cookies.get("_medusa_jwt")
+    if (jwtCookie) {
+      requestHeaders.set("x-medusa-jwt-fallback", jwtCookie.value)
+    }
+
+    finalResponse = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
   }
 
   // Set cookies on the FINAL response (whether it's a redirect or next)

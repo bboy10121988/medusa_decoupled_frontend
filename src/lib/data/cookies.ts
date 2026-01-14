@@ -1,5 +1,5 @@
 import "server-only"
-import { cookies as nextCookies } from "next/headers"
+import { cookies as nextCookies, headers as nextHeaders } from "next/headers"
 
 // Optional cookie domain (set this to ".timsfantasyworld.com" in production if you
 // need the cookie to be shared across subdomains). If not set, cookies remain host-only.
@@ -13,7 +13,21 @@ export const getAuthHeaders = async (): Promise<
 > => {
   try {
     const cookies = await nextCookies()
-    const token = cookies.get("_medusa_jwt")?.value
+    let token = cookies.get("_medusa_jwt")?.value
+
+    // Fallback: Try reading from headers (injected by middleware)
+    if (!token) {
+      try {
+        const headersList = await nextHeaders()
+        const fallbackToken = headersList.get("x-medusa-jwt-fallback")
+        if (fallbackToken) {
+          token = fallbackToken
+          console.log('✅ getAuthHeaders - 從 Middleware header 獲取到 token')
+        }
+      } catch (e) {
+        console.log('⚠️ getAuthHeaders - 讀取 headers 失敗:', e)
+      }
+    }
 
     console.log('🔍 getAuthHeaders - 檢查 token:', {
       hasToken: !!token,

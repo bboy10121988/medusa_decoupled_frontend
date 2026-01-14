@@ -124,6 +124,7 @@ export const updateCustomerName = async (
     return { success: false, error: "請填寫姓名" }
   }
 
+  // 嘗試從 Cookies 獲取 Headers
   const headers = {
     ...(await getAuthHeaders()),
   }
