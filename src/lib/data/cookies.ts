@@ -112,7 +112,7 @@ export const setAuthToken = async (token: string) => {
     // ⚠️ 強制關閉 Secure 以解決反向代理環境下 Server Action 丟失 Cookie 的問題
     sameSite: "lax",
     secure: false,
-    domain: COOKIE_DOMAIN,
+    // domain: COOKIE_DOMAIN (暫時移除以支援 IP 訪問)
     path: "/", // 確保 cookie 路徑一致
   })
 
@@ -126,7 +126,7 @@ export const setAuthToken = async (token: string) => {
       httpOnly: false, // 允許在瀏覽器中查看
       sameSite: "lax",
       secure: false, // 開發環境中不需要 HTTPS
-      domain: COOKIE_DOMAIN,
+      // domain: COOKIE_DOMAIN,
       path: "/", // 確保路徑一致
     })
 
