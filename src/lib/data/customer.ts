@@ -5,6 +5,7 @@ import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -104,6 +105,18 @@ export const updateCustomerName = async (
 
   const firstName = formData.get("first_name") as string
   const lastName = formData.get("last_name") as string
+
+  // Debug Cookies
+  try {
+    const cookieStore = await cookies()
+    const allCookies = cookieStore.getAll()
+    console.log('🍪 Server Action Cookies 列表:', allCookies.map(c => c.name))
+
+    const token = cookieStore.get("_medusa_jwt")?.value
+    console.log('🍪 直接獲取 token:', token ? '存在' : '不存在')
+  } catch (e) {
+    console.log('🍪 讀取 cookies 失敗:', e)
+  }
 
   console.log('🔵 updateCustomerName - 收到資料:', { firstName, lastName })
 
