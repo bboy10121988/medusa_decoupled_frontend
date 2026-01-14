@@ -77,12 +77,8 @@ async function getCountryCode(
  */
 // Middleware to handle region selection and onboarding status.
 export async function middleware(request: NextRequest) {
-  // 🔍 Debug Logging for every request
-  console.log(`[Middleware] 收到請求: ${request.method} ${request.nextUrl.pathname}`)
-  const allCookies = request.cookies.getAll().map(c => c.name).join(', ')
-  console.log(`[Middleware] Cookies: [${allCookies}]`)
-  const jwt = request.cookies.get("_medusa_jwt")
-  console.log(`[Middleware] Has JWT: ${!!jwt}`)
+  // Debug Logging removed
+
 
   // Skip middleware for studio, cms routes
   if (request.nextUrl.pathname.startsWith("/studio") ||

@@ -24,7 +24,6 @@ export const getAuthHeaders = async (): Promise<
         const fallbackToken = headersList.get("x-medusa-jwt-fallback")
         if (fallbackToken) {
           token = fallbackToken
-          console.log('✅ getAuthHeaders - 從 Middleware header 獲取到 token')
         }
 
         // 2. Try Raw Cookie Header 解析 (Ultimate Fallback)
@@ -33,22 +32,13 @@ export const getAuthHeaders = async (): Promise<
           const match = cookieHeader.match(/_medusa_jwt=([^;]+)/)
           if (match && match[1]) {
             token = match[1]
-            console.log("✅ getAuthHeaders - 從 Raw Cookie Header 手動解析到 token")
           }
         }
 
       } catch (e) {
-        console.log('⚠️ getAuthHeaders - 讀取 headers 失敗:', e)
+        // ignore errors
       }
     }
-
-    console.log('🔍 getAuthHeaders - 檢查 token:', {
-      hasToken: !!token,
-      tokenLength: token?.length || 0,
-      tokenPreview: token ? `${token.substring(0, 30)}...` : null,
-      cookieName: '_medusa_jwt',
-      allCookies: cookies.getAll().map(c => c.name)
-    })
 
     // 總是包含 publishable key
     const headers: { authorization?: string; 'x-publishable-api-key'?: string } = {}
@@ -59,12 +49,10 @@ export const getAuthHeaders = async (): Promise<
     }
 
     if (!token) {
-      console.log('❌ getAuthHeaders - 沒有找到 token，返回僅含 publishable key 的 headers')
       return headers
     }
 
     headers.authorization = `Bearer ${token}`
-    console.log('✅ getAuthHeaders - 設置 authorization header')
     return headers
   } catch (error) {
     console.error('❌ getAuthHeaders 錯誤:', error)
@@ -109,13 +97,6 @@ export const getCacheOptions = async (
 }
 
 export const setAuthToken = async (token: string) => {
-  console.log("📝 setAuthToken 開始", {
-    tokenLength: token?.length || 0,
-    tokenPreview: token ? token.substring(0, 50) + "..." : null,
-    env: process.env.NODE_ENV,
-    cookieDomain: COOKIE_DOMAIN
-  })
-
   const cookies = await nextCookies()
 
   cookies.set("_medusa_jwt", token, {

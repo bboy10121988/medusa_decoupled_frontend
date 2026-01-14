@@ -52,13 +52,6 @@ export const retrieveCustomer =
           cache: "no-cache", // 改為 no-cache 確保獲取最新狀態
         })
         .then(({ customer }) => {
-          console.log('✅ retrieveCustomer - 成功獲取客戶資料:', {
-            hasCustomer: !!customer,
-            email: customer?.email,
-            firstName: customer?.first_name,
-            lastName: customer?.last_name,
-            id: customer?.id
-          })
           return customer
         })
     } catch (error) {
@@ -103,58 +96,19 @@ export const updateCustomerName = async (
   _currentState: Record<string, unknown>,
   formData: FormData
 ): Promise<{ success: boolean; error: string | null }> => {
-  console.log('🔵 updateCustomerName Server Action 被調用')
-
   const firstName = formData.get("first_name") as string
   const lastName = formData.get("last_name") as string
-
-  // Debug Cookies
-  try {
-    const cookieStore = await cookies()
-    const allCookies = cookieStore.getAll()
-    console.log('🍪 Server Action Cookies 列表:', allCookies.map(c => c.name))
-
-    const token = cookieStore.get("_medusa_jwt")?.value
-    console.log('🍪 直接獲取 token:', token ? '存在' : '不存在')
-  } catch (e) {
-    console.log('🍪 讀取 cookies 失敗:', e)
-  }
-
-  console.log('🔵 updateCustomerName - 收到資料:', { firstName, lastName })
 
   if (!firstName || !lastName) {
     return { success: false, error: "請填寫姓名" }
   }
 
   // 嘗試從 Cookies 獲取 Headers
-  let headers: Record<string, string> = {
-    ...(await getAuthHeaders()),
-  }
-
-  // [Fallback] Manually parse cookie from request headers if standard way fails
-  if (!headers.authorization) {
-    console.log("⚠️ Authorization header missing from helper. Attempting raw header parse...")
-    const allHeaders = await nextHeaders()
-    const cookieHeader = allHeaders.get('cookie') || ''
-    // console.log("🔍 Raw Cookie Header:", cookieHeader) // Be careful logging full cookies in production
-
-    // Simple regex to find the cookie value
-    const match = cookieHeader.match(/_medusa_jwt=([^;]+)/)
-    if (match && match[1]) {
-      console.log("✅ Found token in raw cookie header!")
-      headers.authorization = `Bearer ${match[1]}`
-    } else {
-      console.log("❌ Token not found in raw cookie header either.")
-    }
-  }
-
-  console.log('🔵 updateCustomerName - headers:', { hasAuth: !!(headers as any)?.authorization })
+  const headers = await getAuthHeaders() // Simplified header retrieval
 
   try {
     await sdk.store.customer
       .update({ first_name: firstName, last_name: lastName }, {}, headers)
-
-    console.log('✅ updateCustomerName - 更新成功')
 
     const cacheTag = await getCacheTag("customers")
     revalidateTag(cacheTag)
