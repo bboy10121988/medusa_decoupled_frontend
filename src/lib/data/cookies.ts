@@ -96,12 +96,12 @@ export const getCacheOptions = async (
 }
 
 export const setAuthToken = async (token: string) => {
-  // console.log("📝 setAuthToken 開始", {
-  // tokenLength: token?.length || 0,
-  // tokenPreview: token ? token.substring(0, 50) + "..." : null,
-  // env: process.env.NODE_ENV,
-  // cookieDomain: COOKIE_DOMAIN
-  // })
+  console.log("📝 setAuthToken 開始", {
+    tokenLength: token?.length || 0,
+    tokenPreview: token ? token.substring(0, 50) + "..." : null,
+    env: process.env.NODE_ENV,
+    cookieDomain: COOKIE_DOMAIN
+  })
 
   const cookies = await nextCookies()
 
