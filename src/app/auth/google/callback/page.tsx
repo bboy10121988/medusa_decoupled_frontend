@@ -3,12 +3,13 @@
 import { useEffect, useState, Suspense } from "react"
 // import { useSearchParams } from "next/navigation"
 import { sdk } from "@/lib/config"
+import { setGoogleAuthCookie } from "./actions"
 import { decodeToken } from "react-jwt"
 
 function GoogleCallbackContent() {
   console.log("google callback page loaded")
 
-//   const searchParams = useSearchParams()
+  //   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const DEFAULT_COUNTRY_CODE = process.env.NEXT_PUBLIC_DEFAULT_REGION ?? "tw"
 
@@ -19,13 +20,19 @@ function GoogleCallbackContent() {
     const searchParams = new URLSearchParams(window.location.search)
     const queryParams = Object.fromEntries(searchParams.entries())
 
-    console.log("query params:",queryParams)
+    console.log("query params:", queryParams)
 
     try {
       // 1. 驗證回呼，這會自動在 SDK 中設定 JWT Token
-    
+
       const token = await sdk.auth.callback("customer", "google", queryParams)
       console.log("received token:", token)
+
+      // ⚠️ Use Server Action to set HttpOnly Cookie
+      // 這一步非常重要，因為 SDK 只是在 Client 端拿到 Token，
+      // 我們必須透過 Server Action 把它寫入瀏覽器的 Cookie 中 (HttpOnly)，
+      // 這樣後續的 Server Action (如更新 Profile) 才能讀到它。
+      await setGoogleAuthCookie(token)
 
       // 2. 解碼 Token 檢查 actor_id (顧客 ID)
       const decodedToken = decodeToken(token) as {
@@ -90,7 +97,7 @@ function GoogleCallbackContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
             <h1 className="mt-4 text-2xl font-bold text-gray-900">登入失敗</h1>
-            
+
             <p className="mt-4 text-sm text-gray-500">正在返回帳戶頁面...</p>
           </>
         )}
