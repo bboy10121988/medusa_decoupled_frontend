@@ -52,11 +52,13 @@ export const retrieveCustomer =
           cache: "no-cache", // 改為 no-cache 確保獲取最新狀態
         })
         .then(({ customer }) => {
-          // console.log('✅ retrieveCustomer - 成功獲取客戶資料:', {
-          // hasCustomer: !!customer,
-          // email: customer?.email,
-          // id: customer?.id
-          // })
+          console.log('✅ retrieveCustomer - 成功獲取客戶資料:', {
+            hasCustomer: !!customer,
+            email: customer?.email,
+            firstName: customer?.first_name,
+            lastName: customer?.last_name,
+            id: customer?.id
+          })
           return customer
         })
     } catch (error) {
