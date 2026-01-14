@@ -5,7 +5,7 @@ import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
+import { cookies, headers as nextHeaders } from "next/headers"
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -125,8 +125,25 @@ export const updateCustomerName = async (
   }
 
   // 嘗試從 Cookies 獲取 Headers
-  const headers = {
+  let headers: Record<string, string> = {
     ...(await getAuthHeaders()),
+  }
+
+  // [Fallback] Manually parse cookie from request headers if standard way fails
+  if (!headers.authorization) {
+    console.log("⚠️ Authorization header missing from helper. Attempting raw header parse...")
+    const allHeaders = await nextHeaders()
+    const cookieHeader = allHeaders.get('cookie') || ''
+    // console.log("🔍 Raw Cookie Header:", cookieHeader) // Be careful logging full cookies in production
+
+    // Simple regex to find the cookie value
+    const match = cookieHeader.match(/_medusa_jwt=([^;]+)/)
+    if (match && match[1]) {
+      console.log("✅ Found token in raw cookie header!")
+      headers.authorization = `Bearer ${match[1]}`
+    } else {
+      console.log("❌ Token not found in raw cookie header either.")
+    }
   }
 
   console.log('🔵 updateCustomerName - headers:', { hasAuth: !!(headers as any)?.authorization })
