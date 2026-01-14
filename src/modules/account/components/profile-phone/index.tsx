@@ -2,8 +2,6 @@
 
 import React, { useEffect, useActionState } from "react";
 
-import { useRouter } from "next/navigation"
-
 import Input from "@modules/common/components/input"
 
 import AccountInfo from "../account-info"
@@ -16,7 +14,6 @@ type MyInformationProps = {
 
 const ProfilePhone: React.FC<MyInformationProps> = ({ customer }) => {
   const [successState, setSuccessState] = React.useState(false)
-  const router = useRouter()
 
   const [state, formAction] = useActionState(updateCustomerPhone, {
     success: false,
@@ -30,7 +27,8 @@ const ProfilePhone: React.FC<MyInformationProps> = ({ customer }) => {
   useEffect(() => {
     setSuccessState(state.success)
     if (state.success) {
-      router.refresh()
+      // 強制刷新頁面以顯示最新資料
+      window.location.reload()
     }
   }, [state])
 
