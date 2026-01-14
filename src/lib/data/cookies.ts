@@ -15,15 +15,28 @@ export const getAuthHeaders = async (): Promise<
     const cookies = await nextCookies()
     let token = cookies.get("_medusa_jwt")?.value
 
-    // Fallback: Try reading from headers (injected by middleware)
+    // Fallback: Try reading from headers
     if (!token) {
       try {
         const headersList = await nextHeaders()
+
+        // 1. Try Middleware injected header
         const fallbackToken = headersList.get("x-medusa-jwt-fallback")
         if (fallbackToken) {
           token = fallbackToken
           console.log('✅ getAuthHeaders - 從 Middleware header 獲取到 token')
         }
+
+        // 2. Try Raw Cookie Header 解析 (Ultimate Fallback)
+        if (!token) {
+          const cookieHeader = headersList.get('cookie') || ''
+          const match = cookieHeader.match(/_medusa_jwt=([^;]+)/)
+          if (match && match[1]) {
+            token = match[1]
+            console.log("✅ getAuthHeaders - 從 Raw Cookie Header 手動解析到 token")
+          }
+        }
+
       } catch (e) {
         console.log('⚠️ getAuthHeaders - 讀取 headers 失敗:', e)
       }
