@@ -100,8 +100,12 @@ export const updateCustomerName = async (
   _currentState: Record<string, unknown>,
   formData: FormData
 ): Promise<{ success: boolean; error: string | null }> => {
+  console.log('🔵 updateCustomerName Server Action 被調用')
+
   const firstName = formData.get("first_name") as string
   const lastName = formData.get("last_name") as string
+
+  console.log('🔵 updateCustomerName - 收到資料:', { firstName, lastName })
 
   if (!firstName || !lastName) {
     return { success: false, error: "請填寫姓名" }
@@ -111,18 +115,24 @@ export const updateCustomerName = async (
     ...(await getAuthHeaders()),
   }
 
+  console.log('🔵 updateCustomerName - headers:', { hasAuth: !!(headers as any)?.authorization })
+
   try {
     await sdk.store.customer
       .update({ first_name: firstName, last_name: lastName }, {}, headers)
+
+    console.log('✅ updateCustomerName - 更新成功')
 
     const cacheTag = await getCacheTag("customers")
     revalidateTag(cacheTag)
 
     return { success: true, error: null }
   } catch (err: any) {
+    console.error('❌ updateCustomerName - 錯誤:', err)
     return { success: false, error: err?.message || err?.toString() || "更新失敗" }
   }
 }
+
 
 /**
  * Server Action for updating customer phone (compatible with useActionState)
