@@ -95,9 +95,9 @@ export const setAuthToken = async (token: string) => {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
     // Allow sending/setting cookie on top-level navigations coming from external OAuth
-    // ⚠️ 暫時放寬 Cookie 安全設置以進行 Cloudflare 環境調試
+    // ⚠️ 強制關閉 Secure 以解決反向代理環境下 Server Action 丟失 Cookie 的問題
     sameSite: "lax",
-    secure: false, // process.env.NODE_ENV === "production",
+    secure: false,
     domain: COOKIE_DOMAIN,
     path: "/", // 確保 cookie 路徑一致
   })
