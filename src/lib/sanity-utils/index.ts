@@ -94,15 +94,23 @@ export async function getFooter(language?: string) {
       sections[]{
         title,
         links[]{
-          label,
-          url
+          text,
+          linkType,
+          internalLink,
+          externalUrl,
+          "url": coalesce(
+            select(
+              linkType == "internal" => internalLink,
+              linkType == "external" => externalUrl
+            ),
+            internalLink, 
+            externalUrl
+          )
         }
       },
       logo {
         alt,
-        asset->{
-          url
-        }
+        "url": asset->url
       },
       logoWidth,
       socialMedia {
@@ -138,9 +146,17 @@ export async function getHeader(language?: string) {
       },
       logo {
         alt,
-        asset->{
-          url
-        }
+        "url": asset->url
+      },
+      favicon {
+        alt,
+        "url": asset->url
+      },
+      storeName,
+      logoHeight,
+      logoSize {
+        desktop,
+        mobile
       },
       announcement {
         enabled,

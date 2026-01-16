@@ -9,6 +9,7 @@ import CartButton from "../../components/cart-button"
 import AccountButton from "../../components/account-button"
 import CountrySelect from "../../components/country-select"
 import { getHeader, mapCountryToLanguage } from "../../../../lib/sanity-utils"
+import { getTranslation, translateText } from "../../../../lib/translations"
 import { SanityHeader } from "../../../../types/global"
 import MobileMenu from "../../components/mobile-menu"
 import SearchBarClient from "../../components/search-bar-client"
@@ -20,10 +21,26 @@ interface NavProps {
 }
 
 export default async function Nav({ countryCode = 'tw' }: NavProps) {
-  const regions = await listRegions().then((regions: StoreRegion[]) => regions)
+  const regions = await listRegions().then((regions: StoreRegion[]) => {
+    // 確保 regions 包含 us，即使後端沒有設定
+    const hasUS = regions.some(r => r.countries?.some(c => c.iso_2 === 'us'))
+    if (!hasUS) {
+      return [
+        ...regions,
+        {
+          id: 'static-us',
+          name: 'USA',
+          currency_code: 'usd',
+          countries: [{ iso_2: 'us', display_name: 'United States' }]
+        } as unknown as StoreRegion
+      ]
+    }
+    return regions
+  })
   const categories = await listCategories()
   const language = mapCountryToLanguage(countryCode)
   const headerData = await getHeader(language) as SanityHeader
+  const t = getTranslation(countryCode)
 
   // 從 Sanity 獲取跑馬燈資料
   const enabledTexts = headerData?.marquee?.enabled
@@ -165,6 +182,7 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
                     navigation={headerData?.navigation || []}
                     categories={categories}
                     headerData={headerData}
+                    countryCode={countryCode}
                   />
                 </div>
                 {/* 桌機版導航選單 - 螢幕寬度大於等於1024px時顯示 - 所有選單都在左側 */}
@@ -194,7 +212,7 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <span className="!text-xs !font-medium !leading-none">{name}</span>
+                        <span className="!text-xs !font-medium !leading-none">{translateText(name, countryCode)}</span>
                       </a>
                     ) : (
                       <LocalizedClientLink
@@ -203,7 +221,7 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
                         className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200 whitespace-nowrap"
                         data-testid={`${name.toLowerCase()}-link`}
                       >
-                        <span className="!text-xs !font-medium !leading-none">{name}</span>
+                        <span className="!text-xs !font-medium !leading-none">{translateText(name, countryCode)}</span>
                       </LocalizedClientLink>
                     )
                   })}
@@ -282,7 +300,7 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
                       </LocalizedClientLink>
                     }
                   >
-                    <CartButton />
+                    <CartButton countryCode={countryCode} />
                   </Suspense>
                 </div>
 
@@ -290,7 +308,7 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
                 <div className="hidden lg:flex items-center gap-x-4">
                   {/* 功能按鈕：國家選擇、帳戶、購物車 */}
                   {regions && <CountrySelect regions={regions} />}
-                  <AccountButton />
+                  <AccountButton countryCode={countryCode} />
                   <Suspense
                     fallback={
                       <LocalizedClientLink
@@ -303,11 +321,11 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
                           <line x1="3" y1="6" x2="21" y2="6"></line>
                           <path d="M16 10a4 4 0 0 1-8 0"></path>
                         </svg>
-                        <span className="!text-xs !font-medium !leading-none">購物車 (0)</span>
+                        <span className="!text-xs !font-medium !leading-none">{t.cart} (0)</span>
                       </LocalizedClientLink>
                     }
                   >
-                    <CartButton />
+                    <CartButton countryCode={countryCode} />
                   </Suspense>
                 </div>
               </div>
@@ -319,13 +337,14 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
         <div className="hidden lg:block border-b border-ui-border-base bg-white shadow-sm">
           <div className="px-6 md:px-12 xl:px-16 2xl:px-20 max-w-none flex justify-between items-center py-2 text-xs text-neutral-600">
             <div className="flex items-center gap-x-6">
+              <span className="text-black font-bold mr-2 uppercase tracking-tight">{t.categories}</span>
               {categories?.map((category: { id: string; handle: string; name: string }) => (
                 <LocalizedClientLink
                   key={category.id}
                   href={`/categories/${category.handle}`}
                   className="text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
                 >
-                  <span className="!text-xs !font-medium !leading-none">{category.name}</span>
+                  <span className="!text-xs !font-medium !leading-none">{translateText(category.name, countryCode)}</span>
                 </LocalizedClientLink>
               ))}
             </div>

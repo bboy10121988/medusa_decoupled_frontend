@@ -407,6 +407,7 @@ export default async function Home({
                     }
                     if (blogSection.title) props.title = blogSection.title
                     if (blogSection.category) props.category = blogSection.category
+                    props.countryCode = countryCode
 
                     return <BlogPosts {...props} />
                   }

@@ -24,10 +24,10 @@ import {
 } from './sanity-queries'
 
 export async function getHomepage_old(): Promise<{ title: string; mainSections: MainSection[] }> {
-  const result: any = await safeFetch(HOMEPAGE_OLD_QUERY, {}, { 
+  const result: any = await safeFetch(HOMEPAGE_OLD_QUERY, {}, {
     next: { revalidate: 300 } // 5 分鐘緩存
   }, null)
-  
+
   // 過濾掉未知類型的 sections 並記錄警告
   if (result?.mainSections) {
     result.mainSections = result.mainSections.filter((section: any) => {
@@ -37,68 +37,71 @@ export async function getHomepage_old(): Promise<{ title: string; mainSections: 
       return section?._type // 只保留有 _type 的 sections
     })
   }
-  
+
   return result as { title: string; mainSections: MainSection[] }
 }
 
-export async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
-  return (await safeFetch(FEATURED_PRODUCTS_QUERY, {}, { 
+export async function getFeaturedProducts(language: string = 'zh-TW'): Promise<FeaturedProduct[]> {
+  return (await safeFetch(FEATURED_PRODUCTS_QUERY, { lang: language }, {
     next: { revalidate: 300 } // 5 分鐘緩存
   }, [])) as FeaturedProduct[]
 }
 
-export async function getFeaturedProductsHeading(collectionId: string) {
-  return await safeFetch(FEATURED_PRODUCTS_HEADING_QUERY, { collectionId }, { 
+export async function getFeaturedProductsHeading(collectionId: string, language: string = 'zh-TW') {
+  return await safeFetch(FEATURED_PRODUCTS_HEADING_QUERY, { collectionId, lang: language }, {
     next: { revalidate: 300 }
   }, null)
 }
 
-export async function getHeader() {
-  return await safeFetch(HEADER_QUERY, {}, { 
+export async function getHeader(language: string = 'zh-TW') {
+  return await safeFetch(HEADER_QUERY, { lang: language }, {
     next: { revalidate: 300 } // 5 分鐘緩存
   }, null)
 }
 
-export async function getPageBySlug(slug: string): Promise<PageData | null> {
+export async function getPageBySlug(slug: string, language: string = 'zh-TW'): Promise<PageData | null> {
   try {
-    return await safeFetch(PAGE_BY_SLUG_QUERY, { slug }, {}, null)
+    return await safeFetch(PAGE_BY_SLUG_QUERY, { slug, lang: language }, {}, null)
   } catch (error) {
     return null
   }
 }
 
-export async function getAllPosts(category?: string, limit: number = 50): Promise<BlogPost[]> {
+export async function getAllPosts(category?: string, limit: number = 50, language: string = 'zh-TW'): Promise<BlogPost[]> {
   try {
+    const lang = language
     const categoryFilter = category ? ` && "${category}" in categories[]->title` : ""
     const query = `${ALL_POSTS_BASE_QUERY}${categoryFilter}] | order(publishedAt desc) [0...${limit}] ${ALL_POSTS_PROJECTION}`
 
-    const posts = await safeFetch<BlogPost[]>(query, {}, { next: { revalidate: 300 } }, [])
+    const posts = await safeFetch<BlogPost[]>(query, { lang }, { next: { revalidate: 300 } }, [])
     return posts || []
   } catch (error) {
     return []
   }
 }
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(language: string = 'zh-TW'): Promise<Category[]> {
   try {
-    const categories = await safeFetch<Category[]>(CATEGORIES_QUERY, {}, {}, [])
+    const lang = language
+    const categories = await safeFetch<Category[]>(CATEGORIES_QUERY, { lang }, {}, [])
     return categories || []
   } catch (error) {
     return []
   }
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+export async function getPostBySlug(slug: string, language: string = 'zh-TW'): Promise<BlogPost | null> {
   try {
-    let result = await safeFetch(POST_BY_SLUG_QUERY, { slug }, {}, null)
-    
+    const lang = language
+    let result = await safeFetch(POST_BY_SLUG_QUERY, { slug, lang }, {}, null)
+
     if (result) {
       return result
     }
-    
+
     const searchTerm = slug.includes('post-') ? slug.split('post-')[1] : slug.replace(/-/g, ' ')
-    result = await safeFetch(POST_BY_TITLE_OR_ID_QUERY, { slug, title: searchTerm }, {}, null)
-    
+    result = await safeFetch(POST_BY_TITLE_OR_ID_QUERY, { slug, title: searchTerm, lang }, {}, null)
+
     return result
   } catch (error) {
     return null
@@ -114,8 +117,8 @@ export async function getAllPages(): Promise<PageData[]> {
   }
 }
 
-export async function getHomepage(): Promise<{ 
-  title: string; 
+export async function getHomepage(language: string = 'zh-TW'): Promise<{
+  title: string;
   mainSections: MainSection[];
   seoTitle?: string;
   seoDescription?: string;
@@ -129,10 +132,11 @@ export async function getHomepage(): Promise<{
   twitterCard?: string;
 }> {
   try {
-    const result = await safeFetch(HOMEPAGE_QUERY, {}, { 
+    const lang = language
+    const result = await safeFetch(HOMEPAGE_QUERY, { lang }, {
       next: { revalidate: 300 } // 5 分鐘緩存
     }, { title: '', mainSections: [] })
-    
+
     // 過濾掉未知類型的 sections 並記錄警告
     if (result?.mainSections) {
       result.mainSections = result.mainSections.filter((section: any) => {
@@ -142,7 +146,7 @@ export async function getHomepage(): Promise<{
         return section?._type // 只保留有 _type 的 sections
       })
     }
-    
+
     return result as { title: string; mainSections: MainSection[] }
   } catch (error) {
     return { title: '', mainSections: [] }
@@ -152,20 +156,20 @@ export async function getHomepage(): Promise<{
 export async function getServiceSection(): Promise<ServiceCards | null> {
   try {
     const result = await safeFetch(SERVICE_SECTION_QUERY, {}, {}, null)
-    
+
     // 添加 _type 如果不存在
     if (result && !result._type) {
       result._type = "serviceCardSection"
     }
-    
+
     return result || null
   } catch (error) {
     return null
   }
 }
 
-export async function getFooter(): Promise<Footer | null> {
-  return await safeFetch(FOOTER_QUERY, {}, {}, null)
+export async function getFooter(language: string = 'zh-TW'): Promise<Footer | null> {
+  return await safeFetch(FOOTER_QUERY, { lang: language }, {}, null)
 }
 
 export async function getAllFooters(): Promise<Footer[]> {

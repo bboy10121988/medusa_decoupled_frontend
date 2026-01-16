@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { getTranslation } from "../../../lib/translations"
 
 export type BlogPost = {
   _id: string
@@ -25,21 +26,22 @@ interface BlogSettings {
   categoryTagLimit?: number
 }
 
-export default function BlogCard({ 
-  post, 
+export default function BlogCard({
+  post,
   countryCode = "tw",
-  blogSettings 
-}: { 
+  blogSettings
+}: {
   post: BlogPost
   countryCode?: string
   blogSettings?: BlogSettings
 }) {
+  const t = getTranslation(countryCode)
   // 如果文章沒有標題或ID，不渲染
   if (!post?.title || !post?._id) {
     // console.warn('⚠️ BlogCard: 文章缺少必要資訊，跳過渲染', { title: post?.title, id: post?._id })
     return null
   }
-  
+
   // 從設定中取得配置,如果沒有則使用預設值
   const showExcerpt = blogSettings?.showExcerpt !== false
   const excerptLength = blogSettings?.excerptLength || 80
@@ -47,16 +49,16 @@ export default function BlogCard({
   const showPublishDate = blogSettings?.showPublishDate !== false
   const showCategoryTags = blogSettings?.showCategoryTags !== false
   const categoryTagLimit = blogSettings?.categoryTagLimit || 2
-  
+
   // 從 Portable Text body 提取純文字內容
   const extractTextFromBody = (body: any): string => {
     if (!body) return ''
-    
+
     try {
       if (Array.isArray(body)) {
         return body
           .filter(block => block._type === 'block' && block.children)
-          .map(block => 
+          .map(block =>
             block.children
               .filter((child: any) => child._type === 'span' && child.text)
               .map((child: any) => child.text)
@@ -71,35 +73,35 @@ export default function BlogCard({
       return ''
     }
   }
-  
+
   // 截取指定長度的文字
   const getExcerpt = (text: string, maxLength: number): string => {
     if (!text) return ''
     if (text.length <= maxLength) return text
     return text.slice(0, maxLength) + '...'
   }
-  
+
   // 創建一個安全的slug
   const createSlug = (title: string, id: string) => {
     if (!title || !id) return 'no-slug'
-    
+
     // 將中文標題轉換為拼音或使用ID
     const safeTitle = title
       .toLowerCase()
       .replace(/[^\w\s]/gi, '')
       .replace(/\s+/g, '-')
       .slice(0, 30)
-    
+
     const shortId = id.replace(/-/g, '').slice(0, 8)
     return safeTitle || `post-${shortId}`
   }
-  
+
   // 使用slug.current，如果沒有則根據標題和ID創建slug
   const slug = post?.slug?.current || createSlug(post?.title || '', post?._id || '')
   const href = `/${countryCode}/blog/${slug}`
   const imageUrl = post?.mainImage?.asset?.url
   const date = post?.publishedAt || post?._createdAt
-  
+
   // 獲取內文預覽
   const bodyText = post.excerpt || extractTextFromBody(post.body)
   const excerpt = getExcerpt(bodyText, excerptLength)
@@ -112,7 +114,7 @@ export default function BlogCard({
             <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-100">
               <Image
                 src={imageUrl}
-                alt={post.title || "文章封面"}
+                alt={post.title || (countryCode === 'tw' ? "文章封面" : "Article Cover")}
                 fill
                 className="object-cover group-hover:scale-105 transition-all duration-1000"
                 sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 50vw"
@@ -152,17 +154,17 @@ export default function BlogCard({
             <div className="mt-auto pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-t border-gray-100">
               {showPublishDate && date && (
                 <time className="text-xs text-gray-500">
-                  {new Date(date).toLocaleDateString("zh-TW", {
+                  {new Date(date).toLocaleDateString(countryCode === 'tw' ? "zh-TW" : "en-US", {
                     year: 'numeric',
                     month: 'numeric',
                     day: 'numeric'
                   })}
                 </time>
               )}
-              
+
               {showReadMore && (
                 <span className="text-xs font-medium text-blue-600 group-hover:text-blue-700 flex items-center gap-1 transition-colors">
-                  {blogSettings?.readMoreText || '閱讀更多'}
+                  {blogSettings?.readMoreText || t.readMore}
                   <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>

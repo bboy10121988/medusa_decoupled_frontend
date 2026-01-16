@@ -6,7 +6,10 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { HttpTypes } from "@medusajs/types"
 import safeFetchGlobal from '../../../../lib/safe-fetch'
 
-export default function CartButton() {
+import { getTranslation } from "../../../../lib/translations"
+
+export default function CartButton({ countryCode = 'tw' }: { countryCode?: string }) {
+  const t = getTranslation(countryCode)
   const [cart, setCart] = useState<HttpTypes.StoreCart | null>(null)
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -64,7 +67,7 @@ export default function CartButton() {
   return (
     <div className="relative" ref={dropdownRef}>
       {/* 桌機版 - 按鈕顯示下拉選單 */}
-      <button 
+      <button
         onClick={() => setShowDropdown(!showDropdown)}
         className="hidden lg:flex items-center gap-2 text-xs tracking-wider uppercase font-medium hover:text-black/70 transition-colors duration-200"
         aria-label="購物車"
@@ -83,7 +86,7 @@ export default function CartButton() {
           )}
         </div>
         <span className="!text-xs !font-medium !leading-none">
-          購物車
+          {t.cart}
         </span>
       </button>
 
@@ -107,7 +110,7 @@ export default function CartButton() {
           )}
         </div>
       </LocalizedClientLink>
-      
+
       {/* 桌機版下拉選單 */}
       {showDropdown && (
         <div className="hidden lg:block absolute top-[calc(100%+1px)] right-0 bg-white border-x border-b border-gray-200 w-[420px] text-gray-900 z-50 shadow-lg">

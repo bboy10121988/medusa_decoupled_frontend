@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { getPageBySlug } from '@/lib/sanity'
 import HeroSection from "@modules/home/components/hero-section"
 import BlogPosts from "@modules/blog/components/blog-posts"
 import FeaturedProducts from "@modules/home/components/featured-products"
@@ -10,6 +9,8 @@ import ServiceCardsSection from "@modules/home/components/service-cards-section"
 import ContentSection from "@modules/home/components/content-section"
 import { getRegion } from "@lib/data/regions"
 import { listCollections } from "@lib/data/collections"
+import { getPageBySlug as getPageBySlugLegacy } from "@/lib/sanity"
+import { getDynamicPage, mapCountryToLanguage } from "@/lib/sanity-utils"
 import type { MainBanner } from '@lib/types/page-sections'
 import type { ImageTextBlock as ImageTextBlockType } from '@lib/types/page-sections'
 import type { FeaturedProductsSection } from '@lib/types/page-sections'
@@ -33,11 +34,12 @@ interface PageProps {
 
 // 動態生成頁面元數據
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, countryCode } = await params
   const slugString = slug.join('/')
+  const language = mapCountryToLanguage(countryCode)
 
   try {
-    const page = await getPageBySlug(slugString)
+    const page = await getDynamicPage(slugString, language)
 
     if (!page) {
       return {
@@ -103,11 +105,12 @@ export default async function DynamicPage({ params }: PageProps) {
   }
 
   try {
-    // 使用 getPageBySlug 獲取頁面數據
-    const page = await getPageBySlug(slugString)
+    const language = mapCountryToLanguage(countryCode)
+    // 使用 getDynamicPage 獲取頁面數據，並傳入語言參數
+    const page = await getDynamicPage(slugString, language)
 
     if (!page) {
-      // console.log(`頁面未找到: /${countryCode}/${slugString}`)
+      // console.log(`頁面未找到: /${countryCode}/${slugString} (language: ${language})`)
       notFound()
     }
 
@@ -213,6 +216,7 @@ export default async function DynamicPage({ params }: PageProps) {
                     }
                     if (blogSection.title) props.title = blogSection.title
                     if (blogSection.category) props.category = blogSection.category
+                    props.countryCode = countryCode
 
                     return <BlogPosts {...props} />
                   }
@@ -342,8 +346,8 @@ export default async function DynamicPage({ params }: PageProps) {
                           <a
                             href={ctaBlock.buttonUrl}
                             className={`inline-block px-8 py-3 rounded-lg font-semibold transition-colors ${ctaBlock.buttonStyle === 'secondary' ? 'bg-gray-600 text-white hover:bg-gray-700' :
-                                ctaBlock.buttonStyle === 'outline' ? 'border-2 border-primary text-primary hover:bg-primary hover:text-white' :
-                                  'bg-primary text-white hover:bg-primary-dark'
+                              ctaBlock.buttonStyle === 'outline' ? 'border-2 border-primary text-primary hover:bg-primary hover:text-white' :
+                                'bg-primary text-white hover:bg-primary-dark'
                               }`}
                           >
                             {ctaBlock.buttonText}

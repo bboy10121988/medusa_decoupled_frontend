@@ -3,7 +3,7 @@ export const HOMEPAGE_OLD_QUERY = `*[_type == "homePage"][0] {
     mainSections
   }`
 
-export const FEATURED_PRODUCTS_QUERY = `*[_type == "featuredProducts" && isActive == true]{
+export const FEATURED_PRODUCTS_QUERY = `*[_type == "featuredProducts" && isActive == true && language == $lang]{
     title,
     handle,
     collection_id,
@@ -11,14 +11,14 @@ export const FEATURED_PRODUCTS_QUERY = `*[_type == "featuredProducts" && isActiv
     isActive
   }`
 
-export const FEATURED_PRODUCTS_HEADING_QUERY = `*[_type == "homePage"][0]{
+export const FEATURED_PRODUCTS_HEADING_QUERY = `*[_type == "homePage" && language == $lang][0]{
     "featuredSection": mainSections[_type == "featuredProducts" && collection_id == $collectionId][0]{
       heading,
       showHeading
     }
   }.featuredSection`
 
-export const HEADER_QUERY = `*[_type == "header"][0]{
+export const HEADER_QUERY = `*[_type == "header" && language == $lang][0]{
     logo{
       "url": asset->url,
       alt
@@ -292,7 +292,7 @@ export const PAGE_SECTIONS_PROJECTION = `
         )
 `
 
-export const PAGE_BY_SLUG_QUERY = `*[_type == "dynamicPage" && slug.current == $slug && status == "published"][0]{
+export const PAGE_BY_SLUG_QUERY = `*[_type == "dynamicPage" && slug.current == $slug && language == $lang && status == "published"][0]{
       _type,
       title,
       "slug": slug.current,
@@ -306,7 +306,7 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "dynamicPage" && slug.current == $
       }
     }`
 
-export const ALL_PAGES_QUERY = `*[_type == "dynamicPage" && status == "published"] | order(_createdAt desc) {
+export const ALL_PAGES_QUERY = `*[_type == "dynamicPage" && language == $lang && status == "published"] | order(_createdAt desc) {
       _type,
       title,
       "slug": slug.current,
@@ -321,7 +321,7 @@ export const ALL_PAGES_QUERY = `*[_type == "dynamicPage" && status == "published
       }
     }`
 
-export const HOMEPAGE_QUERY = `*[_type == "homePage"][0] {
+export const HOMEPAGE_QUERY = `*[_type == "homePage" && language == $lang][0] {
     title,
     seoTitle,
     seoDescription,
@@ -341,7 +341,7 @@ export const HOMEPAGE_QUERY = `*[_type == "homePage"][0] {
     }
   }`
 
-export const ALL_POSTS_BASE_QUERY = `*[_type == "post"`
+export const ALL_POSTS_BASE_QUERY = `*[_type == "post" && language == $lang`
 
 export const ALL_POSTS_PROJECTION = `{
       _id,
@@ -367,13 +367,13 @@ export const ALL_POSTS_PROJECTION = `{
       body
     }`
 
-export const CATEGORIES_QUERY = `*[_type == "category"] {
+export const CATEGORIES_QUERY = `*[_type == "category" && language == $lang] {
       _id,
       _type,
       title
     }`
 
-export const POST_BY_SLUG_QUERY = `*[_type == "post" && slug.current == $slug][0]{
+export const POST_BY_SLUG_QUERY = `*[_type == "post" && slug.current == $slug && language == $lang][0]{
       _id,
       title,
       excerpt,
@@ -391,7 +391,7 @@ export const POST_BY_SLUG_QUERY = `*[_type == "post" && slug.current == $slug][0
       "categories": categories[]->{title}
     }`
 
-export const POST_BY_TITLE_OR_ID_QUERY = `*[_type == "post" && title match "*" + $title + "*" || _id match $slug + "*"][0]{
+export const POST_BY_TITLE_OR_ID_QUERY = `*[_type == "post" && (title match "*" + $title + "*" || _id match $slug + "*") && language == $lang][0]{
       _id,
       title,
       excerpt,
@@ -431,7 +431,7 @@ export const SERVICE_SECTION_QUERY = `*[_type == "homePage"][0].mainSections[_ty
       }
     }`
 
-export const FOOTER_QUERY = `*[_type == "footer" && !(_id in path('drafts.**'))] | order(_updatedAt desc)[0] {
+export const FOOTER_QUERY = `*[_type == "footer" && language == $lang && !(_id in path('drafts.**'))] | order(_updatedAt desc)[0] {
     title,
     logo {
       "url": asset->url,

@@ -6,11 +6,14 @@ import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CopyrightYear from "@modules/layout/components/copyright-year"
 
+import { getTranslation, translateText } from "../../../../lib/translations"
+
 interface FooterProps {
   countryCode?: string
 }
 
 export default async function Footer({ countryCode = 'tw' }: FooterProps) {
+  const t = getTranslation(countryCode)
   const { collections } = await listCollections({
     fields: "*products",
   })
@@ -47,7 +50,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
 
             {/* 商品系列 */}
             <div className="space-y-6">
-              <h3 className="text-xs font-semibold">商品系列</h3>
+              <h3 className="text-xs font-semibold">{t.collections}</h3>
               <ul className="space-y-4">
                 {collectionsData.slice(0, 3).map((collection) => (
                   <li key={collection.id}>
@@ -55,7 +58,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
                       href={`/collections/${collection.handle}`}
                       className="text-xs hover:text-black transition-colors"
                     >
-                      {collection.title}
+                      {translateText(collection.title, countryCode)}
                     </LocalizedClientLink>
                   </li>
                 ))}
@@ -64,7 +67,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
 
             {/* 商品分類 */}
             <div className="space-y-6">
-              <h3 className="text-xs font-semibold">商品分類</h3>
+              <h3 className="text-xs font-semibold">{t.categories}</h3>
               <ul className="space-y-4">
                 {categoriesData.slice(0, 3).map((category) => (
                   <li key={category.id}>
@@ -72,7 +75,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
                       href={`/categories/${category.handle}`}
                       className="text-xs hover:text-black transition-colors"
                     >
-                      {category.name}
+                      {translateText(category.name, countryCode)}
                     </LocalizedClientLink>
                   </li>
                 ))}
@@ -82,7 +85,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
             {/* 自定義區域 - 從Sanity獲取 */}
             {sectionsData.map((section: any, sectionIndex: number) => (
               <div key={section.title || `section-${sectionIndex}`} className="space-y-6">
-                <h3 className="text-xs font-semibold">{section.title}</h3>
+                <h3 className="text-xs font-semibold">{translateText(section.title, countryCode)}</h3>
                 {section.links && section.links.length > 0 && (
                   <ul className="space-y-4">
                     {section.links.map((link: any, linkIndex: number) => {
@@ -96,7 +99,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
                       if (!hasUrl) {
                         return (
                           <li key={link.text || `link-${sectionIndex}-${linkIndex}`}>
-                            <span className="text-xs">{link.text}</span>
+                            <span className="text-xs">{translateText(link.text, countryCode)}</span>
                           </li>
                         );
                       }
@@ -117,7 +120,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
                               href={finalUrl}
                               className="text-xs hover:text-black transition-colors"
                             >
-                              {link.text}
+                              {translateText(link.text, countryCode)}
                             </LocalizedClientLink>
                           ) : (
                             // 處理各種外部連結類型
@@ -136,7 +139,7 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
                                   // 只有常規外部連結才需要安全屬性
                                   rel={isSpecialProtocol ? undefined : "noopener noreferrer"}
                                 >
-                                  {link.text}
+                                  {translateText(link.text, countryCode)}
                                 </a>
                               );
                             })()

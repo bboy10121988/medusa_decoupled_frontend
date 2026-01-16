@@ -164,7 +164,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
 
             {/* 桌面版圖片容器 - 只在 768px 以上顯示 */}
             <div className="hidden lg:block w-full" style={{ overflow: 'hidden' }}>
-              {slideItem.desktopImage && slideItem.desktopImage.trim() !== '' ? (
+              {slideItem.desktopImage && typeof slideItem.desktopImage === 'string' && slideItem.desktopImage.trim() !== '' ? (
                 slideItem.imageLink ? (
                   <Link href={slideItem.imageLink} className="block w-full h-full">
                     <Image
@@ -219,7 +219,7 @@ const Hero = ({ slides, settings }: HeroProps) => {
                 width: '100%'
               }}
             >
-              {slideItem.mobileImage && slideItem.mobileImage.trim() !== '' ? (
+              {slideItem.mobileImage && typeof slideItem.mobileImage === 'string' && slideItem.mobileImage.trim() !== '' ? (
                 slideItem.imageLink ? (
                   <Link href={slideItem.imageLink} className="block w-full h-full">
                     <Image

@@ -5,7 +5,10 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 // import { useEffect, useState } from "react"
 // import safeFetchGlobal from '../../../../lib/safe-fetch'
 
-export default function AccountButton() {
+import { getTranslation } from "../../../../lib/translations"
+
+export default function AccountButton({ countryCode = 'tw' }: { countryCode?: string }) {
+  const t = getTranslation(countryCode)
   // const [customer, setCustomer] = useState<StoreCustomer | null>(null)
 
   /*
@@ -35,7 +38,7 @@ export default function AccountButton() {
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
-      <span className="!text-xs !font-medium !leading-none">帳戶</span>
+      <span className="!text-xs !font-medium !leading-none">{t.account}</span>
     </LocalizedClientLink>
   )
 }

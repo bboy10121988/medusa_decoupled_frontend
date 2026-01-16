@@ -5,16 +5,21 @@ import { XMarkIcon, Bars3Icon, MagnifyingGlassIcon } from "@heroicons/react/24/o
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CountrySelect from "@modules/layout/components/country-select"
+import thumbnail from "../../products/components/thumbnail"
+import ClientPreviewPrice from "../../products/components/product-preview/client-price"
 import { SanityHeader, NavigationItem } from "../../../types/global"
+import { getTranslation, translateText } from "../../../lib/translations"
 
 type MobileMenuProps = {
   regions: StoreRegion[]
   navigation?: NavigationItem[]  // 更新為 NavigationItem[] 類型
-  categories?: Array<{id: string; handle: string; name: string}>
+  categories?: Array<{ id: string; handle: string; name: string }>
   headerData?: SanityHeader
+  countryCode?: string
 }
 
-export default function MobileMenu({ regions, navigation, categories, headerData: _headerData }: MobileMenuProps) {
+export default function MobileMenu({ regions, navigation, categories, headerData: _headerData, countryCode = 'tw' }: MobileMenuProps) {
+  const t = getTranslation(countryCode)
   const [isOpen, setIsOpen] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [menuTopOffset, setMenuTopOffset] = useState(0)
@@ -25,12 +30,12 @@ export default function MobileMenu({ regions, navigation, categories, headerData
     const calculateMenuTopOffset = () => {
       // 直接使用 sticky 導覽列的位置計算
       const stickyNav = document.querySelector('.sticky.top-0')
-      
+
       if (stickyNav) {
         const stickyNavRect = stickyNav.getBoundingClientRect()
         // 選單頂部位置 = sticky 導覽列頂部 + sticky 導覽列高度
         const totalOffset = stickyNavRect.top + stickyNavRect.height
-        
+
         setMenuTopOffset(totalOffset)
       }
     }
@@ -40,7 +45,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
 
     // 監聽視窗大小變化
     window.addEventListener('resize', calculateMenuTopOffset)
-    
+
     // 使用 MutationObserver 監聽 DOM 變化
     const observer = new MutationObserver(() => {
       // 延遲一點計算，確保 DOM 更新完成
@@ -95,7 +100,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
       </button>
 
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-x-0 bottom-0 z-[110] bg-white shadow-lg border-t border-gray-200"
           style={{
             top: `${menuTopOffset}px`,
@@ -112,7 +117,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
-          
+
           <div className="p-4 space-y-4">
             {/* Search */}
             <div className="flex items-center">
@@ -121,13 +126,13 @@ export default function MobileMenu({ regions, navigation, categories, headerData
                   <input
                     ref={searchRef}
                     type="text"
-                    placeholder="搜尋商品..."
+                    placeholder={t.search}
                     className="w-full p-2 border rounded-lg"
                     onBlur={() => setShowSearch(false)}
                   />
                 </div>
               ) : (
-                <button 
+                <button
                   onClick={() => setShowSearch(true)}
                   className="p-2"
                 >
@@ -143,12 +148,12 @@ export default function MobileMenu({ regions, navigation, categories, headerData
               // 判斷是否為首頁連結 (支援 / 和 /home)
               const isHome = href === '/' || href === '/home'
               // 處理連結
-              const processedHref = isExternal 
-                ? href 
-                : isHome 
+              const processedHref = isExternal
+                ? href
+                : isHome
                   ? '/'
-                  : href.startsWith('/') 
-                    ? href 
+                  : href.startsWith('/')
+                    ? href
                     : `/${href}`
 
               const uniqueKey = `mobile-nav-${index}-${name.replace(/[^a-zA-Z0-9]/g, '')}-${href.replace(/[^a-zA-Z0-9]/g, '')}`
@@ -158,11 +163,11 @@ export default function MobileMenu({ regions, navigation, categories, headerData
                   key={uniqueKey}
                   href={href}
                   className="block py-2 text-lg"
-                  target="_blank" 
+                  target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setIsOpen(false)}
                 >
-                  {name}
+                  {translateText(name, countryCode)}
                 </a>
               ) : (
                 <LocalizedClientLink
@@ -171,7 +176,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
                   className="block py-2 text-lg"
                   onClick={() => setIsOpen(false)}
                 >
-                  {name}
+                  {translateText(name, countryCode)}
                 </LocalizedClientLink>
               )
             })}
@@ -185,7 +190,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
             {/* Categories */}
             {categories && categories.length > 0 && (
               <div className="pt-2 border-t">
-                <h3 className="py-2 font-medium">商品分類</h3>
+                <h3 className="py-2 font-medium">{t.categories}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((category) => (
                     <LocalizedClientLink
@@ -194,7 +199,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
                       className="block py-1 text-sm"
                       onClick={() => setIsOpen(false)}
                     >
-                      {category.name}
+                      {translateText(category.name, countryCode)}
                     </LocalizedClientLink>
                   ))}
                 </div>
@@ -208,7 +213,7 @@ export default function MobileMenu({ regions, navigation, categories, headerData
                 className="block py-2 text-lg"
                 onClick={() => setIsOpen(false)}
               >
-                Account
+                {t.account}
               </LocalizedClientLink>
             </div>
           </div>

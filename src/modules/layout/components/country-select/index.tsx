@@ -65,11 +65,11 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
   // 防止 hydration 不匹配，只在客戶端渲染
   if (!isMounted) {
     return (
-      <div className="w-[60px]">
+      <div className="w-[80px]">
         <div className="py-1 w-full">
-          <div className="txt-compact-small flex justify-center items-center">
+          <div className="txt-compact-small flex justify-center items-center gap-2">
             {current && (
-              <span className="flex items-center justify-center">
+              <span className="flex items-center justify-center gap-2">
                 <ReactCountryFlag
                   svg
                   style={{
@@ -78,6 +78,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
                   }}
                   countryCode={current.country ?? ""}
                 />
+                <span className="uppercase text-xs font-medium">{current.country}</span>
               </span>
             )}
           </div>
@@ -87,7 +88,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
   }
 
   return (
-    <div className="w-[60px]">
+    <div className="w-[80px]">
       <Listbox
         as="div"
         defaultValue={
@@ -99,10 +100,10 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
         {({ open }) => (
           <>
             <ListboxButton className="py-1 w-full">
-              <div className="txt-compact-small flex justify-center items-center">
+              <div className="txt-compact-small flex justify-center items-center gap-2">
                 {current && (
                   <>
-                    <span className="flex items-center justify-center">
+                    <span className="flex items-center justify-center gap-2">
                       {/* @ts-ignore */}
                       <ReactCountryFlag
                         svg
@@ -112,12 +113,13 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
                         }}
                         countryCode={current.country ?? ""}
                       />
+                      <span className="uppercase text-xs font-medium">{current.country}</span>
                     </span>
                   </>
                 )}
               </div>
             </ListboxButton>
-            <div className="flex relative w-[60px] justify-end">
+            <div className="flex relative w-[80px] justify-end">
               <Transition
                 show={open}
                 as={Fragment}
@@ -126,7 +128,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
                 leaveTo="opacity-0"
               >
                 <ListboxOptions
-                  className="absolute top-full right-0 max-h-[442px] overflow-y-scroll z-[900] bg-white drop-shadow-md text-small-regular uppercase text-black no-scrollbar rounded-rounded w-[60px]"
+                  className="absolute top-full right-0 max-h-[442px] overflow-y-scroll z-[900] bg-white drop-shadow-md text-small-regular uppercase text-black no-scrollbar rounded-rounded w-[80px]"
                   static
                 >
                   {options?.map((o, index) => {
@@ -135,7 +137,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
                         key={index}
                         value={o}
                         onClick={() => { if (o) handleChange(o as CountryOption) }}
-                        className="py-2 hover:bg-gray-200 px-3 cursor-pointer flex items-center justify-center w-full"
+                        className="py-2 hover:bg-gray-100 px-3 cursor-pointer flex items-center justify-center gap-2 w-full"
                       >
                         {/* @ts-ignore */}
                         <ReactCountryFlag
@@ -146,6 +148,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
                           }}
                           countryCode={o?.country ?? ""}
                         />
+                        <span className="uppercase text-xs font-medium">{o?.country}</span>
                       </ListboxOption>
                     )
                   })}

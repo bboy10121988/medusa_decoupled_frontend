@@ -6,6 +6,7 @@ import LocalizedClientLink from "../../../common/components/localized-client-lin
 import { useEffect, useMemo, useState } from "react"
 import Thumbnail from "../thumbnail/index"
 import ClientPreviewPrice from "./client-price"
+import { getTranslation } from "../../../../lib/translations"
 
 /*
 type ProductOption = {
@@ -28,6 +29,7 @@ export default function ProductPreview({
   isFeatured?: boolean
   countryCode?: string
 }) {
+  const t = getTranslation(countryCode)
   const { cheapestPrice } = getProductPrice({
     product,
   })
@@ -233,7 +235,7 @@ export default function ProductPreview({
 
     if (!variantId) {
       // console.log("❌ 沒有找到匹配的變體")
-      setError("請選擇所有必要的選項")
+      setError(t.pleaseSelectOptions)
       return
     }
 
@@ -285,7 +287,7 @@ export default function ProductPreview({
       }, 3000)
     } catch (error) {
       // console.error("❌ ProductPreview 添加到購物車失敗:", error)
-      setError("添加到購物車失敗，請稍後再試")
+      setError(t.failedToAddToCart)
     } finally {
       setIsAdding(false)
     }
@@ -318,7 +320,7 @@ export default function ProductPreview({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          <span className="text-xs">商品已加入購物車</span>
+          <span className="text-xs">{t.addedToCart}</span>
         </div>
       )}
 
@@ -335,7 +337,7 @@ export default function ProductPreview({
           <div className="relative w-full max-w-sm bg-white rounded-2xl p-6 space-y-4 animate-slide-up max-h-[70vh] overflow-y-auto shadow-2xl">
             {/* 標題區域 */}
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">選擇商品規格</h3>
+              <h3 className="text-lg font-semibold">{t.selectOptions}</h3>
               <button
                 onClick={() => setShowMobileOptions(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -380,8 +382,8 @@ export default function ProductPreview({
                           key={value}
                           onClick={() => handleOptionSelect(option.title, value)}
                           className={`px-3 py-2 text-sm border rounded-lg transition-colors ${isSelected
-                              ? 'border-black bg-black text-white'
-                              : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-black bg-black text-white'
+                            : 'border-gray-200 hover:border-gray-300'
                             }`}
                         >
                           {value}
@@ -405,8 +407,8 @@ export default function ProductPreview({
               disabled={isAdding || !findVariantId(selectedOptions)}
               className="w-full px-4 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-500"
             >
-              {isAdding ? "處理中..." :
-                productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+              {isAdding ? t.adding :
+                productStockStatus.canPreorder ? t.preorder : t.addToCart}
             </button>
           </div>
         </div>
@@ -476,8 +478,8 @@ export default function ProductPreview({
                         setCurrentImageIndex(index)
                       }}
                       className={`w-3 h-3 rounded-full ${index === currentImageIndex
-                          ? 'bg-white scale-110'
-                          : 'bg-white/50'
+                        ? 'bg-white scale-110'
+                        : 'bg-white/50'
                         }`}
                     />
                   ))}
@@ -493,7 +495,7 @@ export default function ProductPreview({
                     ? 'bg-gray-600 text-white'
                     : 'bg-blue-600 text-white'
                   }`}>
-                  {isProductSoldOut ? '售完' : '預訂'}
+                  {isProductSoldOut ? t.soldOut : t.preorder}
                 </div>
               )}
             </div>
@@ -555,8 +557,8 @@ export default function ProductPreview({
                     disabled={isAdding || (productOptions.filter(option => option.values.length > 1).length > 0 && !findVariantId(selectedOptions))}
                     className="w-full px-4 py-3 border border-black text-sm hover:bg-black hover:text-white transition-colors disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 min-h-[40px]"
                   >
-                    {isAdding ? "處理中..." :
-                      productStockStatus.canPreorder ? "預訂" : "加入購物車"}
+                    {isAdding ? t.adding :
+                      productStockStatus.canPreorder ? t.preorder : t.addToCart}
                   </button>
                 </div>
                 {error && (
@@ -590,11 +592,11 @@ export default function ProductPreview({
               className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn flex-shrink-0"
               aria-label={
                 (() => {
-                  if (isAdding) return "處理中..."
+                  if (isAdding) return t.adding
                   const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
                   const variantId = findVariantId(selectedOptions)
-                  if (hasMultipleOptions && !variantId) return "選擇選項"
-                  return productStockStatus.canPreorder ? "預訂" : "加入購物車"
+                  if (hasMultipleOptions && !variantId) return t.selectOptions
+                  return productStockStatus.canPreorder ? t.preorder : t.addToCart
                 })()
               }
             >
