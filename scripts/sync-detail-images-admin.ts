@@ -21,7 +21,7 @@ const sanityClient = createClient({
 })
 
 const MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'https://admin.timsfantasyworld.com'
-const MEDUSA_ADMIN_TOKEN = 'sk_437a9d7cea0963199cfdb734b6bd0b9276328019e390e7d6f5f32d1ccd479c95'
+
 
 // 從 URL 上傳圖片到 Sanity
 async function uploadImageFromUrl(imageUrl: string, index: number): Promise<any> {
