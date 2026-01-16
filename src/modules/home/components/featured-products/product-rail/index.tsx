@@ -5,14 +5,17 @@ import { listProducts } from "@lib/data/products"
 type ProductPreviewGridProps = {
   collection: HttpTypes.StoreCollection
   region: HttpTypes.StoreRegion
+  countryCode: string
 }
 
 export default async function ProductPreviewGrid({
   collection,
   region,
+  countryCode,
 }: ProductPreviewGridProps) {
   const { response: { products } } = await listProducts({
     regionId: region.id,
+    countryCode,
     queryParams: {
       collection_id: [collection.id],
       limit: 4
@@ -34,7 +37,7 @@ export default async function ProductPreviewGrid({
             <ProductPreview
               product={product}
               isFeatured={collection.handle === "featured"}
-              countryCode="tw"
+              countryCode={countryCode}
             />
           </li>
         ))}

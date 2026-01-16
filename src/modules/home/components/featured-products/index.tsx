@@ -9,13 +9,15 @@ type FeaturedProductsProps = {
   region: HttpTypes.StoreRegion
   settings?: FeaturedProductsSection
   paddingX?: number | undefined
+  countryCode: string
 }
 
 export default function FeaturedProducts({
   collections,
   region,
   settings,
-  paddingX
+  paddingX,
+  countryCode
 }: FeaturedProductsProps) {
   // 如果沒有收到必要的參數，返回 null
   if (!collections || !region) {
@@ -65,7 +67,7 @@ export default function FeaturedProducts({
               {renderTitle(settings)}
             </div>
             <Suspense fallback={<SkeletonProductGrid />}>
-              <ProductPreviewGrid collection={collection} region={region} />
+              <ProductPreviewGrid collection={collection} region={region} countryCode={countryCode} />
             </Suspense>
           </div>
         </section>

@@ -20,7 +20,7 @@ import type { ContentSection as ContentSectionType } from '@lib/types/sections'
 
 // 系統保留路由
 const SYSTEM_ROUTES = [
-  'account', 'cart', 'checkout', 'login', 'register', 
+  'account', 'cart', 'checkout', 'login', 'register',
   'store', 'api', 'admin', 'cms', '_next', 'sitemap.xml', 'robots.txt', 'blog'
 ]
 
@@ -35,7 +35,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const slugString = slug.join('/')
-  
+
   try {
     const page = await getPageBySlug(slugString)
 
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       alternates: page.canonicalUrl ? {
         canonical: page.canonicalUrl
       } : undefined,
-      
+
       openGraph: {
         title: page.ogTitle || page.title || '動態頁面',
         description: page.ogDescription || page.seoDescription || '',
@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           }]
         })
       },
-      
+
       twitter: {
         card: (page.twitterCard as 'summary' | 'summary_large_image' | 'player' | 'app') || 'summary_large_image',
         title: page.ogTitle || page.title || '動態頁面',
@@ -95,13 +95,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function DynamicPage({ params }: PageProps) {
   const { slug, countryCode } = await params
   const slugString = slug.join('/')
-  
+
   // 檢查是否為系統保留路由
   const firstSegment = slug[0]
   if (SYSTEM_ROUTES.includes(firstSegment)) {
     notFound()
   }
-  
+
   try {
     // 使用 getPageBySlug 獲取頁面數據
     const page = await getPageBySlug(slugString)
@@ -112,8 +112,8 @@ export default async function DynamicPage({ params }: PageProps) {
     }
 
     // console.log(`載入動態頁面: /${countryCode}/${slugString}`, {
-      // title: page.title,
-      // sectionsCount: page.mainSections?.length || 0
+    // title: page.title,
+    // sectionsCount: page.mainSections?.length || 0
     // })
 
     // 獲取 region 和 collections 數據供 FeaturedProducts 使用
@@ -157,25 +157,25 @@ export default async function DynamicPage({ params }: PageProps) {
                     if (imageBlock.rightImage) props.rightImage = imageBlock.rightImage
                     if (imageBlock.leftContent) props.leftContent = imageBlock.leftContent
                     if (imageBlock.rightContent) props.rightContent = imageBlock.rightContent
-                    
+
                     return <ImageTextBlock {...props} />
                   }
                   case "featuredProducts": {
                     if (!region) return null
-                    
+
                     const featuredBlock = section as FeaturedProductsSection
                     let targetCollection = null;
 
                     // 1. 嘗試通過 ID 匹配
                     if (featuredBlock.collection_id) {
-                       targetCollection = collections?.find((c: any) => c.id === featuredBlock.collection_id);
+                      targetCollection = collections?.find((c: any) => c.id === featuredBlock.collection_id);
                     }
 
                     // 2. 如果 ID 匹配失敗，嘗試通過 handle 或 title 匹配 (Fallback 機制)
                     if (!targetCollection && collections) {
-                      targetCollection = collections.find((c: any) => 
-                        c.handle === 'featured' || 
-                        c.handle === 'featuerd' || 
+                      targetCollection = collections.find((c: any) =>
+                        c.handle === 'featured' ||
+                        c.handle === 'featuerd' ||
                         c.title === '精選商品'
                       );
                     }
@@ -188,6 +188,7 @@ export default async function DynamicPage({ params }: PageProps) {
                         region={region}
                         collections={[targetCollection]}
                         settings={section}
+                        countryCode={countryCode}
                       />
                     )
                   }
@@ -212,20 +213,20 @@ export default async function DynamicPage({ params }: PageProps) {
                     }
                     if (blogSection.title) props.title = blogSection.title
                     if (blogSection.category) props.category = blogSection.category
-                    
+
                     return <BlogPosts {...props} />
                   }
                   case "youtubeSection": {
                     const youtubeBlock = section as YoutubeSectionType
-                    const hasVideo = youtubeBlock.videoSettings?.desktopVideoUrl || 
-                                   youtubeBlock.videoSettings?.mobileVideoUrl || 
-                                   youtubeBlock.videoUrl
-                    
+                    const hasVideo = youtubeBlock.videoSettings?.desktopVideoUrl ||
+                      youtubeBlock.videoSettings?.mobileVideoUrl ||
+                      youtubeBlock.videoUrl
+
                     if (!hasVideo) {
                       // console.error("Invalid YouTube section (missing video URL):", youtubeBlock)
                       return null
                     }
-                    
+
                     const youtubeProps: any = {
                       key: index,
                       _type: "youtubeSection" as const,
@@ -242,7 +243,7 @@ export default async function DynamicPage({ params }: PageProps) {
                     if (youtubeBlock.youtubeSettings) youtubeProps.youtubeSettings = youtubeBlock.youtubeSettings
                     if (youtubeBlock.uploadSettings) youtubeProps.uploadSettings = youtubeBlock.uploadSettings
                     if (youtubeBlock.videoSettings) youtubeProps.videoSettings = youtubeBlock.videoSettings
-                    
+
                     return <YoutubeSection {...youtubeProps} />
                   }
                   case "contentSection": {
@@ -299,9 +300,9 @@ export default async function DynamicPage({ params }: PageProps) {
                         {imgBlock.title && <h2 className="text-3xl font-bold mb-6">{imgBlock.title}</h2>}
                         {imgBlock.image?.url && (
                           <div className={`${imgBlock.layout === 'center' ? 'text-center' : ''}`}>
-                            <img 
-                              src={imgBlock.image.url} 
-                              alt={imgBlock.alt || imgBlock.image.alt || imgBlock.title || ''} 
+                            <img
+                              src={imgBlock.image.url}
+                              alt={imgBlock.alt || imgBlock.image.alt || imgBlock.title || ''}
                               className={`${imgBlock.layout === 'full' ? 'w-full' : 'max-w-full h-auto'}`}
                             />
                             {imgBlock.caption && <p className="text-gray-600 mt-2 text-sm">{imgBlock.caption}</p>}
@@ -332,19 +333,18 @@ export default async function DynamicPage({ params }: PageProps) {
                   }
                   case "ctaBlock": {
                     const ctaBlock = section as any
-                    const alignmentClass = ctaBlock.alignment === 'center' ? 'text-center' : 
-                                         ctaBlock.alignment === 'right' ? 'text-right' : 'text-left'
+                    const alignmentClass = ctaBlock.alignment === 'center' ? 'text-center' :
+                      ctaBlock.alignment === 'right' ? 'text-right' : 'text-left'
                     return (
                       <div key={index} className={`container mx-auto px-4 py-12 ${alignmentClass}`}>
                         {ctaBlock.title && <h2 className="text-3xl font-bold mb-6">{ctaBlock.title}</h2>}
                         {ctaBlock.buttonText && ctaBlock.buttonUrl && (
-                          <a 
+                          <a
                             href={ctaBlock.buttonUrl}
-                            className={`inline-block px-8 py-3 rounded-lg font-semibold transition-colors ${
-                              ctaBlock.buttonStyle === 'secondary' ? 'bg-gray-600 text-white hover:bg-gray-700' :
-                              ctaBlock.buttonStyle === 'outline' ? 'border-2 border-primary text-primary hover:bg-primary hover:text-white' :
-                              'bg-primary text-white hover:bg-primary-dark'
-                            }`}
+                            className={`inline-block px-8 py-3 rounded-lg font-semibold transition-colors ${ctaBlock.buttonStyle === 'secondary' ? 'bg-gray-600 text-white hover:bg-gray-700' :
+                                ctaBlock.buttonStyle === 'outline' ? 'border-2 border-primary text-primary hover:bg-primary hover:text-white' :
+                                  'bg-primary text-white hover:bg-primary-dark'
+                              }`}
                           >
                             {ctaBlock.buttonText}
                           </a>

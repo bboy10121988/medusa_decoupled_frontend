@@ -97,7 +97,7 @@ export default function PaginatedProducts({
           {products.map((p) => {
             return (
               <li key={p.id} className="w-full">
-                <ProductPreview product={p} countryCode="tw" />
+                <ProductPreview product={p} countryCode={countryCode} />
               </li>
             )
           })}

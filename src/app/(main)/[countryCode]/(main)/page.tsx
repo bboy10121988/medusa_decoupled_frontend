@@ -9,7 +9,7 @@ import ServiceCardsSection from "@modules/home/components/service-cards-section"
 import ContentSection from "@modules/home/components/content-section"
 import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
-import { getHomepage } from "@lib/sanity"; // 使用 getHomepage 並移除 getServiceSection
+import { getHomePage, mapCountryToLanguage } from "@lib/sanity-utils/index"; // 使用 getHomePage 並移除 getServiceSection
 import type { MainBanner } from '@lib/types/page-sections'
 import type { ImageTextBlock as ImageTextBlockType } from '@lib/types/page-sections'
 import type { FeaturedProductsSection } from '@lib/types/page-sections'
@@ -87,9 +87,11 @@ function generateJsonLd(homepageData: any) {
 }
 
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ countryCode: string }> }): Promise<Metadata> {
   try {
-    const homepageData = await getHomepage()
+    const { countryCode } = await params
+    const language = mapCountryToLanguage(countryCode)
+    const homepageData = await getHomePage(language)
     const storeName = await getStoreName()
 
     // 從Sanity獲取SEO資料
@@ -116,7 +118,7 @@ export async function generateMetadata(): Promise<Metadata> {
         title: ogTitle,
         description: ogDescription,
         type: 'website',
-        locale: 'zh_TW',
+        locale: language === 'zh-TW' ? 'zh_TW' : 'en_US',
         siteName: storeName,
         images: homepageData?.ogImage?.asset?.url ? [{
           url: homepageData.ogImage.asset.url,
@@ -198,8 +200,9 @@ export default async function Home({
   // 獲取首頁內容，並添加錯誤處理
   let homepageData
   try {
+    const language = mapCountryToLanguage(countryCode)
     // if (process.env.NODE_ENV === 'development') console.log('🔍 Fetching homepage data from Sanity...')
-    homepageData = await getHomepage()
+    homepageData = await getHomePage(language)
     // console.log('✅ Homepage data fetched:', {
     // title: homepageData?.title,
     // sectionsCount: homepageData?.mainSections?.length,
@@ -242,6 +245,7 @@ export default async function Home({
           <FeaturedProducts
             region={regionData}
             collections={collections?.collections || []}
+            countryCode={countryCode}
           />
         )}
       </>
@@ -389,6 +393,7 @@ export default async function Home({
                         collections={featuredCollections}
                         region={regionData!}
                         settings={featuredBlock}
+                        countryCode={countryCode}
                       />
                     )
                   }

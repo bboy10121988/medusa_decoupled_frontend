@@ -96,7 +96,22 @@ export async function getFooter(language?: string) {
           label,
           url
         }
-      }
+      },
+      logo {
+        alt,
+        asset->{
+          url
+        }
+      },
+      logoWidth,
+      socialMedia {
+        facebook { enabled, url },
+        instagram { enabled, url },
+        line { enabled, url },
+        youtube { enabled, url },
+        twitter { enabled, url }
+      },
+      copyright
     }`
 
     return await client.fetch(query, { lang })
@@ -119,7 +134,19 @@ export async function getHeader(language?: string) {
           name,
           href
         }
-      }
+      },
+      logo {
+        alt,
+        asset->{
+          url
+        }
+      },
+      announcement {
+        enabled,
+        text,
+        url
+      },
+      marquee
     }`
 
     return await client.fetch(query, { lang })
@@ -179,5 +206,32 @@ export async function getDynamicPage(slug: string, language?: string) {
   } catch (error) {
     // console.error('[getDynamicPage] 從 Sanity 獲取動態頁面資料時發生錯誤:', error)
     return null
+  }
+}
+
+// 新增：批量獲取商品內容
+export async function getProductsByHandles(handles: string[], language?: string) {
+  try {
+    const lang = language || DEFAULT_LANGUAGE
+    const query = `*[_type == "product" && slug.current in $handles && language == $lang] {
+      _id,
+      title,
+      slug,
+      description,
+      body,
+      images[]{
+        asset->{
+          url
+        },
+        alt
+      },
+      medusaId,
+      language
+    }`
+
+    return await client.fetch(query, { handles, lang })
+  } catch (error) {
+    // console.error('[getProductsByHandles] 從 Sanity 批量獲取商品資料時發生錯誤:', error)
+    return []
   }
 }

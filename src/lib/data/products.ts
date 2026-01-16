@@ -7,6 +7,7 @@ import { sortProducts } from "../util/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import type { SortOptions } from "../../modules/store/components/refinement-list/sort-products"
 import { getRegion, retrieveRegion } from "./regions"
+import { getProductsByHandles, mapCountryToLanguage } from "../sanity-utils"
 
 // 產品查詢快取配置
 const PRODUCTS_CACHE_CONFIG = {
@@ -84,8 +85,42 @@ export const listProducts = async ({
       },
       cache: "force-cache", // 改用快取優先策略
     })
-    .then(({ products, count }) => {
+    .then(async ({ products, count }) => {
       const nextPage = count > offset + limit ? offset + limit : null
+
+      // 嘗試從 Sanity 獲取本地化資料
+      try {
+        if (products.length > 0 && countryCode) {
+          const handles = products.map(p => p.handle).filter(Boolean) as string[]
+          const language = mapCountryToLanguage(countryCode)
+
+          if (handles.length > 0) {
+            const localizedProducts = await getProductsByHandles(handles, language)
+
+            // 建立查表
+            const localizedMap = new Map(
+              localizedProducts.map((p: any) => [p.slug.current, p])
+            )
+
+            // 合併資料
+            products = products.map(product => {
+              const sanityData = localizedMap.get(product.handle) as any
+              if (sanityData) {
+                return {
+                  ...product,
+                  title: sanityData.title || product.title,
+                  // description: sanityData.description || product.description, // 可選：是否要覆蓋描述
+                  // thumbnail: sanityData.images?.[0]?.asset?.url || product.thumbnail // 可選：是否要覆蓋縮圖
+                }
+              }
+              return product
+            })
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch localized products from Sanity:', error)
+        // 失敗時保持原樣，不阻擋流程
+      }
 
       return {
         response: {
@@ -193,11 +228,46 @@ export const getProduct = async ({
       next: { revalidate: 0 },
       cache: "no-store",
     })
-    .then(({ products }) => {
+    .then(async ({ products }) => {
       if (products.length === 0) {
         throw new Error(`Product with handle: ${handle} was not found`);
       }
-      return products[0];
+
+      let product = products[0];
+
+      // 嘗試從 Sanity 獲取本地化資料
+      try {
+        if (countryCode) {
+          const language = mapCountryToLanguage(countryCode)
+          /* 
+             注意：這裡我們可以用 getProduct(handle, language) from sanity-utils 
+             但因為我們只需要部分欄位覆蓋，且 sanity-utils/index.ts 的 getProduct 
+             是用來獲取完整頁面資料的（包含 body 等）。
+             
+             為了保持一致性，我們可以重用 getProductsByHandles 或是直接用 sanity-utils 的 getProduct 
+             如果 sanity-utils 的 getProduct 返回符合 StoreProduct 結構或我們需要的欄位。
+             
+             sanity-utils 的 getProduct 返回的是:
+             { _id, title, slug, description, body, images, medusaId, language }
+             
+             所以我們可以覆蓋 title, description.
+          */
+          // 這裡為了簡單，我們使用 getProductsByHandles，因為它已經定義好了 schema
+          const localizedProducts = await getProductsByHandles([handle], language)
+          if (localizedProducts && localizedProducts.length > 0) {
+            const sanityData = localizedProducts[0] as any
+            product = {
+              ...product,
+              title: sanityData.title || product.title,
+              // description: sanityData.description || product.description
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch localized product from Sanity:', error)
+      }
+
+      return product;
     })
 }
 
@@ -255,7 +325,40 @@ export const getProductsByIds = async ({
       },
       cache: "force-cache",
     })
-    .then(({ products }) => products)
+    .then(async ({ products }) => {
+      // 嘗試從 Sanity 獲取本地化資料
+      try {
+        if (products.length > 0 && countryCode) {
+          const handles = products.map(p => p.handle).filter(Boolean) as string[]
+          const language = mapCountryToLanguage(countryCode)
+
+          if (handles.length > 0) {
+            const localizedProducts = await getProductsByHandles(handles, language)
+
+            // 建立查表
+            const localizedMap = new Map(
+              localizedProducts.map((p: any) => [p.slug.current, p])
+            )
+
+            // 合併資料
+            products = products.map(product => {
+              const sanityData = localizedMap.get(product.handle) as any
+              if (sanityData) {
+                return {
+                  ...product,
+                  title: sanityData.title || product.title,
+                }
+              }
+              return product
+            })
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch localized products from Sanity (getProductsByIds):', error)
+      }
+
+      return products
+    })
     .catch((error) => {
       // console.error("批量產品獲取失敗:", error)
       throw medusaError(error)
@@ -304,8 +407,8 @@ export const getProductDetailBlocks = async (product: HttpTypes.StoreProduct): P
     if (product?.metadata && typeof product.metadata === 'object') {
       const metadata = product.metadata as Record<string, any>
       if (metadata.detail_blocks) {
-        return typeof metadata.detail_blocks === 'string' 
-          ? JSON.parse(metadata.detail_blocks) 
+        return typeof metadata.detail_blocks === 'string'
+          ? JSON.parse(metadata.detail_blocks)
           : metadata.detail_blocks
       }
     }

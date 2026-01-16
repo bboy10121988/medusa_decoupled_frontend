@@ -7,6 +7,7 @@ type FeaturedProductsBlockProps = {
   collections: HttpTypes.StoreCollection[];
   region: HttpTypes.StoreRegion;
   paddingX?: number;
+  countryCode: string;
 };
 
 const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
@@ -14,6 +15,7 @@ const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
   collections,
   region,
   paddingX,
+  countryCode,
 }) => {
   // console.log("FeaturedProductsBlock - collectionId:", collectionId);
   // console.log("FeaturedProductsBlock - collections:", collections);
@@ -21,18 +23,18 @@ const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
   let targetCollection = collections.find((c) => c.id === collectionId);
 
   if (!targetCollection) {
-      targetCollection = collections.find((c) => 
-        c.handle === 'featured' || 
-        c.handle === 'featuerd' || 
-        c.title === '精選商品'
-      );
+    targetCollection = collections.find((c) =>
+      c.handle === 'featured' ||
+      c.handle === 'featuerd' ||
+      c.title === '精選商品'
+    );
   }
 
   if (!targetCollection) {
     return null;
   }
 
-  return <FeaturedProducts collections={[targetCollection]} region={region} paddingX={paddingX} />;
+  return <FeaturedProducts collections={[targetCollection]} region={region} paddingX={paddingX} countryCode={countryCode} />;
 };
 
 export default FeaturedProductsBlock;
