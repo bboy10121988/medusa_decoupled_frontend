@@ -20,7 +20,7 @@ const client = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'm7o2mv1n',
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
     apiVersion: '2024-01-01',
-    token: process.env.SANITY_API_TOKEN, // 需要有寫入權限的 Token
+    token: process.env.SANITY_API_TOKEN!, // 需要有寫入權限的 Token
     useCdn: false,
 })
 
