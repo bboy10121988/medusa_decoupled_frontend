@@ -8,17 +8,22 @@ import LocalizedClientLink from "../../../common/components/localized-client-lin
 import CartButton from "../../components/cart-button"
 import AccountButton from "../../components/account-button"
 import CountrySelect from "../../components/country-select"
-import { getHeader } from "../../../../lib/sanity"
+import { getHeader, mapCountryToLanguage } from "../../../../lib/sanity-utils"
 import { SanityHeader } from "../../../../types/global"
 import MobileMenu from "../../components/mobile-menu"
 import SearchBarClient from "../../components/search-bar-client"
 import HeaderHeightSetter from "../../components/header-height-setter"
 import HelpButtonWrapper from "../../components/help-button-wrapper"
 
-export default async function Nav() {
+interface NavProps {
+  countryCode?: string
+}
+
+export default async function Nav({ countryCode = 'tw' }: NavProps) {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
   const categories = await listCategories()
-  const headerData = await getHeader() as SanityHeader
+  const language = mapCountryToLanguage(countryCode)
+  const headerData = await getHeader(language) as SanityHeader
 
   // 從 Sanity 獲取跑馬燈資料
   const enabledTexts = headerData?.marquee?.enabled

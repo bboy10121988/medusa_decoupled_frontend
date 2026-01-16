@@ -1,17 +1,22 @@
 import { listCategories } from "@lib/data/categories"
 import { listCollections } from "@lib/data/collections"
-import { getFooter } from "@lib/sanity"
+import { getFooter, mapCountryToLanguage } from "../../../../lib/sanity-utils"
 import Image from "next/image"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CopyrightYear from "@modules/layout/components/copyright-year"
 
-export default async function Footer() {
+interface FooterProps {
+  countryCode?: string
+}
+
+export default async function Footer({ countryCode = 'tw' }: FooterProps) {
   const { collections } = await listCollections({
     fields: "*products",
   })
   const productCategories = await listCategories()
-  const footer = await getFooter()
+  const language = mapCountryToLanguage(countryCode)
+  const footer = await getFooter(language)
 
   // 確保數據一致性
   const collectionsData = collections || []
@@ -46,7 +51,7 @@ export default async function Footer() {
               <ul className="space-y-4">
                 {collectionsData.slice(0, 3).map((collection) => (
                   <li key={collection.id}>
-                    <LocalizedClientLink 
+                    <LocalizedClientLink
                       href={`/collections/${collection.handle}`}
                       className="text-xs hover:text-black transition-colors"
                     >
@@ -63,7 +68,7 @@ export default async function Footer() {
               <ul className="space-y-4">
                 {categoriesData.slice(0, 3).map((category) => (
                   <li key={category.id}>
-                    <LocalizedClientLink 
+                    <LocalizedClientLink
                       href={`/categories/${category.handle}`}
                       className="text-xs hover:text-black transition-colors"
                     >
@@ -83,10 +88,10 @@ export default async function Footer() {
                     {section.links.map((link: any, linkIndex) => {
                       // 如果沒有連結文字，跳過此連結
                       if (!link.text) return null;
-                      
+
                       // 檢查是否有 url
                       const hasUrl = !!(link.url || link.internalLink || link.externalUrl);
-                      
+
                       // 如果沒有 url，顯示純文本
                       if (!hasUrl) {
                         return (
@@ -95,20 +100,20 @@ export default async function Footer() {
                           </li>
                         );
                       }
-                      
+
                       // 檢查是否為內部連結
-                      const isInternal = 
-                        link.linkType === 'internal' || 
+                      const isInternal =
+                        link.linkType === 'internal' ||
                         (link.url?.startsWith('/') && !link.url?.startsWith('//'));
-                      
+
                       // 取得最終 URL
-                      const finalUrl = 
+                      const finalUrl =
                         (isInternal ? (link.internalLink || link.url) : (link.externalUrl || link.url)) || '#';
-                      
+
                       return (
                         <li key={link.url || link.text || `link-${sectionIndex}-${linkIndex}`}>
                           {isInternal ? (
-                            <LocalizedClientLink 
+                            <LocalizedClientLink
                               href={finalUrl}
                               className="text-xs hover:text-black transition-colors"
                             >
@@ -121,9 +126,9 @@ export default async function Footer() {
                               const isTel = url.startsWith('tel:');
                               const isMailto = url.startsWith('mailto:');
                               const isSpecialProtocol = isTel || isMailto;
-                              
+
                               return (
-                                <a 
+                                <a
                                   href={url}
                                   className="text-xs hover:text-black transition-colors"
                                   // 只有常規外部連結才在新標籤打開
@@ -141,7 +146,7 @@ export default async function Footer() {
                     })}
                   </ul>
                 )}
-                
+
                 {/* 如果是最後一個區塊，在內容下方顯示社群媒體圖標 */}
                 {sectionIndex === (sectionsData.length - 1) && (
                   <div className="mt-6">
@@ -199,7 +204,7 @@ export default async function Footer() {
         {/* Copyright */}
         <div className="border-t border-gray-200 py-8">
           <div className="text-xs">
-            <CopyrightYear 
+            <CopyrightYear
               template={footerData?.copyright || "© {year} SALON. All rights reserved."}
             />
           </div>

@@ -7,14 +7,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
 }
 
-export default async function PageLayout(props: { children: React.ReactNode }) {
+export default async function PageLayout(props: {
+  children: React.ReactNode
+  params: Promise<{ countryCode: string }>
+}) {
+  const { countryCode } = await props.params
+
   return (
     <>
-      <Nav />
+      <Nav countryCode={countryCode} />
       <main style={{ margin: 0, padding: 0, border: 'none', outline: 'none', display: 'block' }}>
         {props.children}
       </main>
-      <Footer />
+      <Footer countryCode={countryCode} />
     </>
   )
 }
