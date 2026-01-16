@@ -40,23 +40,23 @@ export default defineType({
       },
       validation: (Rule) => Rule.required().custom((slug: any) => {
         if (!slug?.current) return '請生成網址別名'
-        
+
         // 檢查是否包含特殊字符
         if (!/^[a-z0-9\-]+$/.test(slug.current)) {
           return '網址別名只能包含小寫字母、數字和連字符'
         }
-        
+
         // 檢查長度
         if (slug.current.length < 2) {
           return '網址別名至少需要2個字符'
         }
-        
+
         // 檢查保留字
         const reserved = ['admin', 'api', 'cms', 'editor', 'login', 'logout', 'account', 'cart', 'checkout']
         if (reserved.includes(slug.current)) {
           return '此網址別名為系統保留字，請選擇其他名稱'
         }
-        
+
         return true
       })
     }),
@@ -84,7 +84,7 @@ export default defineType({
         { type: 'contentSection' },
         { type: 'serviceCardSection' },
         { type: 'googleMapsSection' },
-        
+
         // === 基本內容區塊 ===
         // 文字內容區塊
         {
@@ -94,13 +94,15 @@ export default defineType({
           fields: [
             { name: 'title', title: '區塊標題', type: 'string' },
             { name: 'content', title: '內容', type: 'array', of: [{ type: 'block' }] },
-            { name: 'alignment', title: '對齊方式', type: 'string', options: {
-              list: [
-                { title: '置左', value: 'left' },
-                { title: '置中', value: 'center' },
-                { title: '置右', value: 'right' }
-              ]
-            }, initialValue: 'left' }
+            {
+              name: 'alignment', title: '對齊方式', type: 'string', options: {
+                list: [
+                  { title: '置左', value: 'left' },
+                  { title: '置中', value: 'center' },
+                  { title: '置右', value: 'right' }
+                ]
+              }, initialValue: 'left'
+            }
           ],
           preview: {
             select: { title: 'title' },
@@ -117,14 +119,16 @@ export default defineType({
             { name: 'image', title: '圖片', type: 'image', options: { hotspot: true } },
             { name: 'alt', title: '替代文字', type: 'string' },
             { name: 'caption', title: '圖片說明', type: 'string' },
-            { name: 'layout', title: '佈局', type: 'string', options: {
-              list: [
-                { title: '全寬', value: 'full' },
-                { title: '置中', value: 'center' },
-                { title: '左浮動', value: 'float-left' },
-                { title: '右浮動', value: 'float-right' }
-              ]
-            }, initialValue: 'center' }
+            {
+              name: 'layout', title: '佈局', type: 'string', options: {
+                list: [
+                  { title: '全寬', value: 'full' },
+                  { title: '置中', value: 'center' },
+                  { title: '左浮動', value: 'float-left' },
+                  { title: '右浮動', value: 'float-right' }
+                ]
+              }, initialValue: 'center'
+            }
           ],
           preview: {
             select: { title: 'title', media: 'image' },
@@ -156,20 +160,24 @@ export default defineType({
             { name: 'title', title: '區塊標題', type: 'string' },
             { name: 'buttonText', title: '按鈕文字', type: 'string' },
             { name: 'buttonUrl', title: '按鈕連結', type: 'url' },
-            { name: 'buttonStyle', title: '按鈕樣式', type: 'string', options: {
-              list: [
-                { title: '主要按鈕', value: 'primary' },
-                { title: '次要按鈕', value: 'secondary' },
-                { title: '外框按鈕', value: 'outline' }
-              ]
-            }, initialValue: 'primary' },
-            { name: 'alignment', title: '對齊方式', type: 'string', options: {
-              list: [
-                { title: '置左', value: 'left' },
-                { title: '置中', value: 'center' },
-                { title: '置右', value: 'right' }
-              ]
-            }, initialValue: 'center' }
+            {
+              name: 'buttonStyle', title: '按鈕樣式', type: 'string', options: {
+                list: [
+                  { title: '主要按鈕', value: 'primary' },
+                  { title: '次要按鈕', value: 'secondary' },
+                  { title: '外框按鈕', value: 'outline' }
+                ]
+              }, initialValue: 'primary'
+            },
+            {
+              name: 'alignment', title: '對齊方式', type: 'string', options: {
+                list: [
+                  { title: '置左', value: 'left' },
+                  { title: '置中', value: 'center' },
+                  { title: '置右', value: 'right' }
+                ]
+              }, initialValue: 'center'
+            }
           ],
           preview: {
             select: { title: 'title', buttonText: 'buttonText' },
@@ -274,7 +282,7 @@ export default defineType({
       title: '社群分享圖片',
       type: 'image',
       group: 'social',
-      options: { hotspot: true, metadata: ['blurhash','exif','location','palette'] },
+      options: { hotspot: true, metadata: ['blurhash', 'exif', 'location', 'palette'] },
       description: '建議尺寸：1200x630 像素，檔案小於 1MB',
       fields: [
         {
@@ -355,6 +363,13 @@ export default defineType({
         ]
       }],
       hidden: true
+    }),
+    // 多語系欄位 (由 i18n 插件管理)
+    defineField({
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
     })
   ],
   preview: {
@@ -371,7 +386,7 @@ export default defineType({
         'published': '🌐',
         'archived': '📦'
       }
-      
+
       const statusLabel: Record<string, string> = {
         'draft': '草稿',
         'preview': '預覽',

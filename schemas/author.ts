@@ -10,15 +10,16 @@ export default {
     { name: 'structured', title: '結構化資料' }
   ],
   fields: [
-    { 
-      name: 'name', 
-      title: '名稱', 
+
+    {
+      name: 'name',
+      title: '名稱',
       type: 'string',
       group: 'content'
     },
-    { 
-      name: 'image', 
-      title: '大頭照', 
+    {
+      name: 'image',
+      title: '大頭照',
       type: 'image',
       options: { hotspot: true },
       group: 'content',
@@ -109,7 +110,7 @@ export default {
       name: 'ogImage',
       title: '社群分享圖片',
       type: 'image',
-      options: { hotspot: true, metadata: ['blurhash','exif','location','palette'] },
+      options: { hotspot: true, metadata: ['blurhash', 'exif', 'location', 'palette'] },
       group: 'social',
       fields: [
         {

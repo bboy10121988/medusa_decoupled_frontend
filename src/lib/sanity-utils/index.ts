@@ -12,10 +12,30 @@ export const client = createClient({
   }
 })
 
-export async function getAllPosts(category?: string, limit: number = 50): Promise<BlogPostType[]> {
+// 預設語言
+const DEFAULT_LANGUAGE = 'zh-TW'
+
+/**
+ * 將 countryCode 轉換為 Sanity language code
+ */
+export function mapCountryToLanguage(countryCode: string): string {
+  switch (countryCode?.toLowerCase()) {
+    case 'tw':
+      return 'zh-TW'
+    case 'us':
+    case 'my':
+    case 'sg':
+    case 'au':
+    default:
+      return 'en'
+  }
+}
+
+export async function getAllPosts(category?: string, limit: number = 50, language?: string): Promise<BlogPostType[]> {
   try {
-    // 建立基本查詢
-    const baseQuery = `*[_type == "post"`
+    const lang = language || DEFAULT_LANGUAGE
+    // 建立基本查詢 - 加入語言過濾
+    const baseQuery = `*[_type == "post" && language == $lang`
     const categoryFilter = category ? ` && "${category}" in categories[]->title` : ""
     const query = `${baseQuery}${categoryFilter}] | order(publishedAt desc) [0...${limit}] {
       title,
@@ -36,10 +56,11 @@ export async function getAllPosts(category?: string, limit: number = 50): Promis
         image
       },
       status,
-      _id
+      _id,
+      language
     }`
 
-    const posts = await client.fetch<BlogPostType[]>(query)
+    const posts = await client.fetch<BlogPostType[]>(query, { lang })
     return posts || []
   } catch (error) {
     // console.error('[getAllPosts] 從 Sanity 獲取部落格文章時發生錯誤:', error)
@@ -47,14 +68,15 @@ export async function getAllPosts(category?: string, limit: number = 50): Promis
   }
 }
 
-export async function getCategories(): Promise<CategoryType[]> {
+export async function getCategories(language?: string): Promise<CategoryType[]> {
   try {
-    const query = `*[_type == "category"] {
+    const lang = language || DEFAULT_LANGUAGE
+    const query = `*[_type == "category" && language == $lang] {
       _id,
       title
     }`
-    
-    const categories = await client.fetch<CategoryType[]>(query)
+
+    const categories = await client.fetch<CategoryType[]>(query, { lang })
     return categories || []
   } catch (error) {
     // console.error('[getCategories] 從 Sanity 獲取分類時發生錯誤:', error)
@@ -63,9 +85,10 @@ export async function getCategories(): Promise<CategoryType[]> {
 }
 
 // 添加 getFooter 導出
-export async function getFooter() {
+export async function getFooter(language?: string) {
   try {
-    const query = `*[_type == "footer"][0] {
+    const lang = language || DEFAULT_LANGUAGE
+    const query = `*[_type == "footer" && language == $lang][0] {
       _id,
       sections[]{
         title,
@@ -75,8 +98,8 @@ export async function getFooter() {
         }
       }
     }`
-    
-    return await client.fetch(query)
+
+    return await client.fetch(query, { lang })
   } catch (error) {
     // console.error('[getFooter] 從 Sanity 獲取頁腳資料時發生錯誤:', error)
     return null
@@ -84,9 +107,10 @@ export async function getFooter() {
 }
 
 // 添加 getHeader 導出  
-export async function getHeader() {
+export async function getHeader(language?: string) {
   try {
-    const query = `*[_type == "header"][0] {
+    const lang = language || DEFAULT_LANGUAGE
+    const query = `*[_type == "header" && language == $lang][0] {
       _id,
       navigation[]{
         name,
@@ -97,10 +121,63 @@ export async function getHeader() {
         }
       }
     }`
-    
-    return await client.fetch(query)
+
+    return await client.fetch(query, { lang })
   } catch (error) {
     // console.error('[getHeader] 從 Sanity 獲取頭部資料時發生錯誤:', error)
+    return null
+  }
+}
+
+// 新增：獲取商品內容
+export async function getProduct(handle: string, language?: string) {
+  try {
+    const lang = language || DEFAULT_LANGUAGE
+    const query = `*[_type == "product" && slug.current == $handle && language == $lang][0] {
+      _id,
+      title,
+      slug,
+      description,
+      body,
+      images[]{
+        asset->{
+          url
+        },
+        alt
+      },
+      medusaId,
+      language
+    }`
+
+    return await client.fetch(query, { handle, lang })
+  } catch (error) {
+    // console.error('[getProduct] 從 Sanity 獲取商品資料時發生錯誤:', error)
+    return null
+  }
+}
+
+// 新增：獲取首頁內容
+export async function getHomePage(language?: string) {
+  try {
+    const lang = language || DEFAULT_LANGUAGE
+    const query = `*[_type == "homePage" && language == $lang][0]`
+
+    return await client.fetch(query, { lang })
+  } catch (error) {
+    // console.error('[getHomePage] 從 Sanity 獲取首頁資料時發生錯誤:', error)
+    return null
+  }
+}
+
+// 新增：獲取動態頁面
+export async function getDynamicPage(slug: string, language?: string) {
+  try {
+    const lang = language || DEFAULT_LANGUAGE
+    const query = `*[_type == "dynamicPage" && slug.current == $slug && language == $lang][0]`
+
+    return await client.fetch(query, { slug, lang })
+  } catch (error) {
+    // console.error('[getDynamicPage] 從 Sanity 獲取動態頁面資料時發生錯誤:', error)
     return null
   }
 }

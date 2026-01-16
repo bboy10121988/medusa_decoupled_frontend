@@ -5107,10 +5107,10 @@
     get-it "^8.6.7"
     rxjs "^7.0.0"
 
-"@sanity/client@^7.11.0", "@sanity/client@^7.11.1", "@sanity/client@^7.11.2", "@sanity/client@^7.12.0", "@sanity/client@^7.13.0", "@sanity/client@^7.13.2", "@sanity/client@^7.2.1", "@sanity/client@^7.6.0", "@sanity/client@^7.8.2", "@sanity/client@^7.9.0":
-  version "7.13.2"
-  resolved "https://registry.npmjs.org/@sanity/client/-/client-7.13.2.tgz"
-  integrity sha512-bXuQGWgrpkSInZy8lfCMmOgdTNpsoZ7PORW0+zXss8qVpNo1DC002l1c8to6kfxNF0OaL9v7LwsPqKcTZ/VWrw==
+"@sanity/client@^7.11.0", "@sanity/client@^7.11.1", "@sanity/client@^7.11.2", "@sanity/client@^7.12.0", "@sanity/client@^7.13.0", "@sanity/client@^7.13.2", "@sanity/client@^7.14.0", "@sanity/client@^7.2.1", "@sanity/client@^7.6.0", "@sanity/client@^7.8.2", "@sanity/client@^7.9.0":
+  version "7.14.0"
+  resolved "https://registry.npmjs.org/@sanity/client/-/client-7.14.0.tgz"
+  integrity sha512-eXue3rc4MqJh89mvuTC0h0pdoY8lwXjlV8odFB3EF7aSFKF7F5BL0NU2mlTrCZYbPAlV3JTvMPPLGJCORqOKDw==
   dependencies:
     "@sanity/eventsource" "^5.0.2"
     get-it "^8.7.0"
@@ -5203,6 +5203,19 @@
   dependencies:
     "@sanity/diff-match-patch" "^3.2.0"
 
+"@sanity/document-internationalization@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.npmjs.org/@sanity/document-internationalization/-/document-internationalization-4.1.1.tgz"
+  integrity sha512-oOQK5sdaZ9S3cgVJCm6gEsCk2OxY852Fv5fTfsBUXrZNQm14yz73evyCZ9Bgwa3og7gXj5U2vZyw7LkE/PtysA==
+  dependencies:
+    "@sanity/icons" "^3.7.4"
+    "@sanity/incompatible-plugin" "^1.0.5"
+    "@sanity/mutator" "^5.0.1"
+    "@sanity/ui" "^3.1.11"
+    "@sanity/uuid" "^3.0.2"
+    sanity-plugin-internationalized-array "^3.2.1"
+    sanity-plugin-utils "^1.7.0"
+
 "@sanity/eventsource@^5.0.2":
   version "5.0.2"
   resolved "https://registry.npmjs.org/@sanity/eventsource/-/eventsource-5.0.2.tgz"
@@ -5229,7 +5242,7 @@
   resolved "https://registry.npmjs.org/@sanity/generate-help-url/-/generate-help-url-3.0.1.tgz"
   integrity sha512-bKqCEqFP7qXpNcHxJZnXFLrti8/HYQhhJtMRYFSNJ8bkUXCuUmhHKckzoyiH1n1WAZpI2Y05z2h5yZWbi3gThQ==
 
-"@sanity/icons@*", "@sanity/icons@^3.7.4":
+"@sanity/icons@*", "@sanity/icons@^3.5.3", "@sanity/icons@^3.7.4":
   version "3.7.4"
   resolved "https://registry.npmjs.org/@sanity/icons/-/icons-3.7.4.tgz"
   integrity sha512-O9MnckiDsphFwlRS8Q3kj3n+JYUZ0UzKRujnSikMZOKI0dayucRe4U2XvxikRhJnFhcEJXW2RkWJoBaCoup9Sw==
@@ -5282,6 +5295,11 @@
     tar-fs "^2.1.3"
     tinyglobby "^0.2.9"
 
+"@sanity/incompatible-plugin@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/@sanity/incompatible-plugin/-/incompatible-plugin-1.0.5.tgz"
+  integrity sha512-9JGAacbElUPy9Chghd+sllIiM3jAcraZdD65bWYWUVKkghOsf1L/+jFLz1rcAuvrA9o2s7Y+T75BNcXuLwRcvw==
+
 "@sanity/insert-menu@^2.0.2", "@sanity/insert-menu@^2.1.0":
   version "2.1.0"
   resolved "https://registry.npmjs.org/@sanity/insert-menu/-/insert-menu-2.1.0.tgz"
@@ -5297,6 +5315,16 @@
   resolved "https://registry.npmjs.org/@sanity/json-match/-/json-match-1.0.5.tgz"
   integrity sha512-skhIX8gT/hLritEBkjfc7+TBlJNu/NLisyA8noKceCk28OatFK0wX7dIuFawkt3pfhTYVomVPykAYFcIm2OqJg==
 
+"@sanity/language-filter@^4.0.3":
+  version "4.0.6"
+  resolved "https://registry.npmjs.org/@sanity/language-filter/-/language-filter-4.0.6.tgz"
+  integrity sha512-yL3Lyu/OQOEXU2A6d554BWLYHC92FR2QQVP9HzD4FJp7HeD0igQv/KL2hjjadhSecWVFNcSEuKekSoVIvlfghw==
+  dependencies:
+    "@sanity/icons" "^3.5.3"
+    "@sanity/incompatible-plugin" "^1.0.5"
+    "@sanity/ui" "^3.1.11"
+    "@sanity/util" "^5.0.1"
+
 "@sanity/logos@^2.2.2":
   version "2.2.2"
   resolved "https://registry.npmjs.org/@sanity/logos/-/logos-2.2.2.tgz"
@@ -5304,10 +5332,10 @@
   dependencies:
     "@sanity/color" "^3.0.6"
 
-"@sanity/media-library-types@^1.0.0", "@sanity/media-library-types@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/@sanity/media-library-types/-/media-library-types-1.0.1.tgz"
-  integrity sha512-lyjDQqq0IkVMBKPsm1+IeTpOki3OeFvSCyFms8pPTYcMaH0U5S+wK553QDI4HnmmPx0SiWpOWtLlTh1qkh+IFA==
+"@sanity/media-library-types@^1.0.0", "@sanity/media-library-types@^1.0.1", "@sanity/media-library-types@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@sanity/media-library-types/-/media-library-types-1.2.0.tgz"
+  integrity sha512-p+Bw96I63SwBcMNA/L5dnMdEcS88EEDUDZ65LGuwOCMXrESRGMFCSxgc+0HnL0JXDIzgYgfrPuf1I3bO9QneAw==
 
 "@sanity/message-protocol@^0.12.0":
   version "0.12.0"
@@ -5389,6 +5417,17 @@
     "@sanity/uuid" "^3.0.2"
     debug "^4.3.4"
     lodash "^4.17.21"
+
+"@sanity/mutator@^5.0.1":
+  version "5.4.0"
+  resolved "https://registry.npmjs.org/@sanity/mutator/-/mutator-5.4.0.tgz"
+  integrity sha512-rGrF73JpicTZQuCr7ROmYMJEqZ3GYHEXaj9yz7hRG+W87ao6cAeF05JdGk8CpjTSxBeL28qbphMLoWPEsUFB9w==
+  dependencies:
+    "@sanity/diff-match-patch" "^3.2.0"
+    "@sanity/types" "5.4.0"
+    "@sanity/uuid" "^3.0.2"
+    debug "^4.4.3"
+    lodash-es "^4.17.22"
 
 "@sanity/mutator@4.22.0":
   version "4.22.0"
@@ -5558,7 +5597,15 @@
     "@sanity/client" "^7.6.0"
     "@sanity/media-library-types" "^1.0.0"
 
-"@sanity/ui@^3.0.0", "@sanity/ui@^3.0.8", "@sanity/ui@^3.1.11", "@sanity/ui@^3.1.6":
+"@sanity/types@5.4.0":
+  version "5.4.0"
+  resolved "https://registry.npmjs.org/@sanity/types/-/types-5.4.0.tgz"
+  integrity sha512-wy+w1K2WuMj+6xcP3z4dDLdMQiyinfemi0koX0HQulZ+s6uSPi2rDKgixe0+7hcQD8k1m2fGpDfvCfnlXAT0Vg==
+  dependencies:
+    "@sanity/client" "^7.14.0"
+    "@sanity/media-library-types" "^1.2.0"
+
+"@sanity/ui@^3.0.0", "@sanity/ui@^3.0.8", "@sanity/ui@^3.1.11", "@sanity/ui@^3.1.6", "@sanity/ui@^3.1.8":
   version "3.1.11"
   resolved "https://registry.npmjs.org/@sanity/ui/-/ui-3.1.11.tgz"
   integrity sha512-UooG4hq0ytUivCe0d5O+QWnG+B6fpuu5npNZNpV9SJNwZNH4hDNbLjnDS8sqEkaYVNhgIS+C26nnkVK134Di4w==
@@ -5572,6 +5619,18 @@
     react-compiler-runtime "1.0.0"
     react-refractor "^4.0.0"
     use-effect-event "^2.0.3"
+
+"@sanity/util@^5.0.1":
+  version "5.4.0"
+  resolved "https://registry.npmjs.org/@sanity/util/-/util-5.4.0.tgz"
+  integrity sha512-H6Wq9u2z8cS/cToSBZkaDNCQBGspKUWZ8TPSBeHuXTB591dEG2vBo8ae/4v1R0lOacEcStoPHqg9xhh6BGHxiw==
+  dependencies:
+    "@date-fns/tz" "^1.4.1"
+    "@date-fns/utc" "^2.1.1"
+    "@sanity/client" "^7.14.0"
+    "@sanity/types" "5.4.0"
+    date-fns "^4.1.0"
+    rxjs "^7.8.2"
 
 "@sanity/util@4.22.0":
   version "4.22.0"
@@ -6073,6 +6132,13 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
+
+"@types/react@^19.2":
+  version "19.2.8"
+  resolved "https://registry.npmjs.org/@types/react/-/react-19.2.8.tgz"
+  integrity sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==
+  dependencies:
+    csstype "^3.2.2"
 
 "@types/shallow-equals@^1.0.3":
   version "1.0.3"
@@ -7660,6 +7726,11 @@ csstype@^3.0.10, csstype@^3.0.2, csstype@^3.1.3, csstype@3.1.3:
   resolved "https://registry.npmjs.org/csstype/-/csstype-3.1.3.tgz"
   integrity sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==
 
+csstype@^3.2.2:
+  version "3.2.3"
+  resolved "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz"
+  integrity sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==
+
 custom-media-element@~1.4.5:
   version "1.4.5"
   resolved "https://registry.npmjs.org/custom-media-element/-/custom-media-element-1.4.5.tgz"
@@ -7977,6 +8048,11 @@ dot-prop@^5.2.0:
   integrity sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==
   dependencies:
     is-obj "^2.0.0"
+
+dotenv@^17.2.3:
+  version "17.2.3"
+  resolved "https://registry.npmjs.org/dotenv/-/dotenv-17.2.3.tgz"
+  integrity sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==
 
 dunder-proto@^1.0.0, dunder-proto@^1.0.1:
   version "1.0.1"
@@ -10794,10 +10870,10 @@ locate-path@^8.0.0:
   dependencies:
     p-locate "^6.0.0"
 
-lodash-es@^4.17.21:
-  version "4.17.21"
-  resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.21.tgz"
-  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
+lodash-es@^4.17.21, lodash-es@^4.17.22:
+  version "4.17.22"
+  resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.22.tgz"
+  integrity sha512-XEawp1t0gxSi9x01glktRZ5HDy0HXqrM0x5pXQM98EaI0NxO6jVM7omDOxsuEo5UIASAnm2bRp1Jt/e0a2XU8Q==
 
 lodash.castarray@^4.4.0:
   version "4.4.0"
@@ -13107,7 +13183,30 @@ safe-regex-test@^1.0.3, safe-regex-test@^1.1.0:
   resolved "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-sanity@*, sanity@^4.6.1, sanity@^4.7.0:
+sanity-plugin-internationalized-array@^3.2.1:
+  version "3.2.2"
+  resolved "https://registry.npmjs.org/sanity-plugin-internationalized-array/-/sanity-plugin-internationalized-array-3.2.2.tgz"
+  integrity sha512-2mhsDDW/W250WrxJ9Irua7WmZ2KR5G3CfA3jdSUAbwFewsujEqOCQafq+eSvX+5sva6KvPnrSFoWLMfb2Herqg==
+  dependencies:
+    "@sanity/icons" "^3.5.3"
+    "@sanity/incompatible-plugin" "^1.0.5"
+    "@sanity/language-filter" "^4.0.3"
+    "@sanity/ui" "^3.1.11"
+    fast-deep-equal "^3.1.3"
+    lodash "^4.17.21"
+    suspend-react "0.1.3"
+
+sanity-plugin-utils@^1.7.0:
+  version "1.8.0"
+  resolved "https://registry.npmjs.org/sanity-plugin-utils/-/sanity-plugin-utils-1.8.0.tgz"
+  integrity sha512-fzRThaEO/UIK3PRf7W8UXAaxTOsaB53xl6CJGoAVtBRBHANEMOv9bAcgZyBoMyIVuj17N2SGpKCZSIcAgsQmYQ==
+  dependencies:
+    "@sanity/icons" "^3.7.4"
+    "@sanity/incompatible-plugin" "^1.0.5"
+    "@sanity/ui" "^3.1.8"
+    react-fast-compare "^3.2.2"
+
+sanity@*, "sanity@^3.36.4 || ^4.0.0-0 || ^5", "sanity@^3.40.0 || ^4.0.0-0 || ^5", "sanity@^3.52.4 || ^4.0.0-0 || ^5", "sanity@^3.67.1 || ^4.0.0 || ^5.0.0", sanity@^4.6.1, sanity@^4.7.0:
   version "4.22.0"
   resolved "https://registry.npmjs.org/sanity/-/sanity-4.22.0.tgz"
   integrity sha512-wBmr/euVC6Kvni1gKP2qwkEsyxGQlfnPOhjowT7tjm0a0eOvBwS6uHnHtjr24wjhf8PeongurQzMewx2tTP8Wg==
@@ -14031,6 +14130,11 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+suspend-react@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.npmjs.org/suspend-react/-/suspend-react-0.1.3.tgz"
+  integrity sha512-aqldKgX9aZqpoDp3e8/BZ8Dm7x1pJl+qI3ZKxDN0i/IQTWUwBx/ManmlVJ3wowqbno6c2bmiIfs+Um6LbsjJyQ==
 
 symbol-tree@^3.2.4:
   version "3.2.4"

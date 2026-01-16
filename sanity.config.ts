@@ -1,10 +1,31 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
+import { documentInternationalization } from '@sanity/document-internationalization'
 import { schemaTypes } from './schemas/index'
 // import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
 import { structure } from './sanity-structure'
 // import type { DocumentActionProps } from 'sanity'
+
+// 多語系設定
+const i18nConfig = {
+  // 支援的語言
+  supportedLanguages: [
+    { id: 'zh-TW', title: '繁體中文' },
+    { id: 'en', title: 'English' },
+  ],
+  // 需要多語系支援的 Schema 類型
+  schemaTypes: [
+    'homePage',
+    'dynamicPage',
+    'blogPage',
+    'post',
+    'category',
+    'header',
+    'footer',
+    'product', // 新增商品 schema
+  ],
+}
 
 // const GeneratePageAction = (props: DocumentActionProps) => {
 //   const { published } = props
@@ -52,7 +73,8 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure }),
-    visionTool()
+    visionTool(),
+    documentInternationalization(i18nConfig),
   ],
 
   // document: {

@@ -32,7 +32,7 @@ export default defineType({
       type: 'image',
       group: 'basic',
       description: '建議使用 32x32 或 64x64 像素的正方形圖片 (支援 PNG、ICO、SVG)',
-      options: { 
+      options: {
         hotspot: false,
         accept: '.ico,.png,.svg'
       },
@@ -90,7 +90,7 @@ export default defineType({
     }),
     defineField({
       name: 'navigation',
-    title: '選單',
+      title: '選單',
       type: 'array',
       group: 'navigation',
       of: [
@@ -194,6 +194,13 @@ export default defineType({
           initialValue: true
         })
       ]
+    }),
+    // 多語系欄位 (由 i18n 插件管理)
+    defineField({
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
     })
   ]
 })

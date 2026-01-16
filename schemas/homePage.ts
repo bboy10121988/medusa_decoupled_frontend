@@ -79,7 +79,7 @@ export default {
       name: 'ogImage',
       title: '社群分享圖片',
       type: 'image',
-      options: { hotspot: true, metadata: ['blurhash','exif','location','palette'] },
+      options: { hotspot: true, metadata: ['blurhash', 'exif', 'location', 'palette'] },
       group: 'social',
       fields: [
         {
@@ -109,26 +109,33 @@ export default {
       title: '頁面區塊',
       type: 'array',
       of: [
-        {type: 'mainBanner'},
-        {type: 'imageTextBlock'},
-        {type: 'featuredProducts'},
-        {type: 'blogSection'},
-        {type: 'youtubeSection'},
-        {type: 'contentSection'},
-        {type: 'serviceCardSection'},
-        {type: 'googleMapsSection'},
+        { type: 'mainBanner' },
+        { type: 'imageTextBlock' },
+        { type: 'featuredProducts' },
+        { type: 'blogSection' },
+        { type: 'youtubeSection' },
+        { type: 'contentSection' },
+        { type: 'serviceCardSection' },
+        { type: 'googleMapsSection' },
       ],
       options: {
         sortable: true
       },
-  group: 'sectionsGroup'
+      group: 'sectionsGroup'
+    },
+    // 多語系欄位 (由 i18n 插件管理)
+    {
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
     }
   ],
   preview: {
     select: {
       title: 'title'
     },
-    prepare({title}: {title?: string}) {
+    prepare({ title }: { title?: string }) {
       return {
         title: title || '首頁'
       }

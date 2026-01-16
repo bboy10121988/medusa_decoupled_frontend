@@ -7,6 +7,7 @@ import homePage from './homePage'
 import footer from './footer'
 import dynamicPage from './dynamicPage'
 import blogPage from './blogPage'
+import product from './product'
 // import medusaProductContent from './medusaProductContent'
 // import seoMeta from './seoMeta' // No longer needed - SEO fields are now flattened
 
@@ -32,6 +33,7 @@ export const schemaTypes = [
   category,
   header,
   footer,
+  product,
 
   // Objects
   // seoMeta, // No longer needed - SEO fields are now flattened

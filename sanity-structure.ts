@@ -1,34 +1,170 @@
+// 建立語言分類資料夾的輔助函式
+const createLanguageFolders = (S: any, docType: string, zhTitle: string, enTitle: string) => {
+  return S.list()
+    .id(`${docType}-lang-list`)
+    .title('選擇語言')
+    .items([
+      S.listItem()
+        .id(`${docType}-zh`)
+        .title('🇹🇼 繁體中文')
+        .child(
+          S.documentList()
+            .id(`${docType}-zh-list`)
+            .title(zhTitle)
+            .filter(`_type == "${docType}" && language == "zh-TW"`)
+        ),
+      S.listItem()
+        .id(`${docType}-en`)
+        .title('🇺🇸 English')
+        .child(
+          S.documentList()
+            .id(`${docType}-en-list`)
+            .title(enTitle)
+            .filter(`_type == "${docType}" && language == "en"`)
+        ),
+      S.divider(),
+      S.listItem()
+        .id(`${docType}-all`)
+        .title('📋 全部')
+        .child(
+          S.documentList()
+            .id(`${docType}-all-list`)
+            .title('所有文檔')
+            .filter(`_type == "${docType}"`)
+        ),
+    ])
+}
+
 export const structure = (S: any) =>
   S.list()
     .title('Content')
     .items([
-      // 動態頁面清單
-      S.documentTypeListItem('dynamicPage').title('動態頁面'),
+      // 首頁 - 按語言分類
+      S.listItem()
+        .id('homepage-section')
+        .title('🏠 首頁')
+        .child(createLanguageFolders(S, 'homePage', '繁體中文首頁', 'English Homepage')),
 
-      // 其他文檔類型
-      S.documentTypeListItem('homePage').title('首頁'),
-      
+      // 動態頁面 - 按語言分類
+      S.listItem()
+        .id('dynamicpage-section')
+        .title('📄 動態頁面')
+        .child(createLanguageFolders(S, 'dynamicPage', '繁體中文頁面', 'English Pages')),
+
       S.divider(),
-      
-      // 部落格相關
+
+      // 商品內容 - 按語言分類
+      S.listItem()
+        .id('product-section')
+        .title('🛍️ 商品內容')
+        .child(createLanguageFolders(S, 'product', '繁體中文商品', 'English Products')),
+
+      S.divider(),
+
+      // 部落格 - 先語言分類，再分類型
       S.listItem()
         .id('blog-section')
-        .title('部落格')
+        .title('📝 部落格')
         .child(
           S.list()
             .id('blog-list')
             .title('部落格管理')
             .items([
-              S.documentTypeListItem('blogPage').title('部落格頁面設定'),
+              // 繁體中文
+              S.listItem()
+                .id('blog-zh')
+                .title('🇹🇼 繁體中文')
+                .child(
+                  S.list()
+                    .id('blog-zh-list')
+                    .title('繁體中文部落格')
+                    .items([
+                      S.listItem()
+                        .id('blogpage-zh')
+                        .title('頁面設定')
+                        .child(
+                          S.documentList()
+                            .id('blogpage-zh-list')
+                            .title('繁體中文頁面設定')
+                            .filter('_type == "blogPage" && language == "zh-TW"')
+                        ),
+                      S.listItem()
+                        .id('post-zh')
+                        .title('文章')
+                        .child(
+                          S.documentList()
+                            .id('post-zh-list')
+                            .title('繁體中文文章')
+                            .filter('_type == "post" && language == "zh-TW"')
+                        ),
+                      S.listItem()
+                        .id('category-zh')
+                        .title('分類')
+                        .child(
+                          S.documentList()
+                            .id('category-zh-list')
+                            .title('繁體中文分類')
+                            .filter('_type == "category" && language == "zh-TW"')
+                        ),
+
+                    ])
+                ),
+              // English
+              S.listItem()
+                .id('blog-en')
+                .title('🇺🇸 English')
+                .child(
+                  S.list()
+                    .id('blog-en-list')
+                    .title('English Blog')
+                    .items([
+                      S.listItem()
+                        .id('blogpage-en')
+                        .title('Page Settings')
+                        .child(
+                          S.documentList()
+                            .id('blogpage-en-list')
+                            .title('English Page Settings')
+                            .filter('_type == "blogPage" && language == "en"')
+                        ),
+                      S.listItem()
+                        .id('post-en')
+                        .title('Posts')
+                        .child(
+                          S.documentList()
+                            .id('post-en-list')
+                            .title('English Posts')
+                            .filter('_type == "post" && language == "en"')
+                        ),
+                      S.listItem()
+                        .id('category-en')
+                        .title('Categories')
+                        .child(
+                          S.documentList()
+                            .id('category-en-list')
+                            .title('English Categories')
+                            .filter('_type == "category" && language == "en"')
+                        ),
+                    ])
+                ),
+
               S.divider(),
-              S.documentTypeListItem('post').title('文章'),
-              S.documentTypeListItem('author').title('作者'),
-              S.documentTypeListItem('category').title('分類'),
+              // 作者 (共用)
+              S.documentTypeListItem('author').title('👤 作者'),
             ])
         ),
-      
+
       S.divider(),
-      
-      S.documentTypeListItem('header').title('網站頁首'),
-      S.documentTypeListItem('footer').title('頁腳設定'),
+
+      // 網站頁首 - 按語言分類
+      S.listItem()
+        .id('header-section')
+        .title('🔝 網站頁首')
+        .child(createLanguageFolders(S, 'header', '繁體中文頁首', 'English Header')),
+
+      // 頁腳設定 - 按語言分類
+      S.listItem()
+        .id('footer-section')
+        .title('🔻 頁腳設定')
+        .child(createLanguageFolders(S, 'footer', '繁體中文頁腳', 'English Footer')),
     ])

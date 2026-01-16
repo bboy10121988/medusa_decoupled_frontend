@@ -103,7 +103,7 @@ export default defineType({
                       description: '輸入內部頁面路徑，例如: /about 或 /products 或 /return',
                       hidden: ({ parent }) => parent?.linkType !== 'internal',
                       // @ts-ignore
-                    validation: rule => rule.custom((value, _context) => {
+                      validation: rule => rule.custom((value, _context) => {
                         // 如果有值，且值不是以 / 開頭，則顯示錯誤
                         if (value && !value.startsWith('/')) {
                           return '內部連結必須以 / 開頭'
@@ -232,13 +232,20 @@ export default defineType({
       type: 'string',
       description: '例如: © 2025 公司名稱',
       group: 'general'
+    }),
+    // 多語系欄位 (由 i18n 插件管理)
+    defineField({
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
     })
   ],
   preview: {
     select: {
       title: 'title'
     },
-    prepare({title}: {title?: string}) {
+    prepare({ title }: { title?: string }) {
       return {
         title: title || '頁腳設定'
       }

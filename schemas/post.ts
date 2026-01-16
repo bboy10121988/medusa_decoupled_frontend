@@ -10,9 +10,9 @@ export default {
     { name: 'structured', title: '結構化資料' }
   ],
   fields: [
-    { 
-      name: 'title', 
-      title: '標題', 
+    {
+      name: 'title',
+      title: '標題',
       type: 'string',
       group: 'content'
     },
@@ -113,7 +113,7 @@ export default {
       name: 'ogImage',
       title: '社群分享圖片',
       type: 'image',
-      options: { hotspot: true, metadata: ['blurhash','exif','location','palette'] },
+      options: { hotspot: true, metadata: ['blurhash', 'exif', 'location', 'palette'] },
       group: 'social',
       fields: [
         {
@@ -234,6 +234,13 @@ export default {
       of: [{ type: 'block' }],
       group: 'content'
     },
+    // 多語系欄位 (由 i18n 插件管理)
+    {
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
+    }
   ],
   preview: {
     select: {

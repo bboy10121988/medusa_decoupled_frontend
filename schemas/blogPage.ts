@@ -41,7 +41,7 @@ export default {
       initialValue: false,
       group: 'content'
     },
-    
+
     // ==================== 文章設定 ====================
     {
       name: 'postsHeading',
@@ -69,7 +69,7 @@ export default {
       of: [{ type: 'reference', to: [{ type: 'post' }] }],
       group: 'content'
     },
-    
+
     // ==================== 分類設定 ====================
     {
       name: 'categoriesHeading',
@@ -112,7 +112,7 @@ export default {
       of: [{ type: 'reference', to: [{ type: 'category' }] }],
       group: 'content'
     },
-    
+
     // ==================== 作者設定 ====================
     {
       name: 'authorsHeading',
@@ -139,7 +139,7 @@ export default {
       of: [{ type: 'reference', to: [{ type: 'author' }] }],
       group: 'content'
     },
-    
+
     // ==================== 最新文章設定 ====================
     {
       name: 'latestPostsHeading',
@@ -175,7 +175,7 @@ export default {
       validation: (Rule: any) => Rule.required().min(1).max(10),
       group: 'content'
     },
-    
+
     // ==================== SEO 設定 ====================
     {
       name: 'seoTitle',
@@ -216,7 +216,7 @@ export default {
         }
       ]
     },
-    
+
     // ==================== 顯示設定 ====================
     {
       name: 'layout',
@@ -286,6 +286,13 @@ export default {
       initialValue: '閱讀更多',
       group: 'display',
       hidden: ({ parent }: any) => !parent?.showReadMore
+    },
+    // 多語系欄位 (由 i18n 插件管理)
+    {
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
     }
   ],
   preview: {
