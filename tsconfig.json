@@ -147,6 +147,7 @@
     "coverage",
     "jest-coverage",
     "tests",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "scripts"
   ]
 }
