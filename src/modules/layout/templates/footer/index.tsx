@@ -80,12 +80,12 @@ export default async function Footer({ countryCode = 'tw' }: FooterProps) {
             </div>
 
             {/* 自定義區域 - 從Sanity獲取 */}
-            {sectionsData.map((section, sectionIndex) => (
+            {sectionsData.map((section: any, sectionIndex: number) => (
               <div key={section.title || `section-${sectionIndex}`} className="space-y-6">
                 <h3 className="text-xs font-semibold">{section.title}</h3>
                 {section.links && section.links.length > 0 && (
                   <ul className="space-y-4">
-                    {section.links.map((link: any, linkIndex) => {
+                    {section.links.map((link: any, linkIndex: number) => {
                       // 如果沒有連結文字，跳過此連結
                       if (!link.text) return null;
 
