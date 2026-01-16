@@ -1,4 +1,5 @@
 import { createClient } from 'next-sanity'
+import { PAGE_SECTIONS_PROJECTION } from '../sanity-queries'
 import { BlogPostType, CategoryType } from './types'
 
 export const client = createClient({
@@ -169,8 +170,7 @@ export async function getProduct(handle: string, language?: string) {
       images[]{
         asset->{
           url
-        },
-        alt
+        }
       },
       medusaId,
       language
@@ -187,7 +187,25 @@ export async function getProduct(handle: string, language?: string) {
 export async function getHomePage(language?: string) {
   try {
     const lang = language || DEFAULT_LANGUAGE
-    const query = `*[_type == "homePage" && language == $lang][0]`
+    const query = `*[_type == "homePage" && language == $lang][0] {
+      title,
+      seoTitle,
+      seoDescription,
+      seoKeywords,
+      canonicalUrl,
+      noIndex,
+      noFollow,
+      ogTitle,
+      ogDescription,
+      "ogImage": ogImage {
+        "asset": asset->{url},
+        alt
+      },
+      twitterCard,
+      "mainSections": mainSections[] {
+        ${PAGE_SECTIONS_PROJECTION}
+      }
+    }`
 
     return await client.fetch(query, { lang })
   } catch (error) {

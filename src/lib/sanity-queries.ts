@@ -56,7 +56,7 @@ export const HEADER_QUERY = `*[_type == "header"][0]{
   }
 }`
 
-const PAGE_SECTIONS_PROJECTION = `
+export const PAGE_SECTIONS_PROJECTION = `
         _type,
         ...select(
           _type == "mainBanner" => {
