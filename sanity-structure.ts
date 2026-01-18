@@ -1,5 +1,5 @@
 // 建立語言分類資料夾的輔助函式
-const createLanguageFolders = (S: any, docType: string, zhTitle: string, enTitle: string) => {
+const createLanguageFolders = (S: any, docType: string, zhTitle: string, enTitle: string, jaTitle?: string) => {
   return S.list()
     .id(`${docType}-lang-list`)
     .title('選擇語言')
@@ -22,6 +22,15 @@ const createLanguageFolders = (S: any, docType: string, zhTitle: string, enTitle
             .title(enTitle)
             .filter(`_type == "${docType}" && language == "en"`)
         ),
+      S.listItem()
+        .id(`${docType}-ja`)
+        .title('🇯🇵 日本語')
+        .child(
+          S.documentList()
+            .id(`${docType}-ja-list`)
+            .title(jaTitle || `Japanese ${docType}`)
+            .filter(`_type == "${docType}" && language == "ja-JP"`)
+        ),
       S.divider(),
       S.listItem()
         .id(`${docType}-all`)
@@ -43,13 +52,13 @@ export const structure = (S: any) =>
       S.listItem()
         .id('homepage-section')
         .title('🏠 首頁')
-        .child(createLanguageFolders(S, 'homePage', '繁體中文首頁', 'English Homepage')),
+        .child(createLanguageFolders(S, 'homePage', '繁體中文首頁', 'English Homepage', '日本語ホームページ')),
 
       // 動態頁面 - 按語言分類
       S.listItem()
         .id('dynamicpage-section')
         .title('📄 動態頁面')
-        .child(createLanguageFolders(S, 'dynamicPage', '繁體中文頁面', 'English Pages')),
+        .child(createLanguageFolders(S, 'dynamicPage', '繁體中文頁面', 'English Pages', '日本語ページ')),
 
       S.divider(),
 
@@ -57,7 +66,7 @@ export const structure = (S: any) =>
       S.listItem()
         .id('product-section')
         .title('🛍️ 商品內容')
-        .child(createLanguageFolders(S, 'product', '繁體中文商品', 'English Products')),
+        .child(createLanguageFolders(S, 'product', '繁體中文商品', 'English Products', '日本語商品')),
 
       S.divider(),
 
@@ -147,6 +156,44 @@ export const structure = (S: any) =>
                         ),
                     ])
                 ),
+              // 日本語
+              S.listItem()
+                .id('blog-ja')
+                .title('🇯🇵 日本語')
+                .child(
+                  S.list()
+                    .id('blog-ja-list')
+                    .title('日本語ブログ')
+                    .items([
+                      S.listItem()
+                        .id('blogpage-ja')
+                        .title('ページ設定')
+                        .child(
+                          S.documentList()
+                            .id('blogpage-ja-list')
+                            .title('日本語ページ設定')
+                            .filter('_type == "blogPage" && language == "ja-JP"')
+                        ),
+                      S.listItem()
+                        .id('post-ja')
+                        .title('記事')
+                        .child(
+                          S.documentList()
+                            .id('post-ja-list')
+                            .title('日本語記事')
+                            .filter('_type == "post" && language == "ja-JP"')
+                        ),
+                      S.listItem()
+                        .id('category-ja')
+                        .title('カテゴリ')
+                        .child(
+                          S.documentList()
+                            .id('category-ja-list')
+                            .title('日本語カテゴリ')
+                            .filter('_type == "category" && language == "ja-JP"')
+                        ),
+                    ])
+                ),
 
               S.divider(),
               // 作者 (共用)
@@ -160,11 +207,11 @@ export const structure = (S: any) =>
       S.listItem()
         .id('header-section')
         .title('🔝 網站頁首')
-        .child(createLanguageFolders(S, 'header', '繁體中文頁首', 'English Header')),
+        .child(createLanguageFolders(S, 'header', '繁體中文頁首', 'English Header', '日本語ヘッダー')),
 
       // 頁腳設定 - 按語言分類
       S.listItem()
         .id('footer-section')
         .title('🔻 頁腳設定')
-        .child(createLanguageFolders(S, 'footer', '繁體中文頁腳', 'English Footer')),
+        .child(createLanguageFolders(S, 'footer', '繁體中文頁腳', 'English Footer', '日本語フッター')),
     ])

@@ -13,6 +13,7 @@ const i18nConfig = {
   supportedLanguages: [
     { id: 'zh-TW', title: '繁體中文' },
     { id: 'en', title: 'English' },
+    { id: 'ja-JP', title: '日本語' },
   ],
   // 需要多語系支援的 Schema 類型
   schemaTypes: [
