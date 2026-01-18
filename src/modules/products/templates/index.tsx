@@ -56,7 +56,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                   <li className="text-gray-400">/</li>
                   <li>
                     <a href={`/collections/${product.collection.handle}`} className="text-gray-500 hover:text-gray-900 transition-colors">
-                      {product.collection.title}
+                      {product.collection.handle === 'featured' ? (t.featured || product.collection.title) : product.collection.title}
                     </a>
                   </li>
                 </>
