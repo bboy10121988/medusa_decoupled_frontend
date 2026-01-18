@@ -24,7 +24,7 @@ const ProductTabs = ({ product, countryCode = 'tw' }: ProductTabsProps) => {
       </CollapsibleSection>
 
       <CollapsibleSection title={t.returnPolicy || "Return Policy"} defaultOpen={false}>
-        <ShippingInfoTab product={product} />
+        <ShippingInfoTab product={product} countryCode={countryCode} />
       </CollapsibleSection>
     </div>
   )
