@@ -4,8 +4,8 @@
  */
 
 const MEDUSA_BACKEND_URL = process.env.MEDUSA_BACKEND_URL || 'https://admin.timsfantasyworld.com'
-const ADMIN_EMAIL = process.env.MEDUSA_ADMIN_EMAIL || ''
-const ADMIN_PASSWORD = process.env.MEDUSA_ADMIN_PASSWORD || ''
+const ADMIN_EMAIL = process.env.MEDUSA_ADMIN_EMAIL || 'temp_admin_direct@example.com'
+const ADMIN_PASSWORD = process.env.MEDUSA_ADMIN_PASSWORD || 'TempPass123!'
 
 interface Region {
     id: string
