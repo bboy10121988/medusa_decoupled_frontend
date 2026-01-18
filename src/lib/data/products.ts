@@ -8,6 +8,7 @@ import { HttpTypes } from "@medusajs/types"
 import type { SortOptions } from "../../modules/store/components/refinement-list/sort-products"
 import { getRegion, retrieveRegion } from "./regions"
 import { getProductsByHandles, mapCountryToLanguage } from "../sanity-utils"
+import { MANUAL_TRANSLATIONS } from "../manual-product-translations"
 
 // 產品查詢快取配置
 const PRODUCTS_CACHE_CONFIG = {
@@ -110,6 +111,15 @@ export const listProducts = async ({
                   ...product,
                   title: sanityData.title || product.title,
                   description: sanityData.description || product.description,
+                }
+              }
+              // Manual translation override
+              const manualData = MANUAL_TRANSLATIONS[product.handle]?.[language]
+              if (manualData) {
+                return {
+                  ...product,
+                  title: manualData.title || product.title,
+                  description: manualData.description || product.description,
                 }
               }
               return product
@@ -261,6 +271,15 @@ export const getProduct = async ({
               description: sanityData.description || product.description,
             }
           }
+          // Manual translation override
+          const manualData = MANUAL_TRANSLATIONS[handle]?.[language]
+          if (manualData) {
+            product = {
+              ...product,
+              title: manualData.title || product.title,
+              description: manualData.description || product.description,
+            }
+          }
         }
       } catch (error) {
         console.warn('Failed to fetch localized product from Sanity:', error)
@@ -347,6 +366,15 @@ export const getProductsByIds = async ({
                   ...product,
                   title: sanityData.title || product.title,
                   description: sanityData.description || product.description,
+                }
+              }
+              // Manual translation override
+              const manualData = MANUAL_TRANSLATIONS[product.handle]?.[language]
+              if (manualData) {
+                return {
+                  ...product,
+                  title: manualData.title || product.title,
+                  description: manualData.description || product.description,
                 }
               }
               return product
