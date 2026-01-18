@@ -124,10 +124,12 @@ export default async function DynamicPage({ params }: PageProps) {
     const { collections } = await listCollections()
 
     // 渲染頁面區塊
+    const sections = page.pageContent || []
+
     return (
       <>
-        {page.mainSections && page.mainSections.length > 0 ? (
-          page.mainSections
+        {sections.length > 0 ? (
+          sections
             .filter((section: any) => section?.isActive !== false)
             .map((section: any, index: number) => {
               try {
