@@ -6,6 +6,7 @@ import { schemaTypes } from './schemas/index'
 // import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
 import { structure } from './sanity-structure'
 import { PublishWithTranslation } from './src/cms/actions/PublishWithTranslation'
+import { TranslateAction } from './src/cms/actions/TranslateAction'
 
 // 多語系設定
 const i18nConfig = {
@@ -85,12 +86,15 @@ export default defineConfig({
       const translatableTypes = ['homePage', 'dynamicPage', 'product', 'post']
 
       if (translatableTypes.includes(context.schemaType)) {
-        return prev.map((originalAction) => {
+        const existingActions = prev.map((originalAction) => {
           if (originalAction.action === 'publish') {
             return PublishWithTranslation(originalAction)
           }
           return originalAction
         })
+
+        // Add standalone Translate Action
+        return [...existingActions, TranslateAction]
       }
       return prev
     }
