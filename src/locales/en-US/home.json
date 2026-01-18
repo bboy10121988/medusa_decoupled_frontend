@@ -1,0 +1,13 @@
+{
+    "featured": {
+        "title": "Featured Products"
+    },
+    "product": {
+        "no_products": "No products in this category"
+    },
+    "location": {
+        "heading": "Store Location",
+        "description": "Welcome to visit us",
+        "map_title": "Tim's fantasy World Men's Barbershop Location"
+    }
+}

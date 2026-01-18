@@ -33,6 +33,12 @@ type SearchResults = {
   isLoading: boolean
 }
 
+const searchTranslations: Record<string, { placeholder: string; products: string; blogs: string; noResults: string; viewAll: string }> = {
+  tw: { placeholder: "搜尋商品、Blog文章", products: "商品", blogs: "部落格文章", noResults: "找不到符合「{query}」的結果", viewAll: "查看全部" },
+  jp: { placeholder: "商品・ブログを検索", products: "商品", blogs: "ブログ記事", noResults: "「{query}」に一致する結果が見つかりませんでした", viewAll: "すべて表示" },
+  us: { placeholder: "Search products & blog", products: "Products", blogs: "Blog Posts", noResults: "No results for \"{query}\"", viewAll: "View all" },
+}
+
 const SearchBarClient = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [results, setResults] = useState<SearchResults>({
@@ -46,6 +52,7 @@ const SearchBarClient = () => {
   const router = useRouter()
   const params = useParams()
   const countryCode = (params?.countryCode as string) || 'tw'
+  const t = searchTranslations[countryCode] || searchTranslations.tw
 
   useEffect(() => {
     if (searchQuery.trim().length < 1) {
@@ -179,9 +186,9 @@ const SearchBarClient = () => {
               value={searchQuery}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
-              placeholder="搜尋商品、Blog文章"
+              placeholder={t.placeholder}
               className="w-[300px] py-1 pr-8 text-base bg-transparent focus:outline-none"
-              aria-label="輸入關鍵字搜尋，例如：洗"
+              aria-label={t.placeholder}
             />
           </form>
           <button onClick={handleClickSearch} className="absolute right-0 top-1/2 -translate-y-1/2" aria-label="搜尋">
@@ -200,17 +207,17 @@ const SearchBarClient = () => {
           )}
 
           {noResults && (
-            <div className="text-center py-6 px-4 text-gray-500">找不到符合「<span className="text-gray-800 font-medium">{searchQuery}</span>」的結果</div>
+            <div className="text-center py-6 px-4 text-gray-500">{t.noResults.replace('{query}', searchQuery)}</div>
           )}
 
           {products.length > 0 && (
             <div className="p-4">
-              <h3 className="text-base font-semibold text-gray-800 mb-3">商品</h3>
+              <h3 className="text-base font-semibold text-gray-800 mb-3">{t.products}</h3>
               <div>
                 {products.map((product) => (
                   <div key={product.id} className="flex items-center p-2.5 my-1 hover:bg-gray-50 rounded cursor-pointer transition-colors duration-150" onClick={() => handleProductClick(product.handle)}>
                     {product.thumbnail ? (
-                      <div className="w-10 h-10 relative mr-3 flex-shrink-0 border border-gray-100 rounded overflow-hidden"><Image src={product.thumbnail} alt={product.title} fill className="object-cover rounded"/></div>
+                      <div className="w-10 h-10 relative mr-3 flex-shrink-0 border border-gray-100 rounded overflow-hidden"><Image src={product.thumbnail} alt={product.title} fill className="object-cover rounded" /></div>
                     ) : (
                       <div className="w-10 h-10 bg-gray-100 mr-3 rounded flex-shrink-0 flex items-center justify-center"><svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
                     )}
@@ -227,11 +234,11 @@ const SearchBarClient = () => {
 
           {blogs.length > 0 && (
             <div className="p-4 border-t border-gray-100">
-              <h3 className="text-base font-semibold text-gray-800 mb-3">部落格文章</h3>
+              <h3 className="text-base font-semibold text-gray-800 mb-3">{t.blogs}</h3>
               <div>
                 {blogs.map((blog) => (
                   <div key={blog.id} className="flex p-2.5 my-1 hover:bg-gray-50 rounded cursor-pointer transition-colors duration-150" onClick={() => handleBlogClick(blog.slug)}>
-                    {blog.image ? (<div className="w-10 h-10 relative mr-3 flex-shrink-0 border border-gray-100 rounded overflow-hidden"><Image src={blog.image} alt={blog.title} fill className="object-cover rounded"/></div>) : (<div className="w-10 h-10 bg-gray-100 mr-3 rounded flex-shrink-0 flex items-center justify-center"><svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg></div>)}
+                    {blog.image ? (<div className="w-10 h-10 relative mr-3 flex-shrink-0 border border-gray-100 rounded overflow-hidden"><Image src={blog.image} alt={blog.title} fill className="object-cover rounded" /></div>) : (<div className="w-10 h-10 bg-gray-100 mr-3 rounded flex-shrink-0 flex items-center justify-center"><svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg></div>)}
                     <div className="flex-1">
                       <p className="text-xl font-extrabold text-gray-900">{highlightMatches(blog.title, searchQuery, 'title')}</p>
                       {(blog.excerpt || blog.bodyText) && (<p className="text-sm text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{highlightMatches((blog.excerpt || blog.bodyText?.substring(0, 150)) || '', searchQuery, 'content')}</p>)}

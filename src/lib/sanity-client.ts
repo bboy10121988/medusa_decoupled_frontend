@@ -34,11 +34,13 @@ export async function safeFetch<T = any>(query: string, params: any = {}, option
       // console.error("Missing Sanity Project ID in environment variables")
       return fallback
     }
-    
+
     // 增加超時設定
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超時
-    
+
+    // console.log('[safeFetch] DEBUG:', { query, params })
+
     const mergedOptions = {
       ...options,
       next: {
@@ -47,19 +49,19 @@ export async function safeFetch<T = any>(query: string, params: any = {}, option
       },
       signal: controller.signal,
     }
-    
+
     const result = await client.fetch(query, params, mergedOptions)
     clearTimeout(timeoutId)
     return result
   } catch (error: any) {
     const msg = String(error?.message || error)
     // console.error("Sanity fetch error:", msg, "\nQuery:", query)
-    
+
     if (error?.name === 'AbortError' || msg.includes('abort') || msg.includes('timeout')) {
       // if (isDev) console.warn('Sanity fetch aborted/timed out:', msg)
       return fallback
     }
-    
+
     // if (isDev) console.error('Sanity fetch error details:', error)
     return fallback // 在生產環境中總是返回備用值，避免應用崩潰
   }

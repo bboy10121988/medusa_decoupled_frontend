@@ -4,56 +4,12 @@ import SanityContent from "../components/sanity-content"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { getTranslation } from "@lib/translations"
 
-interface Category {
-  _id: string
-  title: string
-}
-
-// 取得所有分類
-async function getCategories() {
-  try {
-    const query = `*[_type == "category"] | order(title asc) {
-      _id,
-      title
-    }`
-    const categories = await client.fetch<Category[]>(query)
-
-    if (!categories) return []
-
-    // 確保分類是唯一的（以標題為基準）
-    return Array.from(
-      new Map(categories.map(cat => [cat.title, cat])).values()
-    )
-  } catch (error) {
-    // console.error("Error fetching categories:", error)
-    return []
-  }
-}
-
-// 取得最新文章
-async function getLatestPosts(excludeSlug?: string) {
-  try {
-    const query = `*[_type == "post" ${excludeSlug ? `&& slug.current != "${excludeSlug}"` : ''}] | order(publishedAt desc)[0...4] {
-      _id,
-      title,
-      slug {
-        current
-      },
-      publishedAt,
-      mainImage {
-        asset->{
-          url
-        }
-      }
-    }`
-    const posts = await client.fetch(query)
-    return posts || []
-  } catch (error) {
-    // console.error("Error fetching latest posts:", error)
-    return []
-  }
-}
+import { getAllPosts, getCategories } from "@lib/sanity"
+import { Category } from "../../../../../../types/sanity"
+import { Breadcrumb } from "@/components/seo/Breadcrumb"
+import { ArticleSchema } from "@/components/seo/StructuredData"
 
 export async function generateMetadata({
   params
@@ -97,6 +53,9 @@ export async function generateMetadata({
   }
 }
 
+// 引入 mapCountryToLanguage
+import { mapCountryToLanguage } from "../../../../../../lib/sanity-utils"
+
 export default async function BlogPost({
   params
 }: {
@@ -104,13 +63,15 @@ export default async function BlogPost({
 }) {
   try {
     const { slug, countryCode } = await params
+    const language = mapCountryToLanguage(countryCode)
+    const t = getTranslation(countryCode)
 
     // console.log(`📖 [BlogPost] 正在載入文章頁面: ${slug}`)
 
     const [post, categories, latestPosts] = await Promise.all([
-      getPostBySlug(slug),
-      getCategories(),
-      getLatestPosts(slug)
+      getPostBySlug(slug, language),
+      getCategories(language),
+      getAllPosts(undefined, 4, language)
     ])
 
     if (!post) {
@@ -128,7 +89,7 @@ export default async function BlogPost({
             <aside className="hidden lg:block col-span-12 lg:col-span-3 order-2 lg:order-1">
               <nav className="bg-white px-6 md:px-12 xl:px-16 2xl:px-20 py-6 sticky top-[96px] shadow-sm border-r border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-4">
-                  文章分類
+                  {t.categories}
                 </h2>
                 <ul className="space-y-2">
                   <li>
@@ -136,7 +97,7 @@ export default async function BlogPost({
                       href={`/${countryCode}/blog`}
                       className="text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 block w-full py-2 px-3 rounded-lg transition-all duration-200"
                     >
-                      ← 返回部落格
+                      ← {t.viewMore}
                     </Link>
                   </li>
                   <li className="border-t border-gray-100 pt-2 mt-3">
@@ -144,7 +105,7 @@ export default async function BlogPost({
                       href={`/${countryCode}/blog`}
                       className="text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 block w-full py-2 px-3 rounded-lg transition-all duration-200"
                     >
-                      全部文章
+                      {t.latestPosts}
                     </Link>
                   </li>
                   {categories.map((cat: Category) => (
@@ -183,7 +144,7 @@ export default async function BlogPost({
                 {latestPosts && latestPosts.length > 0 && (
                   <div className="mt-8 pt-6 border-t border-gray-200">
                     <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                      最新文章
+                      {t.latestPosts}
                     </h3>
                     <div className="space-y-3">
                       {latestPosts.map((article: any) => (
@@ -241,6 +202,28 @@ export default async function BlogPost({
               <article className="bg-white">
                 <div className="max-w-4xl mx-auto px-4 md:px-8 xl:px-12 2xl:px-16 py-6 md:py-8 lg:py-12">
                   <header className="mb-6 md:mb-8">
+                    {/* 麵包屑導航 */}
+                    <div className="mb-4">
+                      <Breadcrumb
+                        items={[
+                          { name: (t as any).home || '首頁', url: `/${countryCode}` },
+                          { name: (t as any).blog || '部落格', url: `/${countryCode}/blog` },
+                          { name: post.title, url: `/${countryCode}/blog/${slug}` }
+                        ]}
+                      />
+                      <ArticleSchema
+                        headline={post.title}
+                        description={post.excerpt || post.title}
+                        image={post.mainImage?.asset?.url || ''}
+                        datePublished={post.publishedAt || new Date().toISOString()}
+                        author={{ name: "Tim's Fantasy World" }}
+                        publisher={{
+                          name: "Tim's Fantasy World",
+                          logo: "https://timsfantasyworld.com/logo.png"
+                        }}
+                      />
+                    </div>
+
                     <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
                       {post.title}
                     </h1>

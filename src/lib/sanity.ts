@@ -20,7 +20,8 @@ import {
   POST_BY_TITLE_OR_ID_QUERY,
   SERVICE_SECTION_QUERY,
   FOOTER_QUERY,
-  ALL_FOOTERS_QUERY
+  ALL_FOOTERS_QUERY,
+  BLOG_PAGE_SETTINGS_QUERY
 } from './sanity-queries'
 
 export async function getHomepage_old(): Promise<{ title: string; mainSections: MainSection[] }> {
@@ -73,9 +74,12 @@ export async function getAllPosts(category?: string, limit: number = 50, languag
     const categoryFilter = category ? ` && "${category}" in categories[]->title` : ""
     const query = `${ALL_POSTS_BASE_QUERY}${categoryFilter}] | order(publishedAt desc) [0...${limit}] ${ALL_POSTS_PROJECTION}`
 
+    console.log('[getAllPosts] DEBUG:', { category, limit, language, lang, query })
+
     const posts = await safeFetch<BlogPost[]>(query, { lang }, { next: { revalidate: 300 } }, [])
     return posts || []
   } catch (error) {
+    console.error('[getAllPosts] Error:', error)
     return []
   }
 }
@@ -174,6 +178,88 @@ export async function getFooter(language: string = 'zh-TW'): Promise<Footer | nu
 
 export async function getAllFooters(): Promise<Footer[]> {
   return await safeFetch(ALL_FOOTERS_QUERY, {}, {}, [])
+}
+
+export async function getBlogPageSettings() {
+  try {
+    const result = await safeFetch(BLOG_PAGE_SETTINGS_QUERY, {}, {}, null)
+    return result || {
+      title: '部落格文章',
+      subtitle: '探索我們的最新消息與文章',
+      showTitle: false,
+      showSubtitle: false,
+      postsPerPage: 9,
+      showCategories: true,
+      categoryTitle: '文章分類',
+      allCategoriesLabel: '全部文章',
+      showSidebar: true,
+      showLatestPosts: true,
+      latestPostsTitle: '最新文章',
+      latestPostsCount: 4,
+      gridColumns: 3,
+      mobileColumns: 2,
+      layout: 'grid',
+      cardStyle: 'card',
+      showExcerpt: true,
+      excerptLength: 80,
+      showReadMore: true,
+      readMoreText: '閱讀更多',
+      showPublishDate: true,
+      showAuthor: false,
+      showCategoryTags: true,
+      categoryTagLimit: 2,
+      enablePagination: true,
+      enableSearch: false
+    }
+  } catch (error) {
+    return {
+      title: '部落格文章',
+      subtitle: '探索我們的最新消息與文章',
+      showTitle: false,
+      showSubtitle: false,
+      postsPerPage: 9,
+      showCategories: true,
+      categoryTitle: '文章分類',
+      allCategoriesLabel: '全部文章',
+      showSidebar: true,
+      showLatestPosts: true,
+      latestPostsTitle: '最新文章',
+      latestPostsCount: 4,
+      gridColumns: 3,
+      mobileColumns: 2,
+      layout: 'grid',
+      cardStyle: 'card',
+      showExcerpt: true,
+      excerptLength: 80,
+      showReadMore: true,
+      readMoreText: '閱讀更多',
+      showPublishDate: true,
+      showAuthor: false,
+      showCategoryTags: true,
+      categoryTagLimit: 2,
+      enablePagination: true,
+      enableSearch: false
+    }
+  }
+}
+
+export async function getSiteInfo(language: string = 'zh-TW') {
+  try {
+    const homepage = await getHomepage(language);
+    return {
+      title: "首頁", // fallback
+      description: homepage.seoDescription || "",
+      seoDescription: homepage.seoDescription || "",
+      seoTitle: homepage.seoTitle || "Fantasy World Barber Shop"
+    }
+  } catch (error) {
+    return {
+      title: "首頁",
+      description: "",
+      seoDescription: "",
+      seoTitle: "Fantasy World Barber Shop"
+    }
+  }
 }
 
 export { client }

@@ -1,5 +1,6 @@
 import { Heading } from "@medusajs/ui"
 import { cookies as nextCookies } from "next/headers"
+import { getTranslation } from "@lib/translations"
 
 import CartTotals from "@modules/common/components/cart-totals"
 import Help from "@modules/order/components/help"
@@ -19,22 +20,24 @@ export default async function OrderCompletedTemplate({
 }: OrderCompletedTemplateProps) {
 
   const cookies = await nextCookies()
+  const countryCode = (order as any).region?.countries?.[0]?.iso_2 || 'tw'
+  const t = getTranslation(countryCode)
 
   const isOnboarding = cookies.get("_medusa_onboarding")?.value === "true"
 
-  let msg = "您的訂單已成功建立。"
+  let msg = (t as any).order?.success || "您的訂單已成功建立。"
 
-  if (order.status == "canceled"){
-    msg = "您的訂單因錯誤(付款失敗或是尚未完成)已取消。如有任何疑問，請聯繫商店客服。"
+  if (order.status == "canceled") {
+    msg = (t as any).order?.cancelled || "您的訂單因錯誤(付款失敗或是尚未完成)已取消。如有任何疑問，請聯繫商店客服。"
   }
 
 
-  if (order.metadata){
+  if (order.metadata) {
     const orderMetadata = order.metadata as Record<string, string>
 
-    if (orderMetadata.payment_type === 'ecpayment'){
-      if (orderMetadata.payment_status === 'failed'){
-        msg = "您的訂單因付款失敗已取消。如有任何疑問，請聯繫商店客服。"
+    if (orderMetadata.payment_type === 'ecpayment') {
+      if (orderMetadata.payment_status === 'failed') {
+        msg = (t as any).order?.payment_failed || "您的訂單因付款失敗已取消。如有任何疑問，請聯繫商店客服。"
       }
     }
   }
@@ -71,19 +74,19 @@ export default async function OrderCompletedTemplate({
             level="h1"
             className="flex flex-col gap-y-3 text-ui-fg-base text-3xl mb-4"
           >
-            <span>謝謝您！</span>
+            <span>{(t as any).order?.thank_you || '謝謝您！'}</span>
             <span>{msg}</span>
-            <span className="text-lg text-ui-fg-subtle mt-2">如有任何問題，請點擊「幫助」按鈕可諮詢商店，將有專人為您服務。</span>
+            <span className="text-lg text-ui-fg-subtle mt-2">{(t as any).order?.help_message || '如有任何問題，請點擊「幫助」按鈕可諮詢商店，將有專人為您服務。'}</span>
           </Heading>
           <OrderDetails order={order} />
           <Heading level="h2" className="flex flex-row text-3xl-regular">
-            訂單摘要
+            {(t as any).order?.summary || '訂單摘要'}
           </Heading>
           <Items order={order} />
           <CartTotals totals={order} />
-          <ShippingDetails order={order} />
-          <PaymentDetails order={order} />
-          <Help />
+          <ShippingDetails order={order} countryCode={countryCode} />
+          <PaymentDetails order={order} countryCode={countryCode} />
+          <Help countryCode={countryCode} />
         </div>
       </div>
     </div>

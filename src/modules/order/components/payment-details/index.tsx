@@ -1,4 +1,5 @@
 import { Container, Heading, Text } from "@medusajs/ui"
+import { getTranslation } from "@lib/translations"
 
 import { isStripe, paymentInfoMap } from "../../../../constants"
 
@@ -8,9 +9,11 @@ import { HttpTypes } from "@medusajs/types"
 
 type PaymentDetailsProps = {
   order: HttpTypes.StoreOrder
+  countryCode?: string
 }
 
-const PaymentDetails = ({ order }: PaymentDetailsProps) => {
+const PaymentDetails = ({ order, countryCode = 'tw' }: PaymentDetailsProps) => {
+  const t = getTranslation(countryCode)
   const payment = order.payment_collections?.[0].payments?.[0]
 
   // console.log("payment details:", payment)
@@ -18,14 +21,14 @@ const PaymentDetails = ({ order }: PaymentDetailsProps) => {
   return (
     <div>
       <Heading level="h2" className="flex flex-row text-3xl-regular my-6">
-        付款資訊
+        {(t as any).payment?.title || '付款資訊'}
       </Heading>
       <div>
         {payment && (
           <div className="flex items-start gap-x-1 w-full">
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                付款方式
+                {(t as any).payment?.method || '付款方式'}
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
@@ -36,7 +39,7 @@ const PaymentDetails = ({ order }: PaymentDetailsProps) => {
             </div>
             <div className="flex flex-col w-2/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                付款詳情
+                {(t as any).payment?.details || '付款詳情'}
               </Text>
               <div className="flex gap-2 txt-medium text-ui-fg-subtle items-center">
                 <Container className="flex items-center h-7 w-fit p-2 bg-ui-button-neutral-hover">
@@ -46,11 +49,11 @@ const PaymentDetails = ({ order }: PaymentDetailsProps) => {
                   {isStripe(payment.provider_id) && payment.data?.card_last4
                     ? `**** **** **** ${payment.data.card_last4}`
                     : `${convertToLocale({
-                        amount: payment.amount,
-                        currency_code: order.currency_code,
-                      })} paid at ${new Date(
-                        payment.created_at ?? ""
-                      ).toLocaleString()}`}
+                      amount: payment.amount,
+                      currency_code: order.currency_code,
+                    })} paid at ${new Date(
+                      payment.created_at ?? ""
+                    ).toLocaleString()}`}
                 </Text>
               </div>
             </div>

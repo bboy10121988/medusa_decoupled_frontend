@@ -80,3 +80,7 @@ static/uploads/
 
 *.workspace.code-workspace.env.local.*
 .env.local.vm
+
+# Sanity Exports
+temp_sanity_export.tar.gz
+production-export-*

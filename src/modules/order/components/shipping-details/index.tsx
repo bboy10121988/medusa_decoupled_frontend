@@ -1,18 +1,22 @@
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Heading, Text } from "@medusajs/ui"
+import { getTranslation } from "@lib/translations"
 
 import Divider from "@modules/common/components/divider"
 
 type ShippingDetailsProps = {
   order: HttpTypes.StoreOrder
+  countryCode?: string
 }
 
-const ShippingDetails = ({ order }: ShippingDetailsProps) => {
+const ShippingDetails = ({ order, countryCode = 'tw' }: ShippingDetailsProps) => {
+  const t = getTranslation(countryCode)
+
   return (
     <div>
       <Heading level="h2" className="flex flex-row text-3xl-regular my-6">
-        配送資訊
+        {(t as any).shipping?.title || '配送資訊'}
       </Heading>
       <div className="flex items-start gap-x-8">
         <div
@@ -20,7 +24,7 @@ const ShippingDetails = ({ order }: ShippingDetailsProps) => {
           data-testid="shipping-address-summary"
         >
           <Text className="txt-medium-plus text-ui-fg-base mb-1">
-            收件地址
+            {(t as any).shipping?.address || '收件地址'}
           </Text>
           <Text className="txt-medium text-ui-fg-subtle">
             {order.shipping_address?.first_name}{" "}
@@ -43,7 +47,7 @@ const ShippingDetails = ({ order }: ShippingDetailsProps) => {
           className="flex flex-col w-1/3 "
           data-testid="shipping-contact-summary"
         >
-          <Text className="txt-medium-plus text-ui-fg-base mb-1">聯絡資訊</Text>
+          <Text className="txt-medium-plus text-ui-fg-base mb-1">{(t as any).shipping?.contact || '聯絡資訊'}</Text>
           <Text className="txt-medium text-ui-fg-subtle">
             {order.shipping_address?.phone}
           </Text>
@@ -54,7 +58,7 @@ const ShippingDetails = ({ order }: ShippingDetailsProps) => {
           className="flex flex-col w-1/3"
           data-testid="shipping-method-summary"
         >
-          <Text className="txt-medium-plus text-ui-fg-base mb-1">配送方式</Text>
+          <Text className="txt-medium-plus text-ui-fg-base mb-1">{(t as any).shipping?.method || '配送方式'}</Text>
           <Text className="txt-medium text-ui-fg-subtle">
             {(order as any).shipping_methods[0]?.name} (
             {convertToLocale({

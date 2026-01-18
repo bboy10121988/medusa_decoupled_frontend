@@ -1,0 +1,10 @@
+{
+  "addToCart": "カートに入れる",
+  "adding": "処理中...",
+  "preorder": "予約注文",
+  "soldOut": "売り切れ",
+  "addedToCart": "カートに追加しました",
+  "selectOptions": "オプションを選択",
+  "pleaseSelectOptions": "すべての必須項目を選択してください",
+  "failedToAddToCart": "カートへの追加に失敗しました。後でもう一度お試しください"
+}

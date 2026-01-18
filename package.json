@@ -15,7 +15,9 @@
     "analyze": "ANALYZE=true next build",
     "switch:local": "./switch-env.sh local",
     "switch:vm": "./switch-env.sh vm",
-    "env:status": "echo '當前環境:' && grep 'NEXT_PUBLIC_MEDUSA_BACKEND_URL=' .env.local"
+    "env:status": "echo '當前環境:' && grep 'NEXT_PUBLIC_MEDUSA_BACKEND_URL=' .env.local",
+    "translate:ui": "npx tsx scripts/translate-ui-strings.ts",
+    "translate:ui:dry": "npx tsx scripts/translate-ui-strings.ts --dry-run"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

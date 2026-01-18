@@ -1,6 +1,7 @@
 import React from "react";
 import FeaturedProducts from "../featured-products";
 import { HttpTypes } from "@medusajs/types";
+import { getTranslation } from "@lib/translations";
 
 type FeaturedProductsBlockProps = {
   collectionId: string;
@@ -17,6 +18,9 @@ const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
   paddingX,
   countryCode,
 }) => {
+  const t = getTranslation(countryCode);
+  const featuredTitle = (t as any).featured?.title || '精選商品';
+
   // console.log("FeaturedProductsBlock - collectionId:", collectionId);
   // console.log("FeaturedProductsBlock - collections:", collections);
 
@@ -26,6 +30,7 @@ const FeaturedProductsBlock: React.FC<FeaturedProductsBlockProps> = ({
     targetCollection = collections.find((c) =>
       c.handle === 'featured' ||
       c.handle === 'featuerd' ||
+      c.title === featuredTitle ||
       c.title === '精選商品'
     );
   }

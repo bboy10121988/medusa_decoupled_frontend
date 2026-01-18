@@ -1,9 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+
+// Inline translation for client component
+const helpButtonTranslations: Record<string, string> = {
+  tw: '幫助',
+  us: 'Help',
+  jp: 'ヘルプ'
+}
 
 export default function HelpButtonWrapper() {
   const [isHidden, setIsHidden] = useState(false)
+  const pathname = usePathname()
+
+  // Extract country code from pathname (e.g., /jp/blog -> jp)
+  const countryCode = pathname?.split('/')[1] || 'tw'
+  const helpText = helpButtonTranslations[countryCode] || helpButtonTranslations.tw
 
   useEffect(() => {
     // 監聽 mobile-actions 的顯示狀態
@@ -36,16 +49,16 @@ export default function HelpButtonWrapper() {
       `}
       aria-label="加入 LINE 好友"
     >
-      <svg 
+      <svg
         className="w-5 h-5"
-        viewBox="0 0 24 24" 
+        viewBox="0 0 24 24"
         fill="none"
         stroke="white"
         strokeWidth="2"
       >
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       </svg>
-      <span className="text-white text-xs font-medium tracking-wide">幫助</span>
+      <span className="text-white text-xs font-medium tracking-wide">{helpText}</span>
     </a>
   )
 }

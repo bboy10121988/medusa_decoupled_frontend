@@ -1,70 +1,143 @@
-export const translations = {
-    tw: {
-        account: "帳戶",
-        cart: "購物車",
-        categories: "商品分類",
-        collections: "商品系列",
-        search: "搜尋商品...",
-        featured: "精選商品",
-        addToCart: "加入購物車",
-        adding: "處理中...",
-        preorder: "預訂",
-        soldOut: "售完",
-        addedToCart: "商品已加入購物車",
-        selectOptions: "選擇商品規格",
-        pleaseSelectOptions: "請選擇所有必要的選項",
-        failedToAddToCart: "添加到購物車失敗，請稍後再試",
-        customerService: "客戶服務",
-        contactInfo: "聯絡資訊",
-        tel: "電話",
-        officialLine: "官方Line",
-        noPosts: "目前還沒有已發布的文章",
-        viewMore: "查看更多文章",
-        readMore: "閱讀更多",
-    },
-    us: {
-        account: "Account",
-        cart: "Cart",
-        categories: "Categories",
-        collections: "Collections",
-        search: "Search...",
-        featured: "Featured",
-        addToCart: "Add to Cart",
-        adding: "Processing...",
-        preorder: "Pre-order",
-        soldOut: "Sold Out",
-        addedToCart: "Added to Cart",
-        selectOptions: "Select Options",
-        pleaseSelectOptions: "Please select all required options",
-        failedToAddToCart: "Failed to add to cart, please try again",
-        customerService: "Customer Service",
-        contactInfo: "Contact Information",
-        tel: "Tel",
-        officialLine: "Official LINE",
-        noPosts: "No posts published yet",
-        viewMore: "View more posts",
-        readMore: "Read more",
-    }
+// Import JSON translation files
+// zh-TW
+import zhTWCommon from '@/locales/zh-TW/common.json'
+import zhTWNavigation from '@/locales/zh-TW/navigation.json'
+import zhTWProduct from '@/locales/zh-TW/product.json'
+import zhTWBlog from '@/locales/zh-TW/blog.json'
+import zhTWFooter from '@/locales/zh-TW/footer.json'
+import zhTWPromotion from '@/locales/zh-TW/promotion.json'
+import zhTWDataMapping from '@/locales/zh-TW/data-mapping.json'
+import zhTWCheckout from '@/locales/zh-TW/checkout.json'
+import zhTWHome from '@/locales/zh-TW/home.json'
+
+// ja-JP
+import jaJPCommon from '@/locales/ja-JP/common.json'
+import jaJPNavigation from '@/locales/ja-JP/navigation.json'
+import jaJPProduct from '@/locales/ja-JP/product.json'
+import jaJPBlog from '@/locales/ja-JP/blog.json'
+import jaJPFooter from '@/locales/ja-JP/footer.json'
+import jaJPPromotion from '@/locales/ja-JP/promotion.json'
+import jaJPDataMapping from '@/locales/ja-JP/data-mapping.json'
+import jaJPCheckout from '@/locales/ja-JP/checkout.json'
+import jaJPHome from '@/locales/ja-JP/home.json'
+
+// en-US
+import enUSCommon from '@/locales/en-US/common.json'
+import enUSNavigation from '@/locales/en-US/navigation.json'
+import enUSProduct from '@/locales/en-US/product.json'
+import enUSBlog from '@/locales/en-US/blog.json'
+import enUSFooter from '@/locales/en-US/footer.json'
+import enUSPromotion from '@/locales/en-US/promotion.json'
+import enUSDataMapping from '@/locales/en-US/data-mapping.json'
+import enUSCheckout from '@/locales/en-US/checkout.json'
+import enUSHome from '@/locales/en-US/home.json'
+
+// Type definition for translations
+export interface TranslationType {
+    // common
+    account: string
+    cart: string
+    search: string
+    helpButton: string
+    storeName: string
+    // navigation
+    categories: string
+    collections: string
+    featured: string
+    // product
+    addToCart: string
+    adding: string
+    preorder: string
+    soldOut: string
+    addedToCart: string
+    selectOptions: string
+    pleaseSelectOptions: string
+    failedToAddToCart: string
+    // blog
+    noPosts: string
+    viewMore: string
+    readMore: string
+    latestPosts: string
+    allArticles: string
+    noPostsInCat: string
+    // footer
+    customerService: string
+    contactInfo: string
+    tel: string
+    officialLine: string
+    lineConsult: string
+    // promotion
+    marquee1: string
+    marquee2: string
+    marquee3: string
+}
+
+// Merge all JSON files for each locale
+const zhTW: TranslationType = {
+    ...zhTWCommon,
+    ...zhTWNavigation,
+    ...zhTWProduct,
+    ...zhTWBlog,
+    ...zhTWFooter,
+    ...zhTWPromotion,
+}
+
+const jaJP: TranslationType = {
+    ...jaJPCommon,
+    ...jaJPNavigation,
+    ...jaJPProduct,
+    ...jaJPBlog,
+    ...jaJPFooter,
+    ...jaJPPromotion,
+}
+
+const enUS: TranslationType = {
+    ...enUSCommon,
+    ...enUSNavigation,
+    ...enUSProduct,
+    ...enUSBlog,
+    ...enUSFooter,
+    ...enUSPromotion,
+}
+
+// Translation map with locale codes
+export const translations: Record<string, TranslationType> = {
+    // Country code mapping (for URL routing)
+    tw: zhTW,
+    us: enUS,
+    jp: jaJP,
+    // Full locale code mapping
+    'zh-TW': zhTW,
+    'en-US': enUS,
+    'ja-JP': jaJP,
+    // Fallback mappings
+    my: enUS,
+    sg: enUS,
+    au: enUS,
 }
 
 export type Language = keyof typeof translations
 
-// Mapping for dynamic content (Medusa categories/collections and Sanity sections)
-const dataMapping: Record<string, Record<string, string>> = {
-    "精選商品": { us: "Featured Products" },
-    "髮品造型": { us: "Hair Styling" },
-    "洗沐用品": { us: "Bath & Body" },
-    "客戶服務": { us: "Customer Service" },
-    "退換貨政策": { us: "Returns & Exchanges" },
-    "隱私權政策": { us: "Privacy Policy" },
-    "聯絡資訊": { us: "Contact Information" },
-    "電話：": { us: "Tel: " },
-    "官方Line: ": { us: "Official LINE: " },
-    "常見問題": { us: "FAQ" }
+// Data mapping for dynamic content translation
+type DataMappingType = Record<string, string>
+
+const dataMappings: Record<string, DataMappingType> = {
+    tw: zhTWDataMapping,
+    us: enUSDataMapping,
+    jp: jaJPDataMapping,
+    'zh-TW': zhTWDataMapping,
+    'en-US': enUSDataMapping,
+    'ja-JP': jaJPDataMapping,
+    my: enUSDataMapping,
+    sg: enUSDataMapping,
+    au: enUSDataMapping,
 }
 
-export const getTranslation = (lang: string = 'tw') => {
-    const code = lang.toLowerCase() as Language
+/**
+ * Get translation object for a given language/country code
+ */
+export const getTranslation = (lang: string = 'tw'): TranslationType => {
+    const code = lang.toLowerCase()
     return translations[code] || translations.tw
 }
 
@@ -74,21 +147,60 @@ export const getTranslation = (lang: string = 'tw') => {
  */
 export const translateText = (text: string | null | undefined, lang: string = 'tw'): string => {
     if (!text) return ""
-    if (lang.toLowerCase() === 'tw') return text
 
     const code = lang.toLowerCase()
 
+    // If requesting zh-TW/tw, return original text
+    if (code === 'tw' || code === 'zh-tw') return text
+
+    const mapping = dataMappings[code] || dataMappings.us
+
     // Exact match
-    if (dataMapping[text] && dataMapping[text][code]) {
-        return dataMapping[text][code]
+    if (mapping[text]) {
+        return mapping[text]
     }
 
     // Partial matches for things like "電話：02-..."
-    for (const [key, mapping] of Object.entries(dataMapping)) {
-        if (text.startsWith(key) && mapping[code]) {
-            return text.replace(key, mapping[code])
+    for (const [key, value] of Object.entries(mapping)) {
+        if (text.startsWith(key)) {
+            return text.replace(key, value)
         }
     }
 
     return text
+}
+
+/**
+ * Get available namespaces for a locale
+ */
+export const getNamespaces = () => [
+    'common',
+    'navigation',
+    'product',
+    'blog',
+    'footer',
+    'promotion',
+    'data-mapping',
+    'checkout',
+    'home'
+] as const
+
+/**
+ * Get available locales
+ */
+export const getLocales = () => ['zh-TW', 'ja-JP', 'en-US'] as const
+
+/**
+ * Map country code to full locale code
+ */
+export const countryToLocale = (countryCode: string): string => {
+    const mapping: Record<string, string> = {
+        tw: 'zh-TW',
+        jp: 'ja-JP',
+        us: 'en-US',
+        my: 'en-US',
+        sg: 'en-US',
+        au: 'en-US',
+    }
+    return mapping[countryCode.toLowerCase()] || 'zh-TW'
 }

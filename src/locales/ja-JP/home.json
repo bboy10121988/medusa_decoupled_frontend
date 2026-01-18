@@ -1,0 +1,13 @@
+{
+    "featured": {
+        "title": "おすすめ商品"
+    },
+    "product": {
+        "no_products": "このカテゴリーには商品がありません"
+    },
+    "location": {
+        "heading": "店舗所在地",
+        "description": "ご来店をお待ちしております",
+        "map_title": "Tim's fantasy World メンズ理髪店の場所"
+    }
+}

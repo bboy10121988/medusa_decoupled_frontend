@@ -2,6 +2,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 import ProductPreview from "@modules/products/components/product-preview"
+import { getTranslation } from "@lib/translations"
 
 type ProductDisplayProps = {
   products: HttpTypes.StoreProduct[]
@@ -9,10 +10,13 @@ type ProductDisplayProps = {
 }
 
 export default function ProductDisplay({ products, region }: ProductDisplayProps) {
+  const countryCode = region.countries?.[0]?.iso_2 || 'tw'
+  const t = getTranslation(countryCode)
+
   if (products?.length === 0) {
     return (
       <div className="w-full py-8 text-center text-gray-500">
-        此分類暫無商品
+        {(t as any).product?.no_products || '此分類暫無商品'}
       </div>
     )
   }

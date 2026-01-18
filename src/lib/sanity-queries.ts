@@ -487,3 +487,40 @@ export const ALL_FOOTERS_QUERY = `*[_type == "footer" && !(_id in path('drafts.*
     _updatedAt,
     _createdAt
   }`
+
+export const BLOG_PAGE_SETTINGS_QUERY = `*[_type == "blogPage"][0] {
+  title,
+  subtitle,
+  showTitle,
+  showSubtitle,
+  postsPerPage,
+  showCategories,
+  categoryTitle,
+  allCategoriesLabel,
+  showSidebar,
+  showLatestPosts,
+  latestPostsTitle,
+  latestPostsCount,
+  gridColumns,
+  mobileColumns,
+  layout,
+  cardStyle,
+  showExcerpt,
+  excerptLength,
+  showReadMore,
+  readMoreText,
+  showPublishDate,
+  showAuthor,
+  showCategoryTags,
+  categoryTagLimit,
+  enablePagination,
+  enableSearch,
+  seoTitle,
+  seoDescription,
+  seoKeywords,
+  ogImage {
+    asset->{
+      url
+    }
+  }
+}`

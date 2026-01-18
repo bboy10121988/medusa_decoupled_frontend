@@ -4,6 +4,9 @@ import client from "@lib/sanity"
 
 const BASE_URL = 'https://timsfantasyworld.com'
 
+// All supported countries/locales
+const SUPPORTED_COUNTRIES = ['tw', 'jp', 'us', 'my']
+
 async function getProducts() {
     try {
         const headers: Record<string, string> = {
@@ -48,56 +51,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const products = await getProducts()
     const posts = await getBlogPosts()
 
-    // Base routes
-    const routes = [
+    // Static routes for all countries (updated with dynamic pages)
+    const staticPages = [
         '',
         '/store',
-        '/tw/store',
-        '/my/store',
+        '/blog',
         '/account',
         '/cart',
         '/intro',
-        '/blog',
-        '/tw/blog',
-        '/my/blog',
-    ].map((route) => ({
-        url: `${BASE_URL}${route}`,
+        '/contact',
+        '/faq',
+        '/return',
+        '/privacy-policy'
+    ]
+
+    const staticRoutes = staticPages.flatMap(page =>
+        SUPPORTED_COUNTRIES.map(country => ({
+            url: `${BASE_URL}/${country}${page}`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: page === '' ? 1 : 0.9,
+        }))
+    )
+
+    // Homepage without country code (redirects to default)
+    const rootRoute = {
+        url: BASE_URL,
         lastModified: new Date(),
         changeFrequency: 'daily' as const,
         priority: 1,
-    }))
+    }
 
-    // Product routes (Taiwan & Malaysia)
-    const productRoutes = products.flatMap((product: any) => [
-        {
-            url: `${BASE_URL}/tw/products/${product.handle}`,
+    // Product routes for all countries
+    const productRoutes = products.flatMap((product: any) =>
+        SUPPORTED_COUNTRIES.map(country => ({
+            url: `${BASE_URL}/${country}/products/${product.handle}`,
             lastModified: new Date(product.updated_at),
             changeFrequency: 'weekly' as const,
             priority: 0.8,
-        },
-        {
-            url: `${BASE_URL}/my/products/${product.handle}`,
-            lastModified: new Date(product.updated_at),
-            changeFrequency: 'weekly' as const,
-            priority: 0.8,
-        }
-    ])
+        }))
+    )
 
-    // Blog routes (Taiwan & Malaysia)
-    const blogRoutes = posts.flatMap((post: any) => [
-        {
-            url: `${BASE_URL}/tw/blog/${post.slug.current}`,
+    // Blog routes for all countries
+    const blogRoutes = posts.flatMap((post: any) =>
+        SUPPORTED_COUNTRIES.map(country => ({
+            url: `${BASE_URL}/${country}/blog/${post.slug.current}`,
             lastModified: new Date(post.publishedAt || new Date()),
             changeFrequency: 'weekly' as const,
             priority: 0.7,
-        },
-        {
-            url: `${BASE_URL}/my/blog/${post.slug.current}`,
-            lastModified: new Date(post.publishedAt || new Date()),
-            changeFrequency: 'weekly' as const,
-            priority: 0.7,
-        }
-    ])
+        }))
+    )
 
-    return [...routes, ...productRoutes, ...blogRoutes]
+    return [rootRoute, ...staticRoutes, ...productRoutes, ...blogRoutes]
 }

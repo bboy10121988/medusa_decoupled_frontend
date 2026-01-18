@@ -6,6 +6,12 @@ import RefinementList from "@modules/store/components/refinement-list"
 
 import PaginatedProducts from "./paginated-products"
 
+const storeTranslations: Record<string, { title: string; description: string }> = {
+  tw: { title: "所有商品", description: "探索我們的完整商品系列" },
+  jp: { title: "すべての商品", description: "すべての商品コレクションをご覧ください" },
+  us: { title: "All Products", description: "Explore our complete product collection" },
+}
+
 const StoreTemplate = ({
   sortBy,
   page,
@@ -19,6 +25,7 @@ const StoreTemplate = ({
 }) => {
   const sort = sortBy || "created_at"
   const pageNumber = page ? parseInt(page) : 1
+  const t = storeTranslations[countryCode] || storeTranslations.tw
 
   const paddingStyle = paddingX ? {
     paddingLeft: `${paddingX / 2}%`,
@@ -30,10 +37,10 @@ const StoreTemplate = ({
       {/* 標題區域 - 置中對齊 */}
       <div className="px-4 md:px-8 lg:px-12 py-3 border-b border-gray-100 text-center">
         <h1 data-testid="store-page-title" className="text-2xl font-semibold mb-1">
-          所有商品
+          {t.title}
         </h1>
         <p className="text-base text-gray-600">
-          探索我們的完整商品系列
+          {t.description}
         </p>
       </div>
 

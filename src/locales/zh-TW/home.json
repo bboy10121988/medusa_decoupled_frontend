@@ -1,0 +1,13 @@
+{
+    "featured": {
+        "title": "精選商品"
+    },
+    "product": {
+        "no_products": "此分類暫無商品"
+    },
+    "location": {
+        "heading": "店家位置",
+        "description": "歡迎蒞臨參觀",
+        "map_title": "Tim's fantasy World 男士理髮廳位置"
+    }
+}

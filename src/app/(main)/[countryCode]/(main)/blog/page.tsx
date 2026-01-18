@@ -1,276 +1,21 @@
 import { unstable_noStore as noStore } from 'next/cache'
 import Image from 'next/image'
 import Link from 'next/link'
-import client from "@lib/sanity"
+import {
+  getAllPosts,
+  getCategories,
+  getSiteInfo,
+  getBlogPageSettings
+} from "@lib/sanity"
+import { mapCountryToLanguage } from "../../../../../lib/sanity-utils"
+import { getTranslation } from "@lib/translations"
 import BlogList from "@modules/blog/components/blog-list"
 
-interface Post {
-  _id: string
-  title: string
-  slug: {
-    current?: string
-    _type?: string
-  }
-  publishedAt: string
-  mainImage: {
-    asset: {
-      url: string
-    }
-  }
-  categories: Array<{
-    title: string
-  }>
-  body: any
-}
+// Define interfaces if not imported, or import them. 
+// BlogPost is imported from types/global in sanity.ts, but here we might need to cast or use it.
+// Let's rely on inference or import types if possible. 
+// However, for this refactor I will try to keep it simple and rely on what `getAllPosts` returns.
 
-interface Category {
-  _id: string
-  title: string
-}
-
-import { mapCountryToLanguage } from "../../../../../lib/sanity-utils"
-
-// ... (imports remain)
-
-// 取得所有部落格文章
-async function getAllPosts(category?: string, language: string = 'zh-TW') {
-  try {
-    noStore()
-
-    // 定義查詢參數
-    const params = {
-      lang: language,
-      ...(category ? { category } : {})
-    }
-
-    const query = category
-      ? `*[_type == "post" && !(_id in path("drafts.**")) && defined(slug.current) && language == $lang && "${category}" in categories[]->title] | order(publishedAt desc) {
-          _id,
-          title,
-          slug {
-            current
-          },
-          publishedAt,
-          mainImage {
-            asset->{
-              url
-            }
-          },
-          categories[]->{
-            title
-          },
-          body
-        }`
-      : `*[_type == "post" && !(_id in path("drafts.**")) && defined(slug.current) && language == $lang] | order(publishedAt desc) {
-          _id,
-          title,
-          slug {
-            current
-          },
-          publishedAt,
-          mainImage {
-            asset->{
-              url
-            }
-          },
-          categories[]->{
-            title
-          },
-          body
-        }`
-
-    const posts = await client.fetch<Post[]>(query, params)
-
-    if (!posts) {
-      return []
-    }
-
-    return posts
-  } catch (error) {
-    return []
-  }
-}
-
-// 取得所有分類
-async function getCategories() {
-  try {
-    noStore()
-    const query = `*[_type == "category"] | order(title asc) {
-      _id,
-      title
-    }`
-    const categories = await client.fetch<Category[]>(query)
-
-    if (!categories) {
-      return []
-    }
-
-    return Array.from(
-      new Map(categories.map(cat => [cat.title, cat])).values()
-    )
-  } catch (error) {
-    return []
-  }
-}
-
-// 取得最新文章
-async function getLatestPosts(language: string = 'zh-TW') {
-  try {
-    noStore()
-    const params = { lang: language }
-    const query = `*[_type == "post" && language == $lang] | order(publishedAt desc)[0...4] {
-      _id,
-      title,
-      slug {
-        current
-      },
-      publishedAt,
-      mainImage {
-        asset->{
-          url
-        }
-      }
-    }`
-    const posts = await client.fetch(query, params)
-    return posts || []
-  } catch (error) {
-    return []
-  }
-}
-
-// 取得網站資訊
-async function getSiteInfo() {
-  try {
-    noStore()
-    const query = `*[_type == "homePage"][0] {
-      title,
-      description,
-      seoDescription,
-      seoTitle
-    }`
-    const siteInfo = await client.fetch(query)
-    // console.log('Fetched site info:', siteInfo)
-    return siteInfo || {
-      title: "首頁",
-      description: "",
-      seoDescription: "",
-      seoTitle: "Fantasy World Barber Shop"
-    }
-  } catch (error) {
-    // console.error("Error fetching site info:", error)
-    return {
-      title: "首頁",
-      description: "",
-      seoDescription: "",
-      seoTitle: "Fantasy World Barber Shop"
-    }
-  }
-}
-
-// 取得部落格頁面設定
-async function getBlogPageSettings() {
-  try {
-    noStore()
-    const query = `*[_type == "blogPage"][0] {
-      title,
-      subtitle,
-      showTitle,
-      showSubtitle,
-      postsPerPage,
-      showCategories,
-      categoryTitle,
-      allCategoriesLabel,
-      showSidebar,
-      showLatestPosts,
-      latestPostsTitle,
-      latestPostsCount,
-      gridColumns,
-      mobileColumns,
-      layout,
-      cardStyle,
-      showExcerpt,
-      excerptLength,
-      showReadMore,
-      readMoreText,
-      showPublishDate,
-      showAuthor,
-      showCategoryTags,
-      categoryTagLimit,
-      enablePagination,
-      enableSearch,
-      seoTitle,
-      seoDescription,
-      seoKeywords,
-      ogImage {
-        asset->{
-          url
-        }
-      }
-    }`
-    const settings = await client.fetch(query)
-    // console.log('Fetched blog page settings:', settings)
-    return settings || {
-      title: '部落格文章',
-      subtitle: '探索我們的最新消息與文章',
-      showTitle: false,
-      showSubtitle: false,
-      postsPerPage: 9,
-      showCategories: true,
-      categoryTitle: '文章分類',
-      allCategoriesLabel: '全部文章',
-      showSidebar: true,
-      showLatestPosts: true,
-      latestPostsTitle: '最新文章',
-      latestPostsCount: 4,
-      gridColumns: 3,
-      mobileColumns: 2,
-      layout: 'grid',
-      cardStyle: 'card',
-      showExcerpt: true,
-      excerptLength: 80,
-      showReadMore: true,
-      readMoreText: '閱讀更多',
-      showPublishDate: true,
-      showAuthor: false,
-      showCategoryTags: true,
-      categoryTagLimit: 2,
-      enablePagination: true,
-      enableSearch: false
-    }
-  } catch (error) {
-    // console.error("Error fetching blog page settings:", error)
-    return {
-      title: '部落格文章',
-      subtitle: '探索我們的最新消息與文章',
-      showTitle: false,
-      showSubtitle: false,
-      postsPerPage: 9,
-      showCategories: true,
-      categoryTitle: '文章分類',
-      allCategoriesLabel: '全部文章',
-      showSidebar: true,
-      showLatestPosts: true,
-      latestPostsTitle: '最新文章',
-      latestPostsCount: 4,
-      gridColumns: 3,
-      mobileColumns: 2,
-      layout: 'grid',
-      cardStyle: 'card',
-      showExcerpt: true,
-      excerptLength: 80,
-      showReadMore: true,
-      readMoreText: '閱讀更多',
-      showPublishDate: true,
-      showAuthor: false,
-      showCategoryTags: true,
-      categoryTagLimit: 2,
-      enablePagination: true,
-      enableSearch: false
-    }
-  }
-}
-
-// 動態生成metadata
 export async function generateMetadata() {
   const [siteInfo, blogSettings] = await Promise.all([
     getSiteInfo(),
@@ -298,12 +43,16 @@ export default async function BlogListPage({
     const { countryCode } = await params
     const { category } = await searchParams
     const language = mapCountryToLanguage(countryCode)
+    const t = getTranslation(countryCode)
 
+    // Using Promise.all to fetch data in parallel
+    // getAllPosts from sanity.ts takes (category, limit, language)
+    // We use a high limit (100) to emulate the previous behavior of fetching many posts
     const [posts, categories, , latestPosts, blogSettings] = await Promise.all([
-      getAllPosts(category, language),
-      getCategories(),
-      getSiteInfo(),
-      getLatestPosts(language),
+      getAllPosts(category, 100, language),
+      getCategories(language),
+      getSiteInfo(language),
+      getAllPosts(undefined, 4, language), // Used for latest posts sidebar
       getBlogPageSettings()
     ])
 
@@ -333,7 +82,7 @@ export default async function BlogListPage({
                 <nav className="bg-white px-4 py-4 md:pl-6 md:pr-6 lg:pl-12 lg:pr-6 xl:pl-16 xl:pr-6 2xl:pl-20 2xl:pr-6 md:py-6 md:sticky md:top-[96px]">
                   {/* 手機版分類選單 */}
                   <div className="block md:hidden mb-4">
-                    <h2 className="text-lg font-semibold mb-3">{blogSettings.categoryTitle || '文章分類'}</h2>
+                    <h2 className="text-lg font-semibold mb-3">{t.categories}</h2>
                     <div className="flex overflow-x-auto pb-2 space-x-3">
                       <a
                         href={`/${countryCode}/blog`}
@@ -342,7 +91,7 @@ export default async function BlogListPage({
                           : 'bg-white text-gray-600 border-gray-300 hover:border-blue-600 hover:text-blue-600'
                           }`}
                       >
-                        {blogSettings.allCategoriesLabel || '全部文章'}
+                        {(language === 'zh-TW' ? blogSettings.allCategoriesLabel : undefined) || t.allArticles}
                       </a>
                       {categories.map((cat) => (
                         <a
@@ -361,7 +110,7 @@ export default async function BlogListPage({
 
                   {/* 桌面版分類選單 */}
                   <div className="hidden md:block">
-                    <h2 className="text-xl font-semibold border-b pb-2">{blogSettings.categoryTitle || '文章分類'}</h2>
+                    <h2 className="text-xl font-semibold border-b pb-2">{t.categories}</h2>
                     <ul className="space-y-3 mt-4">
                       <li>
                         <a
@@ -369,7 +118,7 @@ export default async function BlogListPage({
                           className={`text-sm hover:text-blue-600 block w-full py-1 transition-colors duration-200 ${!category ? 'text-blue-600 font-medium' : 'text-gray-500'
                             }`}
                         >
-                          {blogSettings.allCategoriesLabel || '全部文章'}
+                          {(language === 'zh-TW' ? blogSettings.allCategoriesLabel : undefined) || t.allArticles}
                         </a>
                       </li>
                       {categories.map((cat) => (
@@ -390,7 +139,7 @@ export default async function BlogListPage({
                   {blogSettings.showLatestPosts !== false && latestPosts && latestPosts.length > 0 && (
                     <div className="mt-8 pt-6 border-t border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                        {blogSettings.latestPostsTitle || '最新文章'}
+                        {t.latestPosts}
                       </h3>
                       <div className="space-y-3">
                         {latestPosts.map((article: any) => (
@@ -422,7 +171,7 @@ export default async function BlogListPage({
                                 </h4>
                                 {article.publishedAt && (
                                   <p className="text-xs text-gray-500 mt-1">
-                                    {new Date(article.publishedAt).toLocaleDateString("zh-TW")}
+                                    {new Date(article.publishedAt).toLocaleDateString(language === 'zh-TW' ? "zh-TW" : "en-US")}
                                   </p>
                                 )}
                               </div>
@@ -439,17 +188,6 @@ export default async function BlogListPage({
             {/* 右側主要內容區 */}
             <main className={`col-span-12 order-1 md:order-2 px-4 md:pr-6 lg:pr-12 xl:pr-16 2xl:pr-20 ${(blogSettings.showSidebar !== false && blogSettings.showCategories !== false) ? 'md:col-span-9' : 'md:col-span-12'
               }`}>
-              {/* 頁面標題和副標題 - 完全隱藏
-              <header className="hidden md:block mb-8 pt-4">
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                  {category 
-                    ? `${category}`
-                    : '部落格文章'}
-                </h1>
-                <p className="text-gray-600 text-base">探索我們的最新消息與文章</p>
-              </header>
-              */}
-
               {/* 文章列表 */}
               <section className="bg-white">
                 {Array.isArray(posts) && posts.length > 0 ? (
@@ -463,8 +201,8 @@ export default async function BlogListPage({
                   <div className="text-center py-12 bg-white">
                     <p className="text-gray-500">
                       {category
-                        ? `在 "${category}" 分類中還沒有文章`
-                        : '目前還沒有任何文章'}
+                        ? t.noPostsInCat
+                        : t.noPosts}
                     </p>
                   </div>
                 )}

@@ -1,0 +1,10 @@
+{
+  "addToCart": "Add to Cart",
+  "adding": "Processing...",
+  "preorder": "Pre-order",
+  "soldOut": "Sold Out",
+  "addedToCart": "Added to Cart",
+  "selectOptions": "Select Options",
+  "pleaseSelectOptions": "Please select all required options",
+  "failedToAddToCart": "Failed to add to cart, please try again"
+}

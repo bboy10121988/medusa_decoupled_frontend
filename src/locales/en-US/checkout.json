@@ -1,0 +1,27 @@
+{
+    "shipping": {
+        "title": "Shipping Information",
+        "address": "Delivery Address",
+        "contact": "Contact Information",
+        "method": "Shipping Method"
+    },
+    "payment": {
+        "title": "Payment Information",
+        "method": "Payment Method",
+        "details": "Payment Details"
+    },
+    "help": {
+        "title": "Need Help?",
+        "contact_us": "Contact Us",
+        "returns": "Returns & Exchanges"
+    },
+    "order": {
+        "success": "Your order has been successfully created.",
+        "cancelled": "Your order has been cancelled due to an error (payment failure or incomplete). If you have any questions, please contact store customer service.",
+        "payment_failed": "Your order has been cancelled due to payment failure. If you have any questions, please contact store customer service.",
+        "thank_you": "Thank you!",
+        "help_message": "If you have any questions, please click the 'Help' button to consult with the store. Our staff will be happy to assist you.",
+        "summary": "Order Summary",
+        "test_success": "Your test order was successfully created! 🎉"
+    }
+}

@@ -23,6 +23,8 @@ export function mapCountryToLanguage(countryCode: string): string {
   switch (countryCode?.toLowerCase()) {
     case 'tw':
       return 'zh-TW'
+    case 'jp':
+      return 'ja-JP'
     case 'us':
     case 'my':
     case 'sg':
@@ -132,45 +134,53 @@ export async function getFooter(language?: string) {
 
 // 添加 getHeader 導出  
 export async function getHeader(language?: string) {
-  try {
-    const lang = language || DEFAULT_LANGUAGE
-    const query = `*[_type == "header" && language == $lang][0] {
-      _id,
-      navigation[]{
+  const headerQuery = `*[_type == "header" && language == $lang][0] {
+    _id,
+    navigation[]{
+      name,
+      href,
+      submenu[]{
         name,
-        href,
-        submenu[]{
-          name,
-          href
-        }
-      },
-      logo {
-        alt,
-        "url": asset->url
-      },
-      favicon {
-        alt,
-        "url": asset->url
-      },
-      storeName,
-      logoHeight,
-      logoSize {
-        desktop,
-        mobile
-      },
-      announcement {
-        enabled,
-        text,
-        url
-      },
-      marquee
-    }`
+        href
+      }
+    },
+    logo {
+      alt,
+      "url": asset->url
+    },
+    favicon {
+      alt,
+      "url": asset->url
+    },
+    storeName,
+    logoHeight,
+    logoSize {
+      desktop,
+      mobile
+    },
+    announcement {
+      enabled,
+      text,
+      url
+    },
+    marquee
+  }`
 
-    return await client.fetch(query, { lang })
-  } catch (error) {
-    // console.error('[getHeader] 從 Sanity 獲取頭部資料時發生錯誤:', error)
-    return null
+  // Fallback chain: requested lang -> 'en' -> 'zh-TW'
+  const fallbackChain = [language || DEFAULT_LANGUAGE, 'en', 'zh-TW']
+
+  for (const lang of fallbackChain) {
+    try {
+      const result = await client.fetch(headerQuery, { lang })
+      if (result && result.storeName) {
+        return result
+      }
+    } catch (error) {
+      // console.error(`[getHeader] Error fetching header for ${lang}:`, error)
+    }
   }
+
+  return null
 }
 
 // 新增：獲取商品內容

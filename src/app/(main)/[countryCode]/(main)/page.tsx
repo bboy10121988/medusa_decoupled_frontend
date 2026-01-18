@@ -10,6 +10,7 @@ import ContentSection from "@modules/home/components/content-section"
 import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 import { getHomePage, mapCountryToLanguage } from "@lib/sanity-utils/index"; // 使用 getHomePage 並移除 getServiceSection
+import { getTranslation } from "@lib/translations"
 import type { MainBanner } from '@lib/types/page-sections'
 import type { ImageTextBlock as ImageTextBlockType } from '@lib/types/page-sections'
 import type { FeaturedProductsSection } from '@lib/types/page-sections'
@@ -227,6 +228,7 @@ export default async function Home({
   if (!hasSanityData) {
     // console.warn('⚠️ No valid Sanity data found, showing fallback content')
 
+    const t = getTranslation(countryCode)
     return (
       <>
         <div className="mt-16">
@@ -236,7 +238,7 @@ export default async function Home({
             rel="noopener noreferrer"
             className="inline-block bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
           >
-            立即預約 LINE 諮詢
+            {t.lineConsult}
           </a>
         </div>
 

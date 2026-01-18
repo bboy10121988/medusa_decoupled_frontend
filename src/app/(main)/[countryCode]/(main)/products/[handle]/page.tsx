@@ -7,6 +7,7 @@ import ProductTemplate from "@modules/products/templates"
 import { getStoreName } from "@lib/store-name"
 import { getHomepage } from "@lib/sanity"
 import type { FeaturedProductsSection } from "@lib/types/page-sections"
+import { ProductSchema } from "@/components/seo/StructuredData"
 
 // 強制動態渲染，避免預渲染問題
 export const dynamic = 'force-dynamic'
@@ -105,15 +106,29 @@ export default async function ProductPage({ params }: Props) {
       const paddingX = featuredProductsSection?.paddingX
 
       return (
-        <ProductTemplate
-          product={pricedProduct}
-          region={region}
-          countryCode={countryCode}
-          detailContent={detailContent}
-          detailImages={detailImages}
-          detailBlocks={detailBlocks}
-          paddingX={paddingX}
-        />
+        <>
+          <ProductSchema
+            name={pricedProduct.title}
+            description={pricedProduct.description || pricedProduct.title}
+            image={pricedProduct.images?.map(img => img.url) || [pricedProduct.thumbnail || '']}
+            sku={pricedProduct.id}
+            offers={{
+              price: (pricedProduct as any).price?.calculated_price?.amount || (pricedProduct as any).variants?.[0]?.calculated_price?.amount || 0,
+              priceCurrency: (pricedProduct as any).price?.calculated_price?.currency_code || (pricedProduct as any).variants?.[0]?.calculated_price?.currency_code || 'TWD',
+              availability: "https://schema.org/InStock",
+              url: `https://timsfantasyworld.com/${countryCode}/products/${handle}`
+            }}
+          />
+          <ProductTemplate
+            product={pricedProduct}
+            region={region}
+            countryCode={countryCode}
+            detailContent={detailContent}
+            detailImages={detailImages}
+            detailBlocks={detailBlocks}
+            paddingX={paddingX}
+          />
+        </>
       )
     } catch (error) {
       // console.error(`無法獲取產品資料: ${error instanceof Error ? error.message : "未知錯誤"}`)

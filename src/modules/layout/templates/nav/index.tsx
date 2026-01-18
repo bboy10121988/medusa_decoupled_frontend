@@ -23,27 +23,39 @@ interface NavProps {
 export default async function Nav({ countryCode = 'tw' }: NavProps) {
   const regions = await listRegions().then((regions: StoreRegion[]) => {
     // 確保 regions 包含 us，即使後端沒有設定
-    const hasUS = regions.some(r => r.countries?.some(c => c.iso_2 === 'us'))
+    let finalRegions = [...regions]
+
+    const hasUS = finalRegions.some(r => r.countries?.some(c => c.iso_2 === 'us'))
     if (!hasUS) {
-      return [
-        ...regions,
-        {
-          id: 'static-us',
-          name: 'USA',
-          currency_code: 'usd',
-          countries: [{ iso_2: 'us', display_name: 'United States' }]
-        } as unknown as StoreRegion
-      ]
+      finalRegions.push({
+        id: 'static-us',
+        name: 'USA',
+        currency_code: 'usd',
+        countries: [{ iso_2: 'us', display_name: 'United States' }]
+      } as unknown as StoreRegion)
     }
-    return regions
+
+    const hasJP = finalRegions.some(r => r.countries?.some(c => c.iso_2 === 'jp'))
+    if (!hasJP) {
+      finalRegions.push({
+        id: 'static-jp',
+        name: 'Japan',
+        currency_code: 'jpy',
+        countries: [{ iso_2: 'jp', display_name: 'Japan' }]
+      } as unknown as StoreRegion)
+    }
+
+    return finalRegions
   })
   const categories = await listCategories()
   const language = mapCountryToLanguage(countryCode)
   const headerData = await getHeader(language) as SanityHeader
   const t = getTranslation(countryCode)
 
-  // 從 Sanity 獲取跑馬燈資料
-  const enabledTexts = headerData?.marquee?.enabled
+  // 從 Sanity 獲取跑馬燈資料 (如果 headerData 為空或語言不匹配，使用翻譯檔案)
+  const useFallback = !headerData || !headerData.storeName
+
+  const enabledTexts = (!useFallback && headerData?.marquee?.enabled)
     ? [
       ...(headerData.marquee.text1?.enabled && headerData.marquee.text1?.content?.trim()
         ? [{ content: headerData.marquee.text1.content }] : []),
@@ -74,9 +86,9 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
   }
 
   const defaultAnnouncements = [
-    "新會員首購享85折",
-    "全館消費滿$2000免運",
-    "會員點數最高30倍送"
+    t.marquee1,
+    t.marquee2,
+    t.marquee3
   ]
 
   // 計算主導覽列高度
@@ -263,7 +275,7 @@ export default async function Nav({ countryCode = 'tw' }: NavProps) {
                       />
                     </>
                   ) : (
-                    headerData?.storeName || "Medusa Store"
+                    useFallback ? t.storeName : (headerData?.storeName || t.storeName)
                   )}
                 </LocalizedClientLink>
               </div>

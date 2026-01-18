@@ -1,0 +1,10 @@
+{
+  "addToCart": "加入購物車",
+  "adding": "處理中...",
+  "preorder": "預訂",
+  "soldOut": "售完",
+  "addedToCart": "商品已加入購物車",
+  "selectOptions": "選擇商品規格",
+  "pleaseSelectOptions": "請選擇所有必要的選項",
+  "failedToAddToCart": "添加到購物車失敗，請稍後再試"
+}
