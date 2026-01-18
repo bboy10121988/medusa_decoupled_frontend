@@ -16,5 +16,6 @@
   "color": "色",
   "quantity": "数量",
   "inStock": "在庫あり",
-  "outOfStock": "在庫切れ"
+  "outOfStock": "在庫切れ",
+  "priceNotAvailable": "価格設定なし"
 }

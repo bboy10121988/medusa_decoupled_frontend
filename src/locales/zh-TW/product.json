@@ -16,5 +16,6 @@
   "color": "顏色",
   "quantity": "數量",
   "inStock": "有貨",
-  "outOfStock": "缺貨"
+  "outOfStock": "缺貨",
+  "priceNotAvailable": "此地區暫無價格"
 }

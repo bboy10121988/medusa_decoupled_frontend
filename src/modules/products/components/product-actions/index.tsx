@@ -10,6 +10,7 @@ import { useParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
+import { getTranslation } from "@lib/translations"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -33,6 +34,7 @@ export default function ProductActions({
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
   const countryCode = useParams().countryCode as string
+  const t = getTranslation(countryCode)
 
   // If there is only 1 variant, preselect the options
   useEffect(() => {
@@ -40,11 +42,11 @@ export default function ProductActions({
       const variantOptions = optionsAsKeymap(product.variants[0].options)
       setOptions(variantOptions ?? {})
       // console.log("🔧 自動預選單一變體:", {
-        // productTitle: product.title,
-        // variantId: product.variants[0].id,
-        // variantTitle: product.variants[0].title,
-        // options: variantOptions,
-        // calculated_price: product.variants[0].calculated_price
+      // productTitle: product.title,
+      // variantId: product.variants[0].id,
+      // variantTitle: product.variants[0].title,
+      // options: variantOptions,
+      // calculated_price: product.variants[0].calculated_price
       // })
     }
   }, [product.variants])
@@ -60,12 +62,12 @@ export default function ProductActions({
     })
 
     // console.log("🔍 變體選擇檢查:", {
-      // productTitle: product.title,
-      // totalVariants: product.variants.length,
-      // currentOptions: options,
-      // selectedVariantId: variant?.id,
-      // selectedVariantTitle: variant?.title,
-      // hasCalculatedPrice: !!(variant as any)?.calculated_price?.calculated_amount
+    // productTitle: product.title,
+    // totalVariants: product.variants.length,
+    // currentOptions: options,
+    // selectedVariantId: variant?.id,
+    // selectedVariantTitle: variant?.title,
+    // hasCalculatedPrice: !!(variant as any)?.calculated_price?.calculated_amount
     // })
 
     return variant
@@ -116,19 +118,19 @@ export default function ProductActions({
     if (!selectedVariant) {
       return false
     }
-    
+
     // 檢查是否有 calculated_price - 支援多種價格結構
     const variant = selectedVariant as any
     // console.log("🔍 價格檢查:", {
-      // variantId: selectedVariant.id,
-      // calculated_price: variant.calculated_price,
-      // hasCalculatedAmount: !!(variant.calculated_price?.calculated_amount),
-      // hasAmount: !!(variant.calculated_price?.amount),
-      // fullVariant: variant
+    // variantId: selectedVariant.id,
+    // calculated_price: variant.calculated_price,
+    // hasCalculatedAmount: !!(variant.calculated_price?.calculated_amount),
+    // hasAmount: !!(variant.calculated_price?.amount),
+    // fullVariant: variant
     // })
-    
+
     return !!(
-      variant.calculated_price?.calculated_amount || 
+      variant.calculated_price?.calculated_amount ||
       variant.calculated_price?.amount ||
       (variant.prices && variant.prices.length > 0)
     )
@@ -143,10 +145,10 @@ export default function ProductActions({
     if (!selectedVariant?.id) return
 
     // console.log("🛒 正在加入購物車:", {
-      // variantId: selectedVariant.id,
-      // quantity: 1,
-      // countryCode,
-      // selectedVariant
+    // variantId: selectedVariant.id,
+    // quantity: 1,
+    // countryCode,
+    // selectedVariant
     // })
 
     setIsAdding(true)
@@ -172,16 +174,16 @@ export default function ProductActions({
       }
 
       // console.log("✅ 成功加入購物車:", result)
-      
+
       // 如果 API 回傳 cartId，也在前端設定
       if (result.cartId && typeof window !== 'undefined') {
         localStorage.setItem('_medusa_cart_id', result.cartId)
         document.cookie = `_medusa_cart_id=${result.cartId}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`
         // console.log("📱 前端儲存 Cart ID:", result.cartId)
       }
-      
+
       // console.log("💡 商品已加入購物車！")
-      
+
       // 觸發購物車更新事件
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('cartUpdate'))
@@ -238,14 +240,14 @@ export default function ProductActions({
           data-testid="add-product-button"
         >
           {!selectedVariant && !options
-            ? "選擇規格"
+            ? (t.selectOptions || "Select Options")
             : !selectedVariant && options
-            ? "請選擇規格"
-            : !hasPrice
-            ? "此地區暫無價格"
-            : !inStock || !isValidVariant
-            ? "缺貨"
-            : "加入購物車"}
+              ? (t.selectOptions || "Select Options")
+              : !hasPrice
+                ? (t.priceNotAvailable || "Price Not Available")
+                : !inStock || !isValidVariant
+                  ? (t.outOfStock || "Out of Stock")
+                  : (t.addToCart || "Add to Cart")}
         </Button>
         <MobileActions
           product={product}

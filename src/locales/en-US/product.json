@@ -16,5 +16,6 @@
   "color": "Color",
   "quantity": "Quantity",
   "inStock": "In Stock",
-  "outOfStock": "Out of Stock"
+  "outOfStock": "Out of Stock",
+  "priceNotAvailable": "Price Not Available"
 }

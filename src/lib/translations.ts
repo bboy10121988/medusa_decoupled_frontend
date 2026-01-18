@@ -69,6 +69,7 @@ export interface TranslationType {
     material?: string
     weight?: string
     dimensions?: string
+    priceNotAvailable?: string
     // blog
     noPosts: string
     viewMore: string

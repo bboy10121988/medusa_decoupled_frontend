@@ -10,6 +10,8 @@ import { getProductPrice } from "@lib/util/get-product-price"
 import OptionSelect from "./option-select"
 import { HttpTypes } from "@medusajs/types"
 import { isSimpleProduct } from "@lib/util/product"
+import { getTranslation } from "@lib/translations"
+import { useParams } from "next/navigation"
 
 type MobileActionsProps = {
   product: HttpTypes.StoreProduct
@@ -37,11 +39,14 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   const { state, open, close } = useToggleState()
 
   // 廣播 mobile-actions 的顯示狀態
+  const countryCode = useParams().countryCode as string
+  const t = getTranslation(countryCode)
+
   useEffect(() => {
     // 當底部欄或彈窗顯示時,觸發自定義事件
     const isVisible = show || state
-    window.dispatchEvent(new CustomEvent('mobile-actions-visibility', { 
-      detail: { visible: isVisible } 
+    window.dispatchEvent(new CustomEvent('mobile-actions-visibility', {
+      detail: { visible: isVisible }
     }))
   }, [show, state])
 
@@ -133,10 +138,10 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 data-testid="mobile-cart-button"
               >
                 {!variant
-                  ? "Select variant"
+                  ? (t.selectOptions || "Select variant")
                   : !inStock
-                  ? "Out of stock"
-                  : "Add to cart"}
+                    ? (t.outOfStock || "Out of stock")
+                    : (t.addToCart || "Add to cart")}
               </Button>
             </div>
           </div>
