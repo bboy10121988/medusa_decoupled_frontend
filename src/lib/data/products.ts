@@ -109,8 +109,7 @@ export const listProducts = async ({
                 return {
                   ...product,
                   title: sanityData.title || product.title,
-                  // description: sanityData.description || product.description, // 可選：是否要覆蓋描述
-                  // thumbnail: sanityData.images?.[0]?.asset?.url || product.thumbnail // 可選：是否要覆蓋縮圖
+                  description: sanityData.description || product.description,
                 }
               }
               return product
@@ -259,7 +258,7 @@ export const getProduct = async ({
             product = {
               ...product,
               title: sanityData.title || product.title,
-              // description: sanityData.description || product.description
+              description: sanityData.description || product.description,
             }
           }
         }
@@ -347,6 +346,7 @@ export const getProductsByIds = async ({
                 return {
                   ...product,
                   title: sanityData.title || product.title,
+                  description: sanityData.description || product.description,
                 }
               }
               return product
