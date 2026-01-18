@@ -118,8 +118,8 @@ export const listProducts = async ({
               if (manualData) {
                 return {
                   ...product,
-                  title: manualData.title || product.title,
-                  description: manualData.description || product.description,
+                  title: manualData.title,
+                  description: manualData.description,
                 }
               }
               return product
@@ -276,8 +276,8 @@ export const getProduct = async ({
           if (manualData) {
             product = {
               ...product,
-              title: manualData.title || product.title,
-              description: manualData.description || product.description,
+              title: manualData.title,
+              description: manualData.description,
             }
           }
         }
