@@ -20,7 +20,10 @@ export const listRegions = async () => {
         "x-publishable-api-key": getPublishableKeyForBackend(MEDUSA_BACKEND_URL),
       },
     })
-    .then(({ regions }) => regions)
+    .then(({ regions }) => {
+      console.log(`[listRegions] Fetched ${regions.length} regions:`, regions.map(r => r.name))
+      return regions
+    })
     .catch(medusaError)
 }
 
@@ -75,7 +78,7 @@ export const getRegion = async (countryCode: string) => {
     // 如果沒有找到，嘗試從環境變數獲取特定地區 ID
     const regionIdKey = `NEXT_PUBLIC_REGION_${countryCode.toUpperCase()}`
     const regionId = process.env[regionIdKey]
-    
+
     if (regionId) {
       const region = regions.find(r => r.id === regionId)
       if (region) {

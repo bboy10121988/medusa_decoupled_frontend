@@ -22,6 +22,7 @@ interface NavProps {
 
 export default async function Nav({ countryCode = 'tw' }: NavProps) {
   const regions = await listRegions()
+  console.log(`[Nav] Regions available:`, regions?.length)
   const categories = await listCategories()
   const language = mapCountryToLanguage(countryCode)
   const headerData = await getHeader(language) as SanityHeader
