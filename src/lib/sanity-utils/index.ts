@@ -89,47 +89,58 @@ export async function getCategories(language?: string): Promise<CategoryType[]> 
 
 // 添加 getFooter 導出
 export async function getFooter(language?: string) {
-  try {
-    const lang = language || DEFAULT_LANGUAGE
-    const query = `*[_type == "footer" && language == $lang][0] {
-      _id,
-      sections[]{
-        title,
-        links[]{
-          text,
-          linkType,
-          internalLink,
-          externalUrl,
-          "url": coalesce(
-            select(
-              linkType == "internal" => internalLink,
-              linkType == "external" => externalUrl
-            ),
-            internalLink, 
-            externalUrl
-          )
-        }
-      },
-      logo {
-        alt,
-        "url": asset->url
-      },
-      logoWidth,
-      socialMedia {
-        facebook { enabled, url },
-        instagram { enabled, url },
-        line { enabled, url },
-        youtube { enabled, url },
-        twitter { enabled, url }
-      },
-      copyright
-    }`
+  const query = `*[_type == "footer" && language == $lang][0] {
+    _id,
+    sections[]{
+      title,
+      links[]{
+        text,
+        linkType,
+        internalLink,
+        externalUrl,
+        "url": coalesce(
+          select(
+            linkType == "internal" => internalLink,
+            linkType == "external" => externalUrl
+          ),
+          internalLink, 
+          externalUrl
+        )
+      }
+    },
+    logo {
+      alt,
+      "url": asset->url
+    },
+    logoWidth,
+    socialMedia {
+      facebook { enabled, url },
+      instagram { enabled, url },
+      line { enabled, url },
+      youtube { enabled, url },
+      twitter { enabled, url }
+    },
+    copyright
+  }`
 
-    return await client.fetch(query, { lang })
-  } catch (error) {
-    // console.error('[getFooter] 從 Sanity 獲取頁腳資料時發生錯誤:', error)
-    return null
+  // Fallback chain: requested lang -> 'zh-TW' (default)
+  // We prioritize default language as fallback if specific language is missing
+  const fallbackChain = [language || DEFAULT_LANGUAGE, 'zh-TW']
+  // Filter duplicates
+  const uniqueChain = Array.from(new Set(fallbackChain))
+
+  for (const lang of uniqueChain) {
+    try {
+      const result = await client.fetch(query, { lang })
+      if (result) {
+        return result
+      }
+    } catch (error) {
+      // console.error(`[getFooter] Error fetching footer for ${lang}:`, error)
+    }
   }
+
+  return null
 }
 
 // 添加 getHeader 導出  
