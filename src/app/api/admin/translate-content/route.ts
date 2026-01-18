@@ -194,10 +194,23 @@ export async function POST(req: NextRequest) {
                 translatedContent = await translatePageSections(sourceContent, targetLang)
             }
 
-            // Target ID strategy: Manual deterministic ID for i18n
-            // We use the pattern from document-internationalization if possible, or our own custom one.
-            // Custom: sourceId__i18n_lang
-            const targetId = `${sourceDoc._id}__i18n_${targetLang.toLowerCase()}`
+            // Target ID strategy:
+            // 1. Try to find existing document (slug + lang)
+            // 2. If not found, use deterministic ID
+            let targetId = `${sourceDoc._id}__i18n_${targetLang.toLowerCase()}`
+
+            const queryParams: any = { type: _type, lang: targetLang }
+            let idQuery = `*[_type == $type && language == $lang][0]._id`
+
+            if (sourceDoc.slug?.current) {
+                idQuery = `*[_type == $type && slug.current == $slug && language == $lang][0]._id`
+                queryParams.slug = sourceDoc.slug.current
+            }
+
+            const existingId = await client.fetch(idQuery, queryParams)
+            if (existingId) {
+                targetId = existingId
+            }
 
             // 4. Create or Patch
             const transaction = client.transaction()
@@ -207,7 +220,7 @@ export async function POST(req: NextRequest) {
                 _type: _type,
                 language: targetLang,
                 title: translatedTitle,
-                slug: sourceDoc.slug ? { ...sourceDoc.slug } : undefined, // Keep same slug for i18n routing
+                slug: sourceDoc.slug ? { ...sourceDoc.slug } : undefined,
             }
 
             // Assign translated content to the correct field
