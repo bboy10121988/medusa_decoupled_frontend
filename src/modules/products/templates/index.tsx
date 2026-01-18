@@ -7,6 +7,7 @@ import ProductTabs from "@modules/products/components/product-tabs"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { ProductActionProvider } from "@lib/context/product-context"
 import StoreName from "../components/store-name"
+import { getTranslation } from "@lib/translations"
 
 type ProductTemplateProps = {
   product: any
@@ -28,8 +29,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   paddingX
 }) => {
   if (!product?.id) {
-    return <div>產品未找到</div>
+    return <div>Product not found</div>
   }
+
+  const t = getTranslation(countryCode)
 
   const paddingStyle = paddingX ? {
     paddingLeft: `${paddingX / 2}%`,
@@ -45,7 +48,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             <ol className="flex items-center space-x-2">
               <li>
                 <a href="/" className="text-gray-500 hover:text-gray-900 transition-colors">
-                  首頁
+                  {t.home || 'Home'}
                 </a>
               </li>
               {product.collection && (
@@ -115,7 +118,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             {/* 產品詳細資訊選單 */}
             <div className="space-y-8">
               <div>
-                <ProductTabs product={product} />
+                <ProductTabs product={product} countryCode={countryCode} />
               </div>
             </div>
           </div>
@@ -175,8 +178,8 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       <div className="bg-gray-50 py-16 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-testid="related-products-container">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">您可能也會喜歡</h2>
-            <p className="text-gray-600">為您精心挑選的相關商品</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t.youMayAlsoLike || 'You May Also Like'}</h2>
+            <p className="text-gray-600">{t.relatedProductsSubtitle || 'Handpicked products just for you'}</p>
           </div>
           <Suspense fallback={<SkeletonRelatedProducts />}>
             <RelatedProducts product={product} countryCode={countryCode} />

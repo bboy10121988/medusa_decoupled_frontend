@@ -6,5 +6,15 @@
   "addedToCart": "商品已加入購物車",
   "selectOptions": "選擇商品規格",
   "pleaseSelectOptions": "請選擇所有必要的選項",
-  "failedToAddToCart": "添加到購物車失敗，請稍後再試"
+  "failedToAddToCart": "添加到購物車失敗，請稍後再試",
+  "productInfo": "商品資訊",
+  "categoriesAndTags": "分類與標籤",
+  "returnPolicy": "退換貨規則",
+  "youMayAlsoLike": "您可能也會喜歡",
+  "relatedProductsSubtitle": "為您精心挑選的相關商品",
+  "size": "尺寸",
+  "color": "顏色",
+  "quantity": "數量",
+  "inStock": "有貨",
+  "outOfStock": "缺貨"
 }

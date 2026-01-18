@@ -6,5 +6,15 @@
   "addedToCart": "Added to Cart",
   "selectOptions": "Select Options",
   "pleaseSelectOptions": "Please select all required options",
-  "failedToAddToCart": "Failed to add to cart, please try again"
+  "failedToAddToCart": "Failed to add to cart, please try again",
+  "productInfo": "Product Information",
+  "categoriesAndTags": "Categories & Tags",
+  "returnPolicy": "Return Policy",
+  "youMayAlsoLike": "You May Also Like",
+  "relatedProductsSubtitle": "Handpicked products just for you",
+  "size": "Size",
+  "color": "Color",
+  "quantity": "Quantity",
+  "inStock": "In Stock",
+  "outOfStock": "Out of Stock"
 }

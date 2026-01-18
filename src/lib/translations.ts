@@ -40,6 +40,7 @@ export interface TranslationType {
     search: string
     helpButton: string
     storeName: string
+    home?: string
     // navigation
     categories: string
     collections: string
@@ -53,6 +54,21 @@ export interface TranslationType {
     selectOptions: string
     pleaseSelectOptions: string
     failedToAddToCart: string
+    productInfo?: string
+    categoriesAndTags?: string
+    returnPolicy?: string
+    youMayAlsoLike?: string
+    relatedProductsSubtitle?: string
+    size?: string
+    color?: string
+    quantity?: string
+    inStock?: string
+    outOfStock?: string
+    description?: string
+    noDescription?: string
+    material?: string
+    weight?: string
+    dimensions?: string
     // blog
     noPosts: string
     viewMore: string

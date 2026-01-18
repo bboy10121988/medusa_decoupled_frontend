@@ -6,5 +6,15 @@
   "addedToCart": "カートに追加しました",
   "selectOptions": "オプションを選択",
   "pleaseSelectOptions": "すべての必須項目を選択してください",
-  "failedToAddToCart": "カートへの追加に失敗しました。後でもう一度お試しください"
+  "failedToAddToCart": "カートへの追加に失敗しました。後でもう一度お試しください",
+  "productInfo": "商品情報",
+  "categoriesAndTags": "カテゴリーとタグ",
+  "returnPolicy": "返品・交換ポリシー",
+  "youMayAlsoLike": "こちらもおすすめ",
+  "relatedProductsSubtitle": "あなたにおすすめの商品",
+  "size": "サイズ",
+  "color": "色",
+  "quantity": "数量",
+  "inStock": "在庫あり",
+  "outOfStock": "在庫切れ"
 }
