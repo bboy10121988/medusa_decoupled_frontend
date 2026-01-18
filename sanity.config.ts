@@ -5,7 +5,7 @@ import { documentInternationalization } from '@sanity/document-internationalizat
 import { schemaTypes } from './schemas/index'
 // import { WEBHOOK_URL, WEBHOOK_SECRET } from './src/config/webhook'
 import { structure } from './sanity-structure'
-// import type { DocumentActionProps } from 'sanity'
+import { PublishWithTranslation } from './src/cms/actions/PublishWithTranslation'
 
 // 多語系設定
 const i18nConfig = {
@@ -78,16 +78,23 @@ export default defineConfig({
     documentInternationalization(i18nConfig),
   ],
 
-  // document: {
-  //   actions: (prev, context) => {
-  //     // 僅當 webhook 設定齊全時才顯示「生成頁面」
-  //     const canGenerate = Boolean(WEBHOOK_URL && WEBHOOK_SECRET)
-  //     if (context.schemaType === 'pages' && canGenerate) {
-  //       return [...prev, GeneratePageAction]
-  //     }
-  //     return prev
-  //   }
-  // },
+  document: {
+    actions: (prev, context) => {
+      // Apply translation action to specific content types
+      // including 'post' (blog) if formatted correctly?
+      const translatableTypes = ['homePage', 'dynamicPage', 'product', 'post']
+
+      if (translatableTypes.includes(context.schemaType)) {
+        return prev.map((originalAction) => {
+          if (originalAction.action === 'publish') {
+            return PublishWithTranslation(originalAction)
+          }
+          return originalAction
+        })
+      }
+      return prev
+    }
+  },
 
   schema: {
     types: schemaTypes as any,
