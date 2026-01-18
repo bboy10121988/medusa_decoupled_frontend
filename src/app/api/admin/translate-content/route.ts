@@ -16,6 +16,129 @@ const DEEPL_API_URL = DEEPL_API_KEY?.endsWith(':fx')
     ? 'https://api-free.deepl.com/v2/translate'
     : 'https://api.deepl.com/v2/translate'
 
+// Helper to translate text using DeepL
+async function translateText(text: string, targetLang: string) {
+    if (!text) return ''
+
+    const params = new URLSearchParams()
+    params.append('auth_key', DEEPL_API_KEY!)
+    params.append('text', text)
+    params.append('target_lang', targetLang)
+
+    try {
+        const res = await fetch(DEEPL_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params
+        })
+
+        if (!res.ok) {
+            const err = await res.text()
+            console.error('DeepL API Error:', err)
+            return text // Fallback to original
+        }
+
+        const data = await res.json()
+        return data.translations[0].text
+    } catch (error) {
+        console.error('DeepL Request Failed:', error)
+        return text
+    }
+}
+
+// Helper to translate Portable Text (Rich Text)
+async function translatePortableText(blocks: any[], targetLang: string) {
+    if (!blocks || !Array.isArray(blocks)) return []
+
+    // Process in parallel but careful with rate limits? DeepL is fast.
+    return Promise.all(blocks.map(async (block) => {
+        if (block._type === 'block' && block.children) {
+            const newChildren = await Promise.all(block.children.map(async (child: any) => {
+                // Translate spans
+                if (child._type === 'span' && child.text && child.text.trim()) {
+                    const translated = await translateText(child.text, targetLang)
+                    return { ...child, text: translated }
+                }
+                return child
+            }))
+            return { ...block, children: newChildren }
+        }
+        return block
+    }))
+}
+
+// Helper to translate Page Sections (Array of custom blocks)
+async function translatePageSections(sections: any[], targetLang: string) {
+    if (!sections || !Array.isArray(sections)) return []
+
+    const targetLangCode = targetLang === 'ja-JP' ? 'JA' : 'EN-US'
+
+    return Promise.all(sections.map(async (section) => {
+        const newSection = { ...section }
+        // Determine unique key if needed, or Sanity will generate new one on deep clone? 
+        // We reuse key for stability in array if patching, but here we replace array.
+        // It's safer to generate new keys or let Sanity do it, but keep it simple.
+
+        try {
+            switch (section._type) {
+                case 'textBlock':
+                case 'contentSection':
+                    if (section.title) newSection.title = await translateText(section.title, targetLangCode)
+                    if (section.heading) newSection.heading = await translateText(section.heading, targetLangCode)
+                    if (section.content) newSection.content = await translatePortableText(section.content, targetLangCode)
+                    break
+                case 'imageTextBlock':
+                    if (section.heading) newSection.heading = await translateText(section.heading, targetLangCode)
+                    if (section.content) newSection.content = await translatePortableText(section.content, targetLangCode)
+                    if (section.image?.alt) {
+                        newSection.image = { ...section.image, alt: await translateText(section.image.alt, targetLangCode) }
+                    }
+                    if (section.title) newSection.title = await translateText(section.title, targetLangCode)
+                    if (section.caption) newSection.caption = await translateText(section.caption, targetLangCode)
+                    break
+                case 'ctaBlock':
+                    if (section.title) newSection.title = await translateText(section.title, targetLangCode)
+                    if (section.buttonText) newSection.buttonText = await translateText(section.buttonText, targetLangCode)
+                    break
+                case 'mainBanner':
+                    if (section.title) newSection.title = await translateText(section.title, targetLangCode)
+                    if (section.mobileTitle) newSection.mobileTitle = await translateText(section.mobileTitle, targetLangCode)
+                    if (section.description) newSection.description = await translateText(section.description, targetLangCode)
+                    if (section.buttonText) newSection.buttonText = await translateText(section.buttonText, targetLangCode)
+                    break
+                case 'serviceCardSection':
+                    if (section.heading) newSection.heading = await translateText(section.heading, targetLangCode)
+                    if (section.cards) {
+                        newSection.cards = await Promise.all(section.cards.map(async (card: any) => ({
+                            ...card,
+                            title: card.title ? await translateText(card.title, targetLangCode) : '',
+                            description: card.description ? await translateText(card.description, targetLangCode) : ''
+                        })))
+                    }
+                    break
+                case 'videoBlock':
+                    if (section.title) newSection.title = await translateText(section.title, targetLangCode)
+                    if (section.description) newSection.description = await translateText(section.description, targetLangCode)
+                    break
+                case 'imageBlock':
+                    if (section.title) newSection.title = await translateText(section.title, targetLangCode)
+                    if (section.alt) newSection.alt = await translateText(section.alt, targetLangCode)
+                    if (section.caption) newSection.caption = await translateText(section.caption, targetLangCode)
+                    break
+                default:
+                    // Fallback for unknown blocks, try common string fields
+                    if (newSection.title && typeof newSection.title === 'string') newSection.title = await translateText(newSection.title, targetLangCode)
+                    if (newSection.heading && typeof newSection.heading === 'string') newSection.heading = await translateText(newSection.heading, targetLangCode)
+                    if (newSection.description && typeof newSection.description === 'string') newSection.description = await translateText(newSection.description, targetLangCode)
+                    break
+            }
+        } catch (e) {
+            console.error(`Error translating section ${section._key}:`, e)
+        }
+        return newSection
+    }))
+}
+
 export async function POST(req: NextRequest) {
     try {
         if (!process.env.SANITY_API_TOKEN) {
@@ -33,7 +156,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 1. Fetch source document (ZH-TW)
-        const sourceDoc = await client.fetch(`* [_id == $id][0]`, { id: documentId })
+        const sourceDoc = await client.fetch(`*[_id == $id][0]`, { id: documentId })
         if (!sourceDoc) {
             return NextResponse.json({ error: 'Document not found' }, { status: 404 })
         }
@@ -41,47 +164,61 @@ export async function POST(req: NextRequest) {
         // Only process supported types
         const supportedTypes = ['homePage', 'dynamicPage', 'page', 'product']
         if (!supportedTypes.includes(sourceDoc._type)) {
-            return NextResponse.json({ message: `Skipping unsupported type: ${sourceDoc._type} ` })
+            return NextResponse.json({ message: `Skipping unsupported type: ${sourceDoc._type}` })
         }
 
         const { title, _type } = sourceDoc
         const targets = ['en', 'ja-JP']
-
         const results = []
 
+        // Determine content field based on type
+        // Note: We discovered mismatch between schema 'pageContent' and frontend 'mainSections' in previous steps.
+        // We unified on 'pageContent' in frontend code.
+        // Sanity Schema says 'pageContent'. Home says 'mainSections'.
+        // We try both.
+        const contentField = _type === 'homePage' ? 'mainSections' : 'pageContent'
+        const sourceContent = sourceDoc[contentField] || sourceDoc.mainSections || []
+
         for (const targetLang of targets) {
+            const targetLangCode = targetLang === 'ja-JP' ? 'JA' : 'EN-US'
+
             // 2. Translate Title
             let translatedTitle = title
             if (title) {
-                translatedTitle = await translateText(title, targetLang === 'ja-JP' ? 'JA' : 'EN-US')
+                translatedTitle = await translateText(title, targetLangCode)
             }
 
-            // 3. Find existing document for this language
-            // Note: This relies on manual linking or consistent ID naming if using @sanity/document-internationalization
-            // We will attempt to find a document with same _type and language, referencing the source?
-            // Or just create a new one with deterministic ID if possible.
-            // Strategy: Use query to find doc with `translation.metadata` linking?
-            // Fallback: Create new doc with deterministic ID: `${ sourceDoc._id }__i18n_${ targetLang } `
+            // 3. Translate Content
+            let translatedContent = []
+            if (sourceContent && sourceContent.length > 0) {
+                translatedContent = await translatePageSections(sourceContent, targetLang)
+            }
 
-            const targetId = `${sourceDoc._id}__i18n_${targetLang.toLowerCase()} `
+            // Target ID strategy: Manual deterministic ID for i18n
+            // We use the pattern from document-internationalization if possible, or our own custom one.
+            // Custom: sourceId__i18n_lang
+            const targetId = `${sourceDoc._id}__i18n_${targetLang.toLowerCase()}`
 
             // 4. Create or Patch
             const transaction = client.transaction()
 
-            const doc = {
+            const doc: any = {
                 _id: targetId,
                 _type: _type,
                 language: targetLang,
                 title: translatedTitle,
-                // TODO: Translate Body/Content (complex recursive translation needed for Portable Text)
-                slug: sourceDoc.slug ? { ...sourceDoc.slug, current: `${sourceDoc.slug.current} -${targetLang} ` } : undefined,
-            } as any
+                slug: sourceDoc.slug ? { ...sourceDoc.slug } : undefined, // Keep same slug for i18n routing
+            }
+
+            // Assign translated content to the correct field
+            doc[contentField] = translatedContent
 
             // Create if not exists, or patch if exists
             transaction.createIfNotExists(doc)
             transaction.patch(targetId, p => p.set({
                 title: translatedTitle,
                 language: targetLang,
+                [contentField]: translatedContent
             }))
 
             await transaction.commit()
@@ -94,28 +231,4 @@ export async function POST(req: NextRequest) {
         console.error('Translation error:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
-}
-
-async function translateText(text: string, targetLang: string) {
-    if (!text) return ''
-
-    const params = new URLSearchParams()
-    params.append('auth_key', DEEPL_API_KEY!)
-    params.append('text', text)
-    params.append('target_lang', targetLang)
-
-    const res = await fetch(DEEPL_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params
-    })
-
-    if (!res.ok) {
-        const err = await res.text()
-        console.error('DeepL API Error:', err)
-        return text // Fallback to original
-    }
-
-    const data = await res.json()
-    return data.translations[0].text
 }
