@@ -21,32 +21,7 @@ interface NavProps {
 }
 
 export default async function Nav({ countryCode = 'tw' }: NavProps) {
-  const regions = await listRegions().then((regions: StoreRegion[]) => {
-    // 確保 regions 包含 us，即使後端沒有設定
-    let finalRegions = [...regions]
-
-    const hasUS = finalRegions.some(r => r.countries?.some(c => c.iso_2 === 'us'))
-    if (!hasUS) {
-      finalRegions.push({
-        id: 'static-us',
-        name: 'USA',
-        currency_code: 'usd',
-        countries: [{ iso_2: 'us', display_name: 'United States' }]
-      } as unknown as StoreRegion)
-    }
-
-    const hasJP = finalRegions.some(r => r.countries?.some(c => c.iso_2 === 'jp'))
-    if (!hasJP) {
-      finalRegions.push({
-        id: 'static-jp',
-        name: 'Japan',
-        currency_code: 'jpy',
-        countries: [{ iso_2: 'jp', display_name: 'Japan' }]
-      } as unknown as StoreRegion)
-    }
-
-    return finalRegions
-  })
+  const regions = await listRegions()
   const categories = await listCategories()
   const language = mapCountryToLanguage(countryCode)
   const headerData = await getHeader(language) as SanityHeader
