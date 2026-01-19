@@ -132,6 +132,10 @@ export const checkoutTranslations = {
     'zh-TW': zhTWCheckout,
     'ja-JP': jaJPCheckout,
     'en-US': enUSCheckout,
+    // Fallback mappings
+    my: enUSCheckout,
+    sg: enUSCheckout,
+    au: enUSCheckout,
 }
 
 export const homeTranslations = {
@@ -141,6 +145,10 @@ export const homeTranslations = {
     'zh-TW': zhTWHome,
     'ja-JP': jaJPHome,
     'en-US': enUSHome,
+    // Fallback mappings
+    my: enUSHome,
+    sg: enUSHome,
+    au: enUSHome,
 }
 
 // Translation map with locale codes
