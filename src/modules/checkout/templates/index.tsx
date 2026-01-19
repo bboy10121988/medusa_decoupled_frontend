@@ -94,7 +94,7 @@ const CheckoutTemplate = ({ cart, customer, countryCode }: CheckoutTemplateProps
           {/* Right side - Order summary */}
           <div className="relative" data-testid="checkout-summary">
             <div className="flex flex-col sticky top-8">
-              <OrderSummary cart={cart} />
+              <OrderSummary cart={cart} countryCode={countryCode} />
             </div>
           </div>
         </div>
