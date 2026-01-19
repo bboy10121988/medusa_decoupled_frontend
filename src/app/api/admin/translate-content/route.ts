@@ -20,6 +20,8 @@ const DEEPL_API_URL = DEEPL_API_KEY?.endsWith(':fx')
 async function translateText(text: string, targetLang: string) {
     if (!text) return ''
 
+    console.log(`[DeepL] Translating: "${text.substring(0, 50)}..." to ${targetLang}`)
+
     const params = new URLSearchParams()
     params.append('auth_key', DEEPL_API_KEY!)
     params.append('text', text)
@@ -34,14 +36,16 @@ async function translateText(text: string, targetLang: string) {
 
         if (!res.ok) {
             const err = await res.text()
-            console.error('DeepL API Error:', err)
+            console.error('[DeepL] API Error:', err)
             return text // Fallback to original
         }
 
         const data = await res.json()
-        return data.translations[0].text
+        const translated = data.translations[0].text
+        console.log(`[DeepL] Result: "${translated.substring(0, 50)}..."`)
+        return translated
     } catch (error) {
-        console.error('DeepL Request Failed:', error)
+        console.error('[DeepL] Request Failed:', error)
         return text
     }
 }
