@@ -5,6 +5,8 @@ import Register from "@modules/account/components/register"
 import Login from "@modules/account/components/login"
 
 
+import { accountTranslations } from "@/lib/translations"
+
 export enum LOGIN_VIEW {
   SIGN_IN = "sign-in",
   REGISTER = "register",
@@ -14,8 +16,9 @@ interface LoginTemplateProps {
   countryCode?: string
 }
 
-const LoginTemplate = ({ countryCode: _countryCode = 'tw' }: LoginTemplateProps) => {
+const LoginTemplate = ({ countryCode = 'tw' }: LoginTemplateProps) => {
   const [currentView, setCurrentView] = useState("sign-in")
+  const t = accountTranslations[countryCode as keyof typeof accountTranslations] || accountTranslations.tw
 
   return (
     <div className="w-full flex justify-center px-8 py-8">
@@ -23,12 +26,12 @@ const LoginTemplate = ({ countryCode: _countryCode = 'tw' }: LoginTemplateProps)
         <div className="max-w-sm w-full flex flex-col items-center mx-4">
           {/* 標題區域 */}
           <h1 className="text-large-semi uppercase mb-6">
-            {currentView === "sign-in" ? "歡迎回來" : "成為會員"}
+            {currentView === "sign-in" ? t.welcomeBack : t.becomeAMember}
           </h1>
           <p className="text-center text-base-regular text-ui-fg-base mb-8">
             {currentView === "sign-in"
-              ? "登入以享受更好的購物體驗。"
-              : "建立您的會員資料，享受更好的購物體驗。"
+              ? t.loginDescription
+              : t.registerDescription
             }
           </p>
 

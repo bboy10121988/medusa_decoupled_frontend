@@ -219,12 +219,25 @@ async function main() {
                 doc._type === 'dynamicPage' ? 'pageContent' :
                     doc._type === 'post' ? 'body' : // Post uses Body
                         doc._type === 'product' ? 'body' : // Product uses Body for details
-                            undefined
+                            doc._type === 'footer' ? 'sections' : // Footer uses sections
+                                undefined
 
             // Handle 'body' (Portable Text) vs 'pageContent' (Sections)
             if (contentField && doc[contentField]) {
                 if (contentField === 'body') {
                     translatedContent = await translatePortableText(doc[contentField], targetLangCode)
+                } else if (doc._type === 'footer') {
+                    // Special handling for Footer sections
+                    // Footer sections structure: { title, links[] }
+                    // We need to translate title and link text
+                    translatedContent = await Promise.all(doc[contentField].map(async section => ({
+                        ...section,
+                        title: section.title ? await translateText(section.title, targetLangCode) : '',
+                        links: section.links ? await Promise.all(section.links.map(async link => ({
+                            ...link,
+                            text: link.text ? await translateText(link.text, targetLangCode) : ''
+                        }))) : []
+                    })))
                 } else {
                     translatedContent = await translatePageSections(doc[contentField], targetLang)
                 }
@@ -236,7 +249,14 @@ async function main() {
                 ...(translatedTitle && { title: translatedTitle }),
                 ...(translatedSubtitle && { subtitle: translatedSubtitle }), // For updated product schema
                 ...(contentField && { [contentField]: translatedContent }),
-                ...(doc.description && { description: await translateText(doc.description, targetLangCode) }) // Common field
+                ...(doc.description && { description: await translateText(doc.description, targetLangCode) }), // Common field
+                // Footer specific fields to copy
+                ...(doc._type === 'footer' && {
+                    logo: doc.logo,
+                    logoWidth: doc.logoWidth,
+                    socialMedia: doc.socialMedia,
+                    copyright: doc.copyright ? await translateText(doc.copyright, targetLangCode) : undefined
+                })
             }
 
             // If doc exists, patch it

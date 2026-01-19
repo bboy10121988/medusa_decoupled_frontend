@@ -1,4 +1,5 @@
 import { login } from "@lib/data/customer"
+import { accountTranslations, getTranslation } from "@/lib/translations"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
@@ -23,6 +24,9 @@ const Login = ({ setCurrentView }: Props) => {
   const { refreshCustomer } = useAccount()
   const params = useParams()
   const countryCode = (params.countryCode as string) || 'tw'
+
+  const t = accountTranslations[countryCode as keyof typeof accountTranslations] || accountTranslations.tw
+  const tCommon = getTranslation(countryCode)
 
   // 處理登入成功
   useEffect(() => {
@@ -91,7 +95,7 @@ const Login = ({ setCurrentView }: Props) => {
         <GoogleLoginButton />
         <div className="w-full flex items-center gap-x-2 my-4">
           <div className="flex-grow h-px bg-gray-200"></div>
-          <span className="text-ui-fg-base text-small-regular">或</span>
+          <span className="text-ui-fg-base text-small-regular">{t.or}</span>
           <div className="flex-grow h-px bg-gray-200"></div>
         </div>
       </div>
@@ -101,10 +105,10 @@ const Login = ({ setCurrentView }: Props) => {
       <form className="w-full" action={formAction}>
         <div className="flex flex-col w-full gap-y-2">
           <Input
-            label="電子郵件"
+            label={t.email}
             name="email"
             type="email"
-            title="請輸入有效的電子郵件地址。"
+            title={t.emailValidation}
             autoComplete="email"
             required
             data-testid="email-input"
@@ -114,14 +118,14 @@ const Login = ({ setCurrentView }: Props) => {
           {/* 顯示 email 檢查結果 */}
           {isCheckingEmail && (
             <div className="text-sm text-gray-500">
-              檢查帳戶狀態中...
+              {t.checkingAccount}
             </div>
           )}
 
           {emailCheckResult?.exists && emailCheckResult.authProvider === 'password' && (
             <div className="bg-green-50 border border-green-200 rounded-md p-3">
               <p className="text-sm text-green-700">
-                ✅ 此電子郵件可使用密碼登入
+                ✅ {t.emailCanLogin}
               </p>
             </div>
           )}
@@ -129,13 +133,13 @@ const Login = ({ setCurrentView }: Props) => {
           {emailCheckResult && !emailCheckResult.exists && (
             <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
               <p className="text-sm text-orange-700">
-                ℹ️ 此電子郵件尚未註冊，請先註冊帳戶
+                ℹ️ {t.emailNotRegistered}
               </p>
             </div>
           )}
 
           <Input
-            label="密碼"
+            label={t.password}
             name="password"
             type="password"
             autoComplete="current-password"
@@ -152,7 +156,7 @@ const Login = ({ setCurrentView }: Props) => {
             onClick={() => window.location.href = '/tw/forgot-password'}
             className="text-sm text-blue-600 hover:text-blue-800 underline"
           >
-            忘記密碼？
+            {t.forgotPassword}
           </button>
         </div>
 
@@ -162,17 +166,17 @@ const Login = ({ setCurrentView }: Props) => {
           data-testid="sign-in-button"
           className="w-full mt-6"
         >
-          登入
+          {t.signIn}
         </SubmitButton>
       </form>
       <span className="text-center text-ui-fg-base text-small-regular mt-6">
-        還不是會員？{" "}
+        {t.notAMember}{" "}
         <button
           onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
           className="underline"
           data-testid="register-button"
         >
-          立即加入
+          {t.joinNow}
         </button>
         。
       </span>

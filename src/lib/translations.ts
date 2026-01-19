@@ -9,6 +9,8 @@ import zhTWPromotion from '@/locales/zh-TW/promotion.json'
 import zhTWDataMapping from '@/locales/zh-TW/data-mapping.json'
 import zhTWCheckout from '@/locales/zh-TW/checkout.json'
 import zhTWHome from '@/locales/zh-TW/home.json'
+import zhTWAccount from '@/locales/zh-TW/account.json'
+import zhTWCart from '@/locales/zh-TW/cart.json'
 
 // ja-JP
 import jaJPCommon from '@/locales/ja-JP/common.json'
@@ -20,6 +22,8 @@ import jaJPPromotion from '@/locales/ja-JP/promotion.json'
 import jaJPDataMapping from '@/locales/ja-JP/data-mapping.json'
 import jaJPCheckout from '@/locales/ja-JP/checkout.json'
 import jaJPHome from '@/locales/ja-JP/home.json'
+import jaJPAccount from '@/locales/ja-JP/account.json'
+import jaJPCart from '@/locales/ja-JP/cart.json'
 
 // en-US
 import enUSCommon from '@/locales/en-US/common.json'
@@ -31,6 +35,8 @@ import enUSPromotion from '@/locales/en-US/promotion.json'
 import enUSDataMapping from '@/locales/en-US/data-mapping.json'
 import enUSCheckout from '@/locales/en-US/checkout.json'
 import enUSHome from '@/locales/en-US/home.json'
+import enUSAccount from '@/locales/en-US/account.json'
+import enUSCart from '@/locales/en-US/cart.json'
 
 // Type definition for translations
 export interface TranslationType {
@@ -149,6 +155,30 @@ export const homeTranslations = {
     my: enUSHome,
     sg: enUSHome,
     au: enUSHome,
+}
+
+export const accountTranslations = {
+    tw: zhTWAccount,
+    jp: jaJPAccount,
+    us: enUSAccount,
+    'zh-TW': zhTWAccount,
+    'ja-JP': jaJPAccount,
+    'en-US': enUSAccount,
+    my: enUSAccount,
+    sg: enUSAccount,
+    au: enUSAccount,
+}
+
+export const cartTranslations = {
+    tw: zhTWCart,
+    jp: jaJPCart,
+    us: enUSCart,
+    'zh-TW': zhTWCart,
+    'ja-JP': jaJPCart,
+    'en-US': enUSCart,
+    my: enUSCart,
+    sg: enUSCart,
+    au: enUSCart,
 }
 
 // Translation map with locale codes

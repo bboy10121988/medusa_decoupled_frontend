@@ -28,7 +28,7 @@ function AccountContent({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <AccountLayout customer={customer} onLogout={handleLogoutComplete}>
+      <AccountLayout customer={customer} onLogout={handleLogoutComplete} countryCode={countryCode}>
         {customer ? children : <LoginTemplate countryCode={countryCode} />}
       </AccountLayout>
       <Toaster />
