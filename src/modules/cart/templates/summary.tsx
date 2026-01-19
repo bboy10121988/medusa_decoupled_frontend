@@ -8,10 +8,13 @@ import DiscountCode from "@modules/checkout/components/discount-code"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 
+import { cartTranslations } from "@/lib/translations"
+
 type SummaryProps = {
   cart: HttpTypes.StoreCart & {
     promotions: HttpTypes.StorePromotion[]
   }
+  countryCode?: string
 }
 
 function getCheckoutStep(cart: HttpTypes.StoreCart) {
@@ -24,13 +27,14 @@ function getCheckoutStep(cart: HttpTypes.StoreCart) {
   }
 }
 
-const Summary = ({ cart }: SummaryProps) => {
+const Summary = ({ cart, countryCode = 'tw' }: SummaryProps) => {
   const step = getCheckoutStep(cart)
+  const t = cartTranslations[countryCode as keyof typeof cartTranslations] || cartTranslations.tw
 
   return (
     <div className="flex flex-col gap-y-4">
       <Heading level="h2" className="text-[2rem] leading-[2.75rem]">
-        訂單摘要
+        {t.summary}
       </Heading>
       <DiscountCode cart={cart} />
       <Divider />
@@ -39,7 +43,7 @@ const Summary = ({ cart }: SummaryProps) => {
         href={"/checkout?step=" + step}
         data-testid="checkout-button"
       >
-        <Button className="w-full h-10">前往結帳</Button>
+        <Button className="w-full h-10">{t.goToCheckout}</Button>
       </LocalizedClientLink>
     </div>
   )
