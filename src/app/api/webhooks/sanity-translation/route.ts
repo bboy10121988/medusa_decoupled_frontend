@@ -3,11 +3,8 @@ import { getTranslationService } from "@lib/services/translation-service"
 import { ContentParser } from "@lib/services/content-parser"
 import { client } from "@lib/sanity-client"
 
-// Secret for verifying Sanity webook (Phase 3: Real validation)
-// const WEBHOOK_SECRET = process.env.SANITY_WEBHOOK_SECRET
-
-// Safety flag: Set to 'true' to prevent actual writes to Sanity
-const DRY_RUN = process.env.TRANSLATION_DRY_RUN !== 'false' // Default to true (safe mode)
+// Safety flag: Set 'TRANSLATION_DRY_RUN=true' in env to validation without writing
+const DRY_RUN = process.env.TRANSLATION_DRY_RUN === 'true'
 
 /**
  * Generate a deterministic ID for the translated document.
@@ -17,82 +14,139 @@ function generateTranslatedId(originalId: string, targetLang: string): string {
     // Handle 'drafts.' prefix
     const isDraft = originalId.startsWith('drafts.')
     const baseId = isDraft ? originalId.replace('drafts.', '') : originalId
-    const langSuffix = targetLang.replace('-', '') // ja-JP -> jaJP
+    // Convert ja-JP to jaJP for ID safety if needed, but standard i18n convention usually keeps hyphen or uses underscores
+    // Previous implementations used various styles. Let's stick to a clean one.
+    // If we use document-internationalization conventions, it might expect something specific? 
+    // The plugin usually just links them via metadata, ID format matters less, but deterministic is good.
+    const langSuffix = targetLang.replace('-', '_').toLowerCase() // ja-JP -> ja_jp
     const newId = `${baseId}__i18n_${langSuffix}`
     return isDraft ? `drafts.${newId}` : newId
 }
 
 export async function POST(req: NextRequest) {
     try {
-        // 1. Validate signature (Skip for Mock Mode / Dev)
-        // const signature = req.headers.get("sanity-webhook-signature")
-        // if (!isValidSignature(body, signature, WEBHOOK_SECRET)) { ... }
-
         const body = await req.json()
-        const { _id, _type, language } = body
+        const { _id, _type, language, title } = body
 
-        console.log(`[Webhook] Received update for document: ${_id} (${_type}), Language: ${language}`)
+        console.log(`[Webhook] Received update for: ${_id} (${_type}), Lang: ${language}`)
 
-        // 2. Filter: Only process 'zh-TW' documents
+        // 1. Filter: Only process 'zh-TW' documents
+        // Also skip system documents like sanity.* or translation.metadata
         if (language !== 'zh-TW') {
+            // For products/pages, if language is missing, it might be unlocalized.
+            // But we only want to trigger FROM the source of truth (zh-TW).
             console.log(`[Webhook] Ignoring non-source language: ${language}`)
-            return NextResponse.json({ message: "Ignored (Not source language)" }, { status: 200 })
+            return NextResponse.json({ message: "Ignored" }, { status: 200 })
         }
 
-        // 3. Parse and Translate using Content Parser
+        if (_type.startsWith('sanity.') || _type === 'translation.metadata') {
+            return NextResponse.json({ message: "Ignored system type" }, { status: 200 })
+        }
+
+        // 2. Initialize Services
         const translationService = getTranslationService()
         const contentParser = new ContentParser(translationService)
-        const sourceTitle = body.title || "No Title"
 
-        console.log(`[Webhook] Starting extraction and translation for: ${sourceTitle}`)
+        console.log(`[Webhook] Processing: ${title || _id}`)
 
-        // Generate translated documents
-        const translatedDocJP = await contentParser.parseAndTranslate(body, 'ja-JP')
-        const translatedDocEN = await contentParser.parseAndTranslate(body, 'en-US')
+        // 3. Translate to targets
+        const targets = ['en-US', 'ja-JP']
+        const results = []
 
-        // Assign deterministic IDs and language fields
-        const jpId = generateTranslatedId(_id, 'ja-JP')
-        const enId = generateTranslatedId(_id, 'en-US')
+        for (const targetLang of targets) {
+            console.log(`[Webhook] Translating to ${targetLang}...`)
 
-        translatedDocJP._id = jpId
-        translatedDocJP.language = 'ja-JP'
+            // Parse and translate content
+            const translatedContent = await contentParser.parseAndTranslate(body, targetLang)
 
-        translatedDocEN._id = enId
-        translatedDocEN.language = 'en-US'
+            // Generate IDs
+            // We search for existing document first to be safe? 
+            // Since we use deterministic IDs based on source ID, we can just use that.
+            // BUT: if Sanity plugin created a doc with random ID before?
+            // Ideally we query first.
 
-        console.log(`[Webhook] JP Doc ID: ${jpId}, Title: ${translatedDocJP.title}`)
-        console.log(`[Webhook] EN Doc ID: ${enId}, Title: ${translatedDocEN.title}`)
+            // Find existing doc by "reference from metadata" is hardest from here without querying metadata first.
+            // Let's rely on deterministic ID for now. If user manually created one with random ID, we might duplicate.
+            // To be robust: Check if there is a linked doc in metadata?
+            // Let's implement robust metadata check.
 
-        // 4. Write back to Sanity (or DRY_RUN)
-        if (DRY_RUN) {
-            console.log(`[Webhook] DRY_RUN mode enabled. Skipping Sanity write.`)
-            console.log(`[Webhook] Would createOrReplace JP: ${jpId}`)
-            console.log(`[Webhook] Would createOrReplace EN: ${enId}`)
-        } else {
-            console.log(`[Webhook] Writing to Sanity...`)
-            const transaction = client.transaction()
-            transaction.createOrReplace(translatedDocJP)
-            transaction.createOrReplace(translatedDocEN)
-            await transaction.commit()
-            console.log(`[Webhook] Successfully wrote JP and EN documents to Sanity.`)
+            // A. Check for existing metadata
+            const metaQuery = `*[_type == "translation.metadata" && references($id)][0]`
+            const existingMeta = await client.fetch(metaQuery, { id: _id })
+
+            let targetId = generateTranslatedId(_id, targetLang)
+
+            if (existingMeta) {
+                // Check if this lang is already linked
+                const existingLink = existingMeta.translations.find((t: any) => t._key === targetLang)
+                if (existingLink && existingLink.value?._ref) {
+                    targetId = existingLink.value._ref
+                    console.log(`[Webhook] Found existing linked doc for ${targetLang}: ${targetId}`)
+                }
+            }
+
+            // Set basic fields on translated doc
+            translatedContent._id = targetId
+            translatedContent.language = targetLang
+            // Ensure slug is unique? Usually handled by dataset. 
+            // If slug exists, we might want to append lang? 
+            // For now, keep same slug structure (if Next.js handles /en/slug)
+
+            if (DRY_RUN) {
+                console.log(`[Webhook] [DRY_RUN] Would write ${targetId}`)
+            } else {
+                const transaction = client.transaction()
+
+                // Create or Replace the translated document
+                transaction.createOrReplace(translatedContent)
+
+                // Link in Metadata
+                const metaId = existingMeta ? existingMeta._id : `${_id}__metadata`
+
+                const newTranslationEntry = {
+                    _key: targetLang,
+                    value: {
+                        _type: 'reference',
+                        _ref: targetId
+                    }
+                }
+
+                if (!existingMeta) {
+                    // Create new metadata
+                    const sourceEntry = {
+                        _key: 'zh-TW',
+                        value: { _type: 'reference', _ref: _id }
+                    }
+                    transaction.create({
+                        _id: metaId,
+                        _type: 'translation.metadata',
+                        translations: [sourceEntry, newTranslationEntry],
+                        schemaType: _type
+                    })
+                } else {
+                    // Patch existing if not present
+                    const hasLang = existingMeta.translations.some((t: any) => t._key === targetLang)
+                    if (!hasLang) {
+                        transaction.patch(metaId, p => p.insert('after', 'translations[-1]', [newTranslationEntry]))
+                    }
+                }
+
+                await transaction.commit()
+                console.log(`[Webhook] Saved ${targetLang} (${targetId})`)
+            }
+
+            results.push({ lang: targetLang, id: targetId })
         }
 
         return NextResponse.json({
-            message: DRY_RUN ? "Processing complete (DRY_RUN)" : "Processing complete (Written to Sanity)",
+            success: true,
             dryRun: DRY_RUN,
-            original: {
-                id: _id,
-                title: body.title
-            },
-            generated: {
-                ja: { id: jpId, title: translatedDocJP.title },
-                en: { id: enId, title: translatedDocEN.title }
-            }
+            results
         }, { status: 200 })
 
-    } catch (error) {
-        console.error("[Webhook] Error processing request:", error)
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    } catch (error: any) {
+        console.error("[Webhook] Error:", error)
+        return NextResponse.json({ error: error.message || "Internal Error" }, { status: 500 })
     }
 }
 

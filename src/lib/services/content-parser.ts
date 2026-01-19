@@ -16,7 +16,10 @@ const EXCLUDED_KEYS = [
 
     // URL fields (should not be translated)
     'buttonUrl', 'buttonLink', 'videoUrl', 'googleMapsUrl', 'imageLink', 'linkUrl',
-    'desktopVideoUrl', 'mobileVideoUrl', 'href', 'url', 'src'
+    'desktopVideoUrl', 'mobileVideoUrl', 'href', 'url', 'src',
+
+    // Sanity specific fields
+    'style', 'listItem', 'marks', '_ref', '_weak', 'asset', 'markDefs'
 ]
 
 export class ContentParser {
