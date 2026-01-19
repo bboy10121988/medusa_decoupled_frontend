@@ -41,6 +41,11 @@ async function checkContent() {
             if (Array.isArray(doc.body) && doc.body.length > 0) {
                 console.log(`First block sample:`, JSON.stringify(doc.body[0], null, 2))
             }
+        } else if (doc.pageContent) {
+            console.log(`pageContent field found! Type: ${Array.isArray(doc.pageContent) ? `Array (${doc.pageContent.length} blocks)` : typeof doc.pageContent}`)
+            if (Array.isArray(doc.pageContent) && doc.pageContent.length > 0) {
+                console.log(`First block sample:`, JSON.stringify(doc.pageContent[0], null, 2))
+            }
         } else if (doc.content) {
             console.log(`Content field found (fallback?)`)
         } else {

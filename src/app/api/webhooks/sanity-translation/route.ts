@@ -50,7 +50,10 @@ export async function POST(req: NextRequest) {
         console.log(`[Webhook] Processing: ${title || _id}`)
 
         // 3. Translate to targets
-        const targets = ['en-US', 'ja-JP']
+        // 3. Translate to targets
+        // Frontend uses 'en' for US/Global, and 'ja-JP' for Japan.
+        // We must match the language code stored in Sanity.
+        const targets = ['en', 'ja-JP']
         const results = []
 
         for (const targetLang of targets) {
