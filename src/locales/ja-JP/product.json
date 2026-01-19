@@ -1,5 +1,12 @@
 {
   "addToCart": "カートに入れる",
+  "collection": "コレクション",
+  "collectionHandle": "シリーズコード:",
+  "categories": "カテゴリー",
+  "tags": "タグ",
+  "totalCategories": "全 {count} 件",
+  "totalTags": "全 {count} 件",
+  "noProductMeta": "この商品にはコレクション、カテゴリー、タグが設定されていません",
   "adding": "処理中...",
   "preorder": "予約注文",
   "soldOut": "売り切れ",

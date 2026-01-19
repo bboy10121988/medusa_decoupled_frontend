@@ -6,6 +6,7 @@ import { generateProductKeywords } from "@lib/seo"
 import ProductTemplate from "@modules/products/templates"
 import { getStoreName } from "@lib/store-name"
 import { getHomepage } from "@lib/sanity"
+import { mapCountryToLanguage } from "@lib/sanity-utils/index"
 import type { FeaturedProductsSection } from "@lib/types/page-sections"
 import { ProductSchema } from "@/components/seo/StructuredData"
 
@@ -77,6 +78,8 @@ export default async function ProductPage({ params }: Props) {
   try {
     const { countryCode, handle } = await params
     const region = await getRegion(countryCode)
+    const language = mapCountryToLanguage(countryCode)
+    const storeName = await getStoreName(language)
 
     if (!region) {
       notFound()
@@ -127,6 +130,7 @@ export default async function ProductPage({ params }: Props) {
             detailImages={detailImages}
             detailBlocks={detailBlocks}
             paddingX={paddingX}
+            storeName={storeName}
           />
         </>
       )

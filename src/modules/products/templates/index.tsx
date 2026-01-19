@@ -6,7 +6,7 @@ import RelatedProducts from "@modules/products/components/related-products"
 import ProductTabs from "@modules/products/components/product-tabs"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { ProductActionProvider } from "@lib/context/product-context"
-import StoreName from "../components/store-name"
+// import StoreName from "../components/store-name" // Removed
 import { getTranslation } from "@lib/translations"
 
 type ProductTemplateProps = {
@@ -17,6 +17,7 @@ type ProductTemplateProps = {
   detailImages?: string[]
   detailBlocks?: any[]
   paddingX?: number | undefined
+  storeName: string
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
@@ -26,7 +27,8 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   detailContent,
   detailImages,
   detailBlocks,
-  paddingX
+  paddingX,
+  storeName
 }) => {
   if (!product?.id) {
     return <div>Product not found</div>
@@ -85,7 +87,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <div className="lg:max-w-lg">
             {/* 品牌 */}
             <div className="mb-4">
-              <StoreName />
+              <div className="uppercase text-xs tracking-widest text-gray-500">{storeName}</div>
             </div>
 
             {/* 產品標題 */}

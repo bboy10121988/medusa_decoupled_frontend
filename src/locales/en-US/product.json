@@ -1,5 +1,12 @@
 {
   "addToCart": "Add to Cart",
+  "collection": "Collection",
+  "collectionHandle": "Series Code:",
+  "categories": "Categories",
+  "tags": "Tags",
+  "totalCategories": "Total {count} categories",
+  "totalTags": "Total {count} tags",
+  "noProductMeta": "This product has no collection, categories, or tags set.",
   "adding": "Processing...",
   "preorder": "Pre-order",
   "soldOut": "Sold Out",

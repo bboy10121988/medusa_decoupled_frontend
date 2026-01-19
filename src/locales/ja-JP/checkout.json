@@ -22,6 +22,6 @@
         "thank_you": "ありがとうございます！",
         "help_message": "ご質問がございましたら、「ヘルプ」ボタンをクリックしてストアにお問い合わせください。専門スタッフがサポートいたします。",
         "summary": "ご注文概要",
-        "test_success": "Your test order was successfully created! 🎉"
+        "test_success": "テスト注文が正常に作成されました！🎉"
     }
 }

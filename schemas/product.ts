@@ -17,6 +17,12 @@ export default defineType({
             validation: (Rule) => Rule.required(),
         }),
         defineField({
+            name: 'subtitle',
+            title: '商品副標題',
+            type: 'string',
+            description: '例如：髮根、淨化毛囊、撫平毛燥',
+        }),
+        defineField({
             name: 'slug',
             title: '網址代稱 (Slug)',
             type: 'slug',

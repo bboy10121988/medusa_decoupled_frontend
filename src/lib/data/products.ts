@@ -18,7 +18,7 @@ const PRODUCTS_CACHE_CONFIG = {
 
 // 優化的欄位選擇 - 只獲取必要欄位以提升效能
 const ESSENTIAL_PRODUCT_FIELDS = [
-  "id", "title", "handle", "description", "status", "thumbnail",
+  "id", "title", "subtitle", "handle", "description", "status", "thumbnail",
   "images", "options", "variants", "type", "collection", "tags",
   "metadata", "created_at", "updated_at"
 ].join(",")
@@ -110,6 +110,7 @@ export const listProducts = async ({
                 return {
                   ...product,
                   title: sanityData.title || product.title,
+                  subtitle: sanityData.subtitle || product.subtitle,
                   description: sanityData.description || product.description,
                 }
               }
@@ -268,6 +269,7 @@ export const getProduct = async ({
             product = {
               ...product,
               title: sanityData.title || product.title,
+              subtitle: sanityData.subtitle || product.subtitle,
               description: sanityData.description || product.description,
             }
           }

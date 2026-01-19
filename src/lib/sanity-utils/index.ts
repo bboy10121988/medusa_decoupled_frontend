@@ -271,6 +271,7 @@ export async function getProductsByHandles(handles: string[], language?: string)
     const query = `*[_type == "product" && slug.current in $handles && language == $lang] {
       _id,
       title,
+      subtitle,
       slug,
       description,
       body,

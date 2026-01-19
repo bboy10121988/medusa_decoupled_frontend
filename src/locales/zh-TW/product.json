@@ -1,5 +1,12 @@
 {
   "addToCart": "加入購物車",
+  "collection": "商品系列",
+  "collectionHandle": "系列代碼:",
+  "categories": "商品分類",
+  "tags": "商品標籤",
+  "totalCategories": "共 {count} 個分類",
+  "totalTags": "共 {count} 個標籤",
+  "noProductMeta": "此商品尚未設定系列、分類或標籤",
   "adding": "處理中...",
   "preorder": "預訂",
   "soldOut": "售完",

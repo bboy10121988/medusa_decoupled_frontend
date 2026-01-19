@@ -47,6 +47,12 @@ export interface TranslationType {
     featured: string
     // product
     addToCart: string
+    collection?: string
+    collectionHandle?: string
+    tags?: string
+    totalCategories?: string
+    totalTags?: string
+    noProductMeta?: string
     adding: string
     preorder: string
     soldOut: string
@@ -97,6 +103,8 @@ const zhTW: TranslationType = {
     ...zhTWBlog,
     ...zhTWFooter,
     ...zhTWPromotion,
+    ...zhTWCheckout,
+    ...zhTWHome,
 }
 
 const jaJP: TranslationType = {
@@ -106,6 +114,8 @@ const jaJP: TranslationType = {
     ...jaJPBlog,
     ...jaJPFooter,
     ...jaJPPromotion,
+    ...jaJPCheckout,
+    ...jaJPHome,
 }
 
 const enUS: TranslationType = {
@@ -115,6 +125,8 @@ const enUS: TranslationType = {
     ...enUSBlog,
     ...enUSFooter,
     ...enUSPromotion,
+    ...enUSCheckout,
+    ...enUSHome,
 }
 
 // Translation map with locale codes

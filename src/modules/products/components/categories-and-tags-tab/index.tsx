@@ -1,5 +1,8 @@
+import { getTranslation } from "@lib/translations"
+
 type CategoriesAndTagsTabProps = {
   product?: any
+  countryCode?: string
 }
 
 const TagIcon = () => (
@@ -20,40 +23,42 @@ const CollectionIcon = () => (
   </svg>
 )
 
-const CategoriesAndTagsTab = ({ product }: CategoriesAndTagsTabProps) => {
+const CategoriesAndTagsTab = ({ product, countryCode = 'tw' }: CategoriesAndTagsTabProps) => {
+  const t = getTranslation(countryCode)
+
   return (
     <div className="text-small-regular py-8">
       <div className="grid grid-cols-1 gap-y-8">
-        
+
         {/* 系列 (Collection) */}
         {product?.collection && (
           <div>
             <div className="flex items-center gap-x-2 mb-4">
               <CollectionIcon />
-              <span className="font-semibold">商品系列</span>
+              <span className="font-semibold">{t.collection || "Collection"}</span>
             </div>
             <div className="flex flex-wrap gap-2">
               <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
-                {product.collection.title}
+                {product.collection.handle === 'featured' ? (t.featured || product.collection.title) : product.collection.title}
               </span>
             </div>
             {product.collection.handle && (
-              <p className="text-xs text-gray-500 mt-2">系列代碼: {product.collection.handle}</p>
+              <p className="text-xs text-gray-500 mt-2">{t.collectionHandle || "Collection Code:"} {product.collection.handle}</p>
             )}
           </div>
         )}
-        
+
         {/* 分類 (Categories) */}
         {product?.categories && product.categories.length > 0 && (
           <div>
             <div className="flex items-center gap-x-2 mb-4">
               <CategoryIcon />
-              <span className="font-semibold">商品分類</span>
+              <span className="font-semibold">{t.categories || "Categories"}</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {product.categories.map((category: any) => (
-                <span 
-                  key={category.id} 
+                <span
+                  key={category.id}
                   className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
                 >
                   {category.name}
@@ -61,7 +66,7 @@ const CategoriesAndTagsTab = ({ product }: CategoriesAndTagsTabProps) => {
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              共 {product.categories.length} 個分類
+              {(t.totalCategories || "Total {count} categories").replace('{count}', product.categories.length.toString())}
             </p>
           </div>
         )}
@@ -71,12 +76,12 @@ const CategoriesAndTagsTab = ({ product }: CategoriesAndTagsTabProps) => {
           <div>
             <div className="flex items-center gap-x-2 mb-4">
               <TagIcon />
-              <span className="font-semibold">商品標籤</span>
+              <span className="font-semibold">{t.tags || "Tags"}</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {product.tags.map((tag: any) => (
-                <span 
-                  key={tag.id} 
+                <span
+                  key={tag.id}
                   className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
                 >
                   {tag.value}
@@ -84,11 +89,11 @@ const CategoriesAndTagsTab = ({ product }: CategoriesAndTagsTabProps) => {
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              共 {product.tags.length} 個標籤
+              {(t.totalTags || "Total {count} tags").replace('{count}', product.tags.length.toString())}
             </p>
           </div>
         )}
-        
+
         {/* 空狀態提示 */}
         {(!product?.collection && (!product?.categories || product.categories.length === 0) && (!product?.tags || product.tags.length === 0)) && (
           <div className="text-gray-500 text-center py-8">
@@ -98,7 +103,7 @@ const CategoriesAndTagsTab = ({ product }: CategoriesAndTagsTabProps) => {
                 <CategoryIcon />
                 <TagIcon />
               </div>
-              <p>此商品尚未設定系列、分類或標籤</p>
+              <p>{t.noProductMeta || "No collection, categories or tags set for this product."}</p>
             </div>
           </div>
         )}

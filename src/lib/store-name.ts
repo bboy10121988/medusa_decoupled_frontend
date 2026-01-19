@@ -20,9 +20,9 @@ export async function getHeaderData() {
  * 獲取商店名稱的通用函數
  * 首先嘗試從 Sanity 獲取，如果失敗則使用默認值
  */
-export async function getStoreName(): Promise<string> {
+export async function getStoreName(language?: string): Promise<string> {
   try {
-    const headerData = await getHeader()
+    const headerData = await getHeader(language)
     return headerData?.storeName || DEFAULT_STORE_NAME
   } catch (error) {
     // console.error("獲取商店名稱時出錯:", error)
