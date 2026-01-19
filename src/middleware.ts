@@ -19,15 +19,15 @@ async function getRegionMap(_cacheId: string) {
   // Performance Optimization: Use static region configuration instead of blocking fetch
   // This improves TTFB significantly by removing the backend dependency in middleware
   // If you need to support multiple regions, add them to this array
-  // const supportedRegions = [DEFAULT_REGION, 'us', 'jp']
+  const supportedRegions = [DEFAULT_REGION, 'us', 'jp']
 
-  // supportedRegions.forEach((regionCode) => {
-  //   regionMap.set(regionCode, {
-  //     id: `static-${regionCode}`,
-  //     name: regionCode.toUpperCase(),
-  //     countries: [{ iso_2: regionCode }],
-  //   } as unknown as HttpTypes.StoreRegion)
-  // })
+  supportedRegions.forEach((regionCode) => {
+    regionMap.set(regionCode, {
+      id: `static-${regionCode}`,
+      name: regionCode.toUpperCase(),
+      countries: [{ iso_2: regionCode }],
+    } as unknown as HttpTypes.StoreRegion)
+  })
 
   regionMapCache.regionMapUpdated = Date.now()
   return regionMap
