@@ -2,8 +2,21 @@ import { ITranslationService } from "./translation-service"
 
 // Fields to exclude from translation
 const EXCLUDED_KEYS = [
+    // System fields
     '_id', '_type', '_rev', '_createdAt', '_updatedAt', '_key',
-    'slug', 'metadata', 'mainImage', 'images', 'categories', 'author', 'language'
+
+    // Reference and metadata fields
+    'slug', 'metadata', 'mainImage', 'images', 'categories', 'author', 'language',
+
+    // Code fields (should not be translated)
+    'customCSS', 'customJS',
+
+    // Fields that should remain in original language
+    'englishTitle',
+
+    // URL fields (should not be translated)
+    'buttonUrl', 'buttonLink', 'videoUrl', 'googleMapsUrl', 'imageLink', 'linkUrl',
+    'desktopVideoUrl', 'mobileVideoUrl', 'href', 'url', 'src'
 ]
 
 export class ContentParser {
