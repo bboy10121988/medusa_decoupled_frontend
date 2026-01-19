@@ -96,6 +96,7 @@ export interface TranslationType {
 }
 
 // Merge all JSON files for each locale
+// Note: checkout and home have nested structures, export them separately
 const zhTW: TranslationType = {
     ...zhTWCommon,
     ...zhTWNavigation,
@@ -103,8 +104,6 @@ const zhTW: TranslationType = {
     ...zhTWBlog,
     ...zhTWFooter,
     ...zhTWPromotion,
-    ...zhTWCheckout,
-    ...zhTWHome,
 }
 
 const jaJP: TranslationType = {
@@ -114,8 +113,6 @@ const jaJP: TranslationType = {
     ...jaJPBlog,
     ...jaJPFooter,
     ...jaJPPromotion,
-    ...jaJPCheckout,
-    ...jaJPHome,
 }
 
 const enUS: TranslationType = {
@@ -125,8 +122,25 @@ const enUS: TranslationType = {
     ...enUSBlog,
     ...enUSFooter,
     ...enUSPromotion,
-    ...enUSCheckout,
-    ...enUSHome,
+}
+
+// Export nested translation objects separately
+export const checkoutTranslations = {
+    tw: zhTWCheckout,
+    jp: jaJPCheckout,
+    us: enUSCheckout,
+    'zh-TW': zhTWCheckout,
+    'ja-JP': jaJPCheckout,
+    'en-US': enUSCheckout,
+}
+
+export const homeTranslations = {
+    tw: zhTWHome,
+    jp: jaJPHome,
+    us: enUSHome,
+    'zh-TW': zhTWHome,
+    'ja-JP': jaJPHome,
+    'en-US': enUSHome,
 }
 
 // Translation map with locale codes
