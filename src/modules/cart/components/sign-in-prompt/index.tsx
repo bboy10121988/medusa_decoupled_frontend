@@ -1,3 +1,4 @@
+"use client"
 import { Button, Heading, Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useParams } from "next/navigation"
