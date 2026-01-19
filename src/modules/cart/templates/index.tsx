@@ -5,13 +5,14 @@ import SignInPrompt from "../components/sign-in-prompt"
 import Divider from "@modules/common/components/divider"
 import { HttpTypes } from "@medusajs/types"
 
-cart,
+const CartTemplate = ({
+  cart,
   customer,
   countryCode = "tw",
 }: {
   cart: HttpTypes.StoreCart | null
   customer: HttpTypes.StoreCustomer | null
-  countryCode ?: string
+  countryCode?: string
 }) => {
   return (
     <div className="py-12">
