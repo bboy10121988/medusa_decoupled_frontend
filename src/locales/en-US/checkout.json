@@ -1,4 +1,8 @@
 {
+    "orderSummary": "Order Summary",
+    "items": "items",
+    "taxIncluded": "* Taxes included in total",
+    "shippingCalculatedAtStep": "* Shipping calculated at next step",
     "shipping": {
         "title": "Shipping Information",
         "address": "Delivery Address",

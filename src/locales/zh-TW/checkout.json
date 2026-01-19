@@ -1,4 +1,8 @@
 {
+    "orderSummary": "訂單摘要",
+    "items": "件商品",
+    "taxIncluded": "* 稅金已包含在總價中",
+    "shippingCalculatedAtStep": "* 運費將在選擇配送方式後計算",
     "shipping": {
         "title": "配送資訊",
         "address": "收件地址",

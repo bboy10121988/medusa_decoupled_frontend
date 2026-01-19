@@ -16,9 +16,10 @@ import OrderSummary from "./order-summary"
 type CheckoutTemplateProps = {
   cart: HttpTypes.StoreCart | null
   customer: HttpTypes.StoreCustomer | null
+  countryCode: string
 }
 
-const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
+const CheckoutTemplate = ({ cart, customer, countryCode }: CheckoutTemplateProps) => {
   const searchParams = useSearchParams()
   // const router = useRouter()
   // const pathname = usePathname()
@@ -60,7 +61,7 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
           <div className="w-full" data-testid="checkout-form">
             {/* Steps indicator */}
             <div className="mb-8">
-              <StepsIndicator currentStep={step} cart={cart} />
+              <StepsIndicator currentStep={step} cart={cart} countryCode={countryCode} />
             </div>
 
             {/* Step content */}
@@ -105,14 +106,15 @@ const CheckoutTemplate = ({ cart, customer }: CheckoutTemplateProps) => {
 type StepsIndicatorProps = {
   currentStep: string
   cart: HttpTypes.StoreCart
+  countryCode: string
 }
 
-const StepsIndicator = ({ currentStep, cart }: StepsIndicatorProps) => {
+const StepsIndicator = ({ currentStep, cart, countryCode }: StepsIndicatorProps) => {
   const steps = [
-    { id: "address", name: "配送地址", completed: false },
-    { id: "delivery", name: "配送方式", completed: false },
-    { id: "payment", name: "付款方式", completed: false },
-    { id: "review", name: "檢視訂單", completed: false },
+    { id: "address", name: countryCode === 'us' ? "Address" : countryCode === 'jp' ? "お届け先" : "配送地址", completed: false },
+    { id: "delivery", name: countryCode === 'us' ? "Delivery" : countryCode === 'jp' ? " 配送方法" : "配送方式", completed: false },
+    { id: "payment", name: countryCode === 'us' ? "Payment" : countryCode === 'jp' ? "お支払い" : "付款方式", completed: false },
+    { id: "review", name: countryCode === 'us' ? "Review" : countryCode === 'jp' ? "確認" : "檢視訂單", completed: false },
   ]
 
   // Determine completion status based on cart state
@@ -120,7 +122,7 @@ const StepsIndicator = ({ currentStep, cart }: StepsIndicatorProps) => {
   const hasShipping = !!(cart.shipping_methods && cart.shipping_methods.length > 0)
   // 支付完成判斷：檢查 metadata 中的支付方式選擇 或 payment_sessions
   const hasPayment = !!(
-    cart.metadata?.selected_payment_provider || 
+    cart.metadata?.selected_payment_provider ||
     (cart.payment_collection?.payment_sessions && cart.payment_collection.payment_sessions.length > 0)
   )
 
@@ -134,7 +136,7 @@ const StepsIndicator = ({ currentStep, cart }: StepsIndicatorProps) => {
   steps[3].completed = hasAddress && hasShipping && hasPayment && currentStep === "review"
 
   return (
-    <nav aria-label="結帳步驟" className="mb-8">
+    <nav aria-label="Checkout Steps" className="mb-8">
       <ol className="flex items-center space-x-8">
         {steps.map((step, index) => {
           const isCurrent = step.id === currentStep
@@ -148,10 +150,9 @@ const StepsIndicator = ({ currentStep, cart }: StepsIndicatorProps) => {
                 <div
                   className={`
                     flex items-center justify-center w-8 h-8 rounded-full border-2 text-sm font-medium
-                    ${
-                      isCurrent
-                        ? "bg-gray-900 border-gray-900 text-white"
-                        : shouldShowAsCompleted
+                    ${isCurrent
+                      ? "bg-gray-900 border-gray-900 text-white"
+                      : shouldShowAsCompleted
                         ? "bg-gray-900 border-gray-900 text-white"
                         : "bg-gray-200 border-gray-300 text-gray-700"
                     }
@@ -172,10 +173,9 @@ const StepsIndicator = ({ currentStep, cart }: StepsIndicatorProps) => {
                 <span
                   className={`
                     ml-3 text-sm font-medium
-                    ${
-                      isCurrent
-                        ? "text-ui-fg-base"
-                        : shouldShowAsCompleted
+                    ${isCurrent
+                      ? "text-ui-fg-base"
+                      : shouldShowAsCompleted
                         ? "text-ui-fg-subtle"
                         : "text-ui-fg-muted"
                     }

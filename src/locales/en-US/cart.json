@@ -6,5 +6,7 @@
     "item": "Item",
     "quantity": "Quantity",
     "price": "Price",
-    "total": "Total"
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "goToCart": "Go to cart"
 }

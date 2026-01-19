@@ -8,6 +8,8 @@ import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "@modules/products/components/thumbnail"
+import { useParams } from "next/navigation"
+import { cartTranslations } from "@/lib/translations"
 
 const CartDropdown = ({
   cart: cartState,
@@ -16,34 +18,38 @@ const CartDropdown = ({
   cart?: HttpTypes.StoreCart | null
   onClose?: () => void
 }) => {
+  const params = useParams()
+  const countryCode = (params?.countryCode as string) || "tw"
+  const t = cartTranslations[countryCode as keyof typeof cartTranslations] || cartTranslations.tw
+
   // const totalItems =
-    cartState?.items?.reduce((acc, item) => {
-      return acc + item.quantity
-    }, 0) || 0
+  cartState?.items?.reduce((acc, item) => {
+    return acc + item.quantity
+  }, 0) || 0
 
   const subtotal = cartState?.subtotal ?? 0
 
   return (
     <div className="hidden small:block absolute top-[calc(100%+1px)] right-0 bg-white border-x border-b border-gray-200 w-[420px] text-ui-fg-base z-50 shadow-lg">
       <div className="p-6 flex items-center justify-between border-b border-gray-100">
-        <h3 className="text-base font-semibold">購物車</h3>
+        <h3 className="text-base font-semibold">{t.cart}</h3>
         {onClose && (
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1"
             aria-label="關閉購物車"
           >
-            <svg 
-              className="w-5 h-5" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M6 18L18 6M6 6l12 12" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           </button>
@@ -71,9 +77,9 @@ const CartDropdown = ({
                     <Thumbnail
                       thumbnail={item.thumbnail}
                       images={item.variant?.product?.images}
-                            size="square"
-                          />
-                        </LocalizedClientLink>
+                      size="square"
+                    />
+                  </LocalizedClientLink>
                   <div className="flex flex-col justify-between flex-1 min-h-[80px]">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-col">
@@ -97,7 +103,7 @@ const CartDropdown = ({
                               data-testid="cart-item-quantity"
                               data-value={item.quantity}
                             >
-                              數量: {item.quantity}
+                              {t.quantity}: {item.quantity}
                             </span>
                             <DeleteButton
                               id={item.id}
@@ -122,7 +128,7 @@ const CartDropdown = ({
           <div className="p-6 border-t border-gray-100 flex flex-col gap-y-4 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-gray-700 font-medium">
-                小計{" "}
+                {t.subtotal}{" "}
                 <span className="font-normal text-xs text-gray-500">(未含稅)</span>
               </span>
               <span
@@ -136,8 +142,8 @@ const CartDropdown = ({
                 })}
               </span>
             </div>
-            <LocalizedClientLink 
-              href="/cart" 
+            <LocalizedClientLink
+              href="/cart"
               passHref
               onClick={onClose}
             >
@@ -146,7 +152,7 @@ const CartDropdown = ({
                 size="large"
                 data-testid="go-to-cart-button"
               >
-                前往購物車
+                {t.goToCart}
               </Button>
             </LocalizedClientLink>
           </div>

@@ -6,5 +6,7 @@
     "item": "商品",
     "quantity": "數量",
     "price": "價格",
-    "total": "總計"
+    "total": "總計",
+    "subtotal": "小計",
+    "goToCart": "前往購物車"
 }

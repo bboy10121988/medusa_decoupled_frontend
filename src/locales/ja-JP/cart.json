@@ -6,5 +6,7 @@
     "item": "商品",
     "quantity": "数量",
     "price": "価格",
-    "total": "合計"
+    "total": "合計",
+    "subtotal": "小計",
+    "goToCart": "カートへ"
 }

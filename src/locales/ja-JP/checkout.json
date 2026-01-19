@@ -1,4 +1,8 @@
 {
+    "orderSummary": "注文概要",
+    "items": "点の商品",
+    "taxIncluded": "* 税込み価格",
+    "shippingCalculatedAtStep": "* 送料は次のステップで計算されます",
     "shipping": {
         "title": "配送情報",
         "address": "配送先住所",

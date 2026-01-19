@@ -9,7 +9,8 @@ export const metadata: Metadata = {
   description: "安全結帳流程",
 }
 
-export default async function Checkout() {
+export default async function Checkout({ params }: { params: { countryCode: string } }) {
+  const { countryCode } = params
   const cart = await retrieveCart().catch(() => {
     // console.error("Error retrieving cart:", error)
     return notFound()
@@ -25,6 +26,6 @@ export default async function Checkout() {
   })
 
   return (
-    <CheckoutTemplate cart={cart} customer={customer} />
+    <CheckoutTemplate cart={cart} customer={customer} countryCode={countryCode} />
   )
 }

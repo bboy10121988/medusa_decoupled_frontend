@@ -47,6 +47,47 @@ export interface TranslationType {
     helpButton: string
     storeName: string
     home?: string
+    // cart
+    subtotal?: string
+    goToCart?: string
+    checkout?: string
+    viewCart?: string
+    summary?: string
+    goToCheckout?: string
+    item?: string
+    // quantity?: string // Removed duplicate
+    total?: string
+    // account
+    welcomeBack?: string
+    becomeAMember?: string
+    loginDescription?: string
+    registerDescription?: string
+    or?: string
+    email?: string
+    password?: string
+    forgotPassword?: string
+    signIn?: string
+    notAMember?: string
+    joinNow?: string
+    alreadyAMember?: string
+    signInNow?: string
+    join?: string
+    firstName?: string
+    lastName?: string
+    phone?: string
+    privacyPolicy?: string
+    termsOfUse?: string
+    agreeToTerms?: string
+    and?: string
+    checkingAccount?: string
+    emailCanLogin?: string
+    emailNotRegistered?: string
+    registerSuccess?: string
+    googleLogin?: string
+    emailValidation?: string
+    questionsTitle?: string
+    questionsText?: string
+    customerServiceLink?: string
     // navigation
     categories: string
     collections: string
