@@ -28,6 +28,27 @@ export default defineType({
       options: {
         source: 'title',
         maxLength: 96,
+        // Custom uniqueness check to allow same slug in different languages
+        isUnique: async (slug, context) => {
+          const { document, getClient } = context
+          const client = getClient({ apiVersion: '2024-01-01' })
+          const id = document?._id.replace(/^drafts\./, '')
+          const params = {
+            draft: `drafts.${id}`,
+            published: id,
+            slug,
+            language: document?.language
+          }
+
+          const query = `!defined(*[
+            _type == "dynamicPage" && 
+            !(_id in [$draft, $published]) && 
+            slug.current == $slug && 
+            language == $language
+          ][0]._id)`
+
+          return await client.fetch(query, params)
+        },
         slugify: (input: string) => {
           return input
             .toLowerCase()
