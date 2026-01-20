@@ -128,6 +128,13 @@ export default async function DynamicPage({ params }: PageProps) {
 
     return (
       <>
+        {/* Page Title - Render if not hidden and has value */}
+        {!page.hideTitle && page.title && (
+          <div className="container mx-auto px-4 pt-12 pb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{page.title}</h1>
+          </div>
+        )}
+
         {sections.length > 0 ? (
           sections
             .filter((section: any) => section?.isActive !== false)
