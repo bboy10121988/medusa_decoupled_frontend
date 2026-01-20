@@ -201,6 +201,7 @@ export async function getProduct(handle: string, language?: string) {
     const query = `*[_type == "product" && slug.current == $handle && language == $lang][0] {
       _id,
       title,
+      subtitle,
       slug,
       description,
       body,
