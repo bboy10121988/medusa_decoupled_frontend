@@ -38,13 +38,12 @@ export default function FeaturedProducts({
     if (!settings) return null
     const { showHeading, heading } = settings
 
-    if (!showHeading) return null
+    // 如果沒有明確設定不顯示，且有標題內容，則顯示
+    if (showHeading === false || !heading) return null
 
     return (
-      <div className="mb-16 text-center px-4 md:px-8">
-        {showHeading && heading && (
-          <h1 className="h1">{heading}</h1>
-        )}
+      <div className="mb-12 md:mb-16 text-center px-4 md:px-8">
+        <h2 className="h1">{heading}</h2>
       </div>
     )
   }

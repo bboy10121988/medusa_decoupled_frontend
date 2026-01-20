@@ -32,11 +32,11 @@ interface DesignerSelectorCardProps {
   isMounted: boolean
 }
 
-function DesignerSelectorCard({ 
-  allStylists, 
-  selectedDesigner, 
-  onDesignerChange, 
-  isMounted 
+function DesignerSelectorCard({
+  allStylists,
+  selectedDesigner,
+  onDesignerChange,
+  isMounted
 }: DesignerSelectorCardProps) {
   if (!isMounted || allStylists.length === 0) return null
 
@@ -56,7 +56,7 @@ function DesignerSelectorCard({
 
         {/* 下拉選單區域 */}
         <div className="w-full space-y-3">
-          <Select 
+          <Select
             value={selectedDesigner}
             onValueChange={onDesignerChange}
           >
@@ -68,8 +68,8 @@ function DesignerSelectorCard({
                 所有設計師
               </Select.Item>
               {allStylists.map((designer) => (
-                <Select.Item 
-                  key={designer} 
+                <Select.Item
+                  key={designer}
                   value={designer}
                   className="font-light tracking-wide text-stone-700 hover:bg-stone-50"
                 >
@@ -78,7 +78,7 @@ function DesignerSelectorCard({
               ))}
             </Select.Content>
           </Select>
-          
+
           {/* 當前選擇顯示 - 與設計師資訊區域保持一致 */}
           <div className="text-center">
             <span className="text-xs md:text-sm text-stone-600 font-light tracking-wide">
@@ -108,7 +108,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
       if (!Array.isArray(card?.stylists) || !card.stylists.length) {
         return "價格請洽詢"
       }
-      
+
       if (selectedDesigner === "all") {
         // 使用標示為預設的設計師價格
         const defaultStylist = card.stylists.find(s => s.isDefault === true)
@@ -120,7 +120,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
         const minPrice = Math.min(...card.stylists.map(s => s.price))
         return `NT$ ${minPrice} 起`
       }
-      
+
       const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
       if (stylist?.price) {
         const priceText = `NT$ ${stylist.price}`
@@ -136,13 +136,13 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
   const getSelectedStylistLevel = (): string | null => {
     try {
       if (!Array.isArray(card?.stylists) || !card.stylists.length) return null
-      
+
       if (selectedDesigner === "all") {
         // 當選擇 "all" 時，使用標示為預設的設計師等級
         const defaultStylist = card.stylists.find(s => s.isDefault === true)
         return defaultStylist?.levelName ?? null
       }
-      
+
       const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
       return stylist?.levelName ?? null
     } catch (error) {
@@ -163,7 +163,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
           }
         }
       }
-      
+
       // 優先級 2: 當選擇 "all" 時，使用標示為預設的設計師圖片
       if (Array.isArray(card?.stylists) && card.stylists.length > 0) {
         const defaultStylist = card.stylists.find(s => s.isDefault === true)
@@ -174,17 +174,17 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
           }
         }
       }
-      
+
       // 優先級 3: 使用第一位有圖片的設計師（排除通用標籤）
       if (Array.isArray(card?.stylists) && card.stylists.length > 0) {
         const stylistWithImage = card.stylists.find(s => {
           const hasImage = s?.cardImage?.url
-          const isNotGeneric = s?.stylistName && 
+          const isNotGeneric = s?.stylistName &&
             !s.stylistName.toLowerCase().includes('all') &&
             !s.stylistName.toLowerCase().includes('指定')
           return hasImage && isNotGeneric
         })
-        
+
         if (stylistWithImage?.cardImage?.url) {
           return {
             url: stylistWithImage.cardImage.url,
@@ -192,7 +192,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
           }
         }
       }
-      
+
       // 優先級 4: 使用任意有圖片的設計師（包含通用）
       if (Array.isArray(card?.stylists) && card.stylists.length > 0) {
         const anyWithImage = card.stylists.find(s => s?.cardImage?.url)
@@ -203,7 +203,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
           }
         }
       }
-      
+
       // 最後備選：使用預設圖片
       const defaultImageUrl = getDefaultServiceImage(card.title)
       return {
@@ -228,7 +228,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
   const getSelectedStylistName = (): string | null => {
     try {
       if (!Array.isArray(card?.stylists) || !card.stylists.length) return null
-      
+
       if (selectedDesigner === "all") {
         // 當選擇 "all" 時，優先使用標示為預設的設計師名稱
         const defaultStylist = card.stylists.find(s => s.isDefault === true)
@@ -239,7 +239,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
             return name
           }
         }
-        
+
         // 如果沒有適合的預設設計師，找第一個非通用的設計師
         const specificStylist = card.stylists.find(s => {
           const name = s?.stylistName
@@ -247,7 +247,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
         })
         return specificStylist?.stylistName ?? null
       }
-      
+
       const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
       return stylist?.stylistName ?? null
     } catch (error) {
@@ -259,25 +259,25 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
   const getSelectedStylistInstagramUrl = (): string | null => {
     try {
       if (!Array.isArray(card?.stylists) || !card.stylists.length) return null
-      
+
       if (selectedDesigner === "all") {
         // 當選擇 "all" 時，優先使用標示為預設的設計師 IG URL
         const defaultStylist = card.stylists.find(s => s.isDefault === true)
         if (defaultStylist?.stylistInstagramUrl) {
           return defaultStylist.stylistInstagramUrl
         }
-        
+
         // 如果沒有適合的預設設計師，找第一個有 IG URL 的非通用設計師
         const specificStylist = card.stylists.find(s => {
           const name = s?.stylistName
-          return name && 
-                 !name.toLowerCase().includes('all') && 
-                 !name.toLowerCase().includes('指定') &&
-                 s.stylistInstagramUrl
+          return name &&
+            !name.toLowerCase().includes('all') &&
+            !name.toLowerCase().includes('指定') &&
+            s.stylistInstagramUrl
         })
         return specificStylist?.stylistInstagramUrl ?? null
       }
-      
+
       const stylist = card.stylists.find((s) => s?.stylistName === selectedDesigner)
       return stylist?.stylistInstagramUrl ?? null
     } catch (error) {
@@ -320,8 +320,8 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
             {/* 簡約裝飾圖案 */}
             <div className="absolute inset-0 opacity-5">
               <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-                <circle cx="100" cy="100" r="60" stroke="currentColor" strokeWidth="0.5"/>
-                <circle cx="100" cy="100" r="40" stroke="currentColor" strokeWidth="0.5"/>
+                <circle cx="100" cy="100" r="60" stroke="currentColor" strokeWidth="0.5" />
+                <circle cx="100" cy="100" r="40" stroke="currentColor" strokeWidth="0.5" />
               </svg>
             </div>
           </div>
@@ -365,10 +365,10 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
             {(() => {
               const stylistName = getSelectedStylistName()
               const instagramUrl = getSelectedStylistInstagramUrl()
-              
+
               if (stylistName && instagramUrl) {
                 return (
-                  <a 
+                  <a
                     href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -378,7 +378,7 @@ function ServiceCard({ card, selectedDesigner }: ServiceCardProps) {
                   </a>
                 )
               }
-              
+
               return (
                 <span className="text-xs md:text-sm font-light text-stone-600 tracking-wide">
                   {stylistName || "所有設計師"}
@@ -402,7 +402,7 @@ interface ServiceCardsSectionProps {
 }
 
 export default function ServiceCardsSection({
-  // heading,
+  heading,
   cardsPerRow = 4,
   cards = [],
 }: ServiceCardsSectionProps) {
@@ -414,29 +414,29 @@ export default function ServiceCardsSection({
   }, [])
 
   // 資料驗證
-  const validCards = cards?.filter(card => 
-    card && 
-    typeof card === 'object' && 
+  const validCards = cards?.filter(card =>
+    card &&
+    typeof card === 'object' &&
     'title' in card &&
     'englishTitle' in card
   ) ?? []
 
   // 從有效卡片中提取設計師資訊，過濾掉通用標籤
   const allStylists = Array.from(new Set(
-    validCards.flatMap(card => 
-      Array.isArray(card?.stylists) 
+    validCards.flatMap(card =>
+      Array.isArray(card?.stylists)
         ? card.stylists
-            .filter((s): s is Stylist => s !== null && s !== undefined && typeof s.stylistName === 'string')
-            .map(s => s.stylistName!)
-            .filter(name => {
-              const lowercaseName = name.toLowerCase()
-              // 過濾掉通用設計師標籤（包含更多變體）
-              return !lowercaseName.includes('all stylists') && 
-                     !lowercaseName.includes('all stylist') && 
-                     !lowercaseName.includes('指定') &&
-                     lowercaseName !== 'all' &&
-                     name.trim().length > 0
-            })
+          .filter((s): s is Stylist => s !== null && s !== undefined && typeof s.stylistName === 'string')
+          .map(s => s.stylistName!)
+          .filter(name => {
+            const lowercaseName = name.toLowerCase()
+            // 過濾掉通用設計師標籤（包含更多變體）
+            return !lowercaseName.includes('all stylists') &&
+              !lowercaseName.includes('all stylist') &&
+              !lowercaseName.includes('指定') &&
+              lowercaseName !== 'all' &&
+              name.trim().length > 0
+          })
         : []
     )
   )).sort()
@@ -446,8 +446,13 @@ export default function ServiceCardsSection({
   }
 
   return (
-    <section className="py-0 bg-stone-50/30">
+    <section className="py-12 md:py-20 bg-stone-50/30">
       <div className="max-w-none w-full">
+        {heading && (
+          <div className="container mx-auto px-4 mb-12 md:mb-16 text-center">
+            <h2 className="h1">{heading}</h2>
+          </div>
+        )}
         <div className={clsx(
           "grid grid-cols-2 gap-0 w-full",
           cardsPerRow === 3 && "lg:grid-cols-3",
@@ -456,7 +461,7 @@ export default function ServiceCardsSection({
           {/* 設計師選擇卡片 - 作為第一張卡片 */}
           {allStylists.length > 0 && (
             <div className="w-full">
-              <DesignerSelectorCard 
+              <DesignerSelectorCard
                 allStylists={allStylists}
                 selectedDesigner={selectedDesigner}
                 onDesignerChange={setSelectedDesigner}
@@ -464,11 +469,11 @@ export default function ServiceCardsSection({
               />
             </div>
           )}
-          
+
           {/* 服務卡片 */}
           {validCards.map((card, idx) => (
             <div key={`${selectedDesigner}-${idx}`} className="w-full">
-              <ServiceCard 
+              <ServiceCard
                 card={card}
                 selectedDesigner={selectedDesigner}
               />
