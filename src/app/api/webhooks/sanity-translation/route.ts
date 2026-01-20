@@ -29,6 +29,12 @@ export async function POST(req: NextRequest) {
         const { _id, _type, language, title } = body
 
         console.log(`[Webhook] Received update for: ${_id} (${_type}), Lang: ${language}`)
+        console.log(`[Webhook] Update payload keys: ${JSON.stringify(Object.keys(body))}`)
+        if (body.subtitle) {
+            console.log(`[Webhook] Subtitle found: ${body.subtitle.substring(0, 50)}...`)
+        } else {
+            console.log(`[Webhook] ⚠️ NO SUBTITLE in payload!`)
+        }
 
         // 1. Filter: Only process 'zh-TW' documents
         // Also skip system documents like sanity.* or translation.metadata
