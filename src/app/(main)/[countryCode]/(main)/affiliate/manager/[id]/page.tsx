@@ -2,36 +2,54 @@
 
 import { useState, useEffect } from 'react'
 import { Container, Heading, Badge, Button, Table, Tabs, toast, Toaster } from '@medusajs/ui'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 
 export default function AffiliateDetailPage() {
     const { id } = useParams()
+    const searchParams = useSearchParams()
+    const defaultTab = searchParams.get('tab') || 'settings'
     const [affiliate, setAffiliate] = useState<any>(null)
+    const [promoCodes, setPromoCodes] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [settling, setSettling] = useState(false)
     const [showSettlePrompt, setShowSettlePrompt] = useState(false)
     const [showCommissionModal, setShowCommissionModal] = useState(false)
     const [newCommissionRate, setNewCommissionRate] = useState('')
+    const [isCreatingPromo, setIsCreatingPromo] = useState(false)
+    const [newPromoCode, setNewPromoCode] = useState({ code: "", value: 10, type: "percentage", commission_rate: 10 })
 
-    const fetchAffiliate = async () => {
+    const fetchData = async () => {
         try {
-            const res = await fetch(`/api/admin/affiliates/${id}`)
-            if (!res.ok) throw new Error('Failed to fetch')
-            const data = await res.json()
-            setAffiliate(data.affiliate)
-            if (data.affiliate) {
-                setNewCommissionRate((data.affiliate.commission_rate * 100).toString())
+            // Use standard detail API
+            const affRes = await fetch(`/api/admin/affiliates/${id}`)
+            if (!affRes.ok) throw new Error('Failed to fetch affiliate')
+            const affData = await affRes.json()
+            setAffiliate(affData.affiliate)
+
+            if (affData.affiliate) {
+                setNewCommissionRate((affData.affiliate.commission_rate * 100).toString())
+
+                // Fetch promo codes for this affiliate
+                try {
+                    const promoRes = await fetch(`/api/admin/affiliates/${id}/promo-codes`)
+                    if (promoRes.ok) {
+                        const promoData = await promoRes.json()
+                        setPromoCodes(promoData.promo_codes || [])
+                    }
+                } catch (pe) {
+                    console.error("Failed to fetch promo codes:", pe)
+                }
             }
         } catch (error) {
             console.error(error)
-            toast.error('無法載入推廣者資料')
+            toast.error('無法載入資料')
         } finally {
             setLoading(false)
         }
     }
 
     useEffect(() => {
-        if (id) fetchAffiliate()
+        if (id) fetchData()
     }, [id])
 
     const handleSettle = async () => {
@@ -42,7 +60,7 @@ export default function AffiliateDetailPage() {
             const res = await fetch(`/api/admin/affiliates/${id}/settle`, { method: 'POST' })
             if (res.ok) {
                 toast.success('結算成功')
-                fetchAffiliate()
+                fetchData()
             } else {
                 throw new Error('Settlement failed')
             }
@@ -70,13 +88,55 @@ export default function AffiliateDetailPage() {
             if (res.ok) {
                 toast.success('佣金比例已更新')
                 setShowCommissionModal(false)
-                fetchAffiliate()
+                fetchData()
             } else {
                 throw new Error('Update failed')
             }
         } catch (e) {
             console.error(e)
             toast.error('更新失敗')
+        }
+    }
+
+    const generateRandomCode = () => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+        let code = ''
+        for (let i = 0; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length))
+        }
+        setNewPromoCode({ ...newPromoCode, code })
+    }
+
+    const handleCreatePromoCode = async () => {
+        if (!newPromoCode.code) {
+            toast.error("請輸入折扣碼")
+            return
+        }
+        setIsCreatingPromo(true)
+        try {
+            const res = await fetch(`/api/admin/affiliates/${id}/promo-codes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: newPromoCode.code,
+                    discount_type: newPromoCode.type,
+                    discount_value: newPromoCode.value,
+                    commission_rate: newPromoCode.commission_rate / 100
+                })
+            })
+            if (res.ok) {
+                toast.success("折扣碼建立成功")
+                fetchData() // Refresh data to get updated list
+                setNewPromoCode({ code: "", value: 10, type: "percentage", commission_rate: 10 })
+            } else {
+                const err = await res.json()
+                toast.error(`錯誤: ${err.message || "建立失敗"}`)
+            }
+        } catch (e) {
+            console.error(e)
+            toast.error("折扣碼建立失敗")
+        } finally {
+            setIsCreatingPromo(false)
         }
     }
 
@@ -279,10 +339,11 @@ export default function AffiliateDetailPage() {
             )}
 
 
-            <Tabs defaultValue="settings">
+            <Tabs defaultValue={defaultTab}>
                 <Tabs.List className="mb-4">
                     <Tabs.Trigger value="settings">基本資料</Tabs.Trigger>
                     <Tabs.Trigger value="links">推廣連結 ({affiliate.links?.length || 0})</Tabs.Trigger>
+                    <Tabs.Trigger value="promo-codes">聯盟折扣碼 ({promoCodes.length})</Tabs.Trigger>
                     <Tabs.Trigger value="conversions">成交紀錄 ({affiliate.conversions?.length || 0})</Tabs.Trigger>
                     <Tabs.Trigger value="payouts">撥款紀錄 ({affiliate.settlements?.length || 0})</Tabs.Trigger>
                 </Tabs.List>
@@ -403,11 +464,120 @@ export default function AffiliateDetailPage() {
                                 </Table.Row>
                             ))}
                             {!affiliate.links?.length && <Table.Row>
-                                {/* @ts-expect-error: colSpan is valid DOM attribute but missing in types */}
                                 <Table.Cell colSpan={4} className="text-center text-ui-fg-subtle">無資料</Table.Cell>
                             </Table.Row>}
                         </Table.Body>
                     </Table>
+                </Tabs.Content>
+
+                <Tabs.Content value="promo-codes">
+                    <div className="space-y-6">
+                        <div className="p-4 bg-gray-50 rounded-lg border flex flex-wrap items-end gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">折扣碼 (Code)</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        className="w-32 px-3 py-1.5 border rounded-md text-sm uppercase"
+                                        placeholder="e.g. SAVE10"
+                                        value={newPromoCode.code}
+                                        onChange={(e) => setNewPromoCode({ ...newPromoCode, code: e.target.value.toUpperCase() })}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={generateRandomCode}
+                                        className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm transition"
+                                        title="隨機產生"
+                                    >
+                                        🎲
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">顧客折扣</label>
+                                <input
+                                    type="number"
+                                    className="w-20 px-3 py-1.5 border rounded-md text-sm"
+                                    value={newPromoCode.value}
+                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, value: Number(e.target.value) })}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">類型</label>
+                                <select
+                                    className="px-3 py-1.5 border rounded-md text-sm"
+                                    value={newPromoCode.type}
+                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, type: e.target.value as any })}
+                                >
+                                    <option value="percentage">百分比 (%)</option>
+                                    <option value="fixed">固定金額 ($)</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">佣金比例 (%)</label>
+                                <input
+                                    type="number"
+                                    className="w-20 px-3 py-1.5 border rounded-md text-sm"
+                                    value={newPromoCode.commission_rate}
+                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, commission_rate: Number(e.target.value) })}
+                                    min="0"
+                                    max="100"
+                                />
+                            </div>
+                            <Button
+                                variant="primary"
+                                size="small"
+                                onClick={handleCreatePromoCode}
+                                isLoading={isCreatingPromo}
+                                disabled={!newPromoCode.code}
+                            >
+                                建立折扣碼
+                            </Button>
+                        </div>
+
+                        <Table>
+                            <Table.Header>
+                                <Table.Row>
+                                    <Table.HeaderCell>折扣碼</Table.HeaderCell>
+                                    <Table.HeaderCell>顧客折扣</Table.HeaderCell>
+                                    <Table.HeaderCell>佣金比例</Table.HeaderCell>
+                                    <Table.HeaderCell>使用次數</Table.HeaderCell>
+                                    <Table.HeaderCell>轉換訂單</Table.HeaderCell>
+                                    <Table.HeaderCell>累計佣金</Table.HeaderCell>
+                                    <Table.HeaderCell>狀態</Table.HeaderCell>
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {promoCodes.map((promo) => (
+                                    <Table.Row key={promo.id}>
+                                        <Table.Cell className="font-mono font-bold text-purple-600">{promo.code}</Table.Cell>
+                                        <Table.Cell>
+                                            {promo.discount_type === "percentage"
+                                                ? `${promo.discount_value}%`
+                                                : `$${promo.discount_value}`
+                                            }
+                                        </Table.Cell>
+                                        <Table.Cell>{((promo.commission_rate || 0) * 100).toFixed(0)}%</Table.Cell>
+                                        <Table.Cell>{promo.used || 0}</Table.Cell>
+                                        <Table.Cell>{promo.conversions_count || 0}</Table.Cell>
+                                        <Table.Cell className="font-bold text-green-600">${promo.total_earnings || 0}</Table.Cell>
+                                        <Table.Cell>
+                                            <Badge color={promo.status === "active" ? "green" : "red"}>
+                                                {promo.status === "active" ? "啟用中" : "已停用"}
+                                            </Badge>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                ))}
+                                {promoCodes.length === 0 && (
+                                    <Table.Row>
+                                        <Table.Cell className="text-center py-8 text-ui-fg-subtle" colSpan={7}>
+                                            尚無折扣碼，點擊上方按鈕建立
+                                        </Table.Cell>
+                                    </Table.Row>
+                                )}
+                            </Table.Body>
+                        </Table>
+                    </div>
                 </Tabs.Content>
 
                 <Tabs.Content value="conversions">
@@ -432,7 +602,6 @@ export default function AffiliateDetailPage() {
                                 </Table.Row>
                             ))}
                             {!affiliate.conversions?.length && <Table.Row>
-                                {/* @ts-expect-error: colSpan is valid DOM attribute but missing in types */}
                                 <Table.Cell colSpan={5} className="text-center text-ui-fg-subtle">無資料</Table.Cell>
                             </Table.Row>}
                         </Table.Body>
@@ -459,7 +628,6 @@ export default function AffiliateDetailPage() {
                                 </Table.Row>
                             ))}
                             {!affiliate.settlements?.length && <Table.Row>
-                                {/* @ts-expect-error: colSpan is valid DOM attribute but missing in types */}
                                 <Table.Cell colSpan={4} className="text-center text-ui-fg-subtle">無資料</Table.Cell>
                             </Table.Row>}
                         </Table.Body>

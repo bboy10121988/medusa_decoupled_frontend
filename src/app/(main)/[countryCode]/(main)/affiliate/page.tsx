@@ -126,10 +126,11 @@ export default function AffiliateHomePage() {
 
     setLoading(true)
     try {
-      const [statsRes, linksRes, ordersRes] = await Promise.all([
+      const [statsRes, linksRes, ordersRes, promoRes] = await Promise.all([
         fetch(`/api/affiliate/stats?days=${dateRange}`, { cache: 'no-store' }),
         fetch(`/api/affiliate/links`, { cache: 'no-store' }),
-        fetch(`/api/affiliate/orders`, { cache: 'no-store' })
+        fetch(`/api/affiliate/orders`, { cache: 'no-store' }),
+        fetch(`/api/store/affiliates/promo-codes`, { cache: 'no-store' })
       ])
 
       const stats = await statsRes.json()
@@ -138,8 +139,19 @@ export default function AffiliateHomePage() {
         summary: { totalOrders: 0, totalValue: 0, totalCommission: 0, pendingCommission: 0 },
         orders: []
       }
+      const promoData = await promoRes.json()
 
-      setStatsData(stats)
+      // Calculate total earnings from promo codes
+      const promoConversions = promoData.promo_codes?.reduce((sum: number, p: any) => sum + (p.total_conversions || 0), 0) || 0;
+      const promoEarnings = promoData.promo_codes?.reduce((sum: number, p: any) => sum + (p.total_earnings || 0), 0) || 0;
+
+      const extendedStats = {
+        ...stats,
+        totalConversions: (stats.totalConversions || 0) + promoConversions,
+        totalCommission: (stats.totalCommission || 0) + promoEarnings,
+      };
+
+      setStatsData(extendedStats)
       setLinksData(links?.links || [])
       setOrdersData(orders)
     } catch (error) {
@@ -292,7 +304,7 @@ export default function AffiliateHomePage() {
           <StatCard
             label="總轉換數"
             value={statsData?.totalConversions || 0}
-            subtitle={`整體轉換率：${statsData?.totalClicks && statsData.totalClicks > 0 ? ((statsData.totalConversions || 0) / statsData.totalClicks * 100).toFixed(1) : 0}%`}
+            subtitle={`連結與折扣碼合計`}
           />
           <StatCard
             label="總營收"

@@ -19,7 +19,9 @@ export default async function AffiliateLayout({ children, params }: AffiliateLay
         <nav className="text-sm text-gray-600">
           <Link className="hover:underline" href={`/${countryCode}/affiliate`}>統計</Link>
           <span className="px-2">/</span>
-          <Link className="hover:underline" href={`/${countryCode}/affiliate/links`}>連結</Link>
+          {/* <Link className="hover:underline" href={`/${countryCode}/affiliate/links`}>連結</Link>
+          <span className="px-2">/</span> */}
+          <Link className="hover:underline" href={`/${countryCode}/affiliate/promo-codes`}>折扣碼</Link>
           <span className="px-2">/</span>
           <Link className="hover:underline" href={`/${countryCode}/affiliate/payouts`}>結算</Link>
           <span className="px-2">/</span>

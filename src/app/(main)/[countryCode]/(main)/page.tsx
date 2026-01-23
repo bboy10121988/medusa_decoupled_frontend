@@ -334,7 +334,6 @@ export default async function Home({
                     const imageBlock = section as ImageTextBlockType
                     // 只傳遞存在的屬性,避免 undefined
                     const props: any = {
-                      key: index,
                       heading: imageBlock.heading,
                       content: imageBlock.content,
                       image: imageBlock.image,
@@ -350,7 +349,7 @@ export default async function Home({
                     if (imageBlock.leftContent) props.leftContent = imageBlock.leftContent
                     if (imageBlock.rightContent) props.rightContent = imageBlock.rightContent
 
-                    return <ImageTextBlock {...props} />
+                    return <ImageTextBlock key={index} {...props} />
                   }
                   case "featuredProducts": {
                     const featuredBlock = section as FeaturedProductsSection

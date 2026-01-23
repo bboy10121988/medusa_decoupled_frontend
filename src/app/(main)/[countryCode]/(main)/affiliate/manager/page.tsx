@@ -34,16 +34,30 @@ export default function AdminAffiliatesPage() {
     const [loading, setLoading] = useState(true)
     const [editingAffiliate, setEditingAffiliate] = useState<Affiliate | null>(null)
     const [newCommissionRate, setNewCommissionRate] = useState('')
+    const [startDate, setStartDate] = useState('')
+    const [endDate, setEndDate] = useState('')
+    const [bulkCreating, setBulkCreating] = useState(false)
+    const [showBulkModal, setShowBulkModal] = useState(false)
+    const [bulkDiscountValue, setBulkDiscountValue] = useState(10)
+    const [bulkCommissionRate, setBulkCommissionRate] = useState(10)
 
     const fetchData = async () => {
         try {
             // Fetch list
-            const resList = await fetch('/api/admin/affiliates')
+            let url = '/api/admin/affiliates?'
+            if (startDate) url += `from=${startDate}&`
+            if (endDate) url += `to=${endDate}&`
+
+            const resList = await fetch(url)
             const listData = await resList.json()
             setAffiliates(listData.affiliates || [])
 
             // Fetch stats
-            const resStats = await fetch('/api/admin/affiliates/stats')
+            let statsUrl = '/api/admin/affiliates/stats?'
+            if (startDate) statsUrl += `from=${startDate}&`
+            if (endDate) statsUrl += `to=${endDate}&`
+
+            const resStats = await fetch(statsUrl)
             const statsData = await resStats.json()
             if (statsData.stats) setStats(statsData.stats)
 
@@ -57,7 +71,7 @@ export default function AdminAffiliatesPage() {
 
     useEffect(() => {
         fetchData()
-    }, [])
+    }, [startDate, endDate])
 
     const handleUpdateStatus = async (id: string, newStatus: string) => {
         if (!confirm(`確定要將狀態更改為 ${newStatus}?`)) return
@@ -88,6 +102,31 @@ export default function AdminAffiliatesPage() {
         fetchData()
     }
 
+    const handleBulkCreatePromoCodes = async () => {
+        setBulkCreating(true)
+        setShowBulkModal(false)
+        try {
+            const res = await fetch('/api/admin/affiliates/bulk-promo-codes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    discount_value: bulkDiscountValue,
+                    commission_rate: bulkCommissionRate / 100
+                })
+            })
+            const data = await res.json()
+            if (res.ok) {
+                alert(`批次建立完成！\n建立: ${data.summary?.created || 0}\n略過: ${data.summary?.skipped || 0}\n錯誤: ${data.summary?.errors || 0}`)
+            } else {
+                alert(`建立失敗: ${data.error || data.message}`)
+            }
+        } catch (e) {
+            alert('批次建立折扣碼失敗')
+        } finally {
+            setBulkCreating(false)
+        }
+    }
+
     if (loading) return <div className="p-8">載入中...</div>
 
     return (
@@ -97,7 +136,42 @@ export default function AdminAffiliatesPage() {
                     <Heading>總覽 & 推廣者列表</Heading>
                     <p className="text-ui-fg-subtle text-sm mt-1">管理所有聯盟行銷夥伴</p>
                 </div>
-                <button onClick={fetchData} className="px-4 py-2 bg-gray-100 border rounded-lg hover:bg-gray-200 transition">重新整理</button>
+                <div className="flex items-center gap-x-2">
+                    <div className="flex items-center gap-x-1">
+                        <span className="text-xs text-gray-500">從:</span>
+                        <input
+                            type="date"
+                            className="border rounded px-2 py-1 text-xs"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center gap-x-1">
+                        <span className="text-xs text-gray-500">到:</span>
+                        <input
+                            type="date"
+                            className="border rounded px-2 py-1 text-xs"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                        />
+                    </div>
+                    {(startDate || endDate) && (
+                        <button
+                            onClick={() => { setStartDate(''); setEndDate('') }}
+                            className="px-2 py-1 text-xs bg-gray-100 border rounded hover:bg-gray-200"
+                        >
+                            清除
+                        </button>
+                    )}
+                    <button onClick={fetchData} className="px-4 py-2 bg-gray-100 border rounded-lg hover:bg-gray-200 transition ml-2">重新整理</button>
+                    <button
+                        onClick={() => setShowBulkModal(true)}
+                        disabled={bulkCreating}
+                        className="px-4 py-2 bg-purple-600 text-white border rounded-lg hover:bg-purple-700 transition ml-2 disabled:opacity-50"
+                    >
+                        {bulkCreating ? '建立中...' : '批次建立折扣碼'}
+                    </button>
+                </div>
             </div>
 
             {/* KPI Cards */}
@@ -126,11 +200,10 @@ export default function AdminAffiliatesPage() {
                         <tr>
                             <th className="py-3 px-4">姓名 / Email</th>
                             <th className="py-3 px-4">狀態</th>
-                            <th className="py-3 px-4">佣金比例</th>
-                            <th className="py-3 px-4">營業額</th>
+                            <th className="py-3 px-4">{(startDate || endDate) ? '期間營業額' : '總營業額'}</th>
+                            <th className="py-3 px-4">{(startDate || endDate) ? '期間佣金' : '累積佣金'}</th>
                             <th className="py-3 px-4">待確認</th>
                             <th className="py-3 px-4">可結算</th>
-                            <th className="py-3 px-4">累積收益</th>
                             <th className="py-3 px-4 text-right">操作</th>
                         </tr>
                     </thead>
@@ -146,11 +219,11 @@ export default function AdminAffiliatesPage() {
                                 <td className="py-3 px-4">
                                     <StatusBadge status={aff.status} />
                                 </td>
-                                <td className="py-3 px-4">
-                                    {(aff.commission_rate * 100).toFixed(1)}%
-                                </td>
                                 <td className="py-3 px-4 font-medium text-blue-600">
-                                    ${aff.total_sales || 0}
+                                    ${(aff as any).period_sales || 0}
+                                </td>
+                                <td className="py-3 px-4 font-medium text-indigo-600">
+                                    ${(aff as any).period_commission || 0}
                                 </td>
                                 <td className="py-3 px-4 font-medium text-orange-600">
                                     ${aff.pending_balance || 0}
@@ -158,21 +231,18 @@ export default function AdminAffiliatesPage() {
                                 <td className="py-3 px-4 font-medium text-green-600">
                                     ${aff.captured_balance || 0}
                                 </td>
-                                <td className="py-3 px-4 text-gray-500">
-                                    ${aff.total_earnings}
-                                </td>
                                 <td className="py-3 px-4 text-right gap-2 flex justify-end">
                                     <a href={`/${countryCode}/affiliate/manager/${aff.id}`} className="mr-2 btn-secondary text-xs px-2 py-1 border rounded hover:bg-gray-100">
                                         詳細
                                     </a>
-                                    <button
-                                        onClick={() => openCommissionModal(aff)}
-                                        className="px-2 py-1 text-xs bg-gray-100 border rounded hover:bg-gray-200 transition"
-                                    >
-                                        調佣
-                                    </button>
+                                    <a href={`/${countryCode}/affiliate/manager/${aff.id}?tab=promo-codes`} className="btn-secondary text-xs px-2 py-1 border rounded hover:bg-gray-100">
+                                        折扣碼
+                                    </a>
                                     {aff.status === 'pending' && (
-                                        <button className="ml-2 px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700" onClick={() => handleUpdateStatus(aff.id, 'active')}>通過</button>
+                                        <>
+                                            <button className="ml-2 px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700" onClick={() => handleUpdateStatus(aff.id, 'active')}>通過</button>
+                                            <button className="ml-1 px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700" onClick={() => handleUpdateStatus(aff.id, 'rejected')}>拒絕</button>
+                                        </>
                                     )}
                                 </td>
                             </tr>
@@ -230,6 +300,70 @@ export default function AdminAffiliatesPage() {
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                             >
                                 儲存變更
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Create Promo Codes Modal */}
+            {showBulkModal && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    onClick={() => setShowBulkModal(false)}
+                >
+                    <div
+                        className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-700 px-6 py-4 text-white">
+                            <h2 className="text-xl font-bold">批次建立折扣碼</h2>
+                            <p className="text-purple-100 text-sm">為所有尚無折扣碼的活躍推廣者建立折扣碼</p>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    顧客折扣 (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={bulkDiscountValue}
+                                    onChange={(e) => setBulkDiscountValue(Number(e.target.value))}
+                                    min="1"
+                                    max="100"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                />
+                                <p className="text-xs text-gray-500">顧客使用折扣碼時獲得的折扣百分比</p>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    佣金比例 (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={bulkCommissionRate}
+                                    onChange={(e) => setBulkCommissionRate(Number(e.target.value))}
+                                    min="1"
+                                    max="100"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                />
+                                <p className="text-xs text-gray-500">推廣者從每筆訂單獲得的佣金百分比</p>
+                            </div>
+                        </div>
+                        <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+                            <button
+                                onClick={() => setShowBulkModal(false)}
+                                className="px-4 py-2 text-gray-700 bg-white border rounded-lg hover:bg-gray-100 transition"
+                            >
+                                取消
+                            </button>
+                            <button
+                                onClick={handleBulkCreatePromoCodes}
+                                disabled={bulkCreating}
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50"
+                            >
+                                {bulkCreating ? '建立中...' : '確認建立'}
                             </button>
                         </div>
                     </div>
