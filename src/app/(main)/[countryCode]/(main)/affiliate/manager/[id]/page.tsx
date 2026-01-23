@@ -16,7 +16,9 @@ export default function AffiliateDetailPage() {
     const [showCommissionModal, setShowCommissionModal] = useState(false)
     const [newCommissionRate, setNewCommissionRate] = useState('')
     const [isCreatingPromo, setIsCreatingPromo] = useState(false)
-    const [newPromoCode, setNewPromoCode] = useState({ code: "", value: 10, type: "percentage", commission_rate: 10 })
+    const [newPromoCode, setNewPromoCode] = useState({ code: "", value: 10, type: "percentage", commission_rate: 10, ends_at: "" })
+    const [editingPromo, setEditingPromo] = useState<any>(null)
+    const [isUpdatingPromo, setIsUpdatingPromo] = useState(false)
 
     const fetchData = async () => {
         try {
@@ -107,6 +109,56 @@ export default function AffiliateDetailPage() {
         setNewPromoCode({ ...newPromoCode, code })
     }
 
+    const handleUpdatePromoCode = async () => {
+        if (!editingPromo) return
+        setIsUpdatingPromo(true)
+        try {
+            const res = await fetch(`/api/admin/affiliates/promo-codes/${editingPromo.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    discount_type: editingPromo.discount_type,
+                    discount_value: editingPromo.discount_value,
+                    commission_rate: editingPromo.commission_rate,
+                    ends_at: editingPromo.ends_at || null
+                })
+            })
+            if (res.ok) {
+                toast.success("折扣碼已更新")
+                setEditingPromo(null)
+                fetchData()
+            } else {
+                const err = await res.json()
+                toast.error(`錯誤: ${err.message || "更新失敗"}`)
+            }
+        } catch (e) {
+            console.error(e)
+            toast.error("折扣碼更新失敗")
+        } finally {
+            setIsUpdatingPromo(false)
+        }
+    }
+
+    const handleTogglePromoStatus = async (promo: any) => {
+        const newStatus = promo.status === "active" ? "disabled" : "active"
+        try {
+            const res = await fetch(`/api/admin/affiliates/promo-codes/${promo.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            if (res.ok) {
+                toast.success(newStatus === "active" ? "折扣碼已啟用" : "折扣碼已停用")
+                fetchData()
+            } else {
+                toast.error("狀態更新失敗")
+            }
+        } catch (e) {
+            console.error(e)
+            toast.error("狀態更新失敗")
+        }
+    }
+
     const handleCreatePromoCode = async () => {
         if (!newPromoCode.code) {
             toast.error("請輸入折扣碼")
@@ -121,13 +173,14 @@ export default function AffiliateDetailPage() {
                     code: newPromoCode.code,
                     discount_type: newPromoCode.type,
                     discount_value: newPromoCode.value,
-                    commission_rate: newPromoCode.commission_rate / 100
+                    commission_rate: newPromoCode.commission_rate / 100,
+                    ...(newPromoCode.ends_at && { ends_at: newPromoCode.ends_at })
                 })
             })
             if (res.ok) {
                 toast.success("折扣碼建立成功")
                 fetchData() // Refresh data to get updated list
-                setNewPromoCode({ code: "", value: 10, type: "percentage", commission_rate: 10 })
+                setNewPromoCode({ code: "", value: 10, type: "percentage", commission_rate: 10, ends_at: "" })
             } else {
                 const err = await res.json()
                 toast.error(`錯誤: ${err.message || "建立失敗"}`)
@@ -281,6 +334,93 @@ export default function AffiliateDetailPage() {
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                             >
                                 {settling ? '處理中...' : '確認已完成支付'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Promo Code Edit Modal */}
+            {editingPromo && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    onClick={() => setEditingPromo(null)}
+                >
+                    <div
+                        className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-700 px-6 py-4 text-white">
+                            <h2 className="text-xl font-bold">編輯折扣碼</h2>
+                            <p className="text-purple-100 text-sm font-mono">{editingPromo.code}</p>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        顧客折扣
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={editingPromo.discount_value}
+                                        onChange={(e) => setEditingPromo({ ...editingPromo, discount_value: Number(e.target.value) })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        類型
+                                    </label>
+                                    <select
+                                        value={editingPromo.discount_type}
+                                        onChange={(e) => setEditingPromo({ ...editingPromo, discount_type: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    >
+                                        <option value="percentage">百分比 (%)</option>
+                                        <option value="fixed">固定金額 ($)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    佣金比例 (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={(editingPromo.commission_rate * 100).toFixed(0)}
+                                    onChange={(e) => setEditingPromo({ ...editingPromo, commission_rate: Number(e.target.value) / 100 })}
+                                    min="0"
+                                    max="100"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    使用期限
+                                </label>
+                                <input
+                                    type="date"
+                                    value={editingPromo.ends_at}
+                                    onChange={(e) => setEditingPromo({ ...editingPromo, ends_at: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                />
+                                <p className="text-xs text-gray-500">留空表示無期限</p>
+                            </div>
+                        </div>
+                        <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+                            <button
+                                onClick={() => setEditingPromo(null)}
+                                className="px-4 py-2 text-gray-700 bg-white border rounded-lg hover:bg-gray-100 transition"
+                            >
+                                取消
+                            </button>
+                            <button
+                                onClick={handleUpdatePromoCode}
+                                disabled={isUpdatingPromo}
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50"
+                            >
+                                {isUpdatingPromo ? '處理中...' : '儲存變更'}
                             </button>
                         </div>
                     </div>
@@ -524,6 +664,16 @@ export default function AffiliateDetailPage() {
                                     max="100"
                                 />
                             </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">使用期限</label>
+                                <input
+                                    type="date"
+                                    className="px-3 py-1.5 border rounded-md text-sm"
+                                    value={newPromoCode.ends_at}
+                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, ends_at: e.target.value })}
+                                    min={new Date().toISOString().split('T')[0]}
+                                />
+                            </div>
                             <Button
                                 variant="primary"
                                 size="small"
@@ -541,9 +691,11 @@ export default function AffiliateDetailPage() {
                                     <Table.HeaderCell>折扣碼</Table.HeaderCell>
                                     <Table.HeaderCell>顧客折扣</Table.HeaderCell>
                                     <Table.HeaderCell>佣金比例</Table.HeaderCell>
+                                    <Table.HeaderCell>使用期限</Table.HeaderCell>
                                     <Table.HeaderCell>轉換訂單</Table.HeaderCell>
                                     <Table.HeaderCell>累計佣金</Table.HeaderCell>
                                     <Table.HeaderCell>狀態</Table.HeaderCell>
+                                    <Table.HeaderCell>操作</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
@@ -557,18 +709,45 @@ export default function AffiliateDetailPage() {
                                             }
                                         </Table.Cell>
                                         <Table.Cell>{((promo.commission_rate || 0) * 100).toFixed(0)}%</Table.Cell>
+                                        <Table.Cell>
+                                            {promo.ends_at ? (
+                                                <span className={new Date(promo.ends_at) < new Date() ? "text-red-500" : ""}>
+                                                    {new Date(promo.ends_at).toLocaleDateString('zh-TW')}
+                                                    {new Date(promo.ends_at) < new Date() && " (已過期)"}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400">無期限</span>
+                                            )}
+                                        </Table.Cell>
                                         <Table.Cell>{promo.conversions_count || 0}</Table.Cell>
                                         <Table.Cell className="font-bold text-green-600">${promo.total_earnings || 0}</Table.Cell>
                                         <Table.Cell>
-                                            <Badge color={promo.status === "active" ? "green" : "red"}>
-                                                {promo.status === "active" ? "啟用中" : "已停用"}
-                                            </Badge>
+                                            <button
+                                                onClick={() => handleTogglePromoStatus(promo)}
+                                                className="cursor-pointer"
+                                            >
+                                                <Badge color={promo.status === "active" ? "green" : "red"}>
+                                                    {promo.status === "active" ? "啟用中" : "已停用"}
+                                                </Badge>
+                                            </button>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <button
+                                                onClick={() => setEditingPromo({
+                                                    ...promo,
+                                                    commission_rate: promo.commission_rate,
+                                                    ends_at: promo.ends_at ? new Date(promo.ends_at).toISOString().split('T')[0] : ""
+                                                })}
+                                                className="text-blue-600 hover:text-blue-800 text-sm"
+                                            >
+                                                編輯
+                                            </button>
                                         </Table.Cell>
                                     </Table.Row>
                                 ))}
                                 {promoCodes.length === 0 && (
                                     <Table.Row>
-                                        <td colSpan={6} className="text-center py-8 text-ui-fg-subtle">
+                                        <td colSpan={8} className="text-center py-8 text-ui-fg-subtle">
                                             尚無折扣碼，點擊上方按鈕建立
                                         </td>
                                     </Table.Row>

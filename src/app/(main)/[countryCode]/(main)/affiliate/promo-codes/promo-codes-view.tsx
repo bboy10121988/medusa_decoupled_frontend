@@ -15,6 +15,7 @@ interface PromoCode {
     total_conversions: number;
     total_earnings: number;
     confirmed_earnings: number;
+    ends_at: string | null;
 }
 
 export default function PromoCodesView({ countryCode }: { countryCode: string }) {
@@ -107,14 +108,29 @@ export default function PromoCodesView({ countryCode }: { countryCode: string })
                                         )}
                                     </button>
                                 </div>
-                                <span
-                                    className={`px-3 py-1 rounded-full text-sm ${promo.status === "active"
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-gray-100 text-gray-700"
-                                        }`}
-                                >
-                                    {promo.status === "active" ? "啟用中" : "已停用"}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    {promo.ends_at && (
+                                        <span
+                                            className={`px-3 py-1 rounded-full text-sm ${
+                                                new Date(promo.ends_at) < new Date()
+                                                    ? "bg-red-100 text-red-700"
+                                                    : "bg-blue-100 text-blue-700"
+                                            }`}
+                                        >
+                                            {new Date(promo.ends_at) < new Date()
+                                                ? "已過期"
+                                                : `期限至 ${new Date(promo.ends_at).toLocaleDateString("zh-TW")}`}
+                                        </span>
+                                    )}
+                                    <span
+                                        className={`px-3 py-1 rounded-full text-sm ${promo.status === "active"
+                                                ? "bg-green-100 text-green-700"
+                                                : "bg-gray-100 text-gray-700"
+                                            }`}
+                                    >
+                                        {promo.status === "active" ? "啟用中" : "已停用"}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-3 gap-4">
