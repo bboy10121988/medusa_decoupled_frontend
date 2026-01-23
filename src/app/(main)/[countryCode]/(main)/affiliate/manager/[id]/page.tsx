@@ -464,7 +464,7 @@ export default function AffiliateDetailPage() {
                                 </Table.Row>
                             ))}
                             {!affiliate.links?.length && <Table.Row>
-                                <Table.Cell colSpan={4} className="text-center text-ui-fg-subtle">無資料</Table.Cell>
+                                <td colSpan={4} className="text-center text-ui-fg-subtle py-4">無資料</td>
                             </Table.Row>}
                         </Table.Body>
                     </Table>
