@@ -570,9 +570,9 @@ export default function AffiliateDetailPage() {
                                 ))}
                                 {promoCodes.length === 0 && (
                                     <Table.Row>
-                                        <Table.Cell className="text-center py-8 text-ui-fg-subtle" colSpan={7}>
+                                        <td colSpan={7} className="text-center py-8 text-ui-fg-subtle">
                                             尚無折扣碼，點擊上方按鈕建立
-                                        </Table.Cell>
+                                        </td>
                                     </Table.Row>
                                 )}
                             </Table.Body>
