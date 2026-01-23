@@ -295,12 +295,7 @@ export default function AffiliateHomePage() {
       {/* 整體統計摘要 */}
       <div>
         <h2 className="mb-4 text-xl font-medium">統計總覽（{statsData?.period || '最近 7 天'}）</h2>
-        <div className="grid grid-cols-2 gap-4 small:grid-cols-4">
-          <StatCard
-            label="總點擊數"
-            value={statsData?.totalClicks || 0}
-            subtitle="所有連結累計"
-          />
+        <div className="grid grid-cols-2 gap-4 small:grid-cols-3">
           <StatCard
             label="總轉換數"
             value={statsData?.totalConversions || 0}
@@ -319,124 +314,7 @@ export default function AffiliateHomePage() {
         </div>
       </div>
 
-      {/* 各連結詳細表現 */}
-      <div>
-        <h3 className="mb-4 text-lg font-medium">各連結表現分析</h3>
-        {statsData?.linkStats && Object.keys(statsData.linkStats).length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">連結名稱</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">目標網址</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">點擊</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">轉換</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">轉換率</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">營收</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">佣金</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">建立時間</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {Object.entries(statsData.linkStats)
-                  .filter(([, linkStat]) => linkStat && (linkStat.clicks > 0 || linkStat.conversions > 0)) // 只顯示有數據的連結
-                  .sort(([, a], [, b]) => b.clicks - a.clicks) // 按點擊數排序
-                  .map(([linkId, linkStat]) => {
-                    // 從連結資料中獲取補充資訊
-                    const linkInfo = linksData.find(link => link.id === linkId) || {
-                      name: `連結 ${linkId}`,
-                      url: '',
-                      createdAt: new Date().toISOString()
-                    }
-
-                    return (
-                      <tr key={linkId} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-900">{linkInfo.name}</div>
-                          <div className="text-xs text-gray-500">ID: {linkId}</div>
-                        </td>
-                        <td className="px-6 py-4" style={{ maxWidth: '250px' }}>
-                          {linkInfo.url ? (
-                            <div className="overflow-x-auto">
-                              <div className="text-sm text-gray-600" style={{
-                                whiteSpace: 'nowrap',
-                                minWidth: 'max-content'
-                              }}>
-                                <a
-                                  href={linkInfo.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="hover:text-blue-600"
-                                  title={linkInfo.url}
-                                >
-                                  {linkInfo.url}
-                                </a>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-sm text-gray-400">連結資訊不完整</div>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {linkStat.clicks}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            {linkStat.conversions}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          <div className="flex items-center">
-                            <span className="font-medium">
-                              {linkStat.clicks > 0 ? (linkStat.conversions / linkStat.clicks * 100).toFixed(1) : 0}%
-                            </span>
-                            <div className="ml-2 w-16 bg-gray-200 rounded-full h-2">
-                              <div
-                                className="bg-blue-600 h-2 rounded-full"
-                                style={{
-                                  width: `${linkStat.clicks > 0 ? Math.min((linkStat.conversions / linkStat.clicks * 100), 100) : 0}%`
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                          ${linkStat.revenue.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-medium text-green-600">
-                          ${linkStat.commission.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {linkInfo.createdAt ?
-                            new Date(linkInfo.createdAt).toLocaleDateString('zh-TW', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            }) : '-'
-                          }
-                        </td>
-                      </tr>
-                    )
-                  })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-500">在選定日期範圍內沒有連結活動</div>
-            <div className="mt-2">
-              <a
-                href="/tw/affiliate/links"
-                className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-              >
-                管理推廣連結 →
-              </a>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* 各連結詳細表現 - 已隱藏 */}
 
       {/* 每日趨勢 */}
       {statsData?.trend && statsData.trend.length > 0 && (
@@ -447,9 +325,7 @@ export default function AffiliateHomePage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日期</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">點擊</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">轉換</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">轉換率</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">營收</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">佣金</th>
                 </tr>
@@ -460,11 +336,7 @@ export default function AffiliateHomePage() {
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {new Date(day.date).toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' })}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{day.clicks}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{day.conversions}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {day.clicks > 0 ? (day.conversions / day.clicks * 100).toFixed(1) : 0}%
-                    </td>
                     <td className="px-6 py-4 text-sm text-gray-900">${day.revenue.toFixed(2)}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">${day.commission.toFixed(2)}</td>
                   </tr>
