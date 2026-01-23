@@ -659,7 +659,7 @@ export default function AffiliateDetailPage() {
                                 <input
                                     type="text"
                                     inputMode="numeric"
-                                    className="w-20 px-3 py-1.5 border rounded-md text-sm"
+                                    className={`px-3 py-1.5 border rounded-md text-sm ${newPromoCode.type === "percentage" ? "w-20" : "w-28"}`}
                                     value={newPromoCode.value}
                                     onChange={(e) => setNewPromoCode({ ...newPromoCode, value: e.target.value.replace(/[^0-9]/g, '') })}
                                     placeholder={newPromoCode.type === "percentage" ? "10" : "100"}
