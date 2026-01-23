@@ -117,7 +117,7 @@ export default function PromoCodesView({ countryCode }: { countryCode: string })
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
                                 <div>
                                     <p className="text-sm text-gray-500">顧客折扣</p>
                                     <p className="font-semibold">
@@ -128,13 +128,6 @@ export default function PromoCodesView({ countryCode }: { countryCode: string })
                                     <p className="text-sm text-gray-500">您的佣金比例</p>
                                     <p className="font-semibold">
                                         {(promo.commission_rate * 100).toFixed(0)}%
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">使用次數</p>
-                                    <p className="font-semibold">
-                                        {promo.used}
-                                        {promo.limit && ` / ${promo.limit}`}
                                     </p>
                                 </div>
                                 <div>
