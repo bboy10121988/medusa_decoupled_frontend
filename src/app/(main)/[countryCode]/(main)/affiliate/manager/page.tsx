@@ -38,8 +38,9 @@ export default function AdminAffiliatesPage() {
     const [endDate, setEndDate] = useState('')
     const [bulkCreating, setBulkCreating] = useState(false)
     const [showBulkModal, setShowBulkModal] = useState(false)
-    const [bulkDiscountValue, setBulkDiscountValue] = useState(10)
-    const [bulkCommissionRate, setBulkCommissionRate] = useState(10)
+    const [bulkDiscountType, setBulkDiscountType] = useState<"percentage" | "fixed">("percentage")
+    const [bulkDiscountValue, setBulkDiscountValue] = useState("10")
+    const [bulkCommissionRate, setBulkCommissionRate] = useState("10")
 
     const fetchData = async () => {
         try {
@@ -110,8 +111,9 @@ export default function AdminAffiliatesPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    discount_value: bulkDiscountValue,
-                    commission_rate: bulkCommissionRate / 100
+                    discount_type: bulkDiscountType,
+                    discount_value: Number(bulkDiscountValue),
+                    commission_rate: Number(bulkCommissionRate) / 100
                 })
             })
             const data = await res.json()
@@ -324,29 +326,46 @@ export default function AdminAffiliatesPage() {
                         <div className="p-6 space-y-4">
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    顧客折扣 (%)
+                                    折扣類型
+                                </label>
+                                <select
+                                    value={bulkDiscountType}
+                                    onChange={(e) => setBulkDiscountType(e.target.value as "percentage" | "fixed")}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                >
+                                    <option value="percentage">百分比折扣</option>
+                                    <option value="fixed">固定金額折扣</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    {bulkDiscountType === "percentage" ? "折扣比例 (%)" : "折扣金額 ($)"}
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={bulkDiscountValue}
-                                    onChange={(e) => setBulkDiscountValue(Number(e.target.value))}
-                                    min="1"
-                                    max="100"
+                                    onChange={(e) => setBulkDiscountValue(e.target.value.replace(/[^0-9]/g, ''))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    placeholder={bulkDiscountType === "percentage" ? "10" : "100"}
                                 />
-                                <p className="text-xs text-gray-500">顧客使用折扣碼時獲得的折扣百分比</p>
+                                <p className="text-xs text-gray-500">
+                                    {bulkDiscountType === "percentage"
+                                        ? "顧客使用折扣碼時獲得的折扣百分比"
+                                        : "顧客使用折扣碼時獲得的固定折扣金額"}
+                                </p>
                             </div>
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-700">
                                     佣金比例 (%)
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={bulkCommissionRate}
-                                    onChange={(e) => setBulkCommissionRate(Number(e.target.value))}
-                                    min="1"
-                                    max="100"
+                                    onChange={(e) => setBulkCommissionRate(e.target.value.replace(/[^0-9]/g, ''))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    placeholder="10"
                                 />
                                 <p className="text-xs text-gray-500">推廣者從每筆訂單獲得的佣金百分比</p>
                             </div>
