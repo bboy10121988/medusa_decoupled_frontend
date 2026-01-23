@@ -541,7 +541,6 @@ export default function AffiliateDetailPage() {
                                     <Table.HeaderCell>折扣碼</Table.HeaderCell>
                                     <Table.HeaderCell>顧客折扣</Table.HeaderCell>
                                     <Table.HeaderCell>佣金比例</Table.HeaderCell>
-                                    <Table.HeaderCell>使用次數</Table.HeaderCell>
                                     <Table.HeaderCell>轉換訂單</Table.HeaderCell>
                                     <Table.HeaderCell>累計佣金</Table.HeaderCell>
                                     <Table.HeaderCell>狀態</Table.HeaderCell>
@@ -558,7 +557,6 @@ export default function AffiliateDetailPage() {
                                             }
                                         </Table.Cell>
                                         <Table.Cell>{((promo.commission_rate || 0) * 100).toFixed(0)}%</Table.Cell>
-                                        <Table.Cell>{promo.used || 0}</Table.Cell>
                                         <Table.Cell>{promo.conversions_count || 0}</Table.Cell>
                                         <Table.Cell className="font-bold text-green-600">${promo.total_earnings || 0}</Table.Cell>
                                         <Table.Cell>
@@ -570,7 +568,7 @@ export default function AffiliateDetailPage() {
                                 ))}
                                 {promoCodes.length === 0 && (
                                     <Table.Row>
-                                        <td colSpan={7} className="text-center py-8 text-ui-fg-subtle">
+                                        <td colSpan={6} className="text-center py-8 text-ui-fg-subtle">
                                             尚無折扣碼，點擊上方按鈕建立
                                         </td>
                                     </Table.Row>
