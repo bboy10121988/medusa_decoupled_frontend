@@ -140,7 +140,7 @@ export default function AffiliateDetailPage() {
     }
 
     const handleTogglePromoStatus = async (promo: any) => {
-        const newStatus = promo.status === "active" ? "disabled" : "active"
+        const newStatus = promo.status === "active" ? "inactive" : "active"
         try {
             const res = await fetch(`/api/admin/affiliates/promo-codes/${promo.id}`, {
                 method: 'PUT',
