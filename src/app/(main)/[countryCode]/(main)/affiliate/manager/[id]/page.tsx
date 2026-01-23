@@ -16,7 +16,7 @@ export default function AffiliateDetailPage() {
     const [showCommissionModal, setShowCommissionModal] = useState(false)
     const [newCommissionRate, setNewCommissionRate] = useState('')
     const [isCreatingPromo, setIsCreatingPromo] = useState(false)
-    const [newPromoCode, setNewPromoCode] = useState({ code: "", value: 10, type: "percentage", commission_rate: 10, ends_at: "" })
+    const [newPromoCode, setNewPromoCode] = useState({ code: "", value: "10", type: "percentage", commission_rate: "10", ends_at: "" })
     const [editingPromo, setEditingPromo] = useState<any>(null)
     const [isUpdatingPromo, setIsUpdatingPromo] = useState(false)
 
@@ -164,6 +164,14 @@ export default function AffiliateDetailPage() {
             toast.error("請輸入折扣碼")
             return
         }
+        if (!newPromoCode.value || Number(newPromoCode.value) <= 0) {
+            toast.error("請輸入有效的折扣數值")
+            return
+        }
+        if (!newPromoCode.commission_rate || Number(newPromoCode.commission_rate) < 0) {
+            toast.error("請輸入有效的佣金比例")
+            return
+        }
         setIsCreatingPromo(true)
         try {
             const res = await fetch(`/api/admin/affiliates/${id}/promo-codes`, {
@@ -172,15 +180,15 @@ export default function AffiliateDetailPage() {
                 body: JSON.stringify({
                     code: newPromoCode.code,
                     discount_type: newPromoCode.type,
-                    discount_value: newPromoCode.value,
-                    commission_rate: newPromoCode.commission_rate / 100,
+                    discount_value: Number(newPromoCode.value),
+                    commission_rate: Number(newPromoCode.commission_rate) / 100,
                     ...(newPromoCode.ends_at && { ends_at: newPromoCode.ends_at })
                 })
             })
             if (res.ok) {
                 toast.success("折扣碼建立成功")
                 fetchData() // Refresh data to get updated list
-                setNewPromoCode({ code: "", value: 10, type: "percentage", commission_rate: 10, ends_at: "" })
+                setNewPromoCode({ code: "", value: "10", type: "percentage", commission_rate: "10", ends_at: "" })
             } else {
                 const err = await res.json()
                 toast.error(`錯誤: ${err.message || "建立失敗"}`)
@@ -634,34 +642,38 @@ export default function AffiliateDetailPage() {
                                 </div>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-500">顧客折扣</label>
-                                <input
-                                    type="number"
-                                    className="w-20 px-3 py-1.5 border rounded-md text-sm"
-                                    value={newPromoCode.value}
-                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, value: Number(e.target.value) })}
-                                />
-                            </div>
-                            <div className="space-y-1">
                                 <label className="text-xs font-medium text-gray-500">類型</label>
                                 <select
                                     className="px-3 py-1.5 border rounded-md text-sm"
                                     value={newPromoCode.type}
                                     onChange={(e) => setNewPromoCode({ ...newPromoCode, type: e.target.value as any })}
                                 >
-                                    <option value="percentage">百分比 (%)</option>
-                                    <option value="fixed">固定金額 ($)</option>
+                                    <option value="percentage">百分比折扣</option>
+                                    <option value="fixed">固定金額折扣</option>
                                 </select>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">
+                                    {newPromoCode.type === "percentage" ? "折扣比例 (%)" : "折扣金額 ($)"}
+                                </label>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    className="w-20 px-3 py-1.5 border rounded-md text-sm"
+                                    value={newPromoCode.value}
+                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, value: e.target.value.replace(/[^0-9]/g, '') })}
+                                    placeholder={newPromoCode.type === "percentage" ? "10" : "100"}
+                                />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-gray-500">佣金比例 (%)</label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     className="w-20 px-3 py-1.5 border rounded-md text-sm"
                                     value={newPromoCode.commission_rate}
-                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, commission_rate: Number(e.target.value) })}
-                                    min="0"
-                                    max="100"
+                                    onChange={(e) => setNewPromoCode({ ...newPromoCode, commission_rate: e.target.value.replace(/[^0-9]/g, '') })}
+                                    placeholder="10"
                                 />
                             </div>
                             <div className="space-y-1">
