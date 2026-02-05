@@ -74,14 +74,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }))
     )
 
-    // Homepage without country code (redirects to default)
-    const rootRoute = {
-        url: BASE_URL,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 1,
-    }
-
     // Product routes for all countries
     const productRoutes = products.flatMap((product: any) =>
         SUPPORTED_COUNTRIES.map(country => ({
@@ -102,5 +94,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }))
     )
 
-    return [rootRoute, ...staticRoutes, ...productRoutes, ...blogRoutes]
+    return [...staticRoutes, ...productRoutes, ...blogRoutes]
 }

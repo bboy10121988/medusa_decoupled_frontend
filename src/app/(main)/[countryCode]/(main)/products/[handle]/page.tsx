@@ -44,6 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         extractFields: ['title', 'subtitle', 'description', 'tags', 'collection']
       })
 
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://timsfantasyworld.com'
+
       return {
         title: `${product.title} | ${storeName}`,
         description: product.description || `${product.title} - ${storeName}`,
@@ -52,6 +54,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           title: `${product.title} | ${storeName}`,
           description: product.description || `${product.title} - ${storeName}`,
           images: product.thumbnail ? [product.thumbnail] : [],
+        },
+        alternates: {
+          canonical: `${baseUrl}/${countryCode}/products/${handle}`,
+          languages: {
+            'zh-TW': `${baseUrl}/tw/products/${handle}`,
+            'en-US': `${baseUrl}/us/products/${handle}`,
+            'ja-JP': `${baseUrl}/jp/products/${handle}`,
+            'en-MY': `${baseUrl}/my/products/${handle}`,
+          },
         },
       }
     } catch (error) {

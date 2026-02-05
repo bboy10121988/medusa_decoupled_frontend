@@ -141,7 +141,13 @@ export async function generateMetadata({ params }: { params: Promise<{ countryCo
         }
       },
       alternates: {
-        canonical: homepageData?.canonicalUrl
+        canonical: homepageData?.canonicalUrl || `${process.env.NEXT_PUBLIC_BASE_URL || "https://timsfantasyworld.com"}/${countryCode}`,
+        languages: {
+          'zh-TW': `${process.env.NEXT_PUBLIC_BASE_URL || "https://timsfantasyworld.com"}/tw`,
+          'en-US': `${process.env.NEXT_PUBLIC_BASE_URL || "https://timsfantasyworld.com"}/us`,
+          'ja-JP': `${process.env.NEXT_PUBLIC_BASE_URL || "https://timsfantasyworld.com"}/jp`,
+          'en-MY': `${process.env.NEXT_PUBLIC_BASE_URL || "https://timsfantasyworld.com"}/my`,
+        }
       }
     }
   } catch (error) {
