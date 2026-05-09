@@ -109,9 +109,9 @@ const Review = ({ cart }: { cart: any }) => {
                   </Text>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <Text className="txt-small font-medium text-gray-800">
-                      銀行：國泰世華銀行 福和分行 (813)<br/>
-                      帳號：216-087-069-471<br/>
-                      戶名：提姆的髮藝沙龍
+                      銀行：國泰世華銀行 福和分行 (013)<br/>
+                      帳號：216-03-500540-7<br/>
+                      戶名：提姆的髮藝沙龍康仲一
                     </Text>
                     {/* <Text className="txt-xs text-gray-600 mt-2">
                       轉帳備註請填寫：訂單編號 {cart.display_id || 'PENDING'}
