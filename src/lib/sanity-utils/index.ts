@@ -38,7 +38,7 @@ export async function getAllPosts(category?: string, limit: number = 50, languag
   try {
     const lang = language || DEFAULT_LANGUAGE
     // 建立基本查詢 - 加入語言過濾
-    const baseQuery = `*[_type == "post" && language == $lang`
+    const baseQuery = `*[_type == "post" && !(_id in path("drafts.**")) && language == $lang`
     const categoryFilter = category ? ` && "${category}" in categories[]->title` : ""
     const query = `${baseQuery}${categoryFilter}] | order(publishedAt desc) [0...${limit}] {
       title,

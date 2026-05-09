@@ -4,9 +4,10 @@ import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "../../../common/components/localized-client-link/index"
 import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import Thumbnail from "../thumbnail/index"
 import ClientPreviewPrice from "./client-price"
-import { getTranslation } from "../../../../lib/translations"
+import { getTranslation, cartTranslations } from "../../../../lib/translations"
 
 /*
 type ProductOption = {
@@ -61,6 +62,8 @@ export default function ProductPreview({
   const [isAdding, setIsAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [addedToCart, setAddedToCart] = useState(false)
+  const router = useRouter()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isImageTransitioning, setIsImageTransitioning] = useState(false)
   // const [showVariantSelector, setShowVariantSelector] = useState(false)
@@ -281,10 +284,7 @@ export default function ProductPreview({
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('cartUpdate'))
       }
-      setShowSuccessMessage(true)
-      setTimeout(() => {
-        setShowSuccessMessage(false)
-      }, 3000)
+      setAddedToCart(true)
     } catch (error) {
       // console.error("❌ ProductPreview 添加到購物車失敗:", error)
       setError(t.failedToAddToCart)
@@ -297,6 +297,12 @@ export default function ProductPreview({
   const handleMobileButtonClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+    // 如果已加入購物車，跳轉到購物車頁面
+    if (addedToCart) {
+      router.push(`/${countryCode}/cart`)
+      return
+    }
 
     // 檢查是否需要選擇選項
     const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
@@ -396,20 +402,32 @@ export default function ProductPreview({
             </div>
 
             {/* 加入購物車按鈕 */}
-            <button
-              onClick={() => {
-                const variantId = findVariantId(selectedOptions)
-                if (variantId) {
+            {addedToCart ? (
+              <button
+                onClick={() => {
                   setShowMobileOptions(false)
-                  handleAddToCart()
-                }
-              }}
-              disabled={isAdding || !findVariantId(selectedOptions)}
-              className="w-full px-4 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-500"
-            >
-              {isAdding ? t.adding :
-                productStockStatus.canPreorder ? t.preorder : t.addToCart}
-            </button>
+                  router.push(`/${countryCode}/cart`)
+                }}
+                className="w-full px-4 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                {(cartTranslations[countryCode as keyof typeof cartTranslations] || cartTranslations.tw)?.goToCart || "前往購物車"}
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  const variantId = findVariantId(selectedOptions)
+                  if (variantId) {
+                    setShowMobileOptions(false)
+                    handleAddToCart()
+                  }
+                }}
+                disabled={isAdding || !findVariantId(selectedOptions)}
+                className="w-full px-4 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-500"
+              >
+                {isAdding ? t.adding :
+                  productStockStatus.canPreorder ? t.preorder : t.addToCart}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -515,10 +533,9 @@ export default function ProductPreview({
           )}
 
           {/* 桌機版 - 選項和加入購物車區塊 (hover 顯示) */}
-          {!isProductSoldOut && (
             <div className="hidden md:block absolute bottom-0 left-0 right-0">
               <div className="w-full bg-white/95 backdrop-blur-[2px]">
-                {productOptions
+                {!isProductSoldOut && productOptions
                   .filter(option => option.values.length > 1) // 只顯示有多個選擇的選項
                   .map((option, index) => (
                     <div key={index} className="flex flex-col">
@@ -552,14 +569,28 @@ export default function ProductPreview({
 
                 {/* 桌機版購物車按鈕 */}
                 <div>
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAdding || (productOptions.filter(option => option.values.length > 1).length > 0 && !findVariantId(selectedOptions))}
-                    className="w-full px-4 py-3 border border-black text-sm hover:bg-black hover:text-white transition-colors disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 min-h-[40px]"
-                  >
-                    {isAdding ? t.adding :
-                      productStockStatus.canPreorder ? t.preorder : t.addToCart}
-                  </button>
+                  {addedToCart ? (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        router.push(`/${countryCode}/cart`)
+                      }}
+                      className="w-full px-4 py-3 bg-black text-white text-sm transition-colors min-h-[40px]"
+                    >
+                      {(cartTranslations[countryCode as keyof typeof cartTranslations] || cartTranslations.tw)?.goToCart || "前往購物車"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={isProductSoldOut ? undefined : handleAddToCart}
+                      disabled={isProductSoldOut || isAdding || (productOptions.filter(option => option.values.length > 1).length > 0 && !findVariantId(selectedOptions))}
+                      className="w-full px-4 py-3 border border-black text-sm hover:bg-black hover:text-white transition-colors disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 min-h-[40px]"
+                    >
+                      {isProductSoldOut ? t.soldOut :
+                        isAdding ? t.adding :
+                        productStockStatus.canPreorder ? t.preorder : t.addToCart}
+                    </button>
+                  )}
                 </div>
                 {error && (
                   <div className="text-red-500 text-xs text-center p-2">
@@ -568,7 +599,6 @@ export default function ProductPreview({
                 )}
               </div>
             </div>
-          )}
         </div>
 
         {/* 商品資訊區塊 */}
@@ -585,13 +615,13 @@ export default function ProductPreview({
             )}
           </LocalizedClientLink>
 
-          {!isProductSoldOut && (
             <button
-              onClick={handleMobileButtonClick}
-              disabled={isAdding}
+              onClick={isProductSoldOut ? undefined : handleMobileButtonClick}
+              disabled={isProductSoldOut || isAdding}
               className="md:hidden w-10 h-10 bg-black text-white rounded-md shadow-sm hover:bg-gray-800 transition-all duration-200 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed group/mbtn flex-shrink-0"
               aria-label={
                 (() => {
+                  if (isProductSoldOut) return t.soldOut
                   if (isAdding) return t.adding
                   const hasMultipleOptions = productOptions.filter(option => option.values.length > 1).length > 0
                   const variantId = findVariantId(selectedOptions)
@@ -602,6 +632,25 @@ export default function ProductPreview({
             >
               {isAdding ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : addedToCart ? (
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="white" viewBox="0 0 24 24" strokeWidth="2" style={{ display: 'block' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : isProductSoldOut ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  className="flex-shrink-0"
+                  style={{ display: 'block' }}
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -620,7 +669,6 @@ export default function ProductPreview({
                 </svg>
               )}
             </button>
-          )}
         </div>
       </div>
     </div>

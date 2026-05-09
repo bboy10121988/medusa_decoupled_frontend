@@ -3,11 +3,11 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 // 後端資料檔案路徑
-const backendDataPath = path.join('/Users/raychou/tim-web/medusa_decoupled/backend_vm/medusa-backend/src/data/affiliate.json')
+const backendDataPath = path.join(process.env.AFFILIATE_DATA_PATH || '/home/raychou/projects/backend/src/data/affiliate.json')
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     const { status } = await request.json()
     
     // 驗證狀態值

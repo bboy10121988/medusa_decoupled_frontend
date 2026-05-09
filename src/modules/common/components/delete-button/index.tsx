@@ -15,10 +15,16 @@ const DeleteButton = ({
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async (id: string) => {
+    if (isDeleting) return
     setIsDeleting(true)
-    await deleteLineItem(id).catch((_err) => {
+    try {
+      await deleteLineItem(id)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('cartUpdate'))
+      }
+    } catch (_err) {
       setIsDeleting(false)
-    })
+    }
   }
 
   return (
@@ -29,8 +35,9 @@ const DeleteButton = ({
       )}
     >
       <button
-        className="flex gap-x-1 text-ui-fg-subtle hover:text-ui-fg-base cursor-pointer"
+        className="flex gap-x-1 text-ui-fg-subtle hover:text-ui-fg-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={() => handleDelete(id)}
+        disabled={isDeleting}
       >
         {isDeleting ? <Spinner className="animate-spin" /> : <Trash />}
         <span>{children}</span>

@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { variantId, quantity = 1, countryCode = "tw" } = body
 
-    // console.log("🛒 Add to Cart API called:", { variantId, quantity, countryCode })
+    console.log("🛒 Add to Cart API called:", { variantId, quantity, countryCode })
 
     if (!variantId) {
       return NextResponse.json(
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
-    // console.error("❌ Add to cart API error:", error)
+    console.error("❌ Add to cart API error:", error)
     return NextResponse.json(
       { 
         error: "Failed to add to cart",

@@ -9,21 +9,26 @@ export const metadata: Metadata = {
   description: "安全結帳流程",
 }
 
-export default async function Checkout({ params }: { params: { countryCode: string } }) {
-  const { countryCode } = params
-  const cart = await retrieveCart().catch(() => {
-    // console.error("Error retrieving cart:", error)
+export default async function Checkout({ params }: { params: Promise<{ countryCode: string }> }) {
+  const { countryCode } = await params
+
+  let cart
+  try {
+    cart = await retrieveCart()
+  } catch {
     return notFound()
-  })
+  }
 
   if (!cart) {
     return notFound()
   }
 
-  const customer = await retrieveCustomer().catch(() => {
-    // console.error("Error retrieving customer:", error)
-    return null
-  })
+  let customer = null
+  try {
+    customer = await retrieveCustomer()
+  } catch {
+    // 未登入或取得客戶資料失敗，繼續以訪客身份結帳
+  }
 
   return (
     <CheckoutTemplate cart={cart} customer={customer} countryCode={countryCode} />

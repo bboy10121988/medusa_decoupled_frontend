@@ -35,7 +35,7 @@ async function getProducts() {
 
 async function getBlogPosts() {
     try {
-        const query = `*[_type == "post"] {
+        const query = `*[_type == "post" && !(_id in path("drafts.**")) && defined(slug.current)] {
       slug { current },
       publishedAt
     }`
@@ -78,7 +78,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const productRoutes = products.flatMap((product: any) =>
         SUPPORTED_COUNTRIES.map(country => ({
             url: `${BASE_URL}/${country}/products/${product.handle}`,
-            lastModified: new Date(product.updated_at),
+            lastModified: isNaN(new Date(product.updated_at).getTime()) ? new Date() : new Date(product.updated_at),
             changeFrequency: 'weekly' as const,
             priority: 0.8,
         }))
@@ -88,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const blogRoutes = posts.flatMap((post: any) =>
         SUPPORTED_COUNTRIES.map(country => ({
             url: `${BASE_URL}/${country}/blog/${post.slug.current}`,
-            lastModified: new Date(post.publishedAt || new Date()),
+            lastModified: isNaN(new Date(post.publishedAt).getTime()) ? new Date() : new Date(post.publishedAt),
             changeFrequency: 'weekly' as const,
             priority: 0.7,
         }))

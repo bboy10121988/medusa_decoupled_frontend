@@ -29,10 +29,10 @@ async function withRetry<T>(
  */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { variantId: string } }
+  { params }: { params: Promise<{ variantId: string }> }
 ) {
   try {
-    const { variantId } = params
+    const { variantId } = await params
     
     if (!variantId) {
       return NextResponse.json(

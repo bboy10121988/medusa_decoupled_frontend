@@ -67,7 +67,7 @@ export const listProducts = async ({
     limit,
     offset,
     region_id: region.id,
-    fields: `${ESSENTIAL_PRODUCT_FIELDS},*variants.${VARIANT_FIELDS}`,
+    fields: `${ESSENTIAL_PRODUCT_FIELDS},*variants.${VARIANT_FIELDS},+variants.inventory_quantity,+variants.manage_inventory,+variants.allow_backorder`,
     // 啟用後端快取
     // expand: "variants,variants.prices,options,options.values,collection,type", // 暫時移除 expand 參數以修復錯誤
   }

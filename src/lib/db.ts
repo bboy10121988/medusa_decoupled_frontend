@@ -3,7 +3,7 @@
 import { Pool } from 'pg'
 
 // 從環境變數獲取資料庫連接字串
-const databaseUrl = process.env.DATABASE_URL || 'postgres://postgres:simple123@localhost/medusa-medusa_decoupled'
+const databaseUrl = process.env.DATABASE_URL || ''
 
 // 創建資料庫連接池
 const pool = new Pool({

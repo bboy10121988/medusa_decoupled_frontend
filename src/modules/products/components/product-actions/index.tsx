@@ -6,11 +6,11 @@ import { Button } from "@medusajs/ui"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import isEqual from "lodash/isEqual"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
-import { getTranslation } from "@lib/translations"
+import { getTranslation, cartTranslations } from "@lib/translations"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -33,7 +33,9 @@ export default function ProductActions({
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
+  const [addedToCart, setAddedToCart] = useState(false)
   const countryCode = useParams().countryCode as string
+  const router = useRouter()
   const t = getTranslation(countryCode)
 
   // If there is only 1 variant, preselect the options
@@ -187,10 +189,9 @@ export default function ProductActions({
       // 觸發購物車更新事件
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('cartUpdate'))
-        // console.log("🔄 已觸發購物車更新事件")
       }
+      setAddedToCart(true)
     } catch (error) {
-      // console.error("❌ 加入購物車失敗:", error)
       // 可以在這裡添加用戶友好的錯誤提示
     } finally {
       setIsAdding(false)
@@ -224,31 +225,42 @@ export default function ProductActions({
 
         <ProductPrice product={product} variant={selectedVariant} />
 
-        <Button
-          onClick={handleAddToCart}
-          disabled={
-            !inStock ||
-            !selectedVariant ||
-            !hasPrice ||
-            !!disabled ||
-            isAdding ||
-            !isValidVariant
-          }
-          variant="primary"
-          className="w-full h-10"
-          isLoading={isAdding}
-          data-testid="add-product-button"
-        >
-          {!selectedVariant && !options
-            ? (t.selectOptions || "Select Options")
-            : !selectedVariant && options
+        {addedToCart ? (
+          <Button
+            onClick={() => router.push(`/${countryCode}/cart`)}
+            variant="secondary"
+            className="w-full h-10"
+            data-testid="go-to-cart-button"
+          >
+            {(cartTranslations[countryCode as keyof typeof cartTranslations] || cartTranslations.tw)?.goToCart || "前往購物車"}
+          </Button>
+        ) : (
+          <Button
+            onClick={handleAddToCart}
+            disabled={
+              !inStock ||
+              !selectedVariant ||
+              !hasPrice ||
+              !!disabled ||
+              isAdding ||
+              !isValidVariant
+            }
+            variant="primary"
+            className="w-full h-10"
+            isLoading={isAdding}
+            data-testid="add-product-button"
+          >
+            {!selectedVariant && !options
               ? (t.selectOptions || "Select Options")
-              : !hasPrice
-                ? (t.priceNotAvailable || "Price Not Available")
-                : !inStock || !isValidVariant
-                  ? (t.outOfStock || "Out of Stock")
-                  : (t.addToCart || "Add to Cart")}
-        </Button>
+              : !selectedVariant && options
+                ? (t.selectOptions || "Select Options")
+                : !hasPrice
+                  ? (t.priceNotAvailable || "Price Not Available")
+                  : !inStock || !isValidVariant
+                    ? (t.outOfStock || "Out of Stock")
+                    : (t.addToCart || "Add to Cart")}
+          </Button>
+        )}
         <MobileActions
           product={product}
           variant={selectedVariant}

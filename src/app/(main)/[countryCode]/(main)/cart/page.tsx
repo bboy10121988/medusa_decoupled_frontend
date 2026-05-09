@@ -5,8 +5,8 @@ import { Metadata } from "next"
 
 import { cartTranslations } from "@/lib/translations"
 
-export async function generateMetadata({ params }: { params: { countryCode: string } }) {
-  const { countryCode } = params
+export async function generateMetadata({ params }: { params: Promise<{ countryCode: string }> }) {
+  const { countryCode } = await params
   const t = cartTranslations[countryCode as keyof typeof cartTranslations] || cartTranslations.tw
 
   return {
@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: { params: { countryCode: stri
   }
 }
 
-export default async function Cart({ params }: { params: { countryCode: string } }) {
-  const { countryCode } = params
+export default async function Cart({ params }: { params: Promise<{ countryCode: string }> }) {
+  const { countryCode } = await params
   const cart = await retrieveCart().catch(() => {
     // console.error(error)
     return null // 返回 null 而不是 notFound()，讓 CartTemplate 處理空購物車的情況

@@ -341,7 +341,7 @@ export const HOMEPAGE_QUERY = `*[_type == "homePage" && language == $lang][0] {
     }
   }`
 
-export const ALL_POSTS_BASE_QUERY = `*[_type == "post" && language == $lang`
+export const ALL_POSTS_BASE_QUERY = `*[_type == "post" && !(_id in path("drafts.**")) && language == $lang`
 
 export const ALL_POSTS_PROJECTION = `{
       _id,
@@ -373,7 +373,7 @@ export const CATEGORIES_QUERY = `*[_type == "category" && language == $lang] {
       title
     }`
 
-export const POST_BY_SLUG_QUERY = `*[_type == "post" && slug.current == $slug && language == $lang][0]{
+export const POST_BY_SLUG_QUERY = `*[_type == "post" && !(_id in path("drafts.**")) && slug.current == $slug && language == $lang][0]{
       _id,
       title,
       excerpt,
@@ -391,7 +391,7 @@ export const POST_BY_SLUG_QUERY = `*[_type == "post" && slug.current == $slug &&
       "categories": categories[]->{title}
     }`
 
-export const POST_BY_TITLE_OR_ID_QUERY = `*[_type == "post" && (title match "*" + $title + "*" || _id match $slug + "*") && language == $lang][0]{
+export const POST_BY_TITLE_OR_ID_QUERY = `*[_type == "post" && !(_id in path("drafts.**")) && (title match "*" + $title + "*" || _id match $slug + "*") && language == $lang][0]{
       _id,
       title,
       excerpt,

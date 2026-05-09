@@ -4,7 +4,7 @@ import { MEDUSA_BACKEND_URL } from '../../../../../lib/config'
 
 export async function GET(
     _request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const token = await getAffiliateToken()
@@ -12,7 +12,7 @@ export async function GET(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const { id } = params
+        const { id } = await params
         const headers: Record<string, string> = {
             'Authorization': `Bearer ${token}`
         }
@@ -42,7 +42,7 @@ export async function GET(
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } } // Wait, standard Next.js route handler params
+    { params }: { params: Promise<{ id: string }> } // Wait, standard Next.js route handler params
 ) {
     try {
         const token = await getAffiliateToken()
@@ -50,7 +50,7 @@ export async function POST(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const { id } = params
+        const { id } = await params
         const body = await request.json()
 
         const headers: Record<string, string> = {

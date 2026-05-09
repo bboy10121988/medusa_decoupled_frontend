@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPublishableKeyForBackend } from '@lib/medusa-publishable-key'
 
-type RouteCtx = { params: { slug: string[] } }
+type RouteCtx = { params: Promise<{ slug: string[] }> }
 
 function getAllowedOrigins(): string[] {
   const env = process.env.ALLOWED_CORS_ORIGINS || ''
@@ -97,15 +97,15 @@ async function proxyFetch(method: 'GET' | 'POST' | 'DELETE', req: NextRequest, p
 
 // Handlers
 export async function GET(request: NextRequest, ctx: RouteCtx) {
-  return proxyFetch('GET', request, ctx.params.slug)
+  const { slug: slugG } = await ctx.params; return proxyFetch("GET", request, slugG)
 }
 
 export async function POST(request: NextRequest, ctx: RouteCtx) {
-  return proxyFetch('POST', request, ctx.params.slug)
+  const { slug: slugP } = await ctx.params; return proxyFetch("POST", request, slugP)
 }
 
 export async function DELETE(request: NextRequest, ctx: RouteCtx) {
-  return proxyFetch('DELETE', request, ctx.params.slug)
+  const { slug: slugD } = await ctx.params; return proxyFetch("DELETE", request, slugD)
 }
 
 export async function OPTIONS(request: NextRequest) {

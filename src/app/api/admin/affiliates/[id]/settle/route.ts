@@ -4,7 +4,7 @@ import { MEDUSA_BACKEND_URL } from '../../../../../../lib/config'
 
 export async function POST(
     _request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const token = await getAffiliateToken()
@@ -21,7 +21,7 @@ export async function POST(
             headers['x-publishable-api-key'] = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
         }
 
-        const { id } = params
+        const { id } = await params
 
         // Call Backend Admin Settle Endpoint (Custom Store Path to allow Affiliate Manager Auth)
         const res = await fetch(`${MEDUSA_BACKEND_URL}/store/affiliates/admin/${id}/settle`, {

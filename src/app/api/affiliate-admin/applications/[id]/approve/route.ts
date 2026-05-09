@@ -38,7 +38,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   
   try {
     // 首先嘗試使用VM後端 API
-    const backendUrl = 'http://35.236.182.29:9000'
+    const backendUrl = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000'
     
     try {
       const approveResponse = await fetch(`${backendUrl}/admin/affiliate-applications/${id}/approve`, {
@@ -72,7 +72,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     }
     
     // 直接操作 JSON 檔案（回退方案）
-    const dataPath = '/Users/raychou/tim-web/medusa_decoupled/backend_vm/medusa-backend/src/data/affiliate.json'
+    const dataPath = process.env.AFFILIATE_DATA_PATH || '/home/raychou/projects/backend/src/data/affiliate.json'
     // console.log('Approving application directly in JSON:', dataPath, 'ID:', id)
     
     // 讀取當前資料

@@ -2,9 +2,9 @@ import { NextResponse } from "next/server"
 
 export async function GET(
   _request: Request,
-  { params }: { params: { merchantTradeNo: string } }
+  { params }: { params: Promise<{ merchantTradeNo: string }> }
 ) {
-  const { merchantTradeNo } = params
+  const { merchantTradeNo } = await params
 
   try {
     // 調用後端 API 查詢訂單

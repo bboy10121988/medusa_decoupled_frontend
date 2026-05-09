@@ -20,7 +20,7 @@ const DEEPL_API_URL = DEEPL_API_KEY?.endsWith(':fx')
 async function translateText(text: string, targetLang: string) {
     if (!text) return ''
 
-    console.log(`[DeepL] Translating: "${text.substring(0, 50)}..." to ${targetLang}`)
+    // console.log(`[DeepL] Translating: "${text.substring(0, 50)}..." to ${targetLang}`)
 
     const params = new URLSearchParams()
     params.append('auth_key', DEEPL_API_KEY!)
@@ -36,16 +36,16 @@ async function translateText(text: string, targetLang: string) {
 
         if (!res.ok) {
             const err = await res.text()
-            console.error('[DeepL] API Error:', err)
+            // console.error('[DeepL] API Error:', err)
             return text // Fallback to original
         }
 
         const data = await res.json()
         const translated = data.translations[0].text
-        console.log(`[DeepL] Result: "${translated.substring(0, 50)}..."`)
+        // console.log(`[DeepL] Result: "${translated.substring(0, 50)}..."`)
         return translated
     } catch (error) {
-        console.error('[DeepL] Request Failed:', error)
+        // console.error('[DeepL] Request Failed:', error)
         return text
     }
 }
@@ -137,7 +137,7 @@ async function translatePageSections(sections: any[], targetLang: string) {
                     break
             }
         } catch (e) {
-            console.error(`Error translating section ${section._key}:`, e)
+            // console.error(`Error translating section ${section._key}:`, e)
         }
         return newSection
     }))
@@ -296,7 +296,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, results })
 
     } catch (error: any) {
-        console.error('Translation error:', error)
+        // console.error('Translation error:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }

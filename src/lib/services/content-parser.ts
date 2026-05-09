@@ -8,8 +8,21 @@ const EXCLUDED_KEYS = [
     // Reference and metadata fields
     'slug', 'metadata', 'mainImage', 'images', 'categories', 'author', 'language',
 
+    // Date and time fields (must remain in ISO format)
+    'publishedAt', '_createdAt', '_updatedAt', 'createdAt', 'updatedAt',
+    'starts_at', 'ends_at', 'date', 'datetime',
+
+    // Status and enum fields (must not be translated)
+    'status', 'changeFrequency', 'structuredDataType', 'articleType', 'twitterCard',
+
+    // Numeric and boolean-like string fields
+    'priority',
+
+    // SEO fields that should keep original or be handled separately
+    'canonicalUrl', 'focusKeyword',
+
     // Code fields (should not be translated)
-    'customCSS', 'customJS',
+    'customCSS', 'customJS', 'customJsonLd',
 
     // Fields that should remain in original language
     'englishTitle',

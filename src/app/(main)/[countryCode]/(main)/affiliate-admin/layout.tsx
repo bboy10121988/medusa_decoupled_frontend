@@ -4,11 +4,11 @@ import AffiliateAdminLogoutButton from '@modules/affiliate-admin/components/affi
 
 interface AffiliateAdminLayoutProps {
   children: ReactNode
-  params: { countryCode: string }
+  params: Promise<{ countryCode: string }>
 }
 
-export default function AffiliateAdminLayout({ children, params }: AffiliateAdminLayoutProps) {
-  const { countryCode } = params
+export default async function AffiliateAdminLayout({ children, params }: AffiliateAdminLayoutProps) {
+  const { countryCode } = await params
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6">

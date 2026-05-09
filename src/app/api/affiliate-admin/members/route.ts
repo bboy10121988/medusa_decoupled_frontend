@@ -20,8 +20,8 @@ type Member = {
 }
 
 // 後端資料檔案路徑 - 指向VM後端
-const backendUrl = 'http://35.236.182.29:9000'
-const backendDataPath = '/Users/raychou/tim-web/medusa_decoupled/backend_vm/medusa-backend/src/data/affiliate.json'
+const backendUrl = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000'
+const backendDataPath = process.env.AFFILIATE_DATA_PATH || '/home/raychou/projects/backend/src/data/affiliate.json'
 
 export async function GET() {
   try {

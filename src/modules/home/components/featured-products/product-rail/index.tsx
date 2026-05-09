@@ -18,7 +18,7 @@ export default async function ProductPreviewGrid({
     countryCode,
     queryParams: {
       collection_id: [collection.id],
-      limit: 4
+      limit: 5
     } as any
   })
 

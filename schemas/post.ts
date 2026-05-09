@@ -240,6 +240,7 @@ export default {
       type: 'string',
       readOnly: true,
       hidden: true,
+      initialValue: 'zh-TW',
     }
   ],
   preview: {
